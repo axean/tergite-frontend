@@ -1,3 +1,0 @@
-# start gunicorn with mss app via nohup
-nohup gunicorn --bind unix:myproject.sock wsgi:app &
-
