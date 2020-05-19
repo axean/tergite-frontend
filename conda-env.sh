@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-echo "Loading conda rest-eve env"
+echo "Loading conda tergite env"
 eval "$(/mnt/extra_ssd/anaconda/anaconda3/bin/conda shell.bash hook)"
-conda activate rest-eve
+conda activate tergite
 
 exec "$@"
