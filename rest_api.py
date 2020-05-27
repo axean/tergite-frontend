@@ -57,7 +57,10 @@ async def create_job():
         print("mongodb INVALID OPERATION while registering new job")
 
     print(f"Registering new job_id: {str(job_id)}")
-    return str(job_id)
+    return {
+        "job_id": str(job_id),
+        "upload_url": "http://qtl-bcc-1.qdp.chalmers.se:5000/jobs",
+    }
 
 
 @app.get("/jobs")
