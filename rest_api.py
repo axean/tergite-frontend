@@ -10,8 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from fastapi import FastAPI
-from uuid import uuid4
+from fastapi import FastAPI, Body
+from uuid import uuid4, UUID
 import motor.motor_asyncio
 from starlette.config import Config
 from datetime import datetime
@@ -75,3 +75,75 @@ async def list_jobs(nlast: int = 10):
         response.append(document)
 
     return response
+
+
+@app.get("/jobs/{job_id}")
+async def show_job(job_id: UUID):
+    document = await jobs_col.find_one({"job_id": str(job_id)}, {"_id": 0})
+
+    # TODO: Write a helper utility for DB calls which encapsulates
+    # and does a proper error handling
+    if document is None:
+        return {"message": "Job not found in the DB"}
+
+    return document
+
+
+@app.get("/jobs/{job_id}/result")
+async def get_job_result(job_id: UUID):
+    document = await jobs_col.find_one({"job_id": str(job_id)})
+
+    if document is None:
+        return {"message": "Job not found in the DB"}
+
+    print(document["result"])
+    return document["result"]
+
+
+# TODO: It should be possible to have just one update function
+# which covers the whole job document
+@app.put("/jobs/{job_id}/result")
+async def update_job_result(job_id: UUID, memory: list):
+    result = {"memory": memory}
+    response = await jobs_col.update_one(
+        {"job_id": str(job_id)}, {"$set": {"result": result}}
+    )
+
+    if response.acknowledged == True and response.matched_count == 1:
+        return "OK"
+    elif result.acknowledged:
+        return {"message": "Failed PUT", "raw_result": response.raw_result}
+    else:
+        return {"message": "Failed PUT. Operation not acknowledged"}
+
+
+@app.put("/jobs/{job_id}/status")
+async def update_job_status(job_id: UUID, status: str = Body(..., max_length=10)):
+    # TODO: would be best to enforce a status str enum
+    response = await jobs_col.update_one(
+        {"job_id": str(job_id)}, {"$set": {"status": status}}
+    )
+
+    if response.acknowledged == True and response.matched_count == 1:
+        return "OK"
+    elif result.acknowledged:
+        return {"message": "Failed PUT", "raw_result": response.raw_result}
+    else:
+        return {"message": "Failed PUT. Operation not acknowledged"}
+
+
+# This should probably be a PUT method as well. The decision depends on the wider context.
+@app.post("/jobs/{job_id}/timelog")
+async def create_timelog_entry(job_id: UUID, event_name: str = Body(..., max_legth=10)):
+    # TODO: would be best to enforce an event_name str enum
+    timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+    response = await jobs_col.update_one(
+        {"job_id": str(job_id)}, {"$set": {"timelog." + event_name: timestamp}}
+    )
+
+    if response.acknowledged == True and response.matched_count == 1:
+        return "OK"
+    elif result.acknowledged:
+        return {"message": "Failed POST", "raw_result": response.raw_result}
+    else:
+        return {"message": "Failed POST. Operation not acknowledged"}
