@@ -100,6 +100,17 @@ async def get_job_result(job_id: UUID):
     return document["result"]
 
 
+@app.get("/jobs/{job_id}/download_url")
+async def get_job_download_url(job_id: UUID):
+    document = await jobs_col.find_one({"job_id": str(job_id)})
+
+    if document is None:
+        return {"message": "Job not found in the DB"}
+
+    print(document["download_url"])
+    return document["download_url"]
+
+
 # TODO: It should be possible to have just one update function
 # which covers the whole job document
 @app.put("/jobs/{job_id}/result")
@@ -122,6 +133,21 @@ async def update_job_status(job_id: UUID, status: str = Body(..., max_length=10)
     # TODO: would be best to enforce a status str enum
     response = await jobs_col.update_one(
         {"job_id": str(job_id)}, {"$set": {"status": status}}
+    )
+
+    if response.acknowledged == True and response.matched_count == 1:
+        return "OK"
+    elif result.acknowledged:
+        return {"message": "Failed PUT", "raw_result": response.raw_result}
+    else:
+        return {"message": "Failed PUT. Operation not acknowledged"}
+
+
+@app.put("/jobs/{job_id}/download_url")
+async def update_job_download_url(job_id: UUID, url: str = Body(..., max_length=140)):
+    # TODO: add proper validation of url
+    response = await jobs_col.update_one(
+        {"job_id": str(job_id)}, {"$set": {"download_url": url}}
     )
 
     if response.acknowledged == True and response.matched_count == 1:
