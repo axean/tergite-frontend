@@ -96,7 +96,15 @@ async def get_job_result(job_id: UUID):
     if document is None:
         return {"message": "Job not found in the DB"}
 
-    print(document["result"])
+    # helper printout with first 5 outcomes
+    print("Measurement results:")
+    memory = document["result"]["memory"]
+    for experiment_memory in memory:
+        s = str(experiment_memory[:5])
+        if experiment_memory[5:6]:
+            s = s.replace("]", ", ...]")
+        print(s)
+
     return document["result"]
 
 
