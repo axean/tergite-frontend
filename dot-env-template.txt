@@ -1,0 +1,5 @@
+# Copy this file to a .env file in the tergite-mss folder.
+# The .env file is a simple list of keys and values. It is also known as the INI file on MS Windows. 
+# Fill in the necessary values.
+
+MSS_PORT=
