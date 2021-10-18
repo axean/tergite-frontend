@@ -16,14 +16,16 @@ import motor.motor_asyncio
 from starlette.config import Config
 from datetime import datetime
 import pymongo
+import settings
 
-# .env configuration
-config = Config(".env")
-DB_URL = config("DB_URL", default="NO-DB-URL")
+# settings
+BCC_MACHINE_ROOT_URL = settings.BCC_MACHINE_ROOT_URL
+DB_MACHINE_ROOT_URL = settings.DB_MACHINE_ROOT_URL
+DB_NAME = settings.DB_NAME
 
 # mongodb
-mongodb = motor.motor_asyncio.AsyncIOMotorClient(DB_URL)
-db = mongodb["milestone1"]
+mongodb = motor.motor_asyncio.AsyncIOMotorClient(str(DB_MACHINE_ROOT_URL))
+db = mongodb[DB_NAME]
 jobs_col = db["jobs"]
 
 # application
@@ -36,7 +38,7 @@ app = FastAPI(
 # routing
 @app.get("/")
 async def root():
-    return "Welcome to MSS DEV2 machine"
+    return "Welcome to the MSS machine"
 
 
 @app.post("/jobs")
@@ -59,7 +61,7 @@ async def create_job():
     print(f"Registering new job_id: {str(job_id)}")
     return {
         "job_id": str(job_id),
-        "upload_url": "http://qtl-bcc-1.qdp.chalmers.se:5000/jobs",
+        "upload_url": str(BCC_MACHINE_ROOT_URL) + "/jobs",
     }
 
 

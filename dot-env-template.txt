@@ -2,4 +2,11 @@
 # The .env file is a simple list of keys and values. It is also known as the INI file on MS Windows. 
 # Fill in the necessary values.
 
-MSS_PORT=
+
+# keep as it is
+DB_NAME=milestone1
+
+# this has to be set
+BCC_MACHINE_ROOT_URL=http://host:port
+DB_MACHINE_ROOT_URL=mongodb://user:pass@host:port
+MSS_PORT=num
