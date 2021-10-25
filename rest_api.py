@@ -132,7 +132,7 @@ async def update_job_result(job_id: UUID, memory: list):
 
     if response.acknowledged == True and response.matched_count == 1:
         return "OK"
-    elif result.acknowledged:
+    elif response.acknowledged:
         return {"message": "Failed PUT", "raw_result": response.raw_result}
     else:
         return {"message": "Failed PUT. Operation not acknowledged"}
@@ -147,7 +147,7 @@ async def update_job_status(job_id: UUID, status: str = Body(..., max_length=10)
 
     if response.acknowledged == True and response.matched_count == 1:
         return "OK"
-    elif result.acknowledged:
+    elif response.acknowledged:
         return {"message": "Failed PUT", "raw_result": response.raw_result}
     else:
         return {"message": "Failed PUT. Operation not acknowledged"}
@@ -162,7 +162,7 @@ async def update_job_download_url(job_id: UUID, url: str = Body(..., max_length=
 
     if response.acknowledged == True and response.matched_count == 1:
         return "OK"
-    elif result.acknowledged:
+    elif response.acknowledged:
         return {"message": "Failed PUT", "raw_result": response.raw_result}
     else:
         return {"message": "Failed PUT. Operation not acknowledged"}
@@ -179,7 +179,7 @@ async def create_timelog_entry(job_id: UUID, event_name: str = Body(..., max_leg
 
     if response.acknowledged == True and response.matched_count == 1:
         return "OK"
-    elif result.acknowledged:
+    elif response.acknowledged:
         return {"message": "Failed POST", "raw_result": response.raw_result}
     else:
         return {"message": "Failed POST. Operation not acknowledged"}
