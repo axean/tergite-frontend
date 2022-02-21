@@ -1,0 +1,34 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "dev",
+			"problemMatcher": [],
+			"label": "start",
+			"detail": "start dev server"
+		},
+		{
+			"type": "npm",
+			"script": "lint",
+			"problemMatcher": [],
+			"label": "lint",
+			"detail": "run eslint"
+		},
+		{
+			"type": "npm",
+			"script": "format",
+			"problemMatcher": [],
+			"label": "format",
+			"detail": "run prettier"
+		},
+		{
+			"type": "npm",
+			"script": "test",
+			"group": "test",
+			"problemMatcher": [],
+			"label": "test",
+			"detail": "run cypress tests"
+		}
+	]
+}
