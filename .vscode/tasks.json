@@ -29,6 +29,13 @@
 			"problemMatcher": [],
 			"label": "test",
 			"detail": "run cypress tests"
+		},
+		{
+			"type": "npm",
+			"script": "install",
+			"problemMatcher": [],
+			"label": "install",
+			"detail": "install dependencies from package"
 		}
 	]
 }
