@@ -31,10 +31,9 @@
 			"detail": "run cypress tests"
 		},
 		{
-			"type": "npm",
-			"script": "install",
-			"problemMatcher": [],
-			"label": "install",
+			"type": "shell",
+			"command": "pnpm i",
+			"label": "install(pnpm)",
 			"detail": "install dependencies from package"
 		}
 	]
