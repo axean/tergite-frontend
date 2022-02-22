@@ -34,7 +34,8 @@
 			"type": "shell",
 			"command": "pnpm i",
 			"label": "install(pnpm)",
-			"detail": "install dependencies from package"
+			"detail": "install dependencies from package",
+			"problemMatcher": []
 		}
 	]
 }
