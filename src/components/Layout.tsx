@@ -4,9 +4,9 @@ import Navbar from './Navbar';
 
 const Layout = ({ children }) => {
 	return (
-		<Container minHeight='100vh' bg='gray.200' maxW='full' p={0} centerContent>
+		<Container height='100vh' bg='gray.200' maxW='full' p={0} centerContent>
 			<Navbar />
-			<Container minW='8xl'>{children}</Container>
+			<Container maxW='8xl'>{children}</Container>
 		</Container>
 	);
 };
