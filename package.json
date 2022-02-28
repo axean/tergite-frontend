@@ -9,7 +9,7 @@
     "lint": "next lint",
     "cypress": "cypress open",
     "test": "cypress run",
-    "format": "prettier --write '{src,cypress}/**/*.{js,jsx,ts,tsx}'",
+    "format": "prettier --write \"{src,cypress}/**/*.{js,jsx,ts,tsx}\"",
     "pre-commit": "npm run format &&  next lint && git add ."
   },
   "dependencies": {
