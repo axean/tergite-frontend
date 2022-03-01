@@ -1,13 +1,12 @@
-import { SearchIcon } from '@chakra-ui/icons';
-import { InputGroup, Input, InputLeftElement } from '@chakra-ui/react';
+import { Icon, Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
 import React from 'react';
-
+import { MdOutlineSearch } from 'react-icons/md';
 const SearchBar = () => {
 	//TODO: add the actual search functionalitity
 	return (
-		<InputGroup>
+		<InputGroup w='md'>
 			<InputLeftElement pointerEvents='none'>
-				<SearchIcon />
+				<Icon as={MdOutlineSearch} />
 			</InputLeftElement>
 			<Input type='text' placeholder='Search' backgroundColor='#FFFFFF' />
 		</InputGroup>

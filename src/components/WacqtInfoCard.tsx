@@ -5,12 +5,8 @@ interface WacqtInfoCardProps {}
 
 export const WacqtInfoCard: React.FC<WacqtInfoCardProps> = ({}) => {
 	return (
-		<Box bg='white' w='4xl' p={8} rounded='xl' boxShadow='2xl'> 
-			<Heading
-				bgGradient='linear(to-l, #389382, #2B8A79)'
-				bgClip='text'
-				fontSize='2xl'
-			>
+		<Box bg='white' p='8' rounded='xl' boxShadow='2xl' h='full'>
+			<Heading bgGradient='linear(to-l, #389382, #2B8A79)' bgClip='text' fontSize='2xl'>
 				WACQT | Wallenberg Centre for Quantum Technology
 			</Heading>
 			<Text mt={4}>

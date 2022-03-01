@@ -1,13 +1,22 @@
-import {Icon, Menu, MenuButton, MenuDivider, MenuItemOption, MenuList, MenuOptionGroup, Button} from '@chakra-ui/react';
+import {
+	Icon,
+	Menu,
+	MenuButton,
+	MenuDivider,
+	MenuItemOption,
+	MenuList,
+	MenuOptionGroup,
+	Button
+} from '@chakra-ui/react';
 import React from 'react';
 
-import { FaSortAmountDownAlt } from 'react-icons/fa';
+import { MdOutlineSort } from 'react-icons/md';
 
 //name, online date, online or offline status
 const Sort = () => {
 	return (
 		<Menu closeOnSelect={false}>
-			<MenuButton as={Button} leftIcon={<FaSortAmountDownAlt/>}>
+			<MenuButton as={Button} leftIcon={<MdOutlineSort />}>
 				Sort
 			</MenuButton>
 			<MenuList minWidth='240px'>
