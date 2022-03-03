@@ -1,12 +1,22 @@
-import { Container } from '@chakra-ui/react';
+import { Box, Container, Flex } from '@chakra-ui/react';
 import React from 'react';
 import Navbar from './Navbar';
 
 const Layout = ({ children }) => {
 	return (
-		<Container minH='100vh' bg='gray.200' maxW='full' p={0} centerContent>
+		<Container
+			flexDir='column'
+			minH='100vh'
+			bg='gray.200'
+			maxW='full'
+			p={0}
+			id='outerContainer'
+			centerContent
+		>
 			<Navbar />
-			<Container maxW='8xl'>{children}</Container>
+			<Flex id='innerContainer' maxW='8xl' w='100%' flex='1' px='4' flexDirection='column'>
+				{children}
+			</Flex>
 		</Container>
 	);
 };
