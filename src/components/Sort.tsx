@@ -6,33 +6,50 @@ import {
 	MenuItemOption,
 	MenuList,
 	MenuOptionGroup,
-	Button
+	Button,
+	OrderedList
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { memo } from 'react';
 
 import { MdOutlineSort } from 'react-icons/md';
 
 //name, online date, online or offline status
-const Sort = () => {
+interface SortMenuProps {
+	sort: { order: string; option: string };
+	setSort: React.Dispatch<React.SetStateAction<{ order: string; option: string }>>;
+}
+const Sort: React.FC<SortMenuProps> = ({ sort: { order, option }, setSort }) => {
 	return (
 		<Menu closeOnSelect={false}>
 			<MenuButton as={Button} leftIcon={<MdOutlineSort />}>
 				Sort
 			</MenuButton>
 			<MenuList minWidth='240px'>
-				<MenuOptionGroup defaultValue='asc' title='Order' type='radio'>
+				<MenuOptionGroup
+					defaultValue={order}
+					value={order}
+					title='Order'
+					type='radio'
+					onChange={(e) => setSort({ order: e as string, option })}
+				>
 					<MenuItemOption value='asc'>Ascending</MenuItemOption>
 					<MenuItemOption value='desc'>Descending</MenuItemOption>
 				</MenuOptionGroup>
 				<MenuDivider />
-				<MenuOptionGroup title='Options' type='radio'>
+				<MenuOptionGroup
+					title='Options'
+					defaultValue={option}
+					value={option}
+					type='radio'
+					onChange={(e) => setSort({ order, option: e as string })}
+				>
 					<MenuItemOption value='name'>Name</MenuItemOption>
-					<MenuItemOption value='onlinedate'>Online date</MenuItemOption>
-					<MenuItemOption value='onlineoffline'>Online/Offline</MenuItemOption>
+					<MenuItemOption value='onlineSince'>Online date</MenuItemOption>
+					<MenuItemOption value='status'>Online/Offline</MenuItemOption>
 				</MenuOptionGroup>
 			</MenuList>
 		</Menu>
 	);
 };
 
-export default Sort;
+export default memo(Sort);

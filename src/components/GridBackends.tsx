@@ -1,16 +1,16 @@
 import { SimpleGrid, Flex, Box, Text } from '@chakra-ui/react';
-import React from 'react';
+import React, { memo } from 'react';
 import NextLink from 'next/link';
-interface CardBackendProps {
+export interface CardBackendProps {
 	name: string;
 	version: string;
 	qubits: number;
 	status: 'online' | 'offline';
 	lastSample: string;
-	onlineSince?: string;
-	offlineSince?: string;
+	onlineSince: string;
+	offlineSince: string;
 }
-const CardBackend = ({
+const CardBackend: React.FC<CardBackendProps> = ({
 	name,
 	version,
 	qubits,
@@ -18,7 +18,7 @@ const CardBackend = ({
 	status,
 	onlineSince,
 	offlineSince
-}: CardBackendProps) => {
+}) => {
 	const isOnline = status === 'online';
 	return (
 		<NextLink href='/detail/'>
@@ -85,10 +85,10 @@ const CardBackend = ({
 	);
 };
 
-interface GridBackendsProps {
+export interface GridBackendsProps {
 	backends: CardBackendProps[];
 }
-const GridBackends = ({ backends }: GridBackendsProps) => {
+const GridBackends: React.FC<GridBackendsProps> = ({ backends }) => {
 	return (
 		<SimpleGrid columns={4} gap='8'>
 			{backends.map((backend, index) => (
@@ -97,41 +97,5 @@ const GridBackends = ({ backends }: GridBackendsProps) => {
 		</SimpleGrid>
 	);
 };
-GridBackends.defaultProps = {
-	backends: [
-		{
-			name: 'IBMQ Santiago',
-			version: '2.1.0',
-			qubits: 24,
-			status: 'online',
-			lastSample: '2020-07-23 15:30',
-			onlineSince: '2020-07-22 15:30'
-		},
-		{
-			name: 'IBMQ Montevideo',
-			version: '1.0.2',
-			qubits: 16,
-			status: 'online',
-			lastSample: '2018-02-12 12:30',
-			onlineSince: '2015-03-22 18:30'
-		},
-		{
-			name: 'IBMQ Lima',
-			version: '16.2.0',
-			qubits: 5,
-			status: 'online',
-			lastSample: '2021-07-22 15:30',
-			onlineSince: '2021-02-18 12:30'
-		},
-		{
-			name: 'IBMQ Manilla',
-			version: '0.1.1',
-			qubits: 8,
-			status: 'offline',
-			lastSample: '2022-01-02 13:30',
-			offlineSince: '2022-02-22 18:30'
-		}
-	]
-};
 
-export default GridBackends;
+export default memo(GridBackends);
