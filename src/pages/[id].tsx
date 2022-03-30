@@ -7,28 +7,46 @@ import Filter from '../components/Filter';
 import SearchBar from '../components/Searchbar';
 import Sort from '../components/Sort';
 import { WacqtInfoCard } from '../components/WacqtInfoCard';
+import ConnectivityMap from '../components/ConnectivityMap';
 const Detail = () => {
 	const router = useRouter();
 	const id = router.query.id;
+
+	const nodes = [
+		{ x: 0, y: 0 },
+		{ x: 1, y: 1 },
+		{ x: 2, y: 2 }
+	];
+
+	const dataSample = {
+		nodes,
+		links: [
+			{ source: nodes[0], target: nodes[1] },
+			{ source: nodes[1], target: nodes[2] },
+			{ source: nodes[2], target: nodes[0] }
+		]
+	};
 	return (
 		<Flex flex='1' py='8' w='full' id='deailId'>
-			<Grid templateColumns='1fr 1fr' templateRows='1fr 1fr' gap='8' flex='1'>
-				<GridItem rowStart={1} w='100%' h='100%' bg='gray.800'>
-					<Text fontSize='4xl' color='white'>
-						quantum computer information
-					</Text>
-				</GridItem>
-				<GridItem rowStart={2} w='100%' h='100%' bg='gray.800'>
-					<Text fontSize='4xl' color='white'>
+			<Flex gap='8' flex='1'>
+				<Box bg='white' flex='2' p='2' borderRadius='md' boxShadow='lg'>
+					<Flex justifyContent='space-between'>
+						<Text fontSize='2xl' color='black'>
+							Chalmers Luki
+						</Text>
+					</Flex>
+					<Text fontSize='4xl' color='black'>
 						description
 					</Text>
-				</GridItem>
-				<GridItem rowSpan={2} w='100%' h='100%' bg='gray.800'>
-					<Text fontSize='4xl' color='white'>
-						charts
-					</Text>
-				</GridItem>
-			</Grid>
+				</Box>
+
+				<Box bg='white' flex='5' p='4' borderRadius='md' boxShadow='lg'>
+					<Flex flex={1} h='full' gap='4'>
+						<ConnectivityMap data={dataSample} backgroundColor='#34eb43' />
+						<ConnectivityMap data={dataSample} backgroundColor='#eb4034' />
+					</Flex>
+				</Box>
+			</Flex>
 		</Flex>
 	);
 };
