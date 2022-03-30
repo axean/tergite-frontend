@@ -17,7 +17,6 @@ interface Link {
 	source: Node;
 	target: Node;
 }
-
 interface Data {
 	nodes: Node[];
 	links: Link[];
