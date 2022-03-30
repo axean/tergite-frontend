@@ -6,12 +6,12 @@ import GridBackends, { CardBackendProps, GridBackendsProps } from '../components
 import SearchBar from '../components/Searchbar';
 import Sort from '../components/Sort';
 import { WacqtInfoCard } from '../components/WacqtInfoCard';
+import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 
 const Index = () => {
 	const [search, setSearch] = useState('');
 	const [sort, setSort] = useState({ order: 'asc', option: 'name' });
 	const [filter, setFilter] = useState(['online', 'offline']);
-
 	const [backends, setBackends] = useState<CardBackendProps[]>([
 		{
 			name: 'IBMQ Santiago',
@@ -50,6 +50,7 @@ const Index = () => {
 			offlineSince: '2022-02-22 18:30'
 		}
 	]);
+
 	const sortedBackends = useMemo(() => {
 		let filtered = backends.filter((backend) => filter.includes(backend.status));
 
@@ -68,7 +69,17 @@ const Index = () => {
 		}
 	}, [search, sort.order, sort.option, backends, filter]);
 
-	console.log('index render');
+	// Just use setBackends and data when backend fixed the cors errors
+	const { isLoading, data, error } : UseQueryResult<CardBackendProps, Error> = useQuery<CardBackendProps, Error>('status', () =>
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/').then(res =>
+			res.json()
+  		)
+	);
+
+	if (isLoading) return "Loading..."
+
+	if (error) return "Error, prob no devices found"
+
 	return (
 		<>
 			<Flex gap='8' my='8' height='max-content'>
