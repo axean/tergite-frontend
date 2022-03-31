@@ -1,16 +1,10 @@
-import { CloseIcon, HamburgerIcon } from '@chakra-ui/icons';
 import {
 	Box,
-	Button,
 	Flex,
-	Heading,
-	IconButton,
 	Link,
 	Popover,
 	PopoverTrigger,
 	Stack,
-	Text,
-	useBreakpointValue,
 	useColorModeValue
 } from '@chakra-ui/react';
 import React from 'react';
@@ -30,13 +24,9 @@ const NavbarVisualizations: React.FC<NavbarVisualizationsProps> = ({}) => {
 				borderStyle={'solid'}
 				borderColor={useColorModeValue('gray.200', 'gray.900')}
 				align={'center'}
+				justifyContent='center'
 			>
-				<Flex
-					flex={{ base: 1, md: 'auto' }}
-					ml={{ base: -2 }}
-					display={{ base: 'flex', md: 'none' }}
-				></Flex>
-				<Flex display={{ base: 'none', md: 'flex' }} ml={10}>
+				<Flex display={{ base: 'none', md: 'flex' }}>
 					<DesktopNav />
 				</Flex>
 			</Flex>
@@ -57,8 +47,8 @@ const DesktopNav = () => {
 							<Link
 								p={2}
 								href={navItem.href ?? '#'}
-								fontSize={'sm'}
-								fontWeight={500}
+								fontSize={'lg'}
+								fontWeight={600}
 								color={linkColor}
 								_hover={{
 									textDecoration: 'none',

@@ -2,6 +2,7 @@ import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { MdFirstPage, MdLastPage } from 'react-icons/md';
+import NavbarVisualizations from '../components/NavbarVisualizations';
 
 const Detail = () => {
 	const router = useRouter();
@@ -32,6 +33,7 @@ const Detail = () => {
 							<Icon as={MdLastPage} w={8} h={8} />
 						</Button>
 					)}
+					<NavbarVisualizations />
 					<Text fontSize='4xl' color='black'>
 						charts
 					</Text>
