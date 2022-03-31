@@ -1,27 +1,42 @@
-import React from 'react';
+import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { Box, Flex, Grid, GridItem, SimpleGrid, Text } from '@chakra-ui/react';
-import NavbarVisualizations from '../components/NavbarVisualizations';
+import React, { useState } from 'react';
+import { MdFirstPage, MdLastPage } from 'react-icons/md';
 
 const Detail = () => {
 	const router = useRouter();
 	const id = router.query.id;
-	console.log(id);
+	const [collapsed, setCollapsed] = useState(false);
 	return (
 		<Flex flex='1' py='8' w='full' id='deailId'>
-			<Grid templateColumns='1fr 1fr' templateRows='1fr 1fr' gap='8' flex='1'>
-				<GridItem rowSpan={2} w='100%' h='100%' bg='gray.800'>
-					<Text fontSize='4xl' color='white'>
-						quantum computer information collapsable
-					</Text>
-				</GridItem>
-				<GridItem rowSpan={2} w='100%' h='100%' bg='gray.800'>
-					<NavbarVisualizations />
-					<Text fontSize='4xl' color='white'>
+			<Flex gap='8' flex='1'>
+				{!collapsed && (
+					<Box bg='white' flex='2' p='2' borderRadius='md' boxShadow='lg'>
+						<Flex justifyContent='space-between'>
+							<Text fontSize='2xl' color='black'>
+								Chalmers Luki
+							</Text>
+							<Button p='2' onClick={() => setCollapsed(!collapsed)}>
+								<Icon as={MdFirstPage} w={8} h={8} />
+							</Button>
+						</Flex>
+						<Text fontSize='4xl' color='black'>
+							description
+						</Text>
+					</Box>
+				)}
+
+				<Box bg='white' flex='5' p='4' borderRadius='md' boxShadow='lg'>
+					{collapsed && (
+						<Button p='2' onClick={() => setCollapsed(!collapsed)}>
+							<Icon as={MdLastPage} w={8} h={8} />
+						</Button>
+					)}
+					<Text fontSize='4xl' color='black'>
 						charts
 					</Text>
-				</GridItem>
-			</Grid>
+				</Box>
+			</Flex>
 		</Flex>
 	);
 };
