@@ -7,7 +7,6 @@ interface SearchBarProps {
 	setSearch: React.Dispatch<React.SetStateAction<string>>;
 }
 const SearchBar: React.FC<SearchBarProps> = ({ search, setSearch }) => {
-	//TODO: add the actual search functionalitity
 	return (
 		<InputGroup w='md'>
 			<InputLeftElement pointerEvents='none'>
