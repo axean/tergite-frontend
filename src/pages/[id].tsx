@@ -14,16 +14,18 @@ const Detail = () => {
 
 	const nodes = [
 		{ x: 0, y: 0 },
-		{ x: 1, y: 1 },
-		{ x: 2, y: 2 }
+		{ x: 1, y: 0 },
+		{ x: 0, y: 1 },
+		{ x: 1, y: 1 }
 	];
 
 	const dataSample = {
 		nodes,
 		links: [
 			{ source: nodes[0], target: nodes[1] },
-			{ source: nodes[1], target: nodes[2] },
-			{ source: nodes[2], target: nodes[0] }
+			{ source: nodes[1], target: nodes[3] },
+			{ source: nodes[2], target: nodes[0] },
+			{ source: nodes[3], target: nodes[2] }
 		]
 	};
 	return (
@@ -42,8 +44,8 @@ const Detail = () => {
 
 				<Box bg='white' flex='5' p='4' borderRadius='md' boxShadow='lg'>
 					<Flex flex={1} h='full' gap='4'>
-						<ConnectivityMap data={dataSample} backgroundColor='#34eb43' />
-						<ConnectivityMap data={dataSample} backgroundColor='#eb4034' />
+						<ConnectivityMap data={dataSample} type='node' backgroundColor='#34eb43' />
+						<ConnectivityMap data={dataSample} type='link' backgroundColor='#eb4034' />
 					</Flex>
 				</Box>
 			</Flex>
