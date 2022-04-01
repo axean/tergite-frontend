@@ -1,6 +1,8 @@
 import {
 	Box,
+	Button,
 	Flex,
+	Icon,
 	Link,
 	Popover,
 	PopoverTrigger,
@@ -8,10 +10,17 @@ import {
 	useColorModeValue
 } from '@chakra-ui/react';
 import React from 'react';
+import { MdLastPage } from 'react-icons/md';
 
-interface NavbarVisualizationsProps {}
+interface NavbarVisualizationsProps {
+	isCollapsed: boolean;
+	onToggleCollapse: React.Dispatch<void>;
+}
 
-const NavbarVisualizations: React.FC<NavbarVisualizationsProps> = ({}) => {
+const NavbarVisualizations: React.FC<NavbarVisualizationsProps> = ({
+	isCollapsed,
+	onToggleCollapse
+}) => {
 	return (
 		<Box>
 			<Flex
@@ -19,14 +28,19 @@ const NavbarVisualizations: React.FC<NavbarVisualizationsProps> = ({}) => {
 				color={useColorModeValue('gray.600', 'white')}
 				minH={'60px'}
 				py={{ base: 2 }}
-				px={{ base: 4 }}
+				px={{ base: 0 }}
 				borderBottom={1}
 				borderStyle={'solid'}
 				borderColor={useColorModeValue('gray.200', 'gray.900')}
 				align={'center'}
-				justifyContent='center'
+				justifyContent='left'
 			>
-				<Flex display={{ base: 'none', md: 'flex' }}>
+				<Flex display={{ base: 'none', md: 'flex' }} align='center'>
+					{isCollapsed && (
+						<Button p='2' onClick={() => onToggleCollapse()}>
+							<Icon as={MdLastPage} w={8} h={8} />
+						</Button>
+					)}
 					<DesktopNav />
 				</Flex>
 			</Flex>
