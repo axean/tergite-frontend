@@ -7,17 +7,17 @@ import NavbarVisualizations from '../components/NavbarVisualizations';
 const Detail = () => {
 	const router = useRouter();
 	const id = router.query.id;
-	const [collapsed, setCollapsed] = useState(false);
+	const [isCollapsed, setCollapsed] = useState(false);
 	return (
 		<Flex flex='1' py='8' w='full' id='deailId'>
 			<Flex gap='8' flex='1'>
-				{!collapsed && (
-					<Box bg='white' flex='2' p='2' borderRadius='md' boxShadow='lg'>
+				{!isCollapsed && (
+					<Box bg='white' flex='2' p='4' py='6' borderRadius='md' boxShadow='lg'>
 						<Flex justifyContent='space-between'>
 							<Text fontSize='2xl' color='black'>
 								Chalmers Luki
 							</Text>
-							<Button p='2' onClick={() => setCollapsed(!collapsed)}>
+							<Button p='2' onClick={() => setCollapsed(!isCollapsed)}>
 								<Icon as={MdFirstPage} w={8} h={8} />
 							</Button>
 						</Flex>
@@ -28,12 +28,10 @@ const Detail = () => {
 				)}
 
 				<Box bg='white' flex='5' p='4' borderRadius='md' boxShadow='lg'>
-					{collapsed && (
-						<Button p='2' onClick={() => setCollapsed(!collapsed)}>
-							<Icon as={MdLastPage} w={8} h={8} />
-						</Button>
-					)}
-					<NavbarVisualizations />
+					<NavbarVisualizations
+						isCollapsed={isCollapsed}
+						onToggleCollapse={() => setCollapsed(!isCollapsed)}
+					/>
 					<Text fontSize='4xl' color='black'>
 						charts
 					</Text>
