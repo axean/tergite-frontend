@@ -16,7 +16,7 @@ const CardBackend: React.FC<CardBackendProps> = ({
 	last_update
 }) => {
 	return (
-		<NextLink href='/detail/'>
+		<NextLink href={`/${name}`}>
 			<a>
 				<Box
 					bg={is_online ? 'white' : 'gray.100'}
