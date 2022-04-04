@@ -119,7 +119,7 @@ const VisxChart: React.FC<VisxChartProps> = ({ data, height, width, backgroundCo
 			data.nodes.map(({ x, y }) => {
 				return { x: xScale(x / 2), y: yScale(1 - y / 2) - yMax / 2 };
 			}),
-		[data.nodes, xScale, yScale, xMax, yMax]
+		[data.nodes, xScale, yScale, yMax]
 	);
 	const newLinks = useMemo(
 		() =>
@@ -135,7 +135,7 @@ const VisxChart: React.FC<VisxChartProps> = ({ data, height, width, backgroundCo
 					}
 				};
 			}),
-		[data.links, xMax, yMax, xScale, yScale]
+		[data.links, yMax, xScale, yScale]
 	);
 
 	return (
