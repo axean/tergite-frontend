@@ -140,7 +140,7 @@ const VisxChart: React.FC<VisxChartProps> = ({ data, height, width, backgroundCo
 					}
 				};
 			}),
-		[data.links, maxY, scaleX, scaleY]
+		[data.links, scaleX, scaleY]
 	);
 
 	return (
