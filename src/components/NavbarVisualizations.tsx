@@ -11,6 +11,8 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 import { MdLastPage } from 'react-icons/md';
+import NextLink from 'next/link';
+import { Router, useRouter } from 'next/router';
 
 interface NavbarVisualizationsProps {
 	isCollapsed: boolean;
@@ -51,26 +53,28 @@ const NavbarVisualizations: React.FC<NavbarVisualizationsProps> = ({
 const DesktopNav = () => {
 	const linkColor = useColorModeValue('black', 'gray.200');
 	const linkHoverColor = useColorModeValue('teal.400', 'gray.800');
-
+	const router = useRouter();
 	return (
 		<Stack direction={'row'} spacing={4}>
 			{NAV_ITEMS.map((navItem) => (
 				<Box key={navItem.label}>
 					<Popover trigger={'hover'} placement={'bottom-start'}>
 						<PopoverTrigger>
-							<Link
-								p={2}
-								href={navItem.href ?? '#'}
-								fontSize={'lg'}
-								fontWeight={600}
-								color={linkColor}
-								_hover={{
-									textDecoration: 'none',
-									color: linkHoverColor
-								}}
-							>
-								{navItem.label}
-							</Link>
+							<NextLink href={router.query.id + '?type=' + navItem.href} passHref>
+								<Link
+									p={2}
+									fontSize={'lg'}
+									fontWeight={600}
+									href={navItem.href ?? '#'}
+									color={linkColor}
+									_hover={{
+										textDecoration: 'none',
+										color: linkHoverColor
+									}}
+								>
+									{navItem.label}
+								</Link>
+							</NextLink>
 						</PopoverTrigger>
 					</Popover>
 				</Box>
