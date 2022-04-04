@@ -117,7 +117,7 @@ const VisxChart: React.FC<VisxChartProps> = ({ data, height, width, backgroundCo
 	const newData = useMemo(
 		() =>
 			data.nodes.map(({ x, y }) => {
-				return { x: x * (xMax / 10), y: yMax / 2 - y * (yMax / 10) };
+				return { x: xScale(x / 2), y: yScale(1 - y / 2) - yMax / 2 };
 			}),
 		[data.nodes, xMax, yMax]
 	);
@@ -126,12 +126,12 @@ const VisxChart: React.FC<VisxChartProps> = ({ data, height, width, backgroundCo
 			data.links.map(({ source, target }) => {
 				return {
 					source: {
-						x: source.x * (xMax / 10),
-						y: +source.y * (yMax / 10)
+						x: xScale(source.x / 2),
+						y: yScale(1 - source.y / 2) - yMax / 2
 					},
 					target: {
-						x: target.x * (xMax / 10),
-						y: +target.y * (yMax / 10)
+						x: xScale(target.x / 2),
+						y: yScale(1 - target.y / 2) - yMax / 2
 					}
 				};
 			}),
@@ -149,10 +149,7 @@ const VisxChart: React.FC<VisxChartProps> = ({ data, height, width, backgroundCo
 							links: newLinks
 						}}
 						nodeComponent={({ node: { x, y } }) =>
-							// <Text x={x} y={y} fill='#f1f2a'>
-							// 	{`${Math.floor(x)}, ${Math.floor(y)}`}
-							// </Text>
-							type === 'node' && (
+							true && (
 								<CustomNode
 									yMax={yMax}
 									xMax={xMax}
@@ -200,6 +197,7 @@ type CustomNodeProps = {
 
 const CustomNode: React.FC<CustomNodeProps> = ({ yMax, xMax, x, y, setPos, pos }) => {
 	return (
+		// yMax / 20 centers the qubit in the middle of the square, if removed its placed in the top left corner
 		<Group top={yMax / 20} left={xMax / 20}>
 			<rect
 				x={x}
@@ -226,6 +224,17 @@ const CustomNode: React.FC<CustomNodeProps> = ({ yMax, xMax, x, y, setPos, pos }
 					}
 				}}
 			/>
+			<Text
+				x={x + 2}
+				y={y + 12}
+				fill='#f0f0f0'
+				verticalAnchor='start'
+				textAnchor='start'
+				scaleToFit='shrink-only'
+				width={(xMax / 10) * 0.9}
+			>
+				{`${Math.floor(x)},${Math.floor(y)}`}
+			</Text>
 		</Group>
 	);
 };
