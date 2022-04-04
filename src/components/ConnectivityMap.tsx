@@ -1,13 +1,12 @@
 import { Box } from '@chakra-ui/react';
-import { Text } from '@visx/text';
+import { AxisBottom, AxisLeft } from '@visx/axis';
 import { Grid } from '@visx/grid';
-import { DefaultLink, DefaultNode, Graph } from '@visx/network';
-import { scaleLinear } from '@visx/scale';
-import { ParentSize } from '@visx/responsive';
-import React, { useEffect, useMemo } from 'react';
 import { Group } from '@visx/group';
-import { AxisBottom, AxisLeft, AxisRight } from '@visx/axis';
-import { localPoint } from '@visx/event';
+import { Graph } from '@visx/network';
+import { ParentSize } from '@visx/responsive';
+import { scaleLinear } from '@visx/scale';
+import { Text } from '@visx/text';
+import React, { useMemo } from 'react';
 
 interface Node {
 	x: number;
@@ -16,6 +15,7 @@ interface Node {
 interface Link {
 	source: Node;
 	target: Node;
+	vertical: boolean;
 }
 
 interface Data {
@@ -79,17 +79,22 @@ type CustomLinkProps = {
 
 const CustomLink: React.FC<CustomLinkProps> = ({ link, yMax, xMax }) => {
 	console.log('from', link.source);
-	const scale = 0;
 	return (
-		<Group top={link.source.x} left={link.source.y}>
+		<Group top={-yMax / 10} left={xMax / 10}>
 			{' '}
 			<line
+				onMouseEnter={(e) => {
+					e.currentTarget.setAttribute('stroke', '#38B2AC');
+				}}
+				onMouseLeave={(e) => {
+					e.currentTarget.setAttribute('stroke', '#366361');
+				}}
 				x1={`${link.source.x}`}
 				y1={`${link.source.y}`}
-				x2={`${link.source.x + 100}`}
-				y2={`${link.source.y + 0}`}
-				strokeWidth={2}
-				stroke='#f00'
+				x2={`${link.target.x}`}
+				y2={`${link.target.y}`}
+				strokeWidth={16}
+				stroke='#366361'
 			></line>
 			{/* <DefaultLink link={link}></DefaultLink> */}
 		</Group>
@@ -97,19 +102,19 @@ const CustomLink: React.FC<CustomLinkProps> = ({ link, yMax, xMax }) => {
 };
 
 const VisxChart: React.FC<VisxChartProps> = ({ data, height, width, backgroundColor, type }) => {
-	const xMargin = 45;
-	const yMargin = 45;
-	const yMax = height - yMargin;
-	const xMax = width - xMargin;
-	const xScale = scaleLinear({
+	const marginX = 45;
+	const marginY = 45;
+	const maxY = height - marginY;
+	const maxX = width - marginX;
+	const scaleX = scaleLinear({
 		domain: [0, 5], // x-coordinate data values
-		range: [0, xMax], // svg x-coordinates, svg x-coordinates increase left to right
+		range: [0, maxX], // svg x-coordinates, svg x-coordinates increase left to right
 		round: true
 	});
 
-	const yScale = scaleLinear({
+	const scaleY = scaleLinear({
 		domain: [5, 0], // x-coordinate data values
-		range: [0, yMax], // svg x-coordinates, svg x-coordinates increase left to right
+		range: [0, maxY], // svg x-coordinates, svg x-coordinates increase left to right
 		round: true
 	});
 
@@ -117,42 +122,54 @@ const VisxChart: React.FC<VisxChartProps> = ({ data, height, width, backgroundCo
 	const newData = useMemo(
 		() =>
 			data.nodes.map(({ x, y }) => {
-				return { x: xScale(x / 2), y: yScale(1 - y / 2) - yMax / 2 };
+				return { x: scaleX(x / 2), y: scaleY(1 - y / 2) - maxY / 2 };
 			}),
-		[data.nodes, xScale, yScale, yMax]
+		[data.nodes, scaleX, scaleY, maxY]
 	);
 	const newLinks = useMemo(
 		() =>
-			data.links.map(({ source, target }) => {
+			data.links.map(({ source, target, vertical }) => {
 				return {
 					source: {
-						x: xScale(source.x / 2),
-						y: yScale(1 - source.y / 2) - yMax / 2
+						x: vertical ? scaleX(source.x) : scaleX(source.x - 0.15),
+						y: vertical ? scaleY(source.y - 0.15) : scaleY(source.y)
 					},
 					target: {
-						x: xScale(target.x / 2),
-						y: yScale(1 - target.y / 2) - yMax / 2
+						x: vertical ? scaleX(target.x) : scaleX(target.x + 0.15),
+						y: vertical ? scaleY(target.y + 0.15) : scaleY(source.y)
 					}
 				};
 			}),
-		[data.links, yMax, xScale, yScale]
+		[data.links, maxY, scaleX, scaleY]
 	);
 
 	return (
-		xMax > 0 &&
-		yMax > 0 && (
+		maxX > 0 &&
+		maxY > 0 && (
 			<svg width={width} height={height} rx={14}>
-				<Group left={yMargin} top={10}>
+				<Group left={marginY} top={10}>
+					<Grid
+						xScale={scaleX}
+						yScale={scaleY}
+						width={maxX}
+						height={maxY}
+						numTicksColumns={5}
+						numTicksRows={5}
+						stroke='#ccc'
+						rx={14}
+					/>
+					<AxisBottom scale={scaleX} top={maxY} orientation='bottom' numTicks={6} />
+					<AxisLeft scale={scaleY} orientation='left' numTicks={5} />
 					<Graph
 						graph={{
 							nodes: newData,
 							links: newLinks
 						}}
 						nodeComponent={({ node: { x, y } }) =>
-							true && (
+							type === 'node' && (
 								<CustomNode
-									yMax={yMax}
-									xMax={xMax}
+									yMax={maxY}
+									xMax={maxX}
 									x={x}
 									y={y}
 									setPos={setPos}
@@ -161,25 +178,13 @@ const VisxChart: React.FC<VisxChartProps> = ({ data, height, width, backgroundCo
 							)
 						}
 						linkComponent={(link) =>
-							type == 'link' ? (
-								<CustomLink link={link.link} xMax={xMax} yMax={yMax} />
+							type === 'link' ? (
+								<CustomLink link={link.link} xMax={maxX} yMax={maxY} />
 							) : (
 								<></>
 							)
 						}
 					></Graph>
-					<Grid
-						xScale={xScale}
-						yScale={yScale}
-						width={xMax}
-						height={yMax}
-						numTicksColumns={5}
-						numTicksRows={5}
-						stroke='#ccc'
-						rx={14}
-					/>
-					<AxisBottom scale={xScale} top={yMax} orientation='bottom' numTicks={6} />
-					<AxisLeft scale={yScale} orientation='left' numTicks={5} />
 				</Group>
 			</svg>
 		)
