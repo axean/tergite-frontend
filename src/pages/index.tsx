@@ -25,7 +25,7 @@ const Index = () => {
 	console.log(data);
 
 	function filterParser(data): string {
-		return data.is_online ? 'online' : 'offline'
+		return data.is_online ? 'online' : 'offline';
 	}
 
 	const sortedBackends = useMemo(() => {
