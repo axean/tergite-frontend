@@ -78,4 +78,3 @@ const CardBackend: React.FC<CardBackendProps> = ({
 	);
 };
 export default CardBackend;
-
