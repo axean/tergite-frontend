@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { MdFirstPage, MdLastPage } from 'react-icons/md';
 import NavbarVisualizations from '../components/NavbarVisualizations';
+import QubitVisualization from '../components/visualizations/QubitVisualization';
 
 type VisualizationRoutes =
 	| 'Qubitmap'
@@ -39,7 +40,7 @@ const VisualizationPanel = () => {
 	const type = router.query.type as VisualizationRoutes;
 	switch (type) {
 		case 'Qubitmap':
-			return <>qubit</>;
+			return <QubitVisualization />;
 		case 'Histogram':
 			return <>histogram</>;
 		case 'Graphdeviation':
@@ -51,7 +52,7 @@ const VisualizationPanel = () => {
 		case 'Cityplot':
 			return <>Cityplot</>;
 		default:
-			return <div>No visualization</div>;
+			return <QubitVisualization />;
 	}
 };
 
