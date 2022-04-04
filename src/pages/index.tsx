@@ -10,9 +10,6 @@ import { CardBackendProps } from '../components/CardBackend';
 import GridBackends, { GridBackendsProps } from '../components/GridBackends';
 
 const Index = () => {
-	const [search, setSearch] = useState('');
-	const [sort, setSort] = useState({ order: 'asc', option: 'name' });
-	const [filter, setFilter] = useState(['online', 'offline']);
 	// Just use setBackends and data when backend fixed the cors errors
 	const { isLoading, data, error } = useQuery('backendOverview', () =>
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/').then((res) => res.json())
@@ -24,6 +21,14 @@ const Index = () => {
 
 	console.log(data);
 
+	// this is needed to make the hooks work with react-query, if inner is inlined we get "Rendered more hooks than during the previous render"
+	return <Inner data={data} />;
+};
+
+const Inner = ({ data }) => {
+	const [search, setSearch] = useState('');
+	const [sort, setSort] = useState({ order: 'asc', option: 'name' });
+	const [filter, setFilter] = useState(['online', 'offline']);
 	function filterParser(data): string {
 		return data.is_online ? 'online' : 'offline';
 	}
