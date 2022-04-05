@@ -7,25 +7,15 @@ import { ParentSize } from '@visx/responsive';
 import { scaleLinear } from '@visx/scale';
 import { Text } from '@visx/text';
 import React, { useMemo } from 'react';
-
-interface Node {
-	x: number;
-	y: number;
-}
-interface Link {
-	source: Node;
-	target: Node;
-	vertical: boolean;
-}
-
-interface Data {
-	nodes: Node[];
-	links: Link[];
-}
+import { chakra } from '@chakra-ui/react';
+import CustomNode from './CustomNode';
+import CustomLink from './CustomLink';
 
 interface ConnectivityMapProps {
 	data: Data;
 	type: 'node' | 'link';
+	onSelectNode?: (id: string) => void;
+	onSelectLink?: (id: string) => void;
 	backgroundColor?: string;
 	borderRadius?: number;
 	nodeColor?: string;
@@ -43,7 +33,13 @@ const Square = ({ children }) => {
 		</ParentSize>
 	);
 };
-const ConnectivityMap: React.FC<ConnectivityMapProps> = ({ data, backgroundColor, type }) => {
+const ConnectivityMap: React.FC<ConnectivityMapProps> = ({
+	data,
+	backgroundColor,
+	type,
+	onSelectNode,
+	onSelectLink
+}) => {
 	return (
 		<Square>
 			<Box bg='gray.200' borderRadius='md' p='4' w='full' h='full'>
@@ -55,6 +51,8 @@ const ConnectivityMap: React.FC<ConnectivityMapProps> = ({ data, backgroundColor
 							width={width}
 							type={type}
 							backgroundColor={backgroundColor}
+							onSelectLink={onSelectLink}
+							onSelectNode={onSelectNode}
 						/>
 					)}
 				</ParentSize>
@@ -68,40 +66,20 @@ type VisxChartProps = {
 	height: number;
 	width: number;
 	backgroundColor: string;
+	onSelectNode: (id: string) => void;
+	onSelectLink: (id: string) => void;
 	type: 'node' | 'link';
 };
 
-type CustomLinkProps = {
-	link: Link;
-	yMax: number;
-	xMax: number;
-};
-
-const CustomLink: React.FC<CustomLinkProps> = ({ link, yMax, xMax }) => {
-	console.log('from', link.source);
-	return (
-		<Group top={-yMax / 10} left={xMax / 10}>
-			{' '}
-			<line
-				onMouseEnter={(e) => {
-					e.currentTarget.setAttribute('stroke', '#38B2AC');
-				}}
-				onMouseLeave={(e) => {
-					e.currentTarget.setAttribute('stroke', '#366361');
-				}}
-				x1={`${link.source.x}`}
-				y1={`${link.source.y}`}
-				x2={`${link.target.x}`}
-				y2={`${link.target.y}`}
-				strokeWidth={16}
-				stroke='#366361'
-			></line>
-			{/* <DefaultLink link={link}></DefaultLink> */}
-		</Group>
-	);
-};
-
-const VisxChart: React.FC<VisxChartProps> = ({ data, height, width, backgroundColor, type }) => {
+const VisxChart: React.FC<VisxChartProps> = ({
+	data,
+	height,
+	width,
+	backgroundColor,
+	type,
+	onSelectNode,
+	onSelectLink
+}) => {
 	const marginX = 45;
 	const marginY = 45;
 	const maxY = height - marginY;
@@ -174,12 +152,18 @@ const VisxChart: React.FC<VisxChartProps> = ({ data, height, width, backgroundCo
 									y={y}
 									setPos={setPos}
 									pos={pos}
+									onSelect={onSelectNode}
 								/>
 							)
 						}
 						linkComponent={(link) =>
 							type === 'link' ? (
-								<CustomLink link={link.link} xMax={maxX} yMax={maxY} />
+								<CustomLink
+									link={link.link}
+									xMax={maxX}
+									yMax={maxY}
+									onSelect={onSelectLink}
+								/>
 							) : (
 								<></>
 							)
@@ -188,59 +172,6 @@ const VisxChart: React.FC<VisxChartProps> = ({ data, height, width, backgroundCo
 				</Group>
 			</svg>
 		)
-	);
-};
-
-type CustomNodeProps = {
-	yMax: number;
-	xMax: number;
-	x: number;
-	y: number;
-	setPos: React.Dispatch<Node>;
-	pos: Node;
-};
-
-const CustomNode: React.FC<CustomNodeProps> = ({ yMax, xMax, x, y, setPos, pos }) => {
-	return (
-		// yMax / 20 centers the qubit in the middle of the square, if removed its placed in the top left corner
-		<Group top={yMax / 20} left={xMax / 20}>
-			<rect
-				x={x}
-				y={y}
-				width={xMax / 10}
-				height={yMax / 10}
-				fill={x === pos.x && y === pos.y ? '#38B2AC' : '#366361'}
-				stroke={x === pos.x && y === pos.y ? '#66FFF7' : '#366361'}
-				strokeWidth={2}
-				onMouseDown={(e) => {
-					setPos({
-						x,
-						y
-					});
-				}}
-				onMouseEnter={(e) => {
-					e.currentTarget.setAttribute('fill', '#38B2AC');
-					e.currentTarget.setAttribute('stroke', '#66FFF7');
-				}}
-				onMouseLeave={(e) => {
-					if (x !== pos.x || y !== pos.y) {
-						e.currentTarget.setAttribute('fill', '#366361');
-						e.currentTarget.setAttribute('stroke', '#366361');
-					}
-				}}
-			/>
-			<Text
-				x={x + 2}
-				y={y + 12}
-				fill='#f0f0f0'
-				verticalAnchor='start'
-				textAnchor='start'
-				scaleToFit='shrink-only'
-				width={(xMax / 10) * 0.9}
-			>
-				{`${Math.floor(x)},${Math.floor(y)}`}
-			</Text>
-		</Group>
 	);
 };
 
