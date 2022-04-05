@@ -1,5 +1,5 @@
 import { Flex, Box } from '@chakra-ui/react';
-import ConnectivityMap from '../ConnectivityMap';
+import ConnectivityMap from '../connectivityMap/';
 
 type QubitVisualizationProps = {};
 
@@ -48,15 +48,22 @@ function fixFlowDirection(links) {
 	return newLinks;
 }
 const newData = { nodes: dataSample.nodes, links: fixFlowDirection(dataSample.links) };
-console.log('new link', newData.links);
 const QubitVisualization: React.FC<QubitVisualizationProps> = () => {
 	return (
 		<Flex gap='4'>
 			<Box flex='1'>
-				<ConnectivityMap data={newData} type='node' />
+				<ConnectivityMap
+					data={newData}
+					type='node'
+					onSelectNode={() => console.log('node selected')}
+				/>
 			</Box>
 			<Box flex='1'>
-				<ConnectivityMap data={newData} type='link' />
+				<ConnectivityMap
+					data={newData}
+					onSelectLink={() => console.log('link selected')}
+					type='link'
+				/>
 			</Box>
 		</Flex>
 	);
