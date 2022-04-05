@@ -49,10 +49,9 @@ const QubitTable = () => {
                  <Td>{parseValue(qubit.static_properties[0].value,-9)} GHz</Td>
                  <Td>{parseValue(qubit.static_properties[1].value,-6)} MHz</Td>
                  <Td>{parseValue(qubit.static_properties[2].value,-6)} MHz</Td>
-                 <Td>{parseValue(qubit.static_properties[2].value,-6)} MHz</Td>
+                 <Td>{parseValue(qubit.static_properties[3].value,-6)} ms</Td>
+                 <Td>{parseValue(qubit.static_properties[4].value,-6)} ms</Td>
               </Tr>)}
-            
-            
           </Tbody>
         </Table>
       </TableContainer>
