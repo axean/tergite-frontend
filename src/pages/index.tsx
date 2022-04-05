@@ -5,9 +5,8 @@ import Filter from '../components/Filter';
 import SearchBar from '../components/Searchbar';
 import Sort from '../components/Sort';
 import { WacqtInfoCard } from '../components/WacqtInfoCard';
-import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
-import { CardBackendProps } from '../components/CardBackend';
-import GridBackends, { GridBackendsProps } from '../components/GridBackends';
+import { useQuery } from 'react-query';
+import GridBackends from '../components/GridBackends';
 
 const Index = () => {
 	// Just use setBackends and data when backend fixed the cors errors
@@ -15,17 +14,6 @@ const Index = () => {
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/').then((res) => res.json())
 	);
 
-	if (isLoading) return 'Loading...';
-
-	if (error) return 'Error, prob no devices found';
-
-	console.log(data);
-
-	// this is needed to make the hooks work with react-query, if inner is inlined we get "Rendered more hooks than during the previous render"
-	return <Inner data={data} />;
-};
-
-const Inner = ({ data }) => {
 	const [search, setSearch] = useState('');
 	const [sort, setSort] = useState({ order: 'asc', option: 'name' });
 	const [filter, setFilter] = useState(['online', 'offline']);
@@ -34,6 +22,8 @@ const Inner = ({ data }) => {
 	}
 
 	const sortedBackends = useMemo(() => {
+		if (isLoading || error) return [];
+
 		let filtered = data.filter((backend) => filter.includes(filterParser(backend)));
 
 		let regex;
@@ -50,6 +40,10 @@ const Inner = ({ data }) => {
 			return filtered.sort((a, b) => b[sort.option].localeCompare(a[sort.option]));
 		}
 	}, [search, sort.order, sort.option, data, filter]);
+
+	if (isLoading) return 'Loading...';
+
+	if (error) return 'Error, prob no devices found';
 
 	return (
 		<>
