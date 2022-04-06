@@ -1,16 +1,24 @@
-import { Box, Divider, Tab, TabList, Tabs } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import { Box,Tab, TabList, Tabs } from '@chakra-ui/react';
+import React from 'react';
 
-const RadioButtons = (props) => {
-	const [currentTab, setTab] = useState(0);
-	const tab = props.tabs[currentTab];
+/*
+To get current tab in parent element pass a setState function as a prop
+Example: 
+	const [tab, setTab] = useState('1')
 
-    console.log(tab)
+	<RadioButtons setTab={setTab} tabs={['1', '2', '3']} />
+*/
+interface RadioButtonsProps{
+	tabs: string[];
+	setTab: (value:string) => void
+}
+
+const RadioButtons = ({setTab,tabs}:RadioButtonsProps) => {
 	return (
 		<Box borderRadius='full' border='1px' borderColor='grey' p='1' m='2px' w='fit-content'>
-			<Tabs variant='soft-rounded' onChange={(index) => setTab(index)}>
-				<TabList>
-                {props.tabs.map(item => <Tab _selected={{ color: 'white', bg: '#38B2AC',boxShadow:'none'}}>{item}</Tab>)}
+			<Tabs variant='soft-rounded' onChange={(index) => setTab(tabs[index])}>
+				<TabList >
+                {tabs.map(item => <Tab _selected={{ color: 'white', bg: '#38B2AC',boxShadow:'none'}}>{item}</Tab>)}
 				</TabList>
 			</Tabs>
 		</Box>
