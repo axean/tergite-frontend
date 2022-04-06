@@ -42,3 +42,4 @@ const Histogram: React.FC<HistogramProps> = ({}) => {
 
 export default Histogram;
 
+
