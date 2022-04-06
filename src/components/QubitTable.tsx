@@ -12,9 +12,9 @@ const QubitTable = () => {
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
 	);
 
-    if(isLoading) return 'Loading'
+    if(isLoading) return <span>'Loading'</span>
 
-    if(error) return error + 'error'
+    if(error) return <span>{error}</span>
 
     console.log(data)
 
@@ -26,7 +26,7 @@ const QubitTable = () => {
             <Tr>
               <Th>Qubit</Th>
               <Th>Index[X,Y]</Th>
-              <Th>T1(Hz)</Th>
+              <Th>T1</Th>
               <Th>T2*</Th>
               <Th>T_{'\u03A6'}</Th>
               <Th>Assignment error ge</Th>
