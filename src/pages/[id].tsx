@@ -1,36 +1,78 @@
-import React from 'react';
+import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { Box, Flex, Grid, GridItem, SimpleGrid, Text } from '@chakra-ui/react';
-import GridBackends from '../components/GridBackends';
-import CardStatus from '../components/CardStatus';
-import Filter from '../components/Filter';
-import SearchBar from '../components/Searchbar';
-import Sort from '../components/Sort';
-import { WacqtInfoCard } from '../components/WacqtInfoCard';
+import React, { useState } from 'react';
+import { MdFirstPage, MdLastPage } from 'react-icons/md';
+import NavbarVisualizations from '../components/NavbarVisualizations';
+
+type VisualizationRoutes =
+	| 'Qubitmap'
+	| 'Histogram'
+	| 'Graphdeviation'
+	| 'Linegraph'
+	| 'Tableview'
+	| 'Cityplot';
+
 const Detail = () => {
-	const router = useRouter();
-	const id = router.query.id;
+	const [isCollapsed, setCollapsed] = useState(false);
 	return (
 		<Flex flex='1' py='8' w='full' id='deailId'>
-			<Grid templateColumns='1fr 1fr' templateRows='1fr 1fr' gap='8' flex='1'>
-				<GridItem rowStart={1} w='100%' h='100%' bg='gray.800'>
-					<Text fontSize='4xl' color='white'>
-						quantum computer information
-					</Text>
-				</GridItem>
-				<GridItem rowStart={2} w='100%' h='100%' bg='gray.800'>
-					<Text fontSize='4xl' color='white'>
-						description
-					</Text>
-				</GridItem>
-				<GridItem rowSpan={2} w='100%' h='100%' bg='gray.800'>
-					<Text fontSize='4xl' color='white'>
-						charts
-					</Text>
-				</GridItem>
-			</Grid>
+			<Flex gap='8' flex='1'>
+				<SidePanel
+					isCollapsed={isCollapsed}
+					setCollapsed={setCollapsed}
+					MdFirstPage={MdFirstPage}
+				/>
+				<Box bg='white' flex='5' p='4' borderRadius='md' boxShadow='lg'>
+					<NavbarVisualizations
+						isCollapsed={isCollapsed}
+						onToggleCollapse={() => setCollapsed(!isCollapsed)}
+					/>
+					<VisualizationPanel />
+				</Box>
+			</Flex>
 		</Flex>
 	);
 };
 
+const VisualizationPanel = () => {
+	const router = useRouter();
+	const type = router.query.type as VisualizationRoutes;
+	switch (type) {
+		case 'Qubitmap':
+			return <>qubit</>;
+		case 'Histogram':
+			return <>histogram</>;
+		case 'Graphdeviation':
+			return <>Graphdeviation</>;
+		case 'Linegraph':
+			return <>Linegraph</>;
+		case 'Tableview':
+			return <>Tableview</>;
+		case 'Cityplot':
+			return <>Cityplot</>;
+		default:
+			return <div>No visualization</div>;
+	}
+};
+
 export default Detail;
+
+function SidePanel({ isCollapsed, setCollapsed, MdFirstPage }) {
+	return (
+		!isCollapsed && (
+			<Box bg='white' flex='2' p='4' py='6' borderRadius='md' boxShadow='lg'>
+				<Flex justifyContent='space-between'>
+					<Text fontSize='2xl' color='black'>
+						Chalmers Luki
+					</Text>
+					<Button p='2' onClick={() => setCollapsed(!isCollapsed)}>
+						<Icon as={MdFirstPage} w={8} h={8} />
+					</Button>
+				</Flex>
+				<Text fontSize='4xl' color='black'>
+					description
+				</Text>
+			</Box>
+		)
+	);
+}
