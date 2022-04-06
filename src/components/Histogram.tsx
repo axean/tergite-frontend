@@ -19,27 +19,22 @@ const Histogram: React.FC<HistogramProps> = ({}) => {
 
 	return (
 		<VictoryChart domainPadding={10}>
-            <VictoryLabel
-                x={400}
-                y={290}
-                textAnchor={'middle'}
-                text={'T1(us)'}
-                />
+			<VictoryLabel x={400} y={290} textAnchor={'middle'} text={'T1(us)'} />
 			<VictoryHistogram
 				cornerRadius={5}
-                binSpacing={3}
+				binSpacing={3}
 				style={{
 					data: {
 						fill: '#9CE0DD',
-                        stroke: 0
+						stroke: 0
 					}
 				}}
-				data={data.qubits.map((qubit) => ({ x: qubit.dynamic_properties[0].value * 1000000 }))}
+				data={data.qubits.map((qubit) => ({
+					x: qubit.dynamic_properties[0].value * 1000000
+				}))}
 			/>
 		</VictoryChart>
 	);
 };
 
 export default Histogram;
-
-
