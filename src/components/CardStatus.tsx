@@ -9,14 +9,26 @@ interface CardStatusProps {
 
 const CardStatus = () => {
 	const { isLoading, data, error } = useQuery('backendStatus', () =>
-		fetch('insertlink').then((res) => {
-			res.json();
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/online_statuses').then((res) => {
+			return res.json();
 		})
 	);
 
-	if (isLoading || error) return '';
+	if (isLoading) return <p> loading </p>;
 
-	const percOnl = (parseInt(data.onlineBackends) / parseInt(data.totalBackends)) * 100;
+	if (error) return <p> {error} </p>;
+
+	var online = 0;
+	var total = 0;
+
+	Object.keys(data).forEach(function (key) {
+		if (data[key]) {
+			online++;
+		}
+		total++;
+	});
+
+	console.log(online + ' ' + total);
 
 	return (
 		<Flex
@@ -31,14 +43,19 @@ const CardStatus = () => {
 			<Flex direction='column' justify='space-between'>
 				<Text fontSize='2xl'>Systems online</Text>
 				<Text fontWeight='bold' fontSize='xl'>
-					{data.backendsOnline}
+					{online}
 				</Text>
 			</Flex>
 			<Flex alignItems='center'>
-				<CircularProgress value={1} color='#38B2AC' trackColor='#d9fff3' size='3em'>
+				<CircularProgress
+					value={Math.round((online / total) * 100)}
+					color='#38B2AC'
+					trackColor='#d9fff3'
+					size='3em'
+				>
 					<CircularProgressLabel>
 						<Text fontSize='lg' fontWeight='bold'>
-							{percOnl}%
+							{Math.round((online / total) * 100)}%
 						</Text>
 					</CircularProgressLabel>
 				</CircularProgress>
