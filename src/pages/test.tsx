@@ -1,11 +1,9 @@
-import React from 'react'
+import React from 'react';
 import Histogram from '../components/Histogram';
 
-interface testProps {
-
-}
+interface testProps {}
 
 const test: React.FC<testProps> = ({}) => {
-                return (<Histogram></Histogram>);
-}
+	return <Histogram></Histogram>;
+};
 export default test;
