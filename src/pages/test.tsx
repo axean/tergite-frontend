@@ -6,6 +6,10 @@ import { HistogramVisualization } from '../components/HistogramVisualization';
 interface testProps {}
 
 const test: React.FC<testProps> = ({}) => {
-	return	<Box bg='white'><HistogramVisualization></HistogramVisualization></Box>;
+	return (
+		<Box bg='white'>
+			<HistogramVisualization></HistogramVisualization>
+		</Box>
+	);
 };
 export default test;
