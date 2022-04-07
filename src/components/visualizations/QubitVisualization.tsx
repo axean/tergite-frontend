@@ -1,4 +1,6 @@
 import { Flex, Box } from '@chakra-ui/react';
+import { useState } from 'react';
+import { useQuery } from 'react-query';
 import ConnectivityMap from '../connectivityMap/';
 
 type QubitVisualizationProps = {};
@@ -24,10 +26,9 @@ const dataSample = {
 	]
 };
 
-function fixFlowDirection(links) {
+function fixDirections(links): LinkAligned[] {
 	// this function ensures that for all links {x0,y0,x1,y1} x0 < x1 and y0 < y1
 	// this is needed for the padding of the links to work correctly
-	console.log('before', links);
 	const newLinks = links.map((el) => {
 		let { source, target } = el;
 		let temp;
@@ -44,28 +45,43 @@ function fixFlowDirection(links) {
 		return { source, target, vertical: source.x === target.x ? true : false };
 	});
 
-	console.log('after', newLinks);
 	return newLinks;
 }
-const newData = { nodes: dataSample.nodes, links: fixFlowDirection(dataSample.links) };
+const newData = { nodes: dataSample.nodes, links: fixDirections(dataSample.links) };
 const QubitVisualization: React.FC<QubitVisualizationProps> = () => {
+	const { isLoading, error, data } = useQuery('backendOverview', () =>
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
+	);
+
+	const [selectedNode, setSelectedNode] = useState<number>(0);
+	if (isLoading) return <h1>loading</h1>;
+	if (error) return <h1>error</h1>;
+
+	const myData = {
+		nodes: [{ x: 0, y: 0, id: 100 }, { x: 4, y: 4, id: 100 }, ...data.qubits] as Point[],
+		links: newData.links
+	};
+
 	return (
-		<Flex gap='4'>
-			<Box flex='1'>
-				<ConnectivityMap
-					data={newData}
-					type='node'
-					onSelectNode={() => console.log('node selected')}
-				/>
-			</Box>
-			<Box flex='1'>
-				<ConnectivityMap
-					data={newData}
-					onSelectLink={() => console.log('link selected')}
-					type='link'
-				/>
-			</Box>
-		</Flex>
+		<Box>
+			<Flex gap='4'>
+				<Box flex='1'>
+					<ConnectivityMap
+						data={myData}
+						type='node'
+						onSelectNode={(id) => setSelectedNode(id)}
+					/>
+				</Box>
+				<Box flex='1'>
+					<ConnectivityMap
+						data={myData}
+						onSelectLink={() => console.log('link selected')}
+						type='link'
+					/>
+				</Box>
+			</Flex>
+			{selectedNode}
+		</Box>
 	);
 };
 
