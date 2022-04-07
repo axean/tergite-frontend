@@ -1,6 +1,9 @@
+import { Box, Flex, Spacer } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { useQuery } from 'react-query';
+import DatePicker from './DatePicker';
 import Histogram from './Histogram';
+import RadioButtons from './RadioButtons';
 
 interface HistogramVisualizationProps {}
 
@@ -9,7 +12,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({}
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
 	);
 
-	const [dataToVisualize, setDataToVisualize] = useState<'t1' | 't2' | 'tphi'>();
+	const [dataToVisualize, setDataToVisualize] = useState('');
 	const [timeSpan, setTimeSpan] = useState<Date>();
 
 	if (isLoading) return <span>'Loading...'</span>;
@@ -28,5 +31,21 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({}
 		x: qubit.dynamic_properties[2].value * 1000000
 	}));
 
-	return <Histogram data={t1Data} label='T1(us)'></Histogram>;
+	return (
+		<Box>
+			<Flex flexDir={'row'} align={'center'} p={3}>
+				<Box ml={'3em'}>
+					<RadioButtons
+						setTab={setDataToVisualize}
+						tabs={['T1', 'T2', 'T' + '\u03C6']}
+					></RadioButtons>
+				</Box>
+				<Spacer/>
+				<Box mr='3em'>
+					<DatePicker setDates={setTimeSpan}></DatePicker>
+				</Box>
+			</Flex>
+			<Histogram data={t1Data} label='T1(us)'></Histogram>
+		</Box>
+	);
 };
