@@ -5,7 +5,9 @@ import DatePicker from './DatePicker';
 import Histogram from './Histogram';
 import RadioButtons from './RadioButtons';
 
-interface HistogramVisualizationProps {}
+interface HistogramVisualizationProps {
+	qubitId: number
+}
 
 export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({}) => {
 	const { isLoading, data, error } = useQuery('backendOverview', () =>
@@ -40,7 +42,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({}
 						tabs={['T1', 'T2', 'T' + '\u03C6']}
 					></RadioButtons>
 				</Box>
-				<Spacer/>
+				<Spacer />
 				<Box mr='3em'>
 					<DatePicker setDates={setTimeSpan}></DatePicker>
 				</Box>
