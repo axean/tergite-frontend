@@ -7,12 +7,22 @@ type CustomNodeProps = {
 	xMax: number;
 	x: number;
 	y: number;
-	setPos: React.Dispatch<Point>;
-	onSelect: (id: string) => void;
-	pos: Point;
+	setSelectedNode: React.Dispatch<number>;
+	selectedNode: number;
+	id: number;
+	onSelect: (id: number) => void;
 };
 
-const CustomNode: React.FC<CustomNodeProps> = ({ yMax, xMax, x, y, setPos, pos, onSelect }) => {
+const CustomNode: React.FC<CustomNodeProps> = ({
+	yMax,
+	xMax,
+	x,
+	y,
+	id,
+	setSelectedNode,
+	selectedNode,
+	onSelect
+}) => {
 	return (
 		// yMax / 20 centers the qubit in the middle of the square, if removed its placed in the top left corner
 		<Group
@@ -23,17 +33,14 @@ const CustomNode: React.FC<CustomNodeProps> = ({ yMax, xMax, x, y, setPos, pos, 
 				e.currentTarget.firstElementChild.setAttribute('stroke', '#66FFF7');
 			}}
 			onMouseLeave={(e) => {
-				if (x !== pos.x || y !== pos.y) {
+				if (selectedNode !== id) {
 					e.currentTarget.firstElementChild.setAttribute('fill', '#366361');
 					e.currentTarget.firstElementChild.setAttribute('stroke', '#366361');
 				}
 			}}
 			onMouseDown={() => {
-				setPos({
-					x,
-					y
-				});
-				onSelect(`${x}${y}`);
+				setSelectedNode(id);
+				onSelect(id);
 			}}
 			style={{ cursor: 'pointer' }}
 		>
@@ -42,8 +49,8 @@ const CustomNode: React.FC<CustomNodeProps> = ({ yMax, xMax, x, y, setPos, pos, 
 				y={y}
 				width={xMax / 10}
 				height={yMax / 10}
-				fill={x === pos.x && y === pos.y ? '#38B2AC' : '#366361'}
-				stroke={x === pos.x && y === pos.y ? '#66FFF7' : '#366361'}
+				fill={selectedNode === id ? '#38B2AC' : '#366361'}
+				stroke={selectedNode === id ? '#66FFF7' : '#366361'}
 				strokeWidth={2}
 			/>
 			<Text
@@ -55,7 +62,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({ yMax, xMax, x, y, setPos, pos, 
 				scaleToFit='shrink-only'
 				width={(xMax / 10) * 0.9}
 			>
-				{`${Math.floor(x)},${Math.floor(y)}`}
+				{id}
 			</Text>
 		</Group>
 	);

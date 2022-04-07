@@ -6,16 +6,18 @@ import { Graph } from '@visx/network';
 import { ParentSize } from '@visx/responsive';
 import { scaleLinear } from '@visx/scale';
 import { Text } from '@visx/text';
-import React, { useMemo } from 'react';
-import { chakra } from '@chakra-ui/react';
+import React, { useMemo, useState } from 'react';
+
 import CustomNode from './CustomNode';
 import CustomLink from './CustomLink';
+
+import { useQuery } from 'react-query';
 
 interface ConnectivityMapProps {
 	data: Data;
 	type: 'node' | 'link';
-	onSelectNode?: (id: string) => void;
-	onSelectLink?: (id: string) => void;
+	onSelectNode?: (id: number) => void;
+	onSelectLink?: (id: number) => void;
 	backgroundColor?: string;
 	borderRadius?: number;
 	nodeColor?: string;
@@ -66,8 +68,8 @@ type VisxChartProps = {
 	height: number;
 	width: number;
 	backgroundColor: string;
-	onSelectNode: (id: string) => void;
-	onSelectLink: (id: string) => void;
+	onSelectNode: (id: number) => void;
+	onSelectLink: (id: number) => void;
 	type: 'node' | 'link';
 };
 
@@ -96,11 +98,10 @@ const VisxChart: React.FC<VisxChartProps> = ({
 		round: true
 	});
 
-	const [pos, setPos] = React.useState({ x: 0, y: 0 });
 	const newData = useMemo(
 		() =>
-			data.nodes.map(({ x, y }) => {
-				return { x: scaleX(x / 2), y: scaleY(1 - y / 2) - maxY / 2 };
+			data.nodes.map(({ x, y, id }) => {
+				return { x: scaleX(x / 2), y: scaleY(y / 2 + 0.5) - maxY / 2, id };
 			}),
 		[data.nodes, scaleX, scaleY, maxY]
 	);
@@ -121,6 +122,8 @@ const VisxChart: React.FC<VisxChartProps> = ({
 		[data.links, scaleX, scaleY]
 	);
 
+	const [selectedNode, setSelectedNode] = useState<number>(-1);
+	const [selectedLink, setSelectedLink] = useState<number>(-1);
 	return (
 		maxX > 0 &&
 		maxY > 0 && (
@@ -136,35 +139,48 @@ const VisxChart: React.FC<VisxChartProps> = ({
 						stroke='#ccc'
 						rx={14}
 					/>
-					<AxisBottom scale={scaleX} top={maxY} orientation='bottom' numTicks={6} />
-					<AxisLeft scale={scaleY} orientation='left' numTicks={5} />
+					<AxisBottom
+						scale={scaleX}
+						top={maxY}
+						orientation='bottom'
+						numTicks={5}
+						tickTransform={`translate(${maxX / 10} 0)`}
+					/>
+					<AxisLeft
+						scale={scaleY}
+						orientation='left'
+						numTicks={5}
+						tickTransform={`translate(0 -${maxY / 10})`}
+					/>
 					<Graph
 						graph={{
 							nodes: newData,
 							links: newLinks
 						}}
-						nodeComponent={({ node: { x, y } }) =>
+						nodeComponent={({ node: { x, y, id } }) =>
 							type === 'node' && (
 								<CustomNode
 									yMax={maxY}
 									xMax={maxX}
 									x={x}
 									y={y}
-									setPos={setPos}
-									pos={pos}
+									setSelectedNode={setSelectedNode}
+									selectedNode={selectedNode}
+									id={id}
 									onSelect={onSelectNode}
 								/>
 							)
 						}
 						linkComponent={(link) =>
 							type === 'link' ? (
-								<CustomLink
-									link={link.link}
-									xMax={maxX}
-									yMax={maxY}
-									onSelect={onSelectLink}
-								/>
+								<></>
 							) : (
+								// <CustomLink
+								// 	link={link.link}
+								// 	xMax={maxX}
+								// 	yMax={maxY}
+								// 	onSelect={onSelectLink}
+								// />
 								<></>
 							)
 						}
