@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { MdFirstPage, MdLastPage } from 'react-icons/md';
 import NavbarVisualizations from '../components/NavbarVisualizations';
+import QubitVisualization from '../components/visualizations/QubitVisualization';
 
 type VisualizationRoutes =
 	| 'Qubitmap'
@@ -22,24 +23,24 @@ const Detail = () => {
 					setCollapsed={setCollapsed}
 					MdFirstPage={MdFirstPage}
 				/>
-				<Box bg='white' flex='5' p='4' borderRadius='md' boxShadow='lg'>
+				<Flex flexDir='column' bg='white' flex='5' p='4' borderRadius='md' boxShadow='lg'>
 					<NavbarVisualizations
 						isCollapsed={isCollapsed}
 						onToggleCollapse={() => setCollapsed(!isCollapsed)}
 					/>
-					<VisualizationPanel />
-				</Box>
+					<VisualizationPanel isCollapsed={isCollapsed} />
+				</Flex>
 			</Flex>
 		</Flex>
 	);
 };
 
-const VisualizationPanel = () => {
+const VisualizationPanel = ({ isCollapsed }) => {
 	const router = useRouter();
 	const type = router.query.type as VisualizationRoutes;
 	switch (type) {
 		case 'Qubitmap':
-			return <>qubit</>;
+			return <QubitVisualization isCollapsed={isCollapsed} />;
 		case 'Histogram':
 			return <>histogram</>;
 		case 'Graphdeviation':
@@ -51,7 +52,7 @@ const VisualizationPanel = () => {
 		case 'Cityplot':
 			return <>Cityplot</>;
 		default:
-			return <div>No visualization</div>;
+			return <QubitVisualization isCollapsed={isCollapsed} />;
 	}
 };
 
