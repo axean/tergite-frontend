@@ -8,6 +8,7 @@ type CustomNodeProps = {
 	y: number;
 	yMax: number;
 	xMax: number;
+	squareSize: 'small' | 'medium' | 'large';
 	selectedNode: number;
 	hideLabels: boolean;
 	setSelectedNode: React.Dispatch<number>;
@@ -21,15 +22,30 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 	y,
 	id,
 	setSelectedNode,
+	squareSize,
 	selectedNode,
 	onSelect,
 	hideLabels
 }) => {
+	squareSize = squareSize || 'medium';
+	let size = 0;
+	switch (squareSize) {
+		case 'small':
+			size = yMax / 16;
+			break;
+		case 'medium':
+			size = yMax / 10;
+			break;
+		case 'large':
+			size = yMax / 7;
+			break;
+	}
+	console.log(size);
 	return (
-		// yMax / 20 centers the qubit in the middle of the square, if removed its placed in the top left corner
+		// yMax/10 is the size of half a square
 		<Group
-			top={yMax / 20}
-			left={xMax / 20}
+			top={yMax / 10 - size / 2}
+			left={xMax / 10 - size / 2}
 			onMouseEnter={(e) => {
 				e.currentTarget.firstElementChild.setAttribute('fill', '#38B2AC');
 				e.currentTarget.firstElementChild.setAttribute('stroke', '#66FFF7');
@@ -42,15 +58,15 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 			}}
 			onMouseDown={() => {
 				setSelectedNode(id);
-				onSelect(id);
+				onSelect && onSelect(id);
 			}}
 			style={{ cursor: 'pointer' }}
 		>
 			<rect
 				x={x}
 				y={y}
-				width={xMax / 10}
-				height={yMax / 10}
+				width={size}
+				height={size}
 				fill={selectedNode === id ? '#38B2AC' : '#366361'}
 				stroke={selectedNode === id ? '#66FFF7' : '#366361'}
 				strokeWidth={2}

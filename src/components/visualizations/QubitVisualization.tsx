@@ -57,21 +57,25 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 	};
 
 	return (
-		<Skeleton isLoaded={!isRerendering && !error && !isLoading}>
+		<Skeleton isLoaded={!isRerendering && !error && !isLoading && data !== undefined}>
 			<Box>
-				<Flex gap='4'>
-					<Box flex='1'>
+				<Flex gap='8' overflow='hidden' my='4'>
+					<Box flex='1' overflow='hidden'>
 						<ConnectivityMap
 							data={myData}
 							type='node'
+							backgroundColor='white'
 							onSelectNode={(id) => setSelectedNode(id)}
+							size={5}
 						/>
 					</Box>
-					<Box flex='1'>
+					<Box flex='1' overflow='hidden'>
 						<ConnectivityMap
 							data={myData}
+							backgroundColor='white'
 							onSelectLink={() => console.log('link selected')}
 							type='link'
+							size={5}
 						/>
 					</Box>
 				</Flex>

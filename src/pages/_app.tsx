@@ -1,3 +1,5 @@
+import '../globals.css';
+
 import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import theme from '../theme';
