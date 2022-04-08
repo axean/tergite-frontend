@@ -11,23 +11,30 @@ import React, { useMemo, useState } from 'react';
 import CustomNode from './CustomNode';
 import CustomLink from './CustomLink';
 
-import { useQuery } from 'react-query';
-
-interface ConnectivityMapProps {
+type ConnectivityMapProps = {
 	data: Data;
 	type: 'node' | 'link';
 	hideLabels?: boolean;
+	smallTicks?: boolean;
 	onSelectNode?: (id: number) => void;
 	onSelectLink?: (id: number) => void;
+	size: number;
+	squareSize?: 'small' | 'medium' | 'large';
 	backgroundColor?: string;
 	borderRadius?: number;
 	nodeColor?: string;
 	linkColor?: string;
-}
+};
 
 const ConnectivityMap: React.FC<ConnectivityMapProps> = (props) => {
 	return (
-		<Box bg='gray.200' borderRadius='md' p='4' w='full' h='full'>
+		<Box
+			bg={props.backgroundColor ? props.backgroundColor : 'gray.200'}
+			borderRadius='md'
+			px='0'
+			py='0'
+			overflow='hidden'
+		>
 			<ParentSize>
 				{({ width }) => <VisxChart {...props} height={width} width={width} />}
 			</ParentSize>
@@ -35,43 +42,45 @@ const ConnectivityMap: React.FC<ConnectivityMapProps> = (props) => {
 	);
 };
 
-interface VisxChartProps extends ConnectivityMapProps {
+type VisxChartProps = ConnectivityMapProps & {
 	height: number;
 	width: number;
-}
+};
 
 const VisxChart: React.FC<VisxChartProps> = ({
 	data,
 	height,
 	width,
-	backgroundColor,
-	hideLabels: hideLabels,
+	size,
+	hideLabels,
+	smallTicks,
+	squareSize,
 	type,
 	onSelectNode,
 	onSelectLink
 }) => {
-	const marginX = 45;
-	const marginY = 45;
+	const marginX = 25;
+	const marginY = 25;
 	const maxY = height - marginY;
 	const maxX = width - marginX;
 	const scaleX = useMemo(
 		() =>
 			scaleLinear({
-				domain: [0, 5],
+				domain: [0, size],
 				range: [0, maxX],
 				round: true
 			}),
-		[maxX]
+		[maxX, size]
 	);
 
 	const scaleY = useMemo(
 		() =>
 			scaleLinear({
-				domain: [5, 0],
+				domain: [size, 0],
 				range: [0, maxY],
 				round: true
 			}),
-		[maxY]
+		[maxY, size]
 	);
 
 	const newData = useMemo(
@@ -104,34 +113,35 @@ const VisxChart: React.FC<VisxChartProps> = ({
 		maxX > 0 &&
 		maxY > 0 && (
 			<svg width={width} height={height} rx={14}>
-				<Group left={marginY} top={10}>
+				<Group left={marginX} top={0}>
 					<Grid
 						xScale={scaleX}
 						yScale={scaleY}
 						width={maxX}
 						height={maxY}
-						numTicksColumns={5}
-						numTicksRows={5}
-						stroke='#ccc'
+						numTicksColumns={size}
+						numTicksRows={size}
+						stroke='#f0f0f0'
 						rx={14}
 					/>
 					<AxisBottom
 						scale={scaleX}
 						top={maxY}
 						orientation='bottom'
-						numTicks={5}
+						numTicks={size}
 						tickTransform={`translate(${maxX / 10} 0)`}
-						tickFormat={(d) => d.toString()}
+						tickFormat={(d) => (d.toString() === size.toString() ? '' : d.toString())}
+						tickClassName={smallTicks ? 'tspan-sm' : 'tspan-md'}
 						hideTicks={true}
 					/>
 					<AxisLeft
 						scale={scaleY}
 						orientation='left'
-						numTicks={5}
+						numTicks={size}
 						tickTransform={`translate(0 -${maxY / 10})`}
 						hideTicks={true}
-						tickClassName=''
-						tickFormat={(d) => d.toString()}
+						tickClassName={smallTicks ? 'tspan-sm' : 'tspan-md'}
+						tickFormat={(d) => (d.toString() === size.toString() ? '' : d.toString())}
 					/>
 					<Graph
 						graph={{
@@ -148,6 +158,7 @@ const VisxChart: React.FC<VisxChartProps> = ({
 									setSelectedNode={setSelectedNode}
 									hideLabels={hideLabels}
 									selectedNode={selectedNode}
+									squareSize={squareSize}
 									id={id}
 									onSelect={onSelectNode}
 								/>
@@ -173,4 +184,12 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	);
 };
 
+type SmallConnectivityMapProps = Omit<
+	ConnectivityMapProps,
+	'smallTicks' | 'hideLabels' | 'squareSize'
+>;
+const SmallConnectivityMap: React.FC<SmallConnectivityMapProps> = (props) => {
+	return <ConnectivityMap {...props} smallTicks={true} hideLabels={true} squareSize='large' />;
+};
 export default ConnectivityMap;
+export { SmallConnectivityMap };

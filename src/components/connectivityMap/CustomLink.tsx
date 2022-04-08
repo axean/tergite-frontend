@@ -20,7 +20,7 @@ const CustomLink: React.FC<CustomLinkProps> = ({ link, yMax, xMax, onSelect }) =
 					e.currentTarget.setAttribute('stroke', '#366361');
 				}}
 				onMouseDown={() => {
-					onSelect(0);
+					onSelect && onSelect(0);
 				}}
 				x1={`${link.source.x}`}
 				y1={`${link.source.y}`}
