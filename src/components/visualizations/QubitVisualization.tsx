@@ -35,6 +35,8 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 	const [selectedNode, setSelectedNode] = useState<number>(0);
 	const rerenderRef = useRef(isCollapsed);
 	const [isRerendering, setIsRerendering] = useState(false);
+
+	// this is needed to ensure proper resizing of the component after the sidepanel collapse/expand
 	useEffect(() => {
 		if (rerenderRef.current !== isCollapsed) {
 			rerenderRef.current = isCollapsed;
@@ -49,7 +51,7 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 		nodes: [
 			{ x: 0, y: 0, id: 100 },
 			{ x: 4, y: 4, id: 100 },
-			...(data ? data.qubits : [])
+			...(data !== undefined ? data.qubits : [])
 		] as Point[],
 		links: []
 	};

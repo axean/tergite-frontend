@@ -3,13 +3,14 @@ import { Text } from '@visx/text';
 import React from 'react';
 
 type CustomNodeProps = {
-	yMax: number;
-	xMax: number;
+	id: number;
 	x: number;
 	y: number;
-	setSelectedNode: React.Dispatch<number>;
+	yMax: number;
+	xMax: number;
 	selectedNode: number;
-	id: number;
+	hideLabels: boolean;
+	setSelectedNode: React.Dispatch<number>;
 	onSelect: (id: number) => void;
 };
 
@@ -21,7 +22,8 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 	id,
 	setSelectedNode,
 	selectedNode,
-	onSelect
+	onSelect,
+	hideLabels
 }) => {
 	return (
 		// yMax / 20 centers the qubit in the middle of the square, if removed its placed in the top left corner
@@ -53,17 +55,19 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 				stroke={selectedNode === id ? '#66FFF7' : '#366361'}
 				strokeWidth={2}
 			/>
-			<Text
-				x={x + 2}
-				y={y + 12}
-				fill='#f0f0f0'
-				verticalAnchor='start'
-				textAnchor='start'
-				scaleToFit='shrink-only'
-				width={(xMax / 10) * 0.9}
-			>
-				{id}
-			</Text>
+			{!hideLabels && (
+				<Text
+					x={x + 2}
+					y={y + 12}
+					fill='#f0f0f0'
+					verticalAnchor='start'
+					textAnchor='start'
+					scaleToFit='shrink-only'
+					width={(xMax / 10) * 0.9}
+				>
+					{id}
+				</Text>
+			)}
 		</Group>
 	);
 };

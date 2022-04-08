@@ -11,6 +11,14 @@ const breakpoints = createBreakpoints({
 });
 
 const theme = extendTheme({
+	styles: {
+		global: {
+			tspan: {
+				fontSize: '1rem',
+				fontWeight: 'bold'
+			}
+		}
+	},
 	colors: {
 		black: '#16161D'
 	},
