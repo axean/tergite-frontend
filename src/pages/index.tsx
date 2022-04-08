@@ -22,7 +22,7 @@ const Index = () => {
 	}
 
 	const sortedBackends = useMemo(() => {
-		if (isLoading || error) return [];
+		if (isLoading || error || !data) return [];
 
 		let filtered = data.filter((backend) => filter.includes(filterParser(backend)));
 
@@ -39,7 +39,7 @@ const Index = () => {
 		} else {
 			return filtered.sort((a, b) => b[sort.option].localeCompare(a[sort.option]));
 		}
-	}, [search, sort.order, sort.option, data, filter]);
+	}, [search, sort.order, sort.option, data, filter, isLoading, error]);
 
 	if (isLoading) return 'Loading...';
 
