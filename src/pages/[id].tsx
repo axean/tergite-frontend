@@ -23,24 +23,24 @@ const Detail = () => {
 					setCollapsed={setCollapsed}
 					MdFirstPage={MdFirstPage}
 				/>
-				<Box bg='white' flex='5' p='4' borderRadius='md' boxShadow='lg'>
+				<Flex flexDir='column' bg='white' flex='5' p='4' borderRadius='md' boxShadow='lg'>
 					<NavbarVisualizations
 						isCollapsed={isCollapsed}
 						onToggleCollapse={() => setCollapsed(!isCollapsed)}
 					/>
-					<VisualizationPanel />
-				</Box>
+					<VisualizationPanel isCollapsed={isCollapsed} />
+				</Flex>
 			</Flex>
 		</Flex>
 	);
 };
 
-const VisualizationPanel = () => {
+const VisualizationPanel = ({ isCollapsed }) => {
 	const router = useRouter();
 	const type = router.query.type as VisualizationRoutes;
 	switch (type) {
 		case 'Qubitmap':
-			return <QubitVisualization />;
+			return <QubitVisualization isCollapsed={isCollapsed} />;
 		case 'Histogram':
 			return <>histogram</>;
 		case 'Graphdeviation':
@@ -52,7 +52,7 @@ const VisualizationPanel = () => {
 		case 'Cityplot':
 			return <>Cityplot</>;
 		default:
-			return <QubitVisualization />;
+			return <QubitVisualization isCollapsed={isCollapsed} />;
 	}
 };
 
