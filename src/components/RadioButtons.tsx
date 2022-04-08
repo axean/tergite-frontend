@@ -1,4 +1,4 @@
-import { Box,Tab, TabList, Tabs } from '@chakra-ui/react';
+import { Box, Tab, TabList, Tabs } from '@chakra-ui/react';
 import React from 'react';
 
 /*
@@ -8,17 +8,24 @@ Example:
 
 	<RadioButtons setTab={setTab} tabs={['1', '2', '3']} />
 */
-interface RadioButtonsProps{
+interface RadioButtonsProps {
 	tabs: string[];
-	setTab: (value:string) => void
+	setTab: (value: string) => void;
 }
 
-const RadioButtons = ({setTab,tabs}:RadioButtonsProps) => {
+const RadioButtons = ({ setTab, tabs }: RadioButtonsProps) => {
 	return (
 		<Box borderRadius='full' border='1px' borderColor='grey' p='1' m='2px' w='fit-content'>
 			<Tabs variant='soft-rounded' onChange={(index) => setTab(tabs[index])}>
-				<TabList >
-                {tabs.map(item => <Tab _selected={{ color: 'white', bg: '#38B2AC',boxShadow:'none'}}>{item}</Tab>)}
+				<TabList>
+					{tabs.map((item, index) => (
+						<Tab
+							key={index}
+							_selected={{ color: 'white', bg: '#38B2AC', boxShadow: 'none' }}
+						>
+							{item}
+						</Tab>
+					))}
 				</TabList>
 			</Tabs>
 		</Box>
@@ -26,4 +33,3 @@ const RadioButtons = ({setTab,tabs}:RadioButtonsProps) => {
 };
 
 export default RadioButtons;
-
