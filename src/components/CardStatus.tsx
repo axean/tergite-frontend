@@ -1,20 +1,30 @@
 import React from 'react';
-import {
-	Grid,
-	GridItem,
-	Text,
-	Box,
-	CircularProgress,
-	CircularProgressLabel,
-	Flex
-} from '@chakra-ui/react';
+import { Text, CircularProgress, CircularProgressLabel, Flex } from '@chakra-ui/react';
+import { useQuery } from 'react-query';
 
-interface CardStatusProps {
-	percentage: number;
-	noComputers: number;
-}
+const CardStatus = () => {
+	const { isLoading, data, error } = useQuery('backendStatus', () =>
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/online_statuses').then((res) => {
+			return res.json();
+		})
+	);
 
-const CardStatus = ({ percentage, noComputers }: CardStatusProps) => {
+	if (isLoading) return <p> loading </p>;
+
+	if (error) return <p> {error} </p>;
+
+	var online = 0;
+	var total = 0;
+
+	Object.keys(data).forEach(function (key) {
+		if (data[key]) {
+			online++;
+		}
+		total++;
+	});
+
+	console.log(online + ' ' + total);
+
 	return (
 		<Flex
 			justify='space-between'
@@ -28,58 +38,25 @@ const CardStatus = ({ percentage, noComputers }: CardStatusProps) => {
 			<Flex direction='column' justify='space-between'>
 				<Text fontSize='2xl'>Systems online</Text>
 				<Text fontWeight='bold' fontSize='xl'>
-					{noComputers}
+					{online}
 				</Text>
 			</Flex>
 			<Flex alignItems='center'>
 				<CircularProgress
-					value={percentage}
+					value={Math.round((online / total) * 100)}
 					color='#38B2AC'
 					trackColor='#d9fff3'
 					size='3em'
 				>
 					<CircularProgressLabel>
 						<Text fontSize='lg' fontWeight='bold'>
-							{percentage}%
+							{Math.round((online / total) * 100)}%
 						</Text>
 					</CircularProgressLabel>
 				</CircularProgress>
 			</Flex>
 		</Flex>
-		// <Box bg='white' rounded='md' boxShadow='2xl'>
-		// 	<Grid
-		// 		w='full'
-		// 		h='full'
-		// 		templateRows='repeat(2, 3em)'
-		// 		templateColumns='repeat(2, 9em)'
-		// 		gap={1}
-		// 		justifyContent='center'
-		// 		pt='2'
-		// 	>
-		// 		<GridItem rowSpan={1} colSpan={1} bg=''>
-		// 			Systems online
-		// 		</GridItem>
-		// 		<GridItem rowSpan={2} colSpan={1}>
-		// 			<CircularProgress
-		// 				value={percentage}
-		// 				color='#38B2AC'
-		// 				trackColor='#d9fff3'
-		// 				size='90px'
-		// 			>
-		// 				<CircularProgressLabel>{percentage}%</CircularProgressLabel>
-		// 			</CircularProgress>
-		// 		</GridItem>
-		// 		<GridItem rowSpan={1} colSpan={1} bg=''>
-		// 			{noComputers}
-		// 		</GridItem>
-		// 	</Grid>
-		// </Box>
 	);
-};
-
-CardStatus.defaultProps = {
-	percentage: 40,
-	noComputers: 13
 };
 
 export default CardStatus;
