@@ -1,30 +1,7 @@
-import { Flex, Box } from '@chakra-ui/react';
-import { useState } from 'react';
+import { Flex, Box, Spinner, Grid, Skeleton } from '@chakra-ui/react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery } from 'react-query';
 import ConnectivityMap from '../connectivityMap/';
-
-type QubitVisualizationProps = {};
-
-const nodes = [
-	{ x: 0, y: 0 },
-
-	{ x: 1, y: 0 },
-
-	{ x: 0, y: 1 },
-
-	{ x: 1, y: 1 }
-];
-
-const dataSample = {
-	nodes,
-
-	links: [
-		{ source: nodes[0], target: nodes[1] },
-		{ source: nodes[0], target: nodes[2] },
-		{ source: nodes[1], target: nodes[3] },
-		{ source: nodes[3], target: nodes[2] }
-	]
-};
 
 function fixDirections(links): LinkAligned[] {
 	// this function ensures that for all links {x0,y0,x1,y1} x0 < x1 and y0 < y1
@@ -47,41 +24,58 @@ function fixDirections(links): LinkAligned[] {
 
 	return newLinks;
 }
-const newData = { nodes: dataSample.nodes, links: fixDirections(dataSample.links) };
-const QubitVisualization: React.FC<QubitVisualizationProps> = () => {
+type QubitVisualizationProps = {
+	isCollapsed: boolean;
+};
+const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) => {
 	const { isLoading, error, data } = useQuery('backendOverview', () =>
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
 	);
 
 	const [selectedNode, setSelectedNode] = useState<number>(0);
-	if (isLoading) return <h1>loading</h1>;
-	if (error) return <h1>error</h1>;
+	const rerenderRef = useRef(isCollapsed);
+	const [isRerendering, setIsRerendering] = useState(false);
+	useEffect(() => {
+		if (rerenderRef.current !== isCollapsed) {
+			rerenderRef.current = isCollapsed;
+			setIsRerendering(true);
+			setTimeout(() => {
+				setIsRerendering(false);
+			}, 50);
+		}
+	}, [isCollapsed]);
 
 	const myData = {
-		nodes: [{ x: 0, y: 0, id: 100 }, { x: 4, y: 4, id: 100 }, ...data.qubits] as Point[],
-		links: newData.links
+		nodes: [
+			{ x: 0, y: 0, id: 100 },
+			{ x: 4, y: 4, id: 100 },
+			...(data ? data.qubits : [])
+		] as Point[],
+		links: []
 	};
 
 	return (
-		<Box>
-			<Flex gap='4'>
-				<Box flex='1'>
-					<ConnectivityMap
-						data={myData}
-						type='node'
-						onSelectNode={(id) => setSelectedNode(id)}
-					/>
-				</Box>
-				<Box flex='1'>
-					<ConnectivityMap
-						data={myData}
-						onSelectLink={() => console.log('link selected')}
-						type='link'
-					/>
-				</Box>
-			</Flex>
-			{selectedNode}
-		</Box>
+		<Skeleton isLoaded={!isRerendering && !error && !isLoading}>
+			<Box>
+				<Flex gap='4'>
+					<Box flex='1'>
+						<ConnectivityMap
+							data={myData}
+							type='node'
+							onSelectNode={(id) => setSelectedNode(id)}
+						/>
+					</Box>
+					<Box flex='1'>
+						<ConnectivityMap
+							data={myData}
+							onSelectLink={() => console.log('link selected')}
+							type='link'
+						/>
+					</Box>
+				</Flex>
+				{selectedNode}
+			</Box>
+		</Skeleton>
 	);
 };
 
