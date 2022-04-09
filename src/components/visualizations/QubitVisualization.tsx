@@ -28,7 +28,7 @@ type QubitVisualizationProps = {
 	isCollapsed: boolean;
 };
 const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) => {
-	const { isLoading, error, data } = useQuery('backendOverview', () =>
+	const { isLoading, error, data } = useQuery('QubitVisualization', () =>
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
 	);
 

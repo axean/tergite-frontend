@@ -60,21 +60,23 @@ const DesktopNav = () => {
 				<Box key={navItem.label}>
 					<Popover trigger={'hover'} placement={'bottom-start'}>
 						<PopoverTrigger>
-							<NextLink href={router.query.id + '?type=' + navItem.href} passHref>
-								<Link
-									p={2}
-									fontSize={'lg'}
-									fontWeight={600}
-									href={navItem.href ?? '#'}
-									color={linkColor}
-									_hover={{
-										textDecoration: 'none',
-										color: linkHoverColor
-									}}
-								>
-									{navItem.label}
-								</Link>
-							</NextLink>
+							<Box>
+								<NextLink href={router.query.id + '?type=' + navItem.href} passHref>
+									<Link
+										p={2}
+										fontSize={'lg'}
+										fontWeight={600}
+										href={navItem.href ?? '#'}
+										color={linkColor}
+										_hover={{
+											textDecoration: 'none',
+											color: linkHoverColor
+										}}
+									>
+										{navItem.label}
+									</Link>
+								</NextLink>
+							</Box>
 						</PopoverTrigger>
 					</Popover>
 				</Box>
