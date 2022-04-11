@@ -6,7 +6,7 @@ import Histogram from './Histogram';
 import RadioButtons from './RadioButtons';
 
 interface HistogramVisualizationProps {
-	qubitId: number
+	qubitId: number;
 }
 
 export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({}) => {
