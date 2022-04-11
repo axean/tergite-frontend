@@ -1,9 +1,9 @@
 import { Box, Flex, Spacer } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { useQuery } from 'react-query';
-import DatePicker from './DatePicker';
-import Histogram from './Histogram';
-import RadioButtons from './RadioButtons';
+import DatePicker from '../DatePicker';
+import Histogram from '../Histogram';
+import RadioButtons from '../RadioButtons';
 
 interface HistogramVisualizationProps {
 	qubitId: number;
