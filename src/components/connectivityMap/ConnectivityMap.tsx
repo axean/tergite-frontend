@@ -59,6 +59,7 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	onSelectNode,
 	onSelectLink
 }) => {
+
 	const marginX = 25;
 	const marginY = 25;
 	const maxY = height - marginY;
@@ -151,6 +152,7 @@ const VisxChart: React.FC<VisxChartProps> = ({
 						nodeComponent={({ node: { x, y, id } }) =>
 							type === 'node' && (
 								<CustomNode
+									data={data.nodes.filter (node => node.id == id)[0]}
 									yMax={maxY}
 									xMax={maxX}
 									x={x}

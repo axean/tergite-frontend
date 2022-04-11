@@ -18,6 +18,7 @@ type CustomNodeProps = {
 };
 
 const CustomNode: React.FC<CustomNodeProps> = ({
+	data,
 	yMax,
 	xMax,
 	x,
@@ -42,7 +43,6 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 			size = yMax / 7;
 			break;
 	}
-	console.log(size);
 
 	const {
 		tooltipOpen,
@@ -52,6 +52,16 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 		showTooltip,
 		tooltipData
 	  } = useTooltip();
+
+	const qubitProps = {
+		freq: data.static_properties?.[0].value,
+		freqUnit: data.static_properties?.[0].unit,
+		anharm: "TEMP",
+		anharmUnit: "TEMP",
+		resFreq: "TEMP",
+		resFreqUnit: "TEMP",
+		dli: data.xy_drive_line
+	}
 
 	  const { containerRef, TooltipInPortal } = useTooltipInPortal();
 
@@ -125,20 +135,20 @@ const CustomNode: React.FC<CustomNodeProps> = ({
         	>
           	<Box>
 				<Grid templateRows='repeat(5, 1fr)' gap={0}>
-					<GridItem w='100%' h='5' color="#2B8A79" style={{ fontWeight: 'bold' }}>
-						Qubit ({x}, {y})
+					<GridItem w='100%' h='5' color="#2B8A79">
+						<strong>Qubit ({data.x}, {data.y}) </strong>
 					</GridItem>
 					<GridItem w='100%' h='5'>
-						Qubit Frequency: 
+						Qubit Frequency: {qubitProps.freq} {qubitProps.freqUnit}
 					</GridItem>
 					<GridItem w='100%' h='5'>
-						Anharmonicity:
+						Anharmonicity: {qubitProps.anharm} {qubitProps.anharmUnit}
 					</GridItem>
 					<GridItem w='100%' h='5'>
-						Resonator Frequency:
+						Resonator Frequency: {qubitProps.resFreq} {qubitProps.resFreqUnit}
 					</GridItem>
 					<GridItem w='100%' h='5'>
-						Drive Line Index:
+						Drive Line Index: {qubitProps.dli}
 					</GridItem>
 				</Grid>
 		</Box>
