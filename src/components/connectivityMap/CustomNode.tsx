@@ -1,6 +1,8 @@
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
 import React from 'react';
+import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
+import {Box, Grid, GridItem} from '@chakra-ui/react';
 
 type CustomNodeProps = {
 	id: number;
@@ -41,6 +43,20 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 			break;
 	}
 	console.log(size);
+
+	const {
+		tooltipOpen,
+		tooltipTop,
+		tooltipLeft,
+		hideTooltip,
+		showTooltip,
+		tooltipData
+	  } = useTooltip();
+
+	  const { containerRef, TooltipInPortal } = useTooltipInPortal();
+
+	  let tooltipTimeout;
+
 	return (
 		// yMax/10 is the size of half a square
 		<Group
@@ -55,12 +71,28 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 					e.currentTarget.firstElementChild.setAttribute('fill', '#366361');
 					e.currentTarget.firstElementChild.setAttribute('stroke', '#366361');
 				}
+
+				tooltipTimeout = window.setTimeout(() => {
+					hideTooltip();
+				  }, 10);
 			}}
 			onMouseDown={() => {
 				setSelectedNode(id);
 				onSelect && onSelect(id);
 			}}
 			style={{ cursor: 'pointer' }}
+
+			onMouseMove={(event) => {
+				if (tooltipTimeout) clearTimeout(tooltipTimeout);
+				const top = event.clientY;
+				const left = event.clientX;
+
+				showTooltip({
+				  tooltipData: selectedNode,
+				  tooltipTop: top,
+				  tooltipLeft: left
+				});
+			  }}
 		>
 			<rect
 				x={x}
@@ -84,6 +116,34 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 					{id}
 				</Text>
 			)}
+
+			{tooltipOpen && tooltipData && (
+        	<TooltipInPortal
+         		 key={Math.random()}
+         		 top={tooltipTop}
+          		left={tooltipLeft}
+        	>
+          	<Box>
+				<Grid templateRows='repeat(5, 1fr)' gap={0}>
+					<GridItem w='100%' h='5' color="#2B8A79" style={{ fontWeight: 'bold' }}>
+						Qubit ({x}, {y})
+					</GridItem>
+					<GridItem w='100%' h='5'>
+						Qubit Frequency: 
+					</GridItem>
+					<GridItem w='100%' h='5'>
+						Anharmonicity:
+					</GridItem>
+					<GridItem w='100%' h='5'>
+						Resonator Frequency:
+					</GridItem>
+					<GridItem w='100%' h='5'>
+						Drive Line Index:
+					</GridItem>
+				</Grid>
+		</Box>
+        </TooltipInPortal>
+		)}
 		</Group>
 	);
 };
