@@ -1,6 +1,6 @@
 import React, { ReactNode, useState, useReducer } from 'react';
 
-type BackendContextState = {
+export type BackendContextState = {
 	selectedNode: number;
 	selectedLink: number;
 	timeFrom: Date;
@@ -14,7 +14,7 @@ type BackendContextProps = [
 	React.Dispatch<{ type: Actions; payload: number }>
 ];
 
-enum Actions {
+export enum Actions {
 	SELECT_NODE = 0,
 	SELECT_LINK,
 	SET_TIME_FROM,
