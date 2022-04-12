@@ -16,10 +16,9 @@ type ConnectivityMapProps = {
 	type: 'node' | 'link';
 	hideLabels?: boolean;
 	smallTicks?: boolean;
-	onSelectNode?: (id: number) => void;
-	onSelectLink?: (id: number) => void;
 	size: number;
 	squareSize?: 'small' | 'medium' | 'large';
+	onSelect?: (id: number) => void;
 	backgroundColor?: string;
 	borderRadius?: number;
 	nodeColor?: string;
@@ -55,9 +54,8 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	hideLabels,
 	smallTicks,
 	squareSize,
-	type,
-	onSelectNode,
-	onSelectLink
+	onSelect,
+	type
 }) => {
 	const marginX = 25;
 	const marginY = 25;
@@ -107,8 +105,6 @@ const VisxChart: React.FC<VisxChartProps> = ({
 		[data.links, scaleX, scaleY]
 	);
 
-	const [selectedNode, setSelectedNode] = useState<number>(-1);
-	const [selectedLink, setSelectedLink] = useState<number>(-1);
 	return (
 		maxX > 0 &&
 		maxY > 0 && (
@@ -155,26 +151,21 @@ const VisxChart: React.FC<VisxChartProps> = ({
 									xMax={maxX}
 									x={x}
 									y={y}
-									setSelectedNode={setSelectedNode}
+									onSelect={onSelect}
 									hideLabels={hideLabels}
-									selectedNode={selectedNode}
 									squareSize={squareSize}
 									id={id}
-									onSelect={onSelectNode}
 								/>
 							)
 						}
 						linkComponent={(link) =>
-							type === 'link' ? (
-								<></>
-							) : (
-								// <CustomLink
-								// 	link={link.link}
-								// 	xMax={maxX}
-								// 	yMax={maxY}
-								// 	onSelect={onSelectLink}
-								// />
-								<></>
+							type === 'link' && (
+								<CustomLink
+									link={link}
+									xMax={maxX}
+									yMax={maxY}
+									onSelect={onSelect}
+								/>
 							)
 						}
 					></Graph>

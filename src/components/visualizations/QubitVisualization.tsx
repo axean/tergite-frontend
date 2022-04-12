@@ -1,6 +1,7 @@
 import { Flex, Box, Spinner, Grid, Skeleton } from '@chakra-ui/react';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useQuery } from 'react-query';
+import { BackendContext } from '../../state/BackendContext';
 import ConnectivityMap from '../connectivityMap/';
 
 function fixDirections(links): LinkAligned[] {
@@ -32,7 +33,8 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
 	);
 
-	const [selectedNode, setSelectedNode] = useState<number>(0);
+	const [{ selectedNode, nodes }, _] = useContext(BackendContext);
+
 	const rerenderRef = useRef(isCollapsed);
 	const [isRerendering, setIsRerendering] = useState(false);
 
@@ -47,6 +49,12 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 		}
 	}, [isCollapsed]);
 
+	console.log('nodes', nodes);
+	console.log(
+		data.couplers.map((e, index) => {
+			return { ...e, from: e.qubits[0], to: e.qubits[1] };
+		})
+	);
 	const myData = {
 		nodes: [
 			{ x: 0, y: 0, id: 100 },
@@ -65,7 +73,6 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 							data={myData}
 							type='node'
 							backgroundColor='white'
-							onSelectNode={(id) => setSelectedNode(id)}
 							size={5}
 						/>
 					</Box>
@@ -73,7 +80,6 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 						<ConnectivityMap
 							data={myData}
 							backgroundColor='white'
-							onSelectLink={() => console.log('link selected')}
 							type='link'
 							size={5}
 						/>

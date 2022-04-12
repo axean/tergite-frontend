@@ -56,6 +56,7 @@ const BackendContextProvider: React.FC<BackendContextProviderProps> = ({ childre
 		links: []
 	};
 	const x = useReducer(reducer, data);
+
 	return <BackendContext.Provider value={x}>{children}</BackendContext.Provider>;
 };
 export default BackendContextProvider;

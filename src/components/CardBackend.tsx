@@ -61,7 +61,7 @@ const CardBackend: React.FC<CardBackendProps> = ({
 						<Text fontSize='md' fontWeight='regular' mr='2'>
 							last update:
 						</Text>
-						<Text fontWeight='bold'>{last_update.split('T')[0]}</Text>
+						{/* <Text fontWeight='bold'>{last_update.split('T')[0]}</Text> */}
 					</Flex>
 					<Text
 						fontWeight='bold'

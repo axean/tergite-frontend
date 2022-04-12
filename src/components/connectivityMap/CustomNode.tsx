@@ -1,6 +1,7 @@
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
-import React from 'react';
+import React, { useContext } from 'react';
+import { BackendContext, MapActions } from '../../state/BackendContext';
 
 type CustomNodeProps = {
 	id: number;
@@ -8,11 +9,9 @@ type CustomNodeProps = {
 	y: number;
 	yMax: number;
 	xMax: number;
+	onSelect?: (id: number) => void;
 	squareSize: 'small' | 'medium' | 'large';
-	selectedNode: number;
 	hideLabels: boolean;
-	setSelectedNode: React.Dispatch<number>;
-	onSelect: (id: number) => void;
 };
 
 const CustomNode: React.FC<CustomNodeProps> = ({
@@ -21,14 +20,14 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 	x,
 	y,
 	id,
-	setSelectedNode,
-	squareSize,
-	selectedNode,
 	onSelect,
+	squareSize,
 	hideLabels
 }) => {
 	squareSize = squareSize || 'medium';
 	let size = 0;
+
+	const [{ selectedNode }, dispatch] = useContext(BackendContext);
 	switch (squareSize) {
 		case 'small':
 			size = yMax / 16;
@@ -57,7 +56,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 				}
 			}}
 			onMouseDown={() => {
-				setSelectedNode(id);
+				dispatch({ type: MapActions.SELECT_NODE, payload: id });
 				onSelect && onSelect(id);
 			}}
 			style={{ cursor: 'pointer' }}
