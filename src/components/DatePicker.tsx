@@ -14,7 +14,7 @@ import { DateRange } from 'react-date-range';
 import sv from 'react-date-range/dist/locale/';
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
-import { BackendContext } from '../state/BackendContext';
+import { BackendContext, DateActions } from '../state/BackendContext';
 
 /*
 Works the same as radio buttons.
@@ -30,27 +30,29 @@ Example:
 */
 
 const DatePicker = ({}) => {
-
 	const [state, dispatch] = useContext(BackendContext);
 
-	// const [date, setDate] = useState([
-	// 	{
-	// 		startDate: new Date(),
-	// 		endDate: new Date(),
-	// 		key: 'selection',
-	// 		color: '#38B2AC'
-	// 	}
-	// ]);
+	const [range, setRange] = useState([
+		{
+			startDate: state.timeFrom,
+			endDate: state.timeTo,
+			key: 'selection',
+			color: '#38B2AC'
+		}
+	]);
 
 	const handleChange = (item) => {
-		// setDate([item.selection]);
+		setRange([item.selection]);
+		dispatch({ type: DateActions.SET_TIME_FROM, payload: item.selection.startDate });
+		dispatch({ type: DateActions.SET_TIME_TO, payload: item.selection.endDate });
+		console.log(item.selection.startDate);
+		console.log(item.selection.endDate);
 		// setDates({
-		// 	startDate: item.selection.startDate,
-		// 	endDate: item.selection.endDate
+		// startDate: item.selection.startDate,
+		// endDate: item.selection.endDate
 		// });
-
 	};
-	
+
 	const parseDates = () => {
 		return (
 			state.timeFrom.toDateString().slice(4, 10) +
@@ -58,13 +60,6 @@ const DatePicker = ({}) => {
 			state.timeTo.toDateString().slice(4, 10)
 		);
 	};
-
-	const selectionRange = {
-		startDate: state.timeFrom,
-		endDate: state.timeTo,
-		key: 'selection',
-		color: '#38B2AC'
-	}
 
 	return (
 		<Popover>
@@ -80,7 +75,7 @@ const DatePicker = ({}) => {
 						editableDateInputs={true}
 						onChange={(item) => handleChange(item)}
 						moveRangeOnFirstSelection={false}
-						ranges={[selectionRange]}
+						ranges={range}
 						locale={sv}
 						maxDate={new Date()}
 						weekStartsOn={1}
