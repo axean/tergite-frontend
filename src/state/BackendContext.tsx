@@ -11,29 +11,32 @@ export type BackendContextState = {
 
 type BackendContextProps = [
 	BackendContextState,
-	React.Dispatch<{ type: Actions; payload: number }>
+	React.Dispatch<{ type: DateActions; payload: Date } | { type: MapActions; payload: number }>
 ];
 
-export enum Actions {
+export enum MapActions {
 	SELECT_NODE = 0,
-	SELECT_LINK,
-	SET_TIME_FROM,
+	SELECT_LINK
+}
+
+export enum DateActions {
+	SET_TIME_FROM = 2,
 	SET_TIME_TO
 }
 
 function reducer(
 	state: BackendContextState,
-	action: { type: Actions; payload: number | Date }
+	action: { type: DateActions; payload: Date } | { type: MapActions; payload: number }
 ): BackendContextState {
 	switch (action.type) {
-		case Actions.SELECT_NODE:
-			return { ...state, selectedNode: action.payload as number };
-		case Actions.SELECT_LINK:
-			return { ...state, selectedLink: action.payload as number };
-		case Actions.SET_TIME_FROM:
-			return { ...state, timeFrom: action.payload as Date };
-		case Actions.SET_TIME_TO:
-			return { ...state, timeTo: action.payload as Date };
+		case MapActions.SELECT_NODE:
+			return { ...state, selectedNode: action.payload };
+		case MapActions.SELECT_LINK:
+			return { ...state, selectedLink: action.payload };
+		case DateActions.SET_TIME_FROM:
+			return { ...state, timeFrom: action.payload };
+		case DateActions.SET_TIME_TO:
+			return { ...state, timeTo: action.payload };
 	}
 }
 const BackendContext = React.createContext<BackendContextProps>(null);
