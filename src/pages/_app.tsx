@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import theme from '../theme';
 import { AppProps } from 'next/app';
 import Layout from '../components/Layout';
+import BackendContextProvider from '../state/BackendContext';
 
 const queryClient = new QueryClient();
 
@@ -12,9 +13,11 @@ function MyApp({ Component, pageProps }: AppProps) {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<ChakraProvider resetCSS theme={theme}>
-				<Layout>
-					<Component {...pageProps} />
-				</Layout>
+				<BackendContextProvider>
+					<Layout>
+						<Component {...pageProps} />
+					</Layout>
+				</BackendContextProvider>
 			</ChakraProvider>
 		</QueryClientProvider>
 	);
