@@ -44,7 +44,7 @@ const VisualizationPanel = ({ isCollapsed }) => {
 		case 'Qubitmap':
 			return <QubitVisualization isCollapsed={isCollapsed} />;
 		case 'Histogram':
-			return <HistogramVisualization qubitId={0} backend={id}/>;
+			return <HistogramVisualization backend={id}/>;
 		case 'Graphdeviation':
 			return <>Graphdeviation</>;
 		case 'Linegraph':

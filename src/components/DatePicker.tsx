@@ -9,11 +9,12 @@ import {
 	PopoverBody,
 	Box
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { DateRange } from 'react-date-range';
 import sv from 'react-date-range/dist/locale/';
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
+import { BackendContext } from '../state/BackendContext';
 
 /*
 Works the same as radio buttons.
@@ -28,35 +29,42 @@ Example:
 	<DatePicker setDates={setDate}/>
 */
 
-interface DatePickerProps {
-	setDates: (dates: any) => void;
-}
+const DatePicker = ({}) => {
 
-const DatePicker = ({ setDates }: DatePickerProps) => {
-	const [date, setDate] = useState([
-		{
-			startDate: new Date(),
-			endDate: new Date(),
-			key: 'selection',
-			color: '#38B2AC'
-		}
-	]);
+	const [state, dispatch] = useContext(BackendContext);
 
+	// const [date, setDate] = useState([
+	// 	{
+	// 		startDate: new Date(),
+	// 		endDate: new Date(),
+	// 		key: 'selection',
+	// 		color: '#38B2AC'
+	// 	}
+	// ]);
+
+	const handleChange = (item) => {
+		// setDate([item.selection]);
+		// setDates({
+		// 	startDate: item.selection.startDate,
+		// 	endDate: item.selection.endDate
+		// });
+
+	};
+	
 	const parseDates = () => {
 		return (
-			date[0].startDate.toDateString().slice(4, 10) +
+			state.timeFrom.toDateString().slice(4, 10) +
 			' - ' +
-			date[0].endDate.toDateString().slice(4, 10)
+			state.timeTo.toDateString().slice(4, 10)
 		);
 	};
 
-	const handleChange = (item) => {
-		setDate([item.selection]);
-		setDates({
-			startDate: item.selection.startDate,
-			endDate: item.selection.endDate
-		});
-	};
+	const selectionRange = {
+		startDate: state.timeFrom,
+		endDate: state.timeTo,
+		key: 'selection',
+		color: '#38B2AC'
+	}
 
 	return (
 		<Popover>
@@ -72,7 +80,7 @@ const DatePicker = ({ setDates }: DatePickerProps) => {
 						editableDateInputs={true}
 						onChange={(item) => handleChange(item)}
 						moveRangeOnFirstSelection={false}
-						ranges={date}
+						ranges={[selectionRange]}
 						locale={sv}
 						maxDate={new Date()}
 						weekStartsOn={1}

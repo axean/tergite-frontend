@@ -56,3 +56,4 @@ const BackendContextProvider: React.FC<BackendContextProviderProps> = ({ childre
 	return <BackendContext.Provider value={x}>{children}</BackendContext.Provider>;
 };
 export default BackendContextProvider;
+export {BackendContext};
