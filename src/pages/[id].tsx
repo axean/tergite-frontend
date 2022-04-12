@@ -38,12 +38,13 @@ const Detail = () => {
 
 const VisualizationPanel = ({ isCollapsed }) => {
 	const router = useRouter();
+	const { id } = router.query
 	const type = router.query.type as VisualizationRoutes;
 	switch (type) {
 		case 'Qubitmap':
 			return <QubitVisualization isCollapsed={isCollapsed} />;
 		case 'Histogram':
-			return <HistogramVisualization/>;
+			return <HistogramVisualization qubitId={0} backend={id}/>;
 		case 'Graphdeviation':
 			return <>Graphdeviation</>;
 		case 'Linegraph':

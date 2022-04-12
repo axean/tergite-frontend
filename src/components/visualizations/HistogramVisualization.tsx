@@ -6,32 +6,32 @@ import Histogram from '../Histogram';
 import RadioButtons from '../RadioButtons';
 
 interface HistogramVisualizationProps {
+	backend: string | string[];
 	qubitId: number;
 }
 
-export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({}) => {
-	const { isLoading, data, error } = useQuery('backendOverview', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
+export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ backend, qubitId }) => {
+	const { isLoading, data, error } = useQuery('histogramData', () =>
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend + '/type2/period/').then((res) => res.json())
 	);
 
-	const [dataToVisualize, setDataToVisualize] = useState('');
-	const [timeSpan, setTimeSpan] = useState<Date>();
+	const [dataToVisualize, setDataToVisualize] = useState<string>('T1');
+	const [timeSpan, setTimeSpan] = useState({
+		startDate: new Date(),
+		endDate: new Date()
+	});
 
 	if (isLoading) return <span>'Loading...'</span>;
 
 	if (error) return <span>Error</span>;
 
-	const t1Data = data.qubits.map((qubit) => ({
-		x: qubit.dynamic_properties[0].value * 1000000
-	}));
+	//console.log(data)
+	console.log(dataToVisualize);
+	console.log(timeSpan);
 
-	const t2Data = data.qubits.map((qubit) => ({
-		x: qubit.dynamic_properties[1].value * 1000000
-	}));
-
-	const tPhiData = data.qubits.map((qubit) => ({
-		x: qubit.dynamic_properties[2].value * 1000000
-	}));
+	console.log('T1', data.qubits[qubitId].qubit_T1.map((t1data) => ({x: t1data.value})))
+	console.log('T2', data.qubits[qubitId].qubit_T2_star.map((t2data) => ({x: t2data.value})))
+	console.log('TPHI', data.qubits[qubitId].qubit_T_phi.map((tPhidata) => ({x: tPhidata.value})))
 
 	return (
 		<Box>
@@ -47,7 +47,9 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({}
 					<DatePicker setDates={setTimeSpan}></DatePicker>
 				</Box>
 			</Flex>
-			<Histogram data={t1Data} label='T1(us)'></Histogram>
+			{dataToVisualize === 'T1' && <Histogram data={data.qubits[qubitId].qubit_T1.map((t1data) => ({x: t1data.value}))} label='T1(us)'></Histogram>}
+			{dataToVisualize === 'T2' && <Histogram data={data.qubits[qubitId].qubit_T2_star.map((t2data) => ({x: t2data.value}))} label='T2(us)'></Histogram>}
+			{dataToVisualize === 'T'+'\u03C6'&& <Histogram data={data.qubits[qubitId].qubit_T2_star.map((t2data) => ({x: t2data.value}))} label='TPhi(us)'></Histogram>}
 		</Box>
 	);
 };
