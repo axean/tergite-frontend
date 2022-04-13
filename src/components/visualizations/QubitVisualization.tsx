@@ -49,12 +49,7 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 		}
 	}, [isCollapsed]);
 
-	console.log('nodes', nodes);
-	console.log(
-		data.couplers.map((e, index) => {
-			return { ...e, from: e.qubits[0], to: e.qubits[1] };
-		})
-	);
+	console.log('my data', data.couplers);
 	const myData = {
 		nodes: [
 			{ x: 0, y: 0, id: 100 },
@@ -80,7 +75,7 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 						<ConnectivityMap
 							data={myData}
 							backgroundColor='white'
-							type='link'
+							type='node'
 							size={5}
 						/>
 					</Box>
