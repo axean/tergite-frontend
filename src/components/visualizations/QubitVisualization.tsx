@@ -3,6 +3,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { useQuery } from 'react-query';
 import { BackendContext, MapActions } from '../../state/BackendContext';
 import ConnectivityMap from '../connectivityMap/';
+import RadioButtons from '../RadioButtons';
 
 type QubitVisualizationProps = {
 	isCollapsed: boolean;
@@ -12,7 +13,8 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
 	);
 
-	const [{ selectedNode, nodes, links }, dispatch] = useContext(BackendContext);
+	const [{ selectedNode, nodes, links, nodeType, linkType }, dispatch] =
+		useContext(BackendContext);
 	const rerenderRef = useRef(isCollapsed);
 	const [isRerendering, setIsRerendering] = useState(false);
 
@@ -64,7 +66,26 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 						/>
 					</Box>
 				</Flex>
-				{selectedNode}
+				<Flex gap='8'>
+					<Box flex='1'>
+						{/* <RadioButtons
+							tabs={['Qubits', 'Resonators', '1QB Gates']}
+							setTab={(value) => {
+								dispatch({ type: MapActions.SET_NODE_TYPE, payload: value });
+							}}
+						/> */}
+						Property:
+					</Box>
+					<Box flex='1'>
+						{/* <RadioButtons
+							tabs={['Couplers', '2QB Gates']}
+							setTab={(value) => {
+								dispatch({ type: MapActions.SET_LINK_TYPE, payload: value });
+							}}
+						/> */}
+						Connection property:
+					</Box>
+				</Flex>
 			</Box>
 		</Skeleton>
 	);

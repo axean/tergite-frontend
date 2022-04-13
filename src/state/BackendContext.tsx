@@ -1,7 +1,7 @@
 import React, { ReactNode, useState, useReducer } from 'react';
 
-type nodeType = 'qubits' | 'resonators';
-type linkType = 'couplers';
+type nodeType = 'Qubits' | 'Resonators' | '1QB Gates';
+type linkType = 'Couplers' | '1QB Gates';
 export type BackendContextState = {
 	selectedNode: number;
 	selectedLink: number;
