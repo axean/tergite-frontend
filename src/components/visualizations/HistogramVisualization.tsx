@@ -24,18 +24,9 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 		).then((res) => res.json())
 	);
 
-	console.log(data);
-
 	const [dataToVisualize, setDataToVisualize] = useState<string>('T1');
 
-	console.log(state.timeFrom);
-	console.log(state.timeTo);
 
-	const [state, dispatch] = useContext(BackendContext);
-	
-	console.log(state.selectedNode)
-
-	
 	if (isLoading) return <span>'Loading...'</span>;
 
 	if (error) return <span>Error</span>;
