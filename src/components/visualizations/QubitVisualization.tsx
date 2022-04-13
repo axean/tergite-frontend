@@ -59,7 +59,7 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 						<ConnectivityMap
 							data={myData}
 							backgroundColor='white'
-							type='node'
+							type='link'
 							size={5}
 						/>
 					</Box>

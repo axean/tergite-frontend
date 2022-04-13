@@ -71,8 +71,7 @@ export default Detail;
 function SidePanel({ isCollapsed, setCollapsed, data }) {
 	const router = useRouter();
 	const type = router.query.type as VisualizationRoutes;
-	console.log(data);
-	const showMap = type === undefined || type !== 'Qubitmap';
+	const showMap = type !== undefined && type !== 'Qubitmap';
 	return (
 		!isCollapsed && (
 			<Flex
@@ -98,14 +97,6 @@ function SidePanel({ isCollapsed, setCollapsed, data }) {
 				{showMap && (
 					<Flex flexDir='column' alignItems='center'>
 						<Box w={{ xl: '90%', '2xl': '80%' }}>
-							<SmallConnectivityMap
-								data={{ nodes: data.qubits, links: [] }}
-								backgroundColor='white'
-								type='node'
-								size={5}
-							/>
-						</Box>
-						<Box w={{ xl: '70%' }}>
 							<SmallConnectivityMap
 								data={{ nodes: data.qubits, links: [] }}
 								backgroundColor='white'

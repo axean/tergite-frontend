@@ -25,8 +25,6 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 }) => {
 	squareSize = squareSize || 'medium';
 	let size = 0;
-
-	const [{ selectedNode }, dispatch] = useContext(BackendContext);
 	switch (squareSize) {
 		case 'small':
 			size = yMax / 16;
