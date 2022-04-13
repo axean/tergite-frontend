@@ -2,21 +2,23 @@ import { Flex, Text, Box } from '@chakra-ui/react';
 import NextLink from 'next/link';
 
 export interface CardBackendProps {
-	name: string;
-	version: string;
+	backend_name: string;
+	backend_version: string;
 	n_qubits: number;
 	is_online: boolean;
-	last_update: string;
+	last_update_date: string;
+	online_date: string;
 }
 const CardBackend: React.FC<CardBackendProps> = ({
-	name,
-	version,
+	backend_name,
+	backend_version,
 	n_qubits,
 	is_online,
-	last_update
+	last_update_date,
+	online_date
 }) => {
 	return (
-		<NextLink href={`/${name}`}>
+		<NextLink href={`/${backend_name}`}>
 			<a>
 				<Box
 					bg={is_online ? 'white' : 'gray.100'}
@@ -30,7 +32,7 @@ const CardBackend: React.FC<CardBackendProps> = ({
 						{' '}
 						<Text fontSize='xl' fontWeight='extrabold'>
 							{' '}
-							{name}
+							{backend_name}
 						</Text>{' '}
 						<Flex align='center'>
 							<Text fontSize='sm' mr='2'>
@@ -47,9 +49,9 @@ const CardBackend: React.FC<CardBackendProps> = ({
 					</Flex>
 					<Flex mt='2'>
 						<Text fontSize='md' fontWeight='regular' mr='2'>
-							version: PLACEHOLDER
+							version:
 						</Text>
-						<Text fontWeight='bold'>{version}</Text>
+						<Text fontWeight='bold'>{backend_version}</Text>
 					</Flex>
 					<Flex>
 						<Text fontSize='md' fontWeight='regular' mr='2'>
@@ -61,7 +63,7 @@ const CardBackend: React.FC<CardBackendProps> = ({
 						<Text fontSize='md' fontWeight='regular' mr='2'>
 							last update:
 						</Text>
-						<Text fontWeight='bold'>{last_update.split('T')[0]}</Text>
+						<Text fontWeight='bold'>{last_update_date.split('T')[0]}</Text>
 					</Flex>
 					<Text
 						fontWeight='bold'
@@ -70,8 +72,9 @@ const CardBackend: React.FC<CardBackendProps> = ({
 						color={is_online ? 'gray.700' : 'inherit'}
 					>
 						{' '}
-						{is_online ? `Online since PLACEHOLDER` : `Offline since PLACEHOLDER`}
+						{is_online ? `Online since` : `Offline since`}
 					</Text>
+					<Text fontWeight='bold'>{is_online ? online_date.split('T')[0] : last_update_date.split('T')[0]}</Text>
 				</Box>
 			</a>
 		</NextLink>
