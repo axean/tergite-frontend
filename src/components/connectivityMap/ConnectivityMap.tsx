@@ -54,7 +54,6 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	hideLabels,
 	smallTicks,
 	squareSize,
-	onSelect,
 	type
 }) => {
 	const marginX = 25;
@@ -90,15 +89,16 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	);
 	const newLinks = useMemo(
 		() =>
-			data.links.map(({ source, target, vertical }) => {
+			data.links.map((link) => {
 				return {
-					source: {
-						x: vertical ? scaleX(source.x) : scaleX(source.x - 0.15),
-						y: vertical ? scaleY(source.y - 0.15) : scaleY(source.y)
+					...link,
+					from: {
+						x: link.vertical ? scaleX(link.from.x) : scaleX(link.from.x - 0.15),
+						y: link.vertical ? scaleY(link.from.y - 0.15) : scaleY(link.from.y)
 					},
-					target: {
-						x: vertical ? scaleX(target.x) : scaleX(target.x + 0.15),
-						y: vertical ? scaleY(target.y + 0.15) : scaleY(source.y)
+					to: {
+						x: link.vertical ? scaleX(link.to.x) : scaleX(link.to.x + 0.15),
+						y: link.vertical ? scaleY(link.to.y + 0.15) : scaleY(link.from.y)
 					}
 				};
 			}),
@@ -151,7 +151,6 @@ const VisxChart: React.FC<VisxChartProps> = ({
 									xMax={maxX}
 									x={x}
 									y={y}
-									onSelect={onSelect}
 									hideLabels={hideLabels}
 									squareSize={squareSize}
 									id={id}
@@ -160,12 +159,7 @@ const VisxChart: React.FC<VisxChartProps> = ({
 						}
 						linkComponent={(link) =>
 							type === 'link' && (
-								<CustomLink
-									link={link}
-									xMax={maxX}
-									yMax={maxY}
-									onSelect={onSelect}
-								/>
+								<CustomLink link={link.link} id={link} xMax={maxX} yMax={maxY} />
 							)
 						}
 					></Graph>

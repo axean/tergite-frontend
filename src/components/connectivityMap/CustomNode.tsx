@@ -20,7 +20,6 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 	x,
 	y,
 	id,
-	onSelect,
 	squareSize,
 	hideLabels
 }) => {
@@ -39,7 +38,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 			size = yMax / 7;
 			break;
 	}
-	console.log(size);
+	const [{ selectedNode }, dispatch] = useContext(BackendContext);
 	return (
 		// yMax/10 is the size of half a square
 		<Group
@@ -57,7 +56,6 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 			}}
 			onMouseDown={() => {
 				dispatch({ type: MapActions.SELECT_NODE, payload: id });
-				onSelect && onSelect(id);
 			}}
 			style={{ cursor: 'pointer' }}
 		>
