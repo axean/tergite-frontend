@@ -32,6 +32,50 @@ export enum DateActions {
 	SET_TIME_TO = 'SET_TIME_TO'
 }
 
+function fixDirections(links) {
+	// this function ensures that for all links {x0,y0,x1,y1} x0 < x1 and y0 < y1
+	// this is needed for the padding of the links to work correctly
+	// const filteredLinks = links.filter(({ from, to }) => {
+	// 	return from.x - to.x < 0 || to.x - from.x < 0;
+	// });
+	const newLinks = links.map((link) => {
+		let { from, to, id } = link;
+		let temp;
+		if (from.x < to.x) {
+			temp = from;
+			from = to;
+			to = temp;
+		} else if (from.y < to.y) {
+			temp = from;
+			from = to;
+			to = temp;
+		}
+		return { id, from, to, vertical: from.x === to.x ? true : false };
+	});
+	console.log('new links', newLinks);
+	return newLinks;
+}
+
+function flatten(links, ctx: BackendContextState): any {
+	return links.map((link) => {
+		return {
+			...link,
+			from: ctx.nodes.find(({ id }) => id === link.qubits[0]),
+			to: ctx.nodes.find(({ id }) => id === link.qubits[1])
+		};
+	});
+}
+
+// action.payload.map((e) => {
+// 					const from = state.nodes.find((n) => n.id == e.from);
+// 					const to = state.nodes.find((n) => n.id == e.to);
+// 					return {
+// 						...e,
+// 						from: { id: from.id, x: from.x, y: from.y },
+// 						to: { id: to.id, x: to.x, y: to.y }
+// 					};
+// 				}) as Link[]
+
 function reducer(
 	state: BackendContextState,
 	action:
@@ -48,15 +92,7 @@ function reducer(
 		case MapActions.SET_LINKS:
 			return {
 				...state,
-				links: action.payload.map((e) => {
-					const from = state.nodes.find((n) => n.id == e.from);
-					const to = state.nodes.find((n) => n.id == e.to);
-					return {
-						...e,
-						from: { id: from.id, x: from.x, y: from.y },
-						to: { id: to.id, x: to.x, y: to.y }
-					};
-				}) as Link[]
+				links: fixDirections(flatten(action.payload, state))
 			};
 		case MapActions.SET_NODE_TYPE:
 			return { ...state, nodeType: action.payload as nodeType };
