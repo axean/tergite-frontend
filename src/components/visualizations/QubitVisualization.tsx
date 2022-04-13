@@ -35,7 +35,7 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 				payload: data.couplers
 			});
 		}
-	}, [data]);
+	}, [data]); // eslint-disable-line
 
 	const myData = {
 		nodes,
