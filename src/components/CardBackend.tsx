@@ -18,8 +18,6 @@ const CardBackend: React.FC<CardBackendProps> = ({
 	online_date
 }) => {
 	return (
-		<NextLink href={`/${backend_name}`}>
-			<a>
 				<Box
 					bg={is_online ? 'white' : 'gray.100'}
 					py='2'
@@ -63,7 +61,7 @@ const CardBackend: React.FC<CardBackendProps> = ({
 						<Text fontSize='md' fontWeight='regular' mr='2'>
 							last update:
 						</Text>
-						<Text fontWeight='bold'>{last_update_date.split('T')[0]}</Text>
+						<Text fontWeight='bold'>{last_update_date?.split('T')[0]}</Text>
 					</Flex>
 					<Text
 						fontWeight='bold'
@@ -74,10 +72,8 @@ const CardBackend: React.FC<CardBackendProps> = ({
 						{' '}
 						{is_online ? `Online since` : `Offline since`}
 					</Text>
-					<Text fontWeight='bold'>{is_online ? online_date.split('T')[0] : last_update_date.split('T')[0]}</Text>
+					<Text fontWeight='bold'>{is_online ? online_date.split('T')[0] : last_update_date?.split('T')[0]}</Text>
 				</Box>
-			</a>
-		</NextLink>
 	);
 };
 export default CardBackend;
