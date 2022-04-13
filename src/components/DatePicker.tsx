@@ -14,6 +14,7 @@ import { DateRange } from 'react-date-range';
 import sv from 'react-date-range/dist/locale/';
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
+import { useQueryClient } from 'react-query';
 import { BackendContext, DateActions } from '../state/BackendContext';
 
 /*
@@ -29,7 +30,11 @@ Example:
 	<DatePicker setDates={setDate}/>
 */
 
-const DatePicker = ({}) => {
+interface DatePickerProps {
+	refetchFunction: () => void;
+}
+
+const DatePicker: React.FC<DatePickerProps> = ({ refetchFunction }) => {
 	const [state, dispatch] = useContext(BackendContext);
 
 	const [range, setRange] = useState([
@@ -41,12 +46,17 @@ const DatePicker = ({}) => {
 		}
 	]);
 
+	const queryClient = useQueryClient();
+
 	const handleChange = (item) => {
 		setRange([item.selection]);
 		dispatch({ type: DateActions.SET_TIME_FROM, payload: item.selection.startDate });
 		dispatch({ type: DateActions.SET_TIME_TO, payload: item.selection.endDate });
-		console.log(item.selection.startDate);
-		console.log(item.selection.endDate);
+		refetchFunction();
+		//queryClient.invalidateQueries('histogramData');
+		console.log('HistogramData invalidated');
+		// console.log(item.selection.startDate);
+		// console.log(item.selection.endDate);
 		// setDates({
 		// startDate: item.selection.startDate,
 		// endDate: item.selection.endDate
