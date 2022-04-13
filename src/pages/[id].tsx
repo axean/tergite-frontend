@@ -15,7 +15,7 @@ type VisualizationRoutes =
 	| 'Tableview'
 	| 'Cityplot';
 
-const Detail = () => {
+const Detail = ({ id, type }) => {
 	const [isCollapsed, setCollapsed] = useState(false);
 	return (
 		<Flex flex='1' py='8' w='full' id='deailId'>
@@ -24,22 +24,23 @@ const Detail = () => {
 					isCollapsed={isCollapsed}
 					setCollapsed={setCollapsed}
 					MdFirstPage={MdFirstPage}
+					backend={id}
 				/>
 				<Flex flexDir='column' bg='white' flex='5' p='4' borderRadius='md' boxShadow='lg'>
 					<NavbarVisualizations
 						isCollapsed={isCollapsed}
 						onToggleCollapse={() => setCollapsed(!isCollapsed)}
 					/>
-					<VisualizationPanel isCollapsed={isCollapsed} />
+					<VisualizationPanel isCollapsed={isCollapsed} type={type} />
 				</Flex>
 			</Flex>
 		</Flex>
 	);
 };
 
-const VisualizationPanel = ({ isCollapsed }) => {
+const VisualizationPanel = ({ isCollapsed, type }) => {
 	const router = useRouter();
-	const type = router.query.type as VisualizationRoutes;
+
 	switch (type) {
 		case 'Qubitmap':
 			return <QubitVisualization isCollapsed={isCollapsed} />;
@@ -58,18 +59,22 @@ const VisualizationPanel = ({ isCollapsed }) => {
 	}
 };
 
+Detail.getInitialProps = async (ctx) => {
+    const id = await ctx.query.id;
+	const type = await ctx.query.type;
+
+	return {
+        id,
+		type
+    }
+  }
+
+
 export default Detail;
 
-function SidePanel({ isCollapsed, setCollapsed, MdFirstPage }) {
-	const router = useRouter();
-	const [backend, setBackend] = useState<string>("");
+function SidePanel({ isCollapsed, setCollapsed, MdFirstPage, backend }) {
 
-	useEffect(()=>{
-		if(!router.isReady) return;	
-		setBackend(router.query.id);
-	}, [router.isReady]);
-
-	const { isLoading, data, error } = useQuery('backendOverview', () =>
+	const { isLoading, data, error } = useQuery('backendDetail', () =>
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/'+backend).then((res) => res.json())
 	);
 
@@ -77,27 +82,20 @@ function SidePanel({ isCollapsed, setCollapsed, MdFirstPage }) {
 
 	return (
 		!isCollapsed && (
-			<Box bg='white' flex='2' p='4' py='6' borderRadius='md' boxShadow='lg'>
-				<Flex justifyContent='space-between'>
-				<CardBackend {...Array.isArray(data) ? data[0] : data}/>
-				<Button p='1' onClick={() => setCollapsed(!isCollapsed)}>
-				<Icon as={MdFirstPage} w={8} h={8} />
-				</Button>
+			<Box bg='white' p='4' py='6' borderRadius='md' boxShadow='lg'>
+				<Flex px={0} justifyContent='space-between'>
+					<CardBackend {...data}/>
+					<Button ml="5" p='1' onClick={() => setCollapsed(!isCollapsed)}>
+						<Icon as={MdFirstPage} w={8} h={8} />	
+					</Button>
 				</Flex>
+				<Text fontSize='3xl' color='black' mt="10">
+					Description
+				</Text>
+				<Text fontSize="lg" color="black">
+					{data.description}
+				</Text>
 			</Box>
-
-//<Flex justifyContent='space-between'>
-//<Text fontSize='2xl' color='black'>
-//Chalmers Luki
-//</Text>
-//<Button p='2' onClick={() => setCollapsed(!isCollapsed)}>
-//<Icon as={MdFirstPage} w={8} h={8} />
-//</Button>
-//</Flex>
-//<Text fontSize='4xl' color='black'>
-//description
-//</Text>
-
 		)
 	);
 }
