@@ -14,7 +14,6 @@ type CustomLinkProps = {
 
 const CustomLink: React.FC<CustomLinkProps> = ({ link, yMax, xMax, onSelect, id }) => {
 	const [{ selectedLink }, dispatch] = useContext(BackendContext);
-	console.log('link', link);
 	return (
 		<Group top={-yMax / 10} left={xMax / 10} style={{ cursor: 'pointer' }}>
 			{' '}
