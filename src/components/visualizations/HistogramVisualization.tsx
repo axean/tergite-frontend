@@ -26,8 +26,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 
 	const [dataToVisualize, setDataToVisualize] = useState<string>('T1');
 
-
-	if (isLoading) return <span>'Loading...'</span>;
+	if (isLoading) return <span>Loading...</span>;
 
 	if (error) return <span>Error</span>;
 

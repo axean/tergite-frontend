@@ -74,7 +74,9 @@ const CardBackend: React.FC<CardBackendProps> = ({
 						{' '}
 						{is_online ? `Online since` : `Offline since`}
 					</Text>
-					<Text fontWeight='bold'>{is_online ? online_date.split('T')[0] : last_update_date.split('T')[0]}</Text>
+					<Text fontWeight='bold'>
+						{is_online ? online_date.split('T')[0] : last_update_date.split('T')[0]}
+					</Text>
 				</Box>
 			</a>
 		</NextLink>

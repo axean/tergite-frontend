@@ -4,8 +4,9 @@ interface Point {
 	y: number;
 }
 interface Link {
-	source: Point;
-	target: Point;
+	id: number;
+	from: Point;
+	to: Point;
 }
 interface LinkAligned extends Link {
 	vertical: boolean;

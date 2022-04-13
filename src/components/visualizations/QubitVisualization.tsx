@@ -1,29 +1,9 @@
 import { Flex, Box, Spinner, Grid, Skeleton } from '@chakra-ui/react';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useQuery } from 'react-query';
+import { BackendContext, MapActions } from '../../state/BackendContext';
 import ConnectivityMap from '../connectivityMap/';
 
-function fixDirections(links): LinkAligned[] {
-	// this function ensures that for all links {x0,y0,x1,y1} x0 < x1 and y0 < y1
-	// this is needed for the padding of the links to work correctly
-	const newLinks = links.map((el) => {
-		let { source, target } = el;
-		let temp;
-		if (source.x < target.x) {
-			temp = source;
-			source = target;
-			target = temp;
-		} else if (source.y < target.y) {
-			temp = source;
-			source = target;
-			target = temp;
-		}
-
-		return { source, target, vertical: source.x === target.x ? true : false };
-	});
-
-	return newLinks;
-}
 type QubitVisualizationProps = {
 	isCollapsed: boolean;
 };
@@ -32,7 +12,7 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
 	);
 
-	const [selectedNode, setSelectedNode] = useState<number>(0);
+	const [{ selectedNode, nodes, links }, dispatch] = useContext(BackendContext);
 	const rerenderRef = useRef(isCollapsed);
 	const [isRerendering, setIsRerendering] = useState(false);
 
@@ -47,13 +27,20 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 		}
 	}, [isCollapsed]);
 
+	useEffect(() => {
+		if (data) {
+			dispatch({ type: MapActions.SET_NODES, payload: data.qubits });
+			dispatch({
+				type: MapActions.SET_LINKS,
+				payload: data.couplers
+			});
+			console.log('new links ', links);
+		}
+	}, [data, links, dispatch]);
+
 	const myData = {
-		nodes: [
-			{ x: 0, y: 0, id: 100 },
-			{ x: 4, y: 4, id: 100 },
-			...(data !== undefined ? data.qubits : [])
-		] as Point[],
-		links: []
+		nodes,
+		links
 	};
 
 	return (
@@ -65,7 +52,6 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 							data={myData}
 							type='node'
 							backgroundColor='white'
-							onSelectNode={(id) => setSelectedNode(id)}
 							size={5}
 						/>
 					</Box>
@@ -73,7 +59,6 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 						<ConnectivityMap
 							data={myData}
 							backgroundColor='white'
-							onSelectLink={() => console.log('link selected')}
 							type='link'
 							size={5}
 						/>
