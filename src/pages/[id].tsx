@@ -5,6 +5,7 @@ import { MdFirstPage, MdLastPage } from 'react-icons/md';
 import { useQuery } from 'react-query';
 import ConnectivityMap from '../components/connectivityMap';
 import { SmallConnectivityMap } from '../components/connectivityMap/ConnectivityMap';
+import { HistogramVisualization } from '../components/visualizations/HistogramVisualization';
 import NavbarVisualizations from '../components/NavbarVisualizations';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
 
@@ -47,12 +48,13 @@ const Detail = () => {
 
 const VisualizationPanel = ({ isCollapsed }) => {
 	const router = useRouter();
+	const { id } = router.query;
 	const type = router.query.type as VisualizationRoutes;
 	switch (type) {
 		case 'Qubitmap':
 			return <QubitVisualization isCollapsed={isCollapsed} />;
 		case 'Histogram':
-			return <>histogram</>;
+			return <HistogramVisualization backend={id} />;
 		case 'Graphdeviation':
 			return <>Graphdeviation</>;
 		case 'Linegraph':

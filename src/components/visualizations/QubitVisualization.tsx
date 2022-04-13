@@ -36,7 +36,7 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 			});
 			console.log('new links ', links);
 		}
-	}, [data]);
+	}, [data, links, dispatch]);
 
 	const myData = {
 		nodes,
