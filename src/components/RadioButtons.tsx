@@ -15,11 +15,14 @@ interface RadioButtonsProps {
 
 const RadioButtons = ({ setTab, tabs }: RadioButtonsProps) => {
 	return (
-		<Box borderRadius='full' border='2px' borderColor='grey' p='2' m='2px' w='fit-content'>
+		<Box borderRadius='full' border='1px' borderColor='grey' p='1' m='2px' w='fit-content'>
 			<Tabs variant='soft-rounded' onChange={(index) => setTab(tabs[index])}>
 				<TabList>
-					{tabs.map((item) => (
-						<Tab _selected={{ color: 'white', bg: '#38B2AC', boxShadow: 'none' }}>
+					{tabs.map((item, index) => (
+						<Tab
+							key={index}
+							_selected={{ color: 'white', bg: '#38B2AC', boxShadow: 'none' }}
+						>
 							{item}
 						</Tab>
 					))}
@@ -30,3 +33,4 @@ const RadioButtons = ({ setTab, tabs }: RadioButtonsProps) => {
 };
 
 export default RadioButtons;
+

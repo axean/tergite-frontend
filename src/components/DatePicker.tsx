@@ -9,26 +9,15 @@ import {
 	PopoverBody,
 	Box
 } from '@chakra-ui/react';
+
 import React, { useContext, useState } from 'react';
 import { DateRange } from 'react-date-range';
 import sv from 'react-date-range/dist/locale/';
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
+
 import { useQueryClient } from 'react-query';
 import { BackendContext, DateActions } from '../state/BackendContext';
-
-/*
-Works the same as radio buttons.
-To get current dates in parent element pass 
-a setState function as a prop 
-Example:
-	const [date, setDate] = useState({
-        startDate: new Date(),
-        endDate: new Date()
-    })
-
-	<DatePicker setDates={setDate}/>
-*/
 
 interface DatePickerProps {
 	refetchFunction: () => void;
