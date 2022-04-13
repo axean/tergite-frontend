@@ -1,9 +1,12 @@
 import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
+import { ParentSize } from '@visx/responsive';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { MdFirstPage, MdLastPage } from 'react-icons/md';
 import NavbarVisualizations from '../components/NavbarVisualizations';
+import LineChart from '../components/lineChart/LineChart';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
+import LineChartVisualization from '../components/visualizations/LineChartVisualization';
 
 type VisualizationRoutes =
 	| 'Qubitmap'
@@ -46,7 +49,7 @@ const VisualizationPanel = ({ isCollapsed }) => {
 		case 'Graphdeviation':
 			return <>Graphdeviation</>;
 		case 'Linegraph':
-			return <>Linegraph</>;
+			return <LineChartVisualization />;
 		case 'Tableview':
 			return <>Tableview</>;
 		case 'Cityplot':
