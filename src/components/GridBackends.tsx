@@ -3,8 +3,7 @@ import React, { memo } from 'react';
 import CardBackend, { CardBackendProps } from './CardBackend';
 
 export interface GridBackendsProps {
-	//backends: CardBackendProps[];
-	backends: Array<CardBackendProps>;
+	backends: CardBackendProps[];
 }
 const GridBackends: React.FC<GridBackendsProps> = ({ backends }) => {
 	return (

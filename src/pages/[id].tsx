@@ -2,6 +2,7 @@ import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { MdFirstPage, MdLastPage } from 'react-icons/md';
+import { HistogramVisualization } from '../components/visualizations/HistogramVisualization';
 import NavbarVisualizations from '../components/NavbarVisualizations';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
 
@@ -37,12 +38,13 @@ const Detail = () => {
 
 const VisualizationPanel = ({ isCollapsed }) => {
 	const router = useRouter();
+	const { id } = router.query
 	const type = router.query.type as VisualizationRoutes;
 	switch (type) {
 		case 'Qubitmap':
 			return <QubitVisualization isCollapsed={isCollapsed} />;
 		case 'Histogram':
-			return <>histogram</>;
+			return <HistogramVisualization backend={id}/>;
 		case 'Graphdeviation':
 			return <>Graphdeviation</>;
 		case 'Linegraph':
