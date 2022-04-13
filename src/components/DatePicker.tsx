@@ -46,21 +46,10 @@ const DatePicker: React.FC<DatePickerProps> = ({ refetchFunction }) => {
 		}
 	]);
 
-	const queryClient = useQueryClient();
-
 	const handleChange = (item) => {
 		setRange([item.selection]);
 		dispatch({ type: DateActions.SET_TIME_FROM, payload: item.selection.startDate });
 		dispatch({ type: DateActions.SET_TIME_TO, payload: item.selection.endDate });
-		refetchFunction();
-		//queryClient.invalidateQueries('histogramData');
-		console.log('HistogramData invalidated');
-		// console.log(item.selection.startDate);
-		// console.log(item.selection.endDate);
-		// setDates({
-		// startDate: item.selection.startDate,
-		// endDate: item.selection.endDate
-		// });
 	};
 
 	const parseDates = () => {
@@ -72,7 +61,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ refetchFunction }) => {
 	};
 
 	return (
-		<Popover>
+		<Popover onClose={() => refetchFunction()}>
 			<PopoverTrigger>
 				<Button boxShadow='4px 4px 2px 1px rgba(0, 0, 0, .1)' _focus={{ outline: 'none' }}>
 					Period: {parseDates()}

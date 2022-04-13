@@ -13,7 +13,7 @@ interface HistogramVisualizationProps {
 export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ backend }) => {
 	const [state, dispatch] = useContext(BackendContext);
 
-	const { isLoading, data, error, refetch } = useQuery('histogramData', () =>
+	const { isLoading, data, error, refetch, isFetching } = useQuery('histogramData', () =>
 		fetch(
 			'http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' +
 				backend +
@@ -24,7 +24,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 		).then((res) => res.json())
 	);
 
-	console.log(data)
+	console.log(data);
 
 	const [dataToVisualize, setDataToVisualize] = useState<string>('T1');
 
@@ -35,18 +35,10 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 
 	if (error) return <span>Error</span>;
 
-	//console.log(data)
-	// vconsole.log(dataToVisualize);
-	// console.log(timeSpan);
-
-	// console.log('T1', data.qubits[qubitId].qubit_T1.map((t1data) => ({x: t1data.value})))
-	// console.log('T2', data.qubits[qubitId].qubit_T2_star.map((t2data) => ({x: t2data.value})))
-	// console.log('TPHI', data.qubits[qubitId].qubit_T_phi.map((tPhidata) => ({x: tPhidata.value})))
+	if (isFetching) return <span>is fetching</span>;
 
 	return (
 		<Box>
-		<span>{isLoading ? 'loading' : 'dddf'}</span>
-		<span>{state.timeFrom.toISOString()}</span>
 			<Flex flexDir={'row'} align={'center'} p={3}>
 				<Box ml={'3em'}>
 					<RadioButtons
