@@ -8,6 +8,8 @@ import { SmallConnectivityMap } from '../components/connectivityMap/Connectivity
 import { HistogramVisualization } from '../components/visualizations/HistogramVisualization';
 import NavbarVisualizations from '../components/NavbarVisualizations';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
+import BoxPlot from '../components/BoxPlot';
+import { GateErrorVisualization } from '../components/visualizations/GateErrorVisualization';
 
 type VisualizationRoutes =
 	| 'Qubitmap'
@@ -56,7 +58,7 @@ const VisualizationPanel = ({ isCollapsed }) => {
 		case 'Histogram':
 			return <HistogramVisualization backend={id} />;
 		case 'Graphdeviation':
-			return <>Graphdeviation</>;
+			return <GateErrorVisualization backend={id}/>
 		case 'Linegraph':
 			return <>Linegraph</>;
 		case 'Tableview':
