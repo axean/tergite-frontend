@@ -16,10 +16,9 @@ type ConnectivityMapProps = {
 	type: 'node' | 'link';
 	hideLabels?: boolean;
 	smallTicks?: boolean;
-	onSelectNode?: (id: number) => void;
-	onSelectLink?: (id: number) => void;
 	size: number;
 	squareSize?: 'small' | 'medium' | 'large';
+	onSelect?: (id: number) => void;
 	backgroundColor?: string;
 	borderRadius?: number;
 	nodeColor?: string;
@@ -55,9 +54,7 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	hideLabels,
 	smallTicks,
 	squareSize,
-	type,
-	onSelectNode,
-	onSelectLink
+	type
 }) => {
 	const marginX = 25;
 	const marginY = 25;
@@ -92,23 +89,22 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	);
 	const newLinks = useMemo(
 		() =>
-			data.links.map(({ source, target, vertical }) => {
+			data.links.map((link) => {
 				return {
-					source: {
-						x: vertical ? scaleX(source.x) : scaleX(source.x - 0.15),
-						y: vertical ? scaleY(source.y - 0.15) : scaleY(source.y)
+					...link,
+					from: {
+						x: link.vertical ? scaleX(link.from.x) : scaleX(link.from.x - 0.15),
+						y: link.vertical ? scaleY(link.from.y - 0.15) : scaleY(link.from.y)
 					},
-					target: {
-						x: vertical ? scaleX(target.x) : scaleX(target.x + 0.15),
-						y: vertical ? scaleY(target.y + 0.15) : scaleY(source.y)
+					to: {
+						x: link.vertical ? scaleX(link.to.x) : scaleX(link.to.x + 0.15),
+						y: link.vertical ? scaleY(link.to.y + 0.15) : scaleY(link.from.y)
 					}
 				};
 			}),
 		[data.links, scaleX, scaleY]
 	);
 
-	const [selectedNode, setSelectedNode] = useState<number>(-1);
-	const [selectedLink, setSelectedLink] = useState<number>(-1);
 	return (
 		maxX > 0 &&
 		maxY > 0 && (
@@ -155,26 +151,15 @@ const VisxChart: React.FC<VisxChartProps> = ({
 									xMax={maxX}
 									x={x}
 									y={y}
-									setSelectedNode={setSelectedNode}
 									hideLabels={hideLabels}
-									selectedNode={selectedNode}
 									squareSize={squareSize}
 									id={id}
-									onSelect={onSelectNode}
 								/>
 							)
 						}
 						linkComponent={(link) =>
-							type === 'link' ? (
-								<></>
-							) : (
-								// <CustomLink
-								// 	link={link.link}
-								// 	xMax={maxX}
-								// 	yMax={maxY}
-								// 	onSelect={onSelectLink}
-								// />
-								<></>
+							type === 'link' && (
+								<CustomLink link={link.link} id={link} xMax={maxX} yMax={maxY} />
 							)
 						}
 					></Graph>

@@ -9,57 +9,48 @@ import {
 	PopoverBody,
 	Box
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+
+import React, { useContext, useState } from 'react';
 import { DateRange } from 'react-date-range';
 import sv from 'react-date-range/dist/locale/';
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
 
-/*
-Works the same as radio buttons.
-To get current dates in parent element pass 
-a setState function as a prop 
-Example:
-	const [date, setDate] = useState({
-        startDate: new Date(),
-        endDate: new Date()
-    })
-
-	<DatePicker setDates={setDate}/>
-*/
+import { useQueryClient } from 'react-query';
+import { BackendContext, DateActions } from '../state/BackendContext';
 
 interface DatePickerProps {
-	setDates: (dates: any) => void;
+	refetchFunction: () => void;
 }
 
-const DatePicker = ({ setDates }: DatePickerProps) => {
-	const [date, setDate] = useState([
+const DatePicker: React.FC<DatePickerProps> = ({ refetchFunction }) => {
+	const [state, dispatch] = useContext(BackendContext);
+
+	const [range, setRange] = useState([
 		{
-			startDate: new Date(),
-			endDate: new Date(),
+			startDate: state.timeFrom,
+			endDate: state.timeTo,
 			key: 'selection',
 			color: '#38B2AC'
 		}
 	]);
 
+	const handleChange = (item) => {
+		setRange([item.selection]);
+		dispatch({ type: DateActions.SET_TIME_FROM, payload: item.selection.startDate });
+		dispatch({ type: DateActions.SET_TIME_TO, payload: item.selection.endDate });
+	};
+
 	const parseDates = () => {
 		return (
-			date[0].startDate.toDateString().slice(4, 10) +
+			state.timeFrom.toDateString().slice(4, 10) +
 			' - ' +
-			date[0].endDate.toDateString().slice(4, 10)
+			state.timeTo.toDateString().slice(4, 10)
 		);
 	};
 
-	const handleChange = (item) => {
-		setDate([item.selection]);
-		setDates({
-			startDate: item.selection.startDate,
-			endDate: item.selection.endDate
-		});
-	};
-
 	return (
-		<Popover>
+		<Popover onClose={() => refetchFunction()}>
 			<PopoverTrigger>
 				<Button boxShadow='4px 4px 2px 1px rgba(0, 0, 0, .1)' _focus={{ outline: 'none' }}>
 					Period: {parseDates()}
@@ -72,7 +63,7 @@ const DatePicker = ({ setDates }: DatePickerProps) => {
 						editableDateInputs={true}
 						onChange={(item) => handleChange(item)}
 						moveRangeOnFirstSelection={false}
-						ranges={date}
+						ranges={range}
 						locale={sv}
 						maxDate={new Date()}
 						weekStartsOn={1}
