@@ -35,7 +35,9 @@ export const GateErrorVisualization: React.FC<GateErrorVisualizationProps> = ({ 
 	return (
 		<Box>
 			<Flex flexDir={'row'} align={'center'} p={3}>
-				<Box ml={'auto'}></Box>
+				<Box ml={'auto'} mr={'3em'}>
+                    <DatePicker refetchFunction={refetch}></DatePicker>
+                </Box>
 			</Flex>
 			<BoxPlot
 				data={data.gates.map((gate) => ({x: gate.id, y: gate.gate_err.map(e => e.value)}))}
