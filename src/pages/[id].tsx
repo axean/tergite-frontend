@@ -100,7 +100,7 @@ function SidePanel({ isCollapsed, setCollapsed, data }) {
 					<Flex flexDir='column' alignItems='center'>
 						<Box w={{ xl: '90%', '2xl': '80%' }}>
 							<SmallConnectivityMap
-								data={{ nodes: data.qubits, links: [] }}
+								layout={{ nodes: data.qubits, links: [] }}
 								backgroundColor='white'
 								type='node'
 								size={5}

@@ -12,7 +12,7 @@ interface LinkAligned extends Link {
 	vertical: boolean;
 }
 
-interface Data {
+interface Layout {
 	nodes: Point[];
 	links: LinkAligned[];
 }

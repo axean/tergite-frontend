@@ -8,8 +8,6 @@ type CustomLinkProps = {
 	onSelect?: (id: number) => void;
 	yMax: number;
 	xMax: number;
-	id: any;
-	onSelect: (id: number) => void;
 };
 
 const CustomLink: React.FC<CustomLinkProps> = ({ link, yMax, xMax, onSelect, id }) => {
@@ -22,7 +20,7 @@ const CustomLink: React.FC<CustomLinkProps> = ({ link, yMax, xMax, onSelect, id 
 					e.currentTarget.setAttribute('stroke', '#38B2AC');
 				}}
 				onMouseLeave={(e) => {
-					if (link.id !== selectedLink) e.currentTarget.setAttribute('stroke', '#366361');
+					if (id !== selectedLink) e.currentTarget.setAttribute('stroke', '#366361');
 				}}
 				onMouseDown={() => {
 					dispatch({ type: MapActions.SELECT_LINK, payload: link.id });

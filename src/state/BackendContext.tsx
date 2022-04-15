@@ -1,12 +1,10 @@
 import React, { ReactNode, useState, useReducer } from 'react';
 
-type nodeType = 'Qubits' | 'Resonators' | '1QB Gates';
-type linkType = 'Couplers' | '1QB Gates';
 export type BackendContextState = {
 	selectedNode: number;
 	selectedLink: number;
-	nodeType: nodeType;
-	linkType: linkType;
+	nodeType: string;
+	linkType: string;
 	timeFrom: Date;
 	timeTo: Date;
 	nodes: Point[];
@@ -39,6 +37,7 @@ function fixDirections(links) {
 	// 	return from.x - to.x < 0 || to.x - from.x < 0;
 	// });
 	const newLinks = links.map((link) => {
+		console.log('link??', link);
 		let { from, to, id } = link;
 		let temp;
 		if (from.x < to.x) {
@@ -57,6 +56,8 @@ function fixDirections(links) {
 }
 
 function flatten(links, ctx: BackendContextState): any {
+	console.log('123', ctx.nodes);
+
 	return links.map((link) => {
 		return {
 			...link,
@@ -88,11 +89,11 @@ function reducer(
 		case MapActions.SELECT_LINK:
 			return { ...state, selectedLink: action.payload as number };
 		case MapActions.SET_NODES:
-			return { ...state, nodes: action.payload as Point[] };
+			return { ...state, nodes: action.payload[state.nodeType] as Point[] };
 		case MapActions.SET_LINKS:
 			return {
 				...state,
-				links: fixDirections(flatten(action.payload, state))
+				links: fixDirections(flatten(action.payload[state.linkType], state))
 			};
 		case MapActions.SET_NODE_TYPE:
 			return { ...state, nodeType: action.payload as nodeType };

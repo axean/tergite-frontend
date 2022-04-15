@@ -12,7 +12,7 @@ import CustomNode from './CustomNode';
 import CustomLink from './CustomLink';
 
 type ConnectivityMapProps = {
-	data: Data;
+	layout: Layout;
 	type: 'node' | 'link';
 	hideLabels?: boolean;
 	smallTicks?: boolean;
@@ -23,6 +23,7 @@ type ConnectivityMapProps = {
 	borderRadius?: number;
 	nodeColor?: string;
 	linkColor?: string;
+	data?: { values: any[]; component: string; property: string };
 };
 
 const ConnectivityMap: React.FC<ConnectivityMapProps> = (props) => {
@@ -47,13 +48,15 @@ type VisxChartProps = ConnectivityMapProps & {
 };
 
 const VisxChart: React.FC<VisxChartProps> = ({
-	data,
+	layout,
 	height,
 	width,
 	size,
 	hideLabels,
 	smallTicks,
+	onSelect,
 	squareSize,
+	data,
 	type
 }) => {
 	const marginX = 25;
@@ -82,14 +85,21 @@ const VisxChart: React.FC<VisxChartProps> = ({
 
 	const newData = useMemo(
 		() =>
-			data.nodes.map(({ x, y, id }) => {
-				return { x: scaleX(x / 2), y: scaleY(y / 2 + 0.5) - maxY / 2, id };
+			layout.nodes.map(({ x, y, id }) => {
+				let allValues = data.values[data.component].find((obj) => obj.id === id);
+				let value = {}; //allValues[data.property];
+				return {
+					x: scaleX(x / 2),
+					y: scaleY(y / 2 + 0.5) - maxY / 2,
+					id,
+					data: { allValues, value }
+				};
 			}),
-		[data.nodes, scaleX, scaleY, maxY]
+		[layout.nodes, scaleX, scaleY, maxY]
 	);
 	const newLinks = useMemo(
 		() =>
-			data.links.map((link) => {
+			layout.links.map((link) => {
 				return {
 					...link,
 					from: {
@@ -102,8 +112,25 @@ const VisxChart: React.FC<VisxChartProps> = ({
 					}
 				};
 			}),
-		[data.links, scaleX, scaleY]
+		[layout.links, scaleX, scaleY]
 	);
+	console.log('data conmap', data);
+
+	// if (data) {
+	// 	const { values, component, property } = data;
+	// 	console.log('data', layout.nodes);
+	// 	console.log(
+	// 		'mapped',
+	// 		layout.nodes.map(({ id }, index) => {
+	// 			return { id, values: values[component].find((x) => x.id === id) };
+	// 		})
+	// 	);
+	// 	console.log('values', values[component]);
+	// }
+
+	// console.log('component', component);
+	// console.log('prop', property);
+	// console.log('test', values[component].find((obj) => obj.id === 0)[property]);
 
 	return (
 		maxX > 0 &&
@@ -144,22 +171,30 @@ const VisxChart: React.FC<VisxChartProps> = ({
 							nodes: newData,
 							links: newLinks
 						}}
-						nodeComponent={({ node: { x, y, id } }) =>
+						nodeComponent={({ node: { x, y, id, data } }) =>
 							type === 'node' && (
 								<CustomNode
 									yMax={maxY}
 									xMax={maxX}
 									x={x}
 									y={y}
+									onSelect={onSelect}
 									hideLabels={hideLabels}
 									squareSize={squareSize}
+									data={data}
 									id={id}
 								/>
 							)
 						}
 						linkComponent={(link) =>
 							type === 'link' && (
-								<CustomLink link={link.link} id={link} xMax={maxX} yMax={maxY} />
+								<CustomLink
+									link={link.link}
+									id={link.id}
+									xMax={maxX}
+									yMax={maxY}
+									onSelect={onSelect}
+								/>
 							)
 						}
 					></Graph>
