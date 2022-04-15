@@ -26,7 +26,7 @@ const LineChartVisualization = () => {
 	};
 
 	return (
-		<Box>
+		<>
 			<Box p={'32px'}>
 				<Flex pb={'16px'} alignItems='center'>
 					<FormLabel fontSize={'large'}> Domain: </FormLabel>
@@ -42,13 +42,19 @@ const LineChartVisualization = () => {
 			<ParentSize>
 				{({ width, height }) => (
 					<LineChart
-						data={{ x: { minX: 0, maxX: 100 }, y: { minY: 0, maxY: 100 } }}
+						data={[
+							{ x: 0, y: 0 },
+							{ x: 10, y: 12 },
+							{ x: 30, y: 50 },
+							{ x: 35, y: 55 },
+							{ x: 100, y: 15 }
+						]}
 						width={width}
-						height={width}
+						height={height}
 					/>
 				)}
 			</ParentSize>
-		</Box>
+		</>
 	);
 };
 

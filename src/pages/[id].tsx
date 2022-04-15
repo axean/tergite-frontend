@@ -1,14 +1,11 @@
 import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
-import { ParentSize } from '@visx/responsive';
 import { useRouter } from 'next/router';
 import React, { useContext, useState } from 'react';
 import { MdFirstPage, MdLastPage } from 'react-icons/md';
 import { useQuery } from 'react-query';
-import ConnectivityMap from '../components/connectivityMap';
 import { SmallConnectivityMap } from '../components/connectivityMap/ConnectivityMap';
 import { HistogramVisualization } from '../components/visualizations/HistogramVisualization';
 import NavbarVisualizations from '../components/NavbarVisualizations';
-import LineChart from '../components/lineChart/LineChart';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
 import LineChartVisualization from '../components/visualizations/LineChartVisualization';
 

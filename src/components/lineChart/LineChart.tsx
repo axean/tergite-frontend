@@ -2,9 +2,11 @@ import { AxisLeft, AxisBottom } from '@visx/axis';
 import { GridRows, GridColumns } from '@visx/grid';
 import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
+import { LinePath } from '@visx/shape';
+import { extent } from 'd3-array';
 
 interface LineChartProps {
-	data?: { x: { minX: number; maxX: number }; y: { minY: number; maxY: number } };
+	data: { x: number; y: number }[];
 	width: number;
 	height: number;
 }
@@ -14,42 +16,45 @@ const LineChart: React.FC<LineChartProps> = ({ data, width, height }) => {
 
 	const innerWidth = width - margin.left - margin.right;
 	const innerHeight = height - margin.top - margin.bottom;
-	const { minX, maxX } = data.x;
-	const { minY, maxY } = data.y;
+
+	const getX = (d: { x: number; y: number }) => d.x;
+	const getY = (d: { x: number; y: number }) => d.y;
 	// Defining scales
 
 	// horizontal, x scale
-	const xScale = scaleLinear({
+	const xScale = scaleLinear<number>({
 		range: [0, innerWidth],
-		domain: [minX, maxX],
+		domain: extent(data, getX) as [number, number],
 		nice: true
 	});
 
 	// vertical, y scale
-	const yScale = scaleLinear({
+	const yScale = scaleLinear<number>({
 		range: [innerHeight, 0],
-		domain: [minY, maxY],
+		domain: extent(data, getY) as [number, number],
 		nice: true
 	});
 
+	const series = [data, data];
+
 	return (
 		<svg width={width} height={height}>
-			<GridRows
-				scale={yScale}
-				width={innerWidth}
-				height={innerHeight - margin.top}
-				stroke='#EDF2F7'
-				strokeOpacity={0.2}
-			/>
-			<GridColumns
-				scale={xScale}
-				width={innerWidth}
-				height={innerHeight}
-				stroke='#EDF2F7'
-				strokeOpacity={0.2}
-			/>
 			<rect x={0} y={0} width={width} height={height} fill={'#718096'} rx={14} />
 			<Group left={margin.left} top={margin.top}>
+				<GridRows
+					scale={xScale}
+					width={innerWidth}
+					height={innerHeight}
+					stroke='#FFFFFF'
+					strokeOpacity={0.2}
+				/>
+				<GridColumns
+					scale={yScale}
+					width={innerWidth}
+					height={innerHeight}
+					stroke='#FFFFFF'
+					strokeOpacity={0.2}
+				/>
 				<AxisLeft
 					stroke={'#EDF2F7'}
 					tickStroke={'#EDF2F7'}
@@ -67,11 +72,20 @@ const LineChart: React.FC<LineChartProps> = ({ data, width, height }) => {
 					top={innerHeight}
 					tickLabelProps={() => ({
 						fill: '#EDF2F7',
-						fontSize: 14,
+						fontSize: 11,
 						textAnchor: 'middle'
 					})}
 				/>
-				<rect x={0} y={0} width={innerWidth} height={innerHeight} fill={'#A0AEC0'} />
+				{series.map((sData, i) => (
+					<LinePath
+						key={i}
+						stroke={'#30AB95'}
+						strokeWidth={3}
+						data={sData}
+						x={(d) => xScale(getX(d)) ?? 0}
+						y={(d) => yScale(getY(d)) ?? 0}
+					/>
+				))}
 			</Group>
 		</svg>
 	);
