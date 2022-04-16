@@ -1,8 +1,9 @@
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
-import React from 'react';
 import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
 import {Box, Grid, GridItem} from '@chakra-ui/react';
+import React, { useContext } from 'react';
+import { BackendContext, MapActions } from '../../state/BackendContext';
 
 type CustomNodeProps = {
 	id: number;
@@ -10,11 +11,9 @@ type CustomNodeProps = {
 	y: number;
 	yMax: number;
 	xMax: number;
+	onSelect?: (id: number) => void;
 	squareSize: 'small' | 'medium' | 'large';
-	selectedNode: number;
 	hideLabels: boolean;
-	setSelectedNode: React.Dispatch<number>;
-	onSelect: (id: number) => void;
 };
 
 const CustomNode: React.FC<CustomNodeProps> = ({
@@ -24,10 +23,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 	x,
 	y,
 	id,
-	setSelectedNode,
 	squareSize,
-	selectedNode,
-	onSelect,
 	hideLabels
 }) => {
 	squareSize = squareSize || 'medium';
@@ -67,6 +63,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 
 	  let tooltipTimeout;
 
+	const [{ selectedNode }, dispatch] = useContext(BackendContext);
 	return (
 		// yMax/10 is the size of half a square
 		<Group
@@ -87,8 +84,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 				  }, 10);
 			}}
 			onMouseDown={() => {
-				setSelectedNode(id);
-				onSelect && onSelect(id);
+				dispatch({ type: MapActions.SELECT_NODE, payload: id });
 			}}
 			style={{ cursor: 'pointer' }}
 
