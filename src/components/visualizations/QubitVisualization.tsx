@@ -15,8 +15,14 @@ import {
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useQuery } from 'react-query';
-import { BackendContext, MapActions } from '../../state/BackendContext';
-import facade from '../../utils/facade';
+import {
+	BackendContext,
+	MapActions,
+	useAllLayouts,
+	useMapData,
+	useSelectedComponentLayout
+} from '../../state/BackendContext';
+import { facadeType1 } from '../../utils/facade';
 import ConnectivityMap from '../connectivityMap/';
 import RadioButtons from '../RadioButtons';
 
@@ -24,21 +30,16 @@ type QubitVisualizationProps = {
 	isCollapsed: boolean;
 };
 const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) => {
-	const { isLoading, error, data } = useQuery('QubitVisualization', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
-	);
-
-	const type1 = useQuery('QubitVisualizationType1', () =>
+	const { isLoading, error, data } = useQuery<API.Response.Type1>('QubitVisualizationType1', () =>
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu/type1').then((res) =>
 			res.json()
 		)
 	);
-
-	const [{ selectedNode, nodes, links, nodeType, linkType }, dispatch] =
-		useContext(BackendContext);
+	const { deviceLayouts } = useAllLayouts();
 	const rerenderRef = useRef(isCollapsed);
 	const [isRerendering, setIsRerendering] = useState(false);
-	const [facadeData, setFacadeData] = useState(undefined);
+	const { allData, setMapData } = useMapData();
+	const [{ nodeProperty }, dispatch] = useContext(BackendContext);
 	// this is needed to ensure proper resizing of the component after the sidepanel collapse/expand
 	useEffect(() => {
 		if (rerenderRef.current !== isCollapsed) {
@@ -50,29 +51,16 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 		}
 	}, [isCollapsed]);
 
+	// console.log('from qubitviz', deviceLayouts);
+	console.log('from qubit viz:', nodeProperty);
+
 	useEffect(() => {
-		if (data && type1.data) {
-			setFacadeData(facade(type1.data, 'type1', facade(data, 'root')));
+		if (data && deviceLayouts && deviceLayouts.nodeLayouts && deviceLayouts.linkLayouts) {
+			setMapData(facadeType1(data, deviceLayouts));
 		}
-	}, [isLoading, error, type1.isLoading, type1.error, type1.data]); // eslint-disable-line
-	useEffect(() => {
-		if (facadeData) {
-			let f = facade(data, 'root');
-			console.log('6969: ', f);
-			dispatch({ type: MapActions.SET_NODES, payload: f.nodes });
-			dispatch({
-				type: MapActions.SET_LINKS,
-				payload: f.links
-			});
-		}
-	}, [facadeData]); // eslint-disable-line
+	}, [isLoading, error, data]); // eslint-disable-line
 
-	const router = useRouter();
-
-	const [nodeProp, setNodeProp] = useState('');
-	const [linkProp, setLinkProp] = useState('');
-
-	if (isLoading || type1.isLoading || facadeData === undefined)
+	if (isLoading || allData === null)
 		return (
 			<Flex flex='1' gap='8'>
 				<Flex flex='1' gap='8' flexDir='column'>
@@ -92,33 +80,19 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 				<Flex gap='8' overflow='hidden' my='4'>
 					<Box overflow='hidden' flex='1'>
 						<ConnectivityMap
-							layout={{ nodes, links }}
-							data={{
-								values: facadeData.nodes,
-								component: nodeType,
-								property: nodeProp
-							}}
 							type='node'
 							backgroundColor='white'
 							onSelect={() => {
-								router.push(`${router.query.id}?type=Histogram`);
+								// router.push(`${router.query.id}?type=Histogram`);
 							}}
 							size={5}
 						/>
 					</Box>
 					<Box overflow='hidden' flex='1'>
 						<ConnectivityMap
-							layout={{ nodes, links }}
-							component={nodeType}
-							property={nodeProp}
-							data={{
-								values: facadeData.nodes,
-								component: nodeType,
-								property: nodeProp
-							}}
 							backgroundColor='white'
 							onSelect={() => {
-								router.push(`${router.query.id}?type=Graphdeviation`);
+								// router.push(`${router.query.id}?type=Graphdeviation`);
 							}}
 							type='node'
 							size={5}
@@ -127,19 +101,22 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 				</Flex>
 				<Flex gap='8'>
 					<Selections
-						facadeData={facadeData}
+						facadeData={allData}
 						type='node'
 						onChange={(e) => {
-							console.log('facadeData');
-
-							setNodeProp(e);
+							console.log('onchage:', e);
+							dispatch({
+								type: MapActions.SET_NODE_PROPERTY,
+								payload: e
+							});
 						}}
 					/>
-					<Selections
+					<div>{nodeProperty} </div>
+					{/* <Selections
 						facadeData={facadeData}
 						type='link'
 						onChange={(e) => setLinkProp(e)}
-					/>
+					/> */}
 				</Flex>
 			</Box>
 		</Skeleton>
@@ -148,44 +125,43 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 
 export default QubitVisualization;
 
-function Selections({ facadeData, type, onChange }) {
-	const [{ nodeType, linkType }, dispatch] = useContext(BackendContext);
-	const selectionType = type === 'node' ? nodeType : linkType;
-	const data = type === 'node' ? facadeData.nodes : facadeData.links;
+function Selections({ facadeData, type: selectType, onChange }) {
+	const [{ nodeComponent: nodeType, linkComponent: linkType }, dispatch] =
+		useContext(BackendContext);
+	const selectionType = selectType === 'node' ? nodeType : linkType;
+	const data = selectType === 'node' ? facadeData.nodes : facadeData.links;
 
 	const defaultValue = Object.keys(data[selectionType][0])[0];
 
-	const [selected, setSelected] = useState(defaultValue);
-
-	useEffect(() => {
-		dispatch({
-			type: type === 'node' ? MapActions.SET_NODE_TYPE : MapActions.SET_LINK_TYPE,
-			payload: Object.keys(data)[0]
-		});
-		console.log('defaultValue', defaultValue);
-		onChange(defaultValue);
-	}, []);
-
+	// useEffect(() => {
+	// 	dispatch({
+	// 		type: type === 'node' ? MapActions.SET_NODE_TYPE : MapActions.SET_LINK_TYPE,
+	// 		payload: Object.keys(data)[0]
+	// 	});
+	// 	console.log('defaultValue', defaultValue);
+	// 	onChange(defaultValue);
+	// }, []);
 	return (
 		<Box flex='1'>
 			<RadioButtons
 				tabs={Object.keys(data)}
 				setTab={(value) => {
 					dispatch({
-						type: type === 'node' ? MapActions.SET_NODE_TYPE : MapActions.SET_LINK_TYPE,
-						payload: value
+						type:
+							selectType === 'node'
+								? MapActions.SET_NODE_COMPONENT
+								: MapActions.SET_LINK_COMPONENT,
+						payload: value as Application.NodeKeys | Application.LinkKeys
 					});
 				}}
 			/>
 			<Text fontSize='md' fontWeight='bold'>
-				{type === 'node' ? 'Property:' : 'Connection property:'}
+				{selectType === 'node' ? 'Property:' : 'Connection property:'}
 			</Text>
 
 			<Select
 				defaultValue={defaultValue}
-				value={selected}
 				onChange={(e) => {
-					setSelected(e.target.value);
 					onChange(e.target.value);
 				}}
 			>

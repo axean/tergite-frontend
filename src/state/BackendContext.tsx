@@ -1,28 +1,31 @@
-import React, { ReactNode, useState, useReducer } from 'react';
+import React, { ReactNode, useState, useReducer, useContext, useMemo } from 'react';
 
 export type BackendContextState = {
 	selectedNode: number;
 	selectedLink: number;
-	nodeType: string;
-	linkType: string;
+	deviceLayouts: Nullable<Application.DeviceLayouts>;
+	nodeComponent: Application.NodeKeys;
+	linkComponent: Application.LinkKeys;
+	nodeProperty: string;
+	linkProperty: string;
+	type1Data: Nullable<Application.Type1>;
 	timeFrom: Date;
 	timeTo: Date;
-	nodes: Point[];
-	links: Link[];
 };
 
-type BackendContextProps = [
-	BackendContextState,
-	React.Dispatch<{ type: DateActions; payload: Date } | { type: MapActions; payload: number }>
-];
+type Reducer = Parameters<typeof reducer>[1];
+
+type BackendContextProps = [BackendContextState, React.Dispatch<Reducer>];
 
 export enum MapActions {
 	SELECT_NODE = 'SELECT_NODE',
 	SELECT_LINK = 'SELECT_LINK',
-	SET_NODES = 'SET_NODES',
-	SET_LINKS = 'SET_LINKS',
-	SET_NODE_TYPE = 'SET_NODE_TYPE',
-	SET_LINK_TYPE = 'SET_LINK_TYPE'
+	SET_LAYOUTS = 'SET_LAYOUTS',
+	SET_MAP_DATA = 'SET_MAP_DATA',
+	SET_NODE_COMPONENT = 'SET_NODE_COMPONENT',
+	SET_LINK_COMPONENT = 'SET_LINK_COMPONENT',
+	SET_NODE_PROPERTY = 'SET_NODE_PROPERTY',
+	SET_LINK_PROPERTY = 'SET_LINK_PROPERTY'
 }
 
 export enum DateActions {
@@ -30,76 +33,37 @@ export enum DateActions {
 	SET_TIME_TO = 'SET_TIME_TO'
 }
 
-function fixDirections(links) {
-	// this function ensures that for all links {x0,y0,x1,y1} x0 < x1 and y0 < y1
-	// this is needed for the padding of the links to work correctly
-	// const filteredLinks = links.filter(({ from, to }) => {
-	// 	return from.x - to.x < 0 || to.x - from.x < 0;
-	// });
-	const newLinks = links.map((link) => {
-		console.log('link??', link);
-		let { from, to, id } = link;
-		let temp;
-		if (from.x < to.x) {
-			temp = from;
-			from = to;
-			to = temp;
-		} else if (from.y < to.y) {
-			temp = from;
-			from = to;
-			to = temp;
-		}
-		return { id, from, to, vertical: from.x === to.x ? true : false };
-	});
-	console.log('new links', newLinks);
-	return newLinks;
-}
-
-function flatten(links, ctx: BackendContextState): any {
-	console.log('123', ctx.nodes);
-
-	return links.map((link) => {
-		return {
-			...link,
-			from: ctx.nodes.find(({ id }) => id === link.qubits[0]),
-			to: ctx.nodes.find(({ id }) => id === link.qubits[1])
-		};
-	});
-}
-
-// action.payload.map((e) => {
-// 					const from = state.nodes.find((n) => n.id == e.from);
-// 					const to = state.nodes.find((n) => n.id == e.to);
-// 					return {
-// 						...e,
-// 						from: { id: from.id, x: from.x, y: from.y },
-// 						to: { id: to.id, x: to.x, y: to.y }
-// 					};
-// 				}) as Link[]
-
 function reducer(
 	state: BackendContextState,
 	action:
 		| { type: DateActions; payload: Date }
-		| { type: MapActions; payload: number | Link[] | Point[] | nodeType | linkType }
+		| {
+				type: MapActions;
+				payload:
+					| Application.Type1
+					| Application.DeviceLayouts
+					| Application.NodeKeys
+					| Application.LinkKeys
+					| Application.Id;
+		  }
 ): BackendContextState {
 	switch (action.type) {
 		case MapActions.SELECT_NODE:
-			return { ...state, selectedNode: action.payload as number };
+			return { ...state, selectedNode: action.payload as Application.Id };
 		case MapActions.SELECT_LINK:
-			return { ...state, selectedLink: action.payload as number };
-		case MapActions.SET_NODES:
-			return { ...state, nodes: action.payload[state.nodeType] as Point[] };
-		case MapActions.SET_LINKS:
-			return {
-				...state,
-				links: fixDirections(flatten(action.payload[state.linkType], state))
-			};
-		case MapActions.SET_NODE_TYPE:
-			return { ...state, nodeType: action.payload as nodeType };
-		case MapActions.SET_LINK_TYPE:
-			return { ...state, linkType: action.payload as linkType };
-
+			return { ...state, selectedLink: action.payload as Application.Id };
+		case MapActions.SET_LAYOUTS:
+			return { ...state, deviceLayouts: action.payload as Application.DeviceLayouts };
+		case MapActions.SET_MAP_DATA:
+			return { ...state, type1Data: action.payload as Application.Type1 };
+		case MapActions.SET_NODE_COMPONENT:
+			return { ...state, nodeComponent: action.payload as Application.NodeKeys };
+		case MapActions.SET_LINK_COMPONENT:
+			return { ...state, linkComponent: action.payload as Application.LinkKeys };
+		case MapActions.SET_LINK_PROPERTY:
+			return { ...state, linkProperty: action.payload as string };
+		case MapActions.SET_NODE_PROPERTY:
+			return { ...state, nodeProperty: action.payload as string };
 		case DateActions.SET_TIME_FROM:
 			return { ...state, timeFrom: action.payload };
 		case DateActions.SET_TIME_TO:
@@ -115,18 +79,73 @@ const BackendContextProvider: React.FC<BackendContextProviderProps> = ({ childre
 	let timeFrom = new Date();
 	timeFrom.setDate(timeFrom.getDate() - 7);
 	const data: BackendContextState = {
+		type1Data: null,
+		deviceLayouts: null,
 		selectedNode: -1,
 		selectedLink: -1,
-		nodeType: 'qubits',
-		linkType: 'couplers',
+		nodeComponent: 'one_qubit_gates',
+		linkComponent: 'couplers',
+		nodeProperty: 'pulse_amp',
+		linkProperty: 'pulse_amp',
 		timeFrom,
-		timeTo: new Date(),
-		nodes: [],
-		links: []
+		timeTo: new Date()
 	};
 	const x = useReducer(reducer, data);
 
 	return <BackendContext.Provider value={x}>{children}</BackendContext.Provider>;
 };
+
+function useAllLayouts(): {
+	deviceLayouts: Nullable<Application.DeviceLayouts>;
+	setDeviceLayouts: (layouts: Application.DeviceLayouts) => void;
+} {
+	const [{ deviceLayouts }, dispatch] = useContext(BackendContext);
+
+	const setDeviceLayouts = (layouts: Application.DeviceLayouts) => {
+		dispatch({ type: MapActions.SET_LAYOUTS, payload: layouts });
+	};
+
+	return { deviceLayouts, setDeviceLayouts };
+}
+
+function useSelectedComponentLayout(): {
+	layout: Nullable<Application.DeviceLayout>;
+} {
+	const [{ deviceLayouts, nodeComponent, linkComponent }, _] = useContext(BackendContext);
+
+	return {
+		layout: {
+			nodes: deviceLayouts?.nodeLayouts[nodeComponent],
+			links: deviceLayouts?.linkLayouts[linkComponent]
+		}
+	};
+}
+
+function useMapData() {
+	const [{ type1Data, nodeComponent, linkComponent, nodeProperty, linkProperty }, dispatch] =
+		useContext(BackendContext);
+	const setMapData = (mapData) => {
+		dispatch({ type: MapActions.SET_MAP_DATA, payload: mapData });
+	};
+
+	const selectedComponentData = {
+		nodeData: type1Data?.nodes[nodeComponent],
+		linkData: type1Data?.links[linkComponent]
+	};
+
+	const selectedComponentPropertyData = {
+		nodeData: type1Data?.nodes[nodeComponent].map((c) => {
+			if (nodeProperty === 'id') return { id: c.id };
+			return { data: c[nodeProperty], id: c.id };
+		}),
+		linkData: type1Data?.links[linkComponent].map((c) => {
+			return c[linkProperty];
+		})
+	};
+
+	console.log('from hook', selectedComponentPropertyData);
+	return { allData: type1Data, selectedComponentData, selectedComponentPropertyData, setMapData };
+}
+
 export default BackendContextProvider;
-export { BackendContext };
+export { BackendContext, useSelectedComponentLayout, useAllLayouts, useMapData };

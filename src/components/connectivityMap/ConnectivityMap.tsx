@@ -10,9 +10,9 @@ import React, { useMemo, useState } from 'react';
 
 import CustomNode from './CustomNode';
 import CustomLink from './CustomLink';
+import { useMapData, useSelectedComponentLayout } from '../../state/BackendContext';
 
 type ConnectivityMapProps = {
-	layout: Layout;
 	type: 'node' | 'link';
 	hideLabels?: boolean;
 	smallTicks?: boolean;
@@ -23,7 +23,6 @@ type ConnectivityMapProps = {
 	borderRadius?: number;
 	nodeColor?: string;
 	linkColor?: string;
-	data?: { values: any[]; component: string; property: string };
 };
 
 const ConnectivityMap: React.FC<ConnectivityMapProps> = (props) => {
@@ -48,7 +47,6 @@ type VisxChartProps = ConnectivityMapProps & {
 };
 
 const VisxChart: React.FC<VisxChartProps> = ({
-	layout,
 	height,
 	width,
 	size,
@@ -56,7 +54,6 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	smallTicks,
 	onSelect,
 	squareSize,
-	data,
 	type
 }) => {
 	const marginX = 25;
@@ -73,6 +70,12 @@ const VisxChart: React.FC<VisxChartProps> = ({
 		[maxX, size]
 	);
 
+	const { layout } = useSelectedComponentLayout();
+	const { selectedComponentData, selectedComponentPropertyData } = useMapData();
+	// console.log('frm conMap:', selectedComponentData);
+	// console.log('conmap nodes', layout.nodes);
+	// console.log('conmap links', layout.links);
+
 	const scaleY = useMemo(
 		() =>
 			scaleLinear({
@@ -85,21 +88,26 @@ const VisxChart: React.FC<VisxChartProps> = ({
 
 	const newData = useMemo(
 		() =>
-			layout.nodes.map(({ x, y, id }) => {
-				let allValues = data.values[data.component].find((obj) => obj.id === id);
-				let value = {}; //allValues[data.property];
+			layout?.nodes.map((node) => {
+				let { x, y, id } = node;
+				// console.log(node);
+				// let allValues = data.values[data.component].find((obj) => obj.id === id);
+				// let value = {}; //allValues[data.property];
 				return {
 					x: scaleX(x / 2),
 					y: scaleY(y / 2 + 0.5) - maxY / 2,
 					id,
-					data: { allValues, value }
+					data: {
+						selectedComponentData,
+						nodeData: selectedComponentPropertyData.nodeData.find((d) => d.id === id)
+					}
 				};
 			}),
-		[layout.nodes, scaleX, scaleY, maxY]
+		[layout.nodes, scaleX, scaleY, maxY, selectedComponentData, selectedComponentPropertyData]
 	);
 	const newLinks = useMemo(
 		() =>
-			layout.links.map((link) => {
+			layout?.links.map((link) => {
 				return {
 					...link,
 					from: {
@@ -114,7 +122,6 @@ const VisxChart: React.FC<VisxChartProps> = ({
 			}),
 		[layout.links, scaleX, scaleY]
 	);
-	console.log('data conmap', data);
 
 	// if (data) {
 	// 	const { values, component, property } = data;
@@ -131,6 +138,8 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	// console.log('component', component);
 	// console.log('prop', property);
 	// console.log('test', values[component].find((obj) => obj.id === 0)[property]);
+
+	if (layout === null) return <div>loading...</div>;
 
 	return (
 		maxX > 0 &&
@@ -178,11 +187,11 @@ const VisxChart: React.FC<VisxChartProps> = ({
 									xMax={maxX}
 									x={x}
 									y={y}
+									data={data}
+									id={id}
 									onSelect={onSelect}
 									hideLabels={hideLabels}
 									squareSize={squareSize}
-									data={data}
-									id={id}
 								/>
 							)
 						}

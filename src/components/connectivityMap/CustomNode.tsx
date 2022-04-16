@@ -39,10 +39,14 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 			size = yMax / 7;
 			break;
 	}
-	// console.log('data is', data);
+	const formattedValue = data.nodeData.data
+		? Math.abs(data.nodeData.data[0].value) > 9999
+			? data.nodeData.data[0].value.toFixed(0)
+			: data.nodeData.data[0].value.toFixed(3)
+		: data.nodeData.id;
+
 	const [{ selectedNode }, dispatch] = useContext(BackendContext);
 	return (
-		// yMax/10 is the size of half a square
 		<Group
 			top={yMax / 10 - size / 2}
 			left={xMax / 10 - size / 2}
@@ -81,7 +85,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 					scaleToFit='shrink-only'
 					width={(xMax / 10) * 0.9}
 				>
-					{id}
+					{formattedValue}
 				</Text>
 			)}
 		</Group>

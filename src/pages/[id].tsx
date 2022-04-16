@@ -1,6 +1,6 @@
 import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { MdFirstPage, MdLastPage } from 'react-icons/md';
 import { useQuery } from 'react-query';
 import ConnectivityMap from '../components/connectivityMap';
@@ -8,6 +8,8 @@ import { SmallConnectivityMap } from '../components/connectivityMap/Connectivity
 import { HistogramVisualization } from '../components/visualizations/HistogramVisualization';
 import NavbarVisualizations from '../components/NavbarVisualizations';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
+import { BackendContext, MapActions, useAllLayouts } from '../state/BackendContext';
+import { facadeDeviceDetail } from '../utils/facade';
 
 type VisualizationRoutes =
 	| 'Qubitmap'
@@ -19,10 +21,17 @@ type VisualizationRoutes =
 
 const Detail = () => {
 	const [isCollapsed, setCollapsed] = useState(false);
-	const { isLoading, error, data } = useQuery('DetailPageEEEE', () =>
+	const { isLoading, error, data } = useQuery<API.Response.DeviceDetail>('DetailPageEEEE', () =>
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
 	);
-
+	const { deviceLayouts, setDeviceLayouts } = useAllLayouts();
+	useEffect(() => {
+		if (!isLoading && data !== undefined) {
+			setDeviceLayouts(facadeDeviceDetail(data));
+			console.log('layout filled');
+			console.log('layouts:', deviceLayouts);
+		}
+	}, [isLoading, data]);
 	if (isLoading) {
 		return <Text>Loading...</Text>;
 	}
@@ -99,12 +108,12 @@ function SidePanel({ isCollapsed, setCollapsed, data }) {
 				{showMap && (
 					<Flex flexDir='column' alignItems='center'>
 						<Box w={{ xl: '90%', '2xl': '80%' }}>
-							<SmallConnectivityMap
+							{/* <SmallConnectivityMap
 								layout={{ nodes: data.qubits, links: [] }}
 								backgroundColor='white'
 								type='node'
 								size={5}
-							/>
+							/> */}
 						</Box>
 					</Flex>
 				)}
