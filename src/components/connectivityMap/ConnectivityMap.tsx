@@ -149,6 +149,7 @@ const VisxChart: React.FC<VisxChartProps> = ({
 							type === 'node' && (
 								<CustomNode
 									data={data.nodes.filter (node => node.id == id)[0]}
+									resonator={data.resonators?.filter (res => res.id == id)[0]}
 									yMax={maxY}
 									xMax={maxX}
 									x={x}

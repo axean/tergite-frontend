@@ -9,12 +9,15 @@ type QubitVisualizationProps = {
 };
 const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) => {
 	const { isLoading, error, data } = useQuery('QubitVisualization', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu/data').then((res) => res.json())
 	);
 
-	const [{ selectedNode, nodes, links }, dispatch] = useContext(BackendContext);
+	const [{ selectedNode, nodes, links, resonators }, dispatch] = useContext(BackendContext);
 	const rerenderRef = useRef(isCollapsed);
 	const [isRerendering, setIsRerendering] = useState(false);
+
+	//console.log(data?.resonators[0].static_properties[0]);
+
 
 	// this is needed to ensure proper resizing of the component after the sidepanel collapse/expand
 	useEffect(() => {
@@ -30,6 +33,7 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 	useEffect(() => {
 		if (data) {
 			dispatch({ type: MapActions.SET_NODES, payload: data.qubits });
+			dispatch({ type: MapActions.SET_RESONATORS, payload: data.resonators });
 			dispatch({
 				type: MapActions.SET_LINKS,
 				payload: data.couplers
@@ -39,7 +43,8 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 
 	const myData = {
 		nodes,
-		links
+		links,
+		resonators
 	};
 
 	return (

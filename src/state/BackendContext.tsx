@@ -11,6 +11,7 @@ export type BackendContextState = {
 	timeTo: Date;
 	nodes: Point[];
 	links: Link[];
+	resonators: Point[];
 };
 
 type BackendContextProps = [
@@ -22,6 +23,7 @@ export enum MapActions {
 	SELECT_NODE = 'SELECT_NODE',
 	SELECT_LINK = 'SELECT_LINK',
 	SET_NODES = 'SET_NODES',
+	SET_RESONATORS = 'SET_RESONATORS',
 	SET_LINKS = 'SET_LINKS',
 	SET_NODE_TYPE = 'SET_NODE_TYPE',
 	SET_LINK_TYPE = 'SET_LINK_TYPE'
@@ -89,6 +91,8 @@ function reducer(
 			return { ...state, selectedLink: action.payload as number };
 		case MapActions.SET_NODES:
 			return { ...state, nodes: action.payload as Point[] };
+		case MapActions.SET_RESONATORS:
+			return { ...state, resonators: action.payload as Point[] };
 		case MapActions.SET_LINKS:
 			return {
 				...state,
@@ -121,7 +125,8 @@ const BackendContextProvider: React.FC<BackendContextProviderProps> = ({ childre
 		timeFrom,
 		timeTo: new Date(),
 		nodes: [],
-		links: []
+		links: [],
+		resonators: []
 	};
 	const x = useReducer(reducer, data);
 

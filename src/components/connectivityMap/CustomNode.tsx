@@ -18,6 +18,7 @@ type CustomNodeProps = {
 
 const CustomNode: React.FC<CustomNodeProps> = ({
 	data,
+	resonator,
 	yMax,
 	xMax,
 	x,
@@ -54,8 +55,8 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 		freqUnit: data.static_properties?.[0].unit,
 		anharm: "TEMP",
 		anharmUnit: "TEMP",
-		resFreq: "TEMP",
-		resFreqUnit: "TEMP",
+		resFreq: resonator?.static_properties?.[0].value,
+		resFreqUnit: resonator?.static_properties?.[0].unit,
 		dli: data.xy_drive_line
 	}
 

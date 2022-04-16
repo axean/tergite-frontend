@@ -111,7 +111,7 @@ function SidePanel({ isCollapsed, setCollapsed, MdFirstPage, backend, type }) {
 					<Flex flexDir='column' alignItems='center'>
 						<Box w={{ xl: '90%', '2xl': '80%' }}>
 							<SmallConnectivityMap
-								data={{ nodes: data.qubits, links: [] }}
+								data={{ nodes: data.qubits, links: [], resonators: data.resonators }}
 								backgroundColor='white'
 								type='node'
 								size={5}
