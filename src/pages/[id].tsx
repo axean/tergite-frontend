@@ -28,8 +28,6 @@ const Detail = () => {
 	useEffect(() => {
 		if (!isLoading && data !== undefined) {
 			setDeviceLayouts(facadeDeviceDetail(data));
-			console.log('layout filled');
-			console.log('layouts:', deviceLayouts);
 		}
 	}, [isLoading, data]);
 	if (isLoading) {
@@ -108,12 +106,10 @@ function SidePanel({ isCollapsed, setCollapsed, data }) {
 				{showMap && (
 					<Flex flexDir='column' alignItems='center'>
 						<Box w={{ xl: '90%', '2xl': '80%' }}>
-							{/* <SmallConnectivityMap
-								layout={{ nodes: data.qubits, links: [] }}
-								backgroundColor='white'
-								type='node'
-								size={5}
-							/> */}
+							<SmallConnectivityMap backgroundColor='white' type='node' size={5} />
+						</Box>
+						<Box w={{ xl: '90%', '2xl': '80%' }}>
+							<SmallConnectivityMap backgroundColor='white' type='link' size={5} />
 						</Box>
 					</Flex>
 				)}

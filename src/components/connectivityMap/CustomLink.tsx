@@ -8,10 +8,25 @@ type CustomLinkProps = {
 	onSelect?: (id: number) => void;
 	yMax: number;
 	xMax: number;
+	data: {
+		allLinkData: API.ComponentData[];
+		linkData: {
+			id: number;
+			data?: API.Property[];
+		};
+	};
 };
 
-const CustomLink: React.FC<CustomLinkProps> = ({ link, yMax, xMax, onSelect, id }) => {
+const CustomLink: React.FC<CustomLinkProps> = ({
+	link,
+	yMax,
+	xMax,
+	onSelect,
+	id,
+	data: { allLinkData, linkData }
+}) => {
 	const [{ selectedLink }, dispatch] = useContext(BackendContext);
+	console.log('linkData', linkData);
 	return (
 		<Group top={-yMax / 10} left={xMax / 10} style={{ cursor: 'pointer' }}>
 			{' '}

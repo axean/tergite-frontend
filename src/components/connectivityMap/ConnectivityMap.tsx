@@ -14,9 +14,9 @@ import { useMapData, useSelectedComponentLayout } from '../../state/BackendConte
 
 type ConnectivityMapProps = {
 	type: 'node' | 'link';
+	size: number;
 	hideLabels?: boolean;
 	smallTicks?: boolean;
-	size: number;
 	squareSize?: 'small' | 'medium' | 'large';
 	onSelect?: (id: number) => void;
 	backgroundColor?: string;
@@ -72,9 +72,6 @@ const VisxChart: React.FC<VisxChartProps> = ({
 
 	const { layout } = useSelectedComponentLayout();
 	const { selectedComponentData, selectedComponentPropertyData } = useMapData();
-	// console.log('frm conMap:', selectedComponentData);
-	// console.log('conmap nodes', layout.nodes);
-	// console.log('conmap links', layout.links);
 
 	const scaleY = useMemo(
 		() =>
@@ -90,16 +87,16 @@ const VisxChart: React.FC<VisxChartProps> = ({
 		() =>
 			layout?.nodes.map((node) => {
 				let { x, y, id } = node;
-				// console.log(node);
-				// let allValues = data.values[data.component].find((obj) => obj.id === id);
-				// let value = {}; //allValues[data.property];
+
 				return {
 					x: scaleX(x / 2),
 					y: scaleY(y / 2 + 0.5) - maxY / 2,
 					id,
 					data: {
-						selectedComponentData,
-						nodeData: selectedComponentPropertyData.nodeData.find((d) => d.id === id)
+						allNodeData: selectedComponentData.nodeData,
+						nodeData: selectedComponentPropertyData.nodeData.find(
+							(node) => node.id === id
+						)
 					}
 				};
 			}),
@@ -117,28 +114,17 @@ const VisxChart: React.FC<VisxChartProps> = ({
 					to: {
 						x: link.vertical ? scaleX(link.to.x) : scaleX(link.to.x + 0.15),
 						y: link.vertical ? scaleY(link.to.y + 0.15) : scaleY(link.from.y)
+					},
+					data: {
+						allLinkData: selectedComponentData.linkData,
+						linkData: selectedComponentPropertyData.linkData.find(
+							(linkData) => linkData.id === link.id
+						)
 					}
 				};
 			}),
-		[layout.links, scaleX, scaleY]
+		[layout.links, scaleX, scaleY, selectedComponentData.linkData]
 	);
-
-	// if (data) {
-	// 	const { values, component, property } = data;
-	// 	console.log('data', layout.nodes);
-	// 	console.log(
-	// 		'mapped',
-	// 		layout.nodes.map(({ id }, index) => {
-	// 			return { id, values: values[component].find((x) => x.id === id) };
-	// 		})
-	// 	);
-	// 	console.log('values', values[component]);
-	// }
-
-	// console.log('component', component);
-	// console.log('prop', property);
-	// console.log('test', values[component].find((obj) => obj.id === 0)[property]);
-
 	if (layout === null) return <div>loading...</div>;
 
 	return (
@@ -199,7 +185,8 @@ const VisxChart: React.FC<VisxChartProps> = ({
 							type === 'link' && (
 								<CustomLink
 									link={link.link}
-									id={link.id}
+									id={link.link.id}
+									data={link.link.data}
 									xMax={maxX}
 									yMax={maxY}
 									onSelect={onSelect}

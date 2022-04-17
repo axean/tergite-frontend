@@ -84,7 +84,7 @@ const BackendContextProvider: React.FC<BackendContextProviderProps> = ({ childre
 		selectedNode: -1,
 		selectedLink: -1,
 		nodeComponent: 'one_qubit_gates',
-		linkComponent: 'couplers',
+		linkComponent: 'two_qubit_gates',
 		nodeProperty: 'pulse_amp',
 		linkProperty: 'pulse_amp',
 		timeFrom,
@@ -138,12 +138,13 @@ function useMapData() {
 			if (nodeProperty === 'id') return { id: c.id };
 			return { data: c[nodeProperty], id: c.id };
 		}),
+
 		linkData: type1Data?.links[linkComponent].map((c) => {
-			return c[linkProperty];
+			if (linkProperty === 'id') return { id: c.id };
+			return { data: c[linkProperty], id: c.id };
 		})
 	};
 
-	console.log('from hook', selectedComponentPropertyData);
 	return { allData: type1Data, selectedComponentData, selectedComponentPropertyData, setMapData };
 }
 

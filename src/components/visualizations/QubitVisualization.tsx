@@ -40,6 +40,8 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 	const [isRerendering, setIsRerendering] = useState(false);
 	const { allData, setMapData } = useMapData();
 	const [{ nodeProperty }, dispatch] = useContext(BackendContext);
+	const router = useRouter();
+
 	// this is needed to ensure proper resizing of the component after the sidepanel collapse/expand
 	useEffect(() => {
 		if (rerenderRef.current !== isCollapsed) {
@@ -50,9 +52,6 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 			}, 50);
 		}
 	}, [isCollapsed]);
-
-	// console.log('from qubitviz', deviceLayouts);
-	console.log('from qubit viz:', nodeProperty);
 
 	useEffect(() => {
 		if (data && deviceLayouts && deviceLayouts.nodeLayouts && deviceLayouts.linkLayouts) {
@@ -83,7 +82,7 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 							type='node'
 							backgroundColor='white'
 							onSelect={() => {
-								// router.push(`${router.query.id}?type=Histogram`);
+								router.push(`${router.query.id}?type=Histogram`);
 							}}
 							size={5}
 						/>
@@ -92,31 +91,17 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 						<ConnectivityMap
 							backgroundColor='white'
 							onSelect={() => {
-								// router.push(`${router.query.id}?type=Graphdeviation`);
+								router.push(`${router.query.id}?type=Graphdeviation`);
 							}}
-							type='node'
+							type='link'
 							size={5}
 						/>
 					</Box>
 				</Flex>
 				<Flex gap='8'>
-					<Selections
-						facadeData={allData}
-						type='node'
-						onChange={(e) => {
-							console.log('onchage:', e);
-							dispatch({
-								type: MapActions.SET_NODE_PROPERTY,
-								payload: e
-							});
-						}}
-					/>
-					<div>{nodeProperty} </div>
-					{/* <Selections
-						facadeData={facadeData}
-						type='link'
-						onChange={(e) => setLinkProp(e)}
-					/> */}
+					<MapSelections selectType='node' />
+
+					<MapSelections selectType='link' />
 				</Flex>
 			</Box>
 		</Skeleton>
@@ -125,22 +110,19 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 
 export default QubitVisualization;
 
-function Selections({ facadeData, type: selectType, onChange }) {
+type MapSelectionsProps = {
+	selectType: 'node' | 'link';
+};
+
+const MapSelections: React.FC<MapSelectionsProps> = ({ selectType }) => {
+	const { allData } = useMapData();
 	const [{ nodeComponent: nodeType, linkComponent: linkType }, dispatch] =
 		useContext(BackendContext);
 	const selectionType = selectType === 'node' ? nodeType : linkType;
-	const data = selectType === 'node' ? facadeData.nodes : facadeData.links;
+	const data = selectType === 'node' ? allData.nodes : allData.links;
 
 	const defaultValue = Object.keys(data[selectionType][0])[0];
 
-	// useEffect(() => {
-	// 	dispatch({
-	// 		type: type === 'node' ? MapActions.SET_NODE_TYPE : MapActions.SET_LINK_TYPE,
-	// 		payload: Object.keys(data)[0]
-	// 	});
-	// 	console.log('defaultValue', defaultValue);
-	// 	onChange(defaultValue);
-	// }, []);
 	return (
 		<Box flex='1'>
 			<RadioButtons
@@ -151,7 +133,7 @@ function Selections({ facadeData, type: selectType, onChange }) {
 							selectType === 'node'
 								? MapActions.SET_NODE_COMPONENT
 								: MapActions.SET_LINK_COMPONENT,
-						payload: value as Application.NodeKeys | Application.LinkKeys
+						payload: value
 					});
 				}}
 			/>
@@ -162,7 +144,13 @@ function Selections({ facadeData, type: selectType, onChange }) {
 			<Select
 				defaultValue={defaultValue}
 				onChange={(e) => {
-					onChange(e.target.value);
+					dispatch({
+						type:
+							selectType === 'node'
+								? MapActions.SET_NODE_PROPERTY
+								: MapActions.SET_LINK_PROPERTY,
+						payload: e.target.value
+					});
 				}}
 			>
 				{Object.keys(data[selectionType][0]).map((key, index) => (
@@ -171,4 +159,4 @@ function Selections({ facadeData, type: selectType, onChange }) {
 			</Select>
 		</Box>
 	);
-}
+};

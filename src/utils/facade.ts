@@ -88,7 +88,6 @@ function facadeType1(
 		device.linkLayouts.two_qubit_gates.some((qubit) => qubit.id === e.id)
 	);
 	delete newData.gates;
-	console.log('newData', newData);
 	return {
 		nodes: {
 			one_qubit_gates: newData.one_qubit_gates,
