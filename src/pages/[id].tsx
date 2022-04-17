@@ -58,7 +58,7 @@ const VisualizationPanel = ({ isCollapsed }) => {
 		case 'Graphdeviation':
 			return <>Graphdeviation</>;
 		case 'Linegraph':
-			return <LineChartVisualization />;
+			return <LineChartVisualization backend={id} />;
 		case 'Tableview':
 			return <>Tableview</>;
 		case 'Cityplot':

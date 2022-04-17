@@ -1,10 +1,23 @@
 import { Box, Flex, FormLabel, Select } from '@chakra-ui/react';
+import { useQuery } from 'react-query';
 import { ParentSize } from '@visx/responsive';
 import { useState } from 'react';
 import LineChart from '../lineChart/LineChart';
 import RadioButtons from '../RadioButtons';
 
-const LineChartVisualization = () => {
+const LineChartVisualization = ({ backend }) => {
+	const domainData = useQuery('linechartDomain', () =>
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend + '/type4_domain')
+			.then((res) => res.json())
+			.then((json) => console.log(json))
+	);
+
+	const coDomainData = useQuery('linechartCodomain', () =>
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend + '/type4_codomain')
+			.then((res) => res.json())
+			.then((json) => console.log(json))
+	);
+
 	const tabsDom = ['Qubit', 'Resonator', 'Coupler', 'Gates'];
 	const tabsCo = ['Qubit', 'Resonator', 'Coupler', 'Gates'];
 
