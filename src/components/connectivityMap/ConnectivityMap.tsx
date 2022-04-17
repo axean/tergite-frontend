@@ -92,15 +92,25 @@ const VisxChart: React.FC<VisxChartProps> = ({
 					x: scaleX(x / 2),
 					y: scaleY(y / 2 + 0.5) - maxY / 2,
 					id,
-					data: {
-						allNodeData: selectedComponentData.nodeData,
-						nodeData: selectedComponentPropertyData.nodeData.find(
-							(node) => node.id === id
-						)
-					}
+					data: hideLabels
+						? null
+						: {
+								allNodeData: selectedComponentData.nodeData,
+								nodeData: selectedComponentPropertyData.nodeData.find(
+									(node) => node.id === id
+								)
+						  }
 				};
 			}),
-		[layout.nodes, scaleX, scaleY, maxY, selectedComponentData, selectedComponentPropertyData]
+		[
+			layout.nodes,
+			scaleX,
+			scaleY,
+			maxY,
+			selectedComponentData,
+			selectedComponentPropertyData,
+			hideLabels
+		]
 	);
 	const newLinks = useMemo(
 		() =>
@@ -115,12 +125,14 @@ const VisxChart: React.FC<VisxChartProps> = ({
 						x: link.vertical ? scaleX(link.to.x) : scaleX(link.to.x + 0.15),
 						y: link.vertical ? scaleY(link.to.y + 0.15) : scaleY(link.from.y)
 					},
-					data: {
-						allLinkData: selectedComponentData.linkData,
-						linkData: selectedComponentPropertyData.linkData.find(
-							(linkData) => linkData.id === link.id
-						)
-					}
+					data: hideLabels
+						? null
+						: {
+								allLinkData: selectedComponentData.linkData,
+								linkData: selectedComponentPropertyData.linkData.find(
+									(linkData) => linkData.id === link.id
+								)
+						  }
 				};
 			}),
 		[
@@ -128,7 +140,8 @@ const VisxChart: React.FC<VisxChartProps> = ({
 			scaleX,
 			scaleY,
 			selectedComponentData.linkData,
-			selectedComponentPropertyData.linkData
+			selectedComponentPropertyData.linkData,
+			hideLabels
 		]
 	);
 	if (layout === null) return <div>loading...</div>;

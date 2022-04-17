@@ -12,13 +12,13 @@ type CustomNodeProps = {
 	onSelect?: (id: number) => void;
 	squareSize: 'small' | 'medium' | 'large';
 	hideLabels: boolean;
-	data: {
+	data: Nullable<{
 		allNodeData: API.ComponentData[];
 		nodeData: {
 			id: number;
 			data?: API.Property[];
 		};
-	};
+	}>;
 };
 
 const CustomNode: React.FC<CustomNodeProps> = ({
@@ -30,7 +30,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 	onSelect,
 	squareSize,
 	hideLabels,
-	data: { allNodeData, nodeData }
+	data
 }) => {
 	squareSize = squareSize || 'medium';
 	let size = 0;
@@ -45,11 +45,11 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 			size = yMax / 7;
 			break;
 	}
-	const formattedValue = nodeData.data
-		? Math.abs(nodeData.data[0].value) > 9999
-			? nodeData.data[0].value.toFixed(0)
-			: nodeData.data[0].value.toFixed(3)
-		: nodeData.id;
+	const formattedValue = data
+		? Math.abs(data.nodeData.data[0].value) > 9999
+			? data.nodeData.data[0].value.toFixed(0)
+			: data.nodeData.data[0].value.toFixed(3)
+		: id;
 
 	const [{ selectedNode }, dispatch] = useContext(BackendContext);
 	return (

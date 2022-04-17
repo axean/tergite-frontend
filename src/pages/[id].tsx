@@ -30,7 +30,9 @@ const Detail = ({ id, type }) => {
 		if (!isLoading && data !== undefined) {
 			setDeviceLayouts(facadeDeviceDetail(data));
 		}
-	}, [isLoading, data, setDeviceLayouts]);
+		// eslint-disable-next-line
+	}, [isLoading, data]);
+
 	if (isLoading) {
 		return <Text>Loading...</Text>;
 	}
