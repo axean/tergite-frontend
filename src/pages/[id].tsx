@@ -1,6 +1,6 @@
 import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { MdFirstPage, MdLastPage } from 'react-icons/md';
 import { useQuery } from 'react-query';
 import ConnectivityMap from '../components/connectivityMap';
@@ -8,6 +8,8 @@ import { SmallConnectivityMap } from '../components/connectivityMap/Connectivity
 import { HistogramVisualization } from '../components/visualizations/HistogramVisualization';
 import NavbarVisualizations from '../components/NavbarVisualizations';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
+import { BackendContext, MapActions, useAllLayouts } from '../state/BackendContext';
+import { facadeDeviceDetail } from '../utils/facade';
 import CardBackend from '../components/CardBackend';
 
 type VisualizationRoutes =
@@ -20,9 +22,16 @@ type VisualizationRoutes =
 
 const Detail = ({ id, type }) => {
 	const [isCollapsed, setCollapsed] = useState(false);
-	const { isLoading, error, data } = useQuery('DetailPageEEEE', () =>
+	const { isLoading, error, data } = useQuery<API.Response.DeviceDetail>('DetailPageEEEE', () =>
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
 	);
+	const { deviceLayouts, setDeviceLayouts } = useAllLayouts();
+	useEffect(() => {
+		if (!isLoading && data !== undefined) {
+			setDeviceLayouts(facadeDeviceDetail(data));
+		}
+		// eslint-disable-next-line
+	}, [isLoading, data]);
 
 	if (isLoading) {
 		return <Text>Loading...</Text>;
@@ -82,16 +91,17 @@ Detail.getInitialProps = async (ctx) => {
 	return {
 		id,
 		type
-	}
-}
-
+	};
+};
 
 export default Detail;
 
 function SidePanel({ isCollapsed, setCollapsed, MdFirstPage, backend, type }) {
 	const showMap = type !== undefined && type !== 'Qubitmap';
 	const { isLoading, data, error } = useQuery('backendDetail', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend).then((res) => res.json())
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend).then((res) =>
+			res.json()
+		)
 	);
 
 	if (isLoading || error) return '';
@@ -110,29 +120,28 @@ function SidePanel({ isCollapsed, setCollapsed, MdFirstPage, backend, type }) {
 				{showMap ? (
 					<Flex flexDir='column' alignItems='center'>
 						<Box w={{ xl: '90%', '2xl': '80%' }}>
-							<SmallConnectivityMap
-								data={{ nodes: data.qubits, links: [] }}
-								backgroundColor='white'
-								type='node'
-								size={5}
-							/>
+							<SmallConnectivityMap backgroundColor='white' type='node' size={5} />
+						</Box>
+						<Box w={{ xl: '90%', '2xl': '80%' }}>
+							<SmallConnectivityMap backgroundColor='white' type='link' size={5} />
 						</Box>
 					</Flex>
 				) : (
 					<>
 						<Flex px={0} justifyContent='space-between'>
 							<CardBackend {...data} />
-							<Button ml="5" p='1' onClick={() => setCollapsed(!isCollapsed)}>
+							<Button ml='5' p='1' onClick={() => setCollapsed(!isCollapsed)}>
 								<Icon as={MdFirstPage} w={8} h={8} />
 							</Button>
 						</Flex>
-						<Text fontSize='3xl' color='black' mt="10">
+						<Text fontSize='3xl' color='black' mt='10'>
 							Description
 						</Text>
-						<Text fontSize="lg" color="black">
+						<Text fontSize='lg' color='black'>
 							{data.description}
 						</Text>
-					</>)}
+					</>
+				)}
 			</Flex>
 		)
 	);
