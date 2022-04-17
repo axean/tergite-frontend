@@ -10,6 +10,7 @@ import NavbarVisualizations from '../components/NavbarVisualizations';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
 import { BackendContext, MapActions, useAllLayouts } from '../state/BackendContext';
 import { facadeDeviceDetail } from '../utils/facade';
+import CardBackend from '../components/CardBackend';
 
 type VisualizationRoutes =
 	| 'Qubitmap'
@@ -19,7 +20,7 @@ type VisualizationRoutes =
 	| 'Tableview'
 	| 'Cityplot';
 
-const Detail = () => {
+const Detail = ({ id, type }) => {
 	const [isCollapsed, setCollapsed] = useState(false);
 	const { isLoading, error, data } = useQuery<API.Response.DeviceDetail>('DetailPageEEEE', () =>
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
@@ -40,23 +41,29 @@ const Detail = () => {
 	return (
 		<Flex flex='1' py='8' w='full' id='deailId'>
 			<Flex gap='8' flex='1'>
-				<SidePanel isCollapsed={isCollapsed} setCollapsed={setCollapsed} data={data} />
+				<SidePanel
+					isCollapsed={isCollapsed}
+					setCollapsed={setCollapsed}
+					MdFirstPage={MdFirstPage}
+					backend={id}
+					type={type}
+				/>
 				<Flex flexDir='column' bg='white' flex='5' p='4' borderRadius='md' boxShadow='lg'>
 					<NavbarVisualizations
 						isCollapsed={isCollapsed}
 						onToggleCollapse={() => setCollapsed(!isCollapsed)}
 					/>
-					<VisualizationPanel isCollapsed={isCollapsed} />
+					<VisualizationPanel isCollapsed={isCollapsed} type={type} />
 				</Flex>
 			</Flex>
 		</Flex>
 	);
 };
 
-const VisualizationPanel = ({ isCollapsed }) => {
+const VisualizationPanel = ({ isCollapsed, type }) => {
 	const router = useRouter();
 	const { id } = router.query;
-	const type = router.query.type as VisualizationRoutes;
+
 	switch (type) {
 		case 'Qubitmap':
 			return <QubitVisualization isCollapsed={isCollapsed} />;
@@ -75,12 +82,28 @@ const VisualizationPanel = ({ isCollapsed }) => {
 	}
 };
 
+Detail.getInitialProps = async (ctx) => {
+	const id = await ctx.query.id;
+	const type = await ctx.query.type;
+
+	return {
+		id,
+		type
+	};
+};
+
 export default Detail;
 
-function SidePanel({ isCollapsed, setCollapsed, data }) {
-	const router = useRouter();
-	const type = router.query.type as VisualizationRoutes;
+function SidePanel({ isCollapsed, setCollapsed, MdFirstPage, backend, type }) {
 	const showMap = type !== undefined && type !== 'Qubitmap';
+	const { isLoading, data, error } = useQuery('backendDetail', () =>
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend).then((res) =>
+			res.json()
+		)
+	);
+
+	if (isLoading || error) return '';
+
 	return (
 		!isCollapsed && (
 			<Flex
@@ -92,18 +115,7 @@ function SidePanel({ isCollapsed, setCollapsed, data }) {
 				borderRadius='md'
 				boxShadow='lg'
 			>
-				<Flex justifyContent='space-between'>
-					<Text fontSize='2xl' color='black'>
-						Chalmers Luki
-					</Text>
-					<Button p='2' onClick={() => setCollapsed(!isCollapsed)}>
-						<Icon as={MdFirstPage} w={8} h={8} />
-					</Button>
-				</Flex>
-				{/* <Text fontSize='4xl' color='black'>
-					description
-				</Text> */}
-				{showMap && (
+				{showMap ? (
 					<Flex flexDir='column' alignItems='center'>
 						<Box w={{ xl: '90%', '2xl': '80%' }}>
 							<SmallConnectivityMap backgroundColor='white' type='node' size={5} />
@@ -112,6 +124,21 @@ function SidePanel({ isCollapsed, setCollapsed, data }) {
 							<SmallConnectivityMap backgroundColor='white' type='link' size={5} />
 						</Box>
 					</Flex>
+				) : (
+					<>
+						<Flex px={0} justifyContent='space-between'>
+							<CardBackend {...data} />
+							<Button ml='5' p='1' onClick={() => setCollapsed(!isCollapsed)}>
+								<Icon as={MdFirstPage} w={8} h={8} />
+							</Button>
+						</Flex>
+						<Text fontSize='3xl' color='black' mt='10'>
+							Description
+						</Text>
+						<Text fontSize='lg' color='black'>
+							{data.description}
+						</Text>
+					</>
 				)}
 			</Flex>
 		)
