@@ -123,7 +123,13 @@ const VisxChart: React.FC<VisxChartProps> = ({
 					}
 				};
 			}),
-		[layout.links, scaleX, scaleY, selectedComponentData.linkData]
+		[
+			layout.links,
+			scaleX,
+			scaleY,
+			selectedComponentData.linkData,
+			selectedComponentPropertyData.linkData
+		]
 	);
 	if (layout === null) return <div>loading...</div>;
 

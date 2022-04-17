@@ -30,7 +30,7 @@ const Detail = ({ id, type }) => {
 		if (!isLoading && data !== undefined) {
 			setDeviceLayouts(facadeDeviceDetail(data));
 		}
-	}, [isLoading, data]);
+	}, [isLoading, data, setDeviceLayouts]);
 	if (isLoading) {
 		return <Text>Loading...</Text>;
 	}
