@@ -36,25 +36,26 @@ const LineChart: React.FC<LineChartProps> = ({ data, width, height }) => {
 	});
 
 	const series = [data, data];
-
+	/*
+		<GridRows
+			scale={xScale}
+			width={innerWidth}
+			height={innerHeight}
+			stroke='#FFFFFF'
+			strokeOpacity={0.2}
+		/>
+		<GridColumns
+			scale={yScale}
+			width={innerWidth}
+			height={innerHeight}
+			stroke='#FFFFFF'
+			strokeOpacity={0.2}
+		/>
+	*/
 	return (
 		<svg width={width} height={height}>
 			<rect x={0} y={0} width={width} height={height} fill={'#718096'} rx={14} />
 			<Group left={margin.left} top={margin.top}>
-				<GridRows
-					scale={xScale}
-					width={innerWidth}
-					height={innerHeight}
-					stroke='#FFFFFF'
-					strokeOpacity={0.2}
-				/>
-				<GridColumns
-					scale={yScale}
-					width={innerWidth}
-					height={innerHeight}
-					stroke='#FFFFFF'
-					strokeOpacity={0.2}
-				/>
 				<AxisLeft
 					stroke={'#EDF2F7'}
 					tickStroke={'#EDF2F7'}
