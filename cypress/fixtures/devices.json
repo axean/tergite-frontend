@@ -1,0 +1,11 @@
+[
+	{
+		"backend_name": "Pingu",
+		"n_qubits": 10,
+		"is_online": true,
+		"last_update_date": "2022-04-18T23:31:16.209000",
+		"backend_version": "2.0",
+		"online_date": "2022-04-04T22:07:00.554000",
+		"sample_name": "sample name"
+	}
+]
