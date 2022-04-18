@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import LineChart from '../lineChart/LineChart';
 import RadioButtons from '../RadioButtons';
 
-interface LineData {
+export interface LineData {
 	x: number;
 	y: number;
 }
@@ -39,18 +39,11 @@ const LineChartVisualization = ({ backend }) => {
 	const [paramCo, setParamCo] = useState<string>();
 	const [domain, setDomain] = useState<string[]>();
 	const [coDomain, setCoDomain] = useState<string[]>();
-	const [lineData, setLineData] = useState<LineData[]>([
-		{ x: 0, y: 0 },
-		{ x: 10, y: 12 },
-		{ x: 30, y: 50 },
-		{ x: 35, y: 55 },
-		{ x: 100, y: 15 }
-	]);
+	const [lineData, setLineData] = useState<LineData[]>();
 
 	useEffect(() => {
+		console.log(paramDom + '  ' + paramCo);
 		if (domain && coDomain && paramDom && paramCo) {
-			console.log(domain);
-			console.log(coDomain);
 			let data = [];
 			for (let i = 0; i < 5; i++) {
 				data.push({

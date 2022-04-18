@@ -4,22 +4,25 @@ import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 import { LinePath } from '@visx/shape';
 import { extent } from 'd3-array';
+import { LineData } from '../visualizations/LineChartVisualization';
 
 interface LineChartProps {
-	data: { x: number; y: number }[];
+	data: LineData[];
 	width: number;
 	height: number;
 }
 
 const LineChart: React.FC<LineChartProps> = ({ data, width, height }) => {
-	const margin = { top: 40, right: 40, bottom: 50, left: 40 };
+	const margin = { top: 40, right: 40, bottom: 50, left: 80 };
 
 	const innerWidth = width - margin.left - margin.right;
 	const innerHeight = height - margin.top - margin.bottom;
 
-	const getX = (d: { x: number; y: number }) => d.x;
-	const getY = (d: { x: number; y: number }) => d.y;
-	// Defining scales
+	if (!data) {
+		return <span>NO DATA</span>;
+	}
+	const getX = (d: LineData) => d.x;
+	const getY = (d: LineData) => d.y;
 
 	// horizontal, x scale
 	const xScale = scaleLinear<number>({
@@ -36,57 +39,72 @@ const LineChart: React.FC<LineChartProps> = ({ data, width, height }) => {
 	});
 
 	const series = [data, data];
-	/*
+	/* Cant manage to get the grid to align with the values no clue why
 		<GridRows
-			scale={xScale}
-			width={innerWidth}
-			height={innerHeight}
-			stroke='#FFFFFF'
-			strokeOpacity={0.2}
-		/>
-		<GridColumns
-			scale={yScale}
-			width={innerWidth}
-			height={innerHeight}
-			stroke='#FFFFFF'
-			strokeOpacity={0.2}
-		/>
+					scale={xScale}
+					width={innerWidth}
+					height={innerHeight}
+					stroke='#000000'
+					strokeOpacity={0.2}
+				/>
+				<GridColumns
+					scale={yScale}
+					width={innerWidth}
+					height={innerHeight}
+					stroke='#000000'
+					strokeOpacity={0.2}
+				/>
 	*/
 	return (
 		<svg width={width} height={height}>
-			<rect x={0} y={0} width={width} height={height} fill={'#718096'} rx={14} />
 			<Group left={margin.left} top={margin.top}>
 				<AxisLeft
-					stroke={'#EDF2F7'}
-					tickStroke={'#EDF2F7'}
+					stroke={'#000000'}
+					tickStroke={'#000000'}
 					scale={yScale}
 					tickLabelProps={() => ({
-						fill: '#EDF2F7',
-						fontSize: 14,
+						fill: '#000000',
+						fontSize: 11,
 						textAnchor: 'end'
 					})}
 				/>
 				<AxisBottom
 					scale={xScale}
-					stroke={'#EDF2F7'}
-					tickStroke={'#EDF2F7'}
+					stroke={'#000000'}
+					tickStroke={'#000000'}
 					top={innerHeight}
 					tickLabelProps={() => ({
-						fill: '#EDF2F7',
+						fill: '#000000',
 						fontSize: 11,
 						textAnchor: 'middle'
 					})}
 				/>
-				{series.map((sData, i) => (
-					<LinePath
-						key={i}
-						stroke={'#30AB95'}
-						strokeWidth={3}
-						data={sData}
-						x={(d) => xScale(getX(d)) ?? 0}
-						y={(d) => yScale(getY(d)) ?? 0}
-					/>
-				))}
+
+				{series.map((sData, i) => {
+					return (
+						<Group key={'lines' + i}>
+							{sData.map((d, j) => (
+								<circle
+									key={i + j}
+									r={5}
+									cx={xScale(getX(d))}
+									cy={yScale(getY(d))}
+									stroke='#30AB95'
+									fill='#30AB95'
+								/>
+							))}
+
+							<LinePath
+								key={i}
+								stroke={'#30AB95'}
+								strokeWidth={3}
+								data={sData}
+								x={(d) => xScale(getX(d)) ?? 0}
+								y={(d) => yScale(getY(d)) ?? 0}
+							/>
+						</Group>
+					);
+				})}
 			</Group>
 		</svg>
 	);
