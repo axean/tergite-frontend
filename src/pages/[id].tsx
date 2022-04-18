@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useState } from 'react';
 import { MdFirstPage, MdLastPage } from 'react-icons/md';
 import { useQuery } from 'react-query';
-import ConnectivityMap from '../components/connectivityMap';
 import { SmallConnectivityMap } from '../components/connectivityMap/ConnectivityMap';
 import { HistogramVisualization } from '../components/visualizations/HistogramVisualization';
 import NavbarVisualizations from '../components/NavbarVisualizations';
@@ -11,6 +10,7 @@ import QubitVisualization from '../components/visualizations/QubitVisualization'
 import { BackendContext, MapActions, useAllLayouts } from '../state/BackendContext';
 import { facadeDeviceDetail } from '../utils/facade';
 import CardBackend from '../components/CardBackend';
+import LineChartVisualization from '../components/visualizations/LineChartVisualization';
 
 type VisualizationRoutes =
 	| 'Qubitmap'
@@ -74,7 +74,7 @@ const VisualizationPanel = ({ isCollapsed, type }) => {
 		case 'Graphdeviation':
 			return <>Graphdeviation</>;
 		case 'Linegraph':
-			return <>Linegraph</>;
+			return <LineChartVisualization backend={id} />;
 		case 'Tableview':
 			return <>Tableview</>;
 		case 'Cityplot':
