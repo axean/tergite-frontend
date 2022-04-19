@@ -1,7 +1,7 @@
 import { Box, Flex, Spacer } from '@chakra-ui/react';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import { BackendContext } from '../../state/BackendContext';
+import { BackendContext, useSelectionMaps } from '../../state/BackendContext';
 import DatePicker from '../DatePicker';
 import Histogram from '../Histogram';
 import RadioButtons from '../RadioButtons';
@@ -12,6 +12,7 @@ interface HistogramVisualizationProps {
 
 export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ backend }) => {
 	const [state, dispatch] = useContext(BackendContext);
+	const { setSelectionMap } = useSelectionMaps();
 
 	const { isLoading, data, error, refetch, isFetching } = useQuery('histogramData', () =>
 		fetch(
@@ -25,6 +26,10 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 	);
 
 	const [dataToVisualize, setDataToVisualize] = useState<string>('T1');
+
+	useEffect(() => {
+		setSelectionMap(true, true);
+	}, []);
 
 	if (isLoading) return <span>Loading...</span>;
 
