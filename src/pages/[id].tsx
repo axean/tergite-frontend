@@ -9,6 +9,7 @@ import { HistogramVisualization } from '../components/visualizations/HistogramVi
 import NavbarVisualizations from '../components/NavbarVisualizations';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
 import CardBackend from '../components/CardBackend';
+import CityPlot from '../components/visualizations/cityplot';
 
 type VisualizationRoutes =
 	| 'Qubitmap'
@@ -69,7 +70,7 @@ const VisualizationPanel = ({ isCollapsed, type }) => {
 		case 'Tableview':
 			return <>Tableview</>;
 		case 'Cityplot':
-			return <>Cityplot</>;
+			return <CityPlot />;
 		default:
 			return <QubitVisualization isCollapsed={isCollapsed} />;
 	}
