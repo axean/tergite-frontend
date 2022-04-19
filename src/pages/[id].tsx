@@ -8,7 +8,12 @@ import { SmallConnectivityMap } from '../components/connectivityMap/Connectivity
 import { HistogramVisualization } from '../components/visualizations/HistogramVisualization';
 import NavbarVisualizations from '../components/NavbarVisualizations';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
-import { BackendContext, MapActions, useAllLayouts } from '../state/BackendContext';
+import {
+	BackendContext,
+	MapActions,
+	useAllLayouts,
+	useSelectionMaps
+} from '../state/BackendContext';
 import { facadeDeviceDetail } from '../utils/facade';
 import CardBackend from '../components/CardBackend';
 
@@ -104,6 +109,7 @@ function SidePanel({ isCollapsed, setCollapsed, MdFirstPage, backend, type }) {
 		)
 	);
 
+	const { showLinkSelectorMap, showNodeSelectorMap } = useSelectionMaps();
 	if (isLoading || error) return '';
 
 	return (
@@ -119,12 +125,24 @@ function SidePanel({ isCollapsed, setCollapsed, MdFirstPage, backend, type }) {
 			>
 				{showMap ? (
 					<Flex flexDir='column' alignItems='center'>
-						<Box w={{ xl: '90%', '2xl': '80%' }}>
-							<SmallConnectivityMap backgroundColor='white' type='node' size={5} />
-						</Box>
-						<Box w={{ xl: '90%', '2xl': '80%' }}>
-							<SmallConnectivityMap backgroundColor='white' type='link' size={5} />
-						</Box>
+						{showNodeSelectorMap && (
+							<Box w={{ xl: '90%', '2xl': '80%' }}>
+								<SmallConnectivityMap
+									backgroundColor='white'
+									type='node'
+									size={5}
+								/>
+							</Box>
+						)}
+						{showLinkSelectorMap && (
+							<Box w={{ xl: '90%', '2xl': '80%' }}>
+								<SmallConnectivityMap
+									backgroundColor='white'
+									type='link'
+									size={5}
+								/>
+							</Box>
+						)}
 					</Flex>
 				) : (
 					<Box pl='2'>
