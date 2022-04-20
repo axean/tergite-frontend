@@ -108,6 +108,7 @@ namespace API {
 		date: string;
 		name: string;
 		value: number;
+		unit: string;
 		types: string[];
 	};
 
