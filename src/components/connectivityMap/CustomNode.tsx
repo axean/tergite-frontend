@@ -47,11 +47,12 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 	}
 
 	console.log(data);
-	const formattedValue = data.nodeData.data
-		? Math.abs(data.nodeData.data[0].value) > 9999
-			? data.nodeData.data[0].value.toFixed(0)
-			: data.nodeData.data[0].value.toFixed(3)
-		: id;
+	const formattedValue =
+		!hideLabels && data.nodeData.data
+			? Math.abs(data.nodeData.data[0].value) > 9999
+				? data.nodeData.data[0].value.toFixed(0)
+				: data.nodeData.data[0].value.toFixed(3)
+			: id;
 
 	const [{ selectedNode }, dispatch] = useContext(BackendContext);
 	return (
