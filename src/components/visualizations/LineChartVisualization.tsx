@@ -56,7 +56,7 @@ const LineChartVisualization = ({ backend }) => {
 			}
 			setLineData(data);
 		}
-	}, [params]);
+	}, [params.domain, params.coDomain, domain, coDomain]);
 
 	const getParameters = (options: string[], selectedTab: string) => {
 		let parameters = [];
