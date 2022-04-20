@@ -6,6 +6,8 @@ export type BackendContextState = {
 	deviceLayouts: Nullable<Application.DeviceLayouts>;
 	nodeComponent: Application.NodeKeys;
 	linkComponent: Application.LinkKeys;
+	showNodeSelectorMap: boolean;
+	showLinkSelectorMap: boolean;
 	nodeProperty: string;
 	linkProperty: string;
 	type1Data: Nullable<Application.Type1>;
@@ -21,6 +23,7 @@ export enum MapActions {
 	SELECT_NODE = 'SELECT_NODE',
 	SELECT_LINK = 'SELECT_LINK',
 	SET_LAYOUTS = 'SET_LAYOUTS',
+	SET_SHOW_SELECTOR_MAPS = 'SET_SHOW_SELECTOR_MAPS',
 	SET_MAP_DATA = 'SET_MAP_DATA',
 	SET_NODE_COMPONENT = 'SET_NODE_COMPONENT',
 	SET_LINK_COMPONENT = 'SET_LINK_COMPONENT',
@@ -40,6 +43,7 @@ function reducer(
 		| {
 				type: MapActions;
 				payload:
+					| { showNodeSelectorMap: boolean; showLinkSelectorMap: boolean }
 					| Application.Type1
 					| Application.DeviceLayouts
 					| Application.NodeKeys
@@ -48,6 +52,19 @@ function reducer(
 		  }
 ): BackendContextState {
 	switch (action.type) {
+		case MapActions.SET_SHOW_SELECTOR_MAPS:
+			return {
+				...state,
+				showLinkSelectorMap: (
+					action.payload as {
+						showNodeSelectorMap: boolean;
+						showLinkSelectorMap: boolean;
+					}
+				).showLinkSelectorMap,
+				showNodeSelectorMap: (
+					action.payload as { showNodeSelectorMap: boolean; showLinkSelectorMap: boolean }
+				).showNodeSelectorMap
+			};
 		case MapActions.SELECT_NODE:
 			return { ...state, selectedNode: action.payload as Application.Id };
 		case MapActions.SELECT_LINK:
@@ -79,6 +96,8 @@ const BackendContextProvider: React.FC<BackendContextProviderProps> = ({ childre
 	let timeFrom = new Date();
 	timeFrom.setDate(timeFrom.getDate() - 7);
 	const data: BackendContextState = {
+		showLinkSelectorMap: false,
+		showNodeSelectorMap: false,
 		type1Data: null,
 		deviceLayouts: null,
 		selectedNode: -1,
@@ -148,5 +167,18 @@ function useMapData() {
 	return { allData: type1Data, selectedComponentData, selectedComponentPropertyData, setMapData };
 }
 
+function useSelectionMaps() {
+	const [{ showLinkSelectorMap, showNodeSelectorMap }, dispatch] = useContext(BackendContext);
+
+	const setSelectionMap = (showLinkSelectorMap: boolean, showNodeSelectorMap: boolean) => {
+		dispatch({
+			type: MapActions.SET_SHOW_SELECTOR_MAPS,
+			payload: { showLinkSelectorMap, showNodeSelectorMap }
+		});
+	};
+
+	return { showLinkSelectorMap, showNodeSelectorMap, setSelectionMap };
+}
+
 export default BackendContextProvider;
-export { BackendContext, useSelectedComponentLayout, useAllLayouts, useMapData };
+export { BackendContext, useSelectedComponentLayout, useAllLayouts, useMapData, useSelectionMaps };
