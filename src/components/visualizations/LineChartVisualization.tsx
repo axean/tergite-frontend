@@ -4,7 +4,6 @@ import { ParentSize } from '@visx/responsive';
 import { useEffect, useState } from 'react';
 import LineChart from '../lineChart/LineChart';
 import RadioButtons from '../RadioButtons';
-import { objectKeys } from '@chakra-ui/utils';
 
 export interface LineData {
 	x: number;
@@ -36,7 +35,7 @@ const LineChartVisualization = ({ backend }) => {
 	const [coDomTabs, setCoDomTabs] = useState<string[]>();
 	const [tabDom, setTabDom] = useState<string>();
 	const [tabCo, setTabCo] = useState<string>();
-	const [params, setParams] = useState<{ domain: string; coDomain: string }>({
+	const [activeParams, setActiveParams] = useState<{ domain: string; coDomain: string }>({
 		domain: '',
 		coDomain: ''
 	});
@@ -45,33 +44,18 @@ const LineChartVisualization = ({ backend }) => {
 	const [lineData, setLineData] = useState<LineData[]>();
 
 	useEffect(() => {
-		console.log(params);
-		if (domain && coDomain && params.domain && params.coDomain) {
+		console.log(activeParams);
+		if (domain && coDomain && activeParams.domain && activeParams.coDomain) {
 			let data = [];
 			for (let i = 0; i < 5; i++) {
 				data.push({
-					x: domain[tabDom][i][params.domain][0].value,
-					y: coDomain[tabCo][i][params.coDomain][0].value
+					x: domain[tabDom][i][activeParams.domain][0].value,
+					y: coDomain[tabCo][i][activeParams.coDomain][0].value
 				});
 			}
 			setLineData(data);
 		}
-	}, [params.domain, params.coDomain, domain, coDomain]);
-
-	const getParameters = (options: string[], selectedTab: string) => {
-		let parameters = [];
-		if (options[selectedTab][0]) {
-			parameters = Object.keys(options[selectedTab][0]).map((key, i) => {
-				if (key === 'id') return;
-				return (
-					<option key={i} value={key}>
-						{key}
-					</option>
-				);
-			});
-		}
-		return parameters;
-	};
+	}, [activeParams.domain, activeParams.coDomain]);
 
 	if (domainQuery.isLoading || coDomainQuery.isLoading) return <span>Loading...</span>;
 
@@ -87,10 +71,16 @@ const LineChartVisualization = ({ backend }) => {
 					<RadioButtons tabs={domTabs} setTab={setTabDom} />
 					<Select
 						onClick={(e) => {
-							setParams({ domain: e.target.value, coDomain: params.coDomain });
+							setActiveParams({
+								domain: e.target.value,
+								coDomain: activeParams.coDomain
+							});
 						}}
 					>
-						{getParameters(domain, tabDom)}
+						{domain[tabDom][0] &&
+							Object.keys(domain[tabDom][0]).map((key, index) => (
+								<option key={index}> {key} </option>
+							))}
 					</Select>
 				</Flex>
 				<Flex alignItems='center'>
@@ -98,10 +88,16 @@ const LineChartVisualization = ({ backend }) => {
 					<RadioButtons tabs={coDomTabs} setTab={setTabCo} />
 					<Select
 						onClick={(e) => {
-							setParams({ domain: params.domain, coDomain: e.target.value });
+							setActiveParams({
+								domain: activeParams.domain,
+								coDomain: e.target.value
+							});
 						}}
 					>
-						{getParameters(coDomain, tabCo)}
+						{coDomain[tabCo][0] &&
+							Object.keys(coDomain[tabCo][0]).map((key, index) => (
+								<option key={index}> {key} </option>
+							))}
 					</Select>
 				</Flex>
 			</Box>

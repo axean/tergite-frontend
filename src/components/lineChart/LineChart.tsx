@@ -39,22 +39,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, width, height }) => {
 	});
 
 	const series = [data, data];
-	/* Cant manage to get the grid to align with the values no clue why
-		<GridRows
-					scale={xScale}
-					width={innerWidth}
-					height={innerHeight}
-					stroke='#000000'
-					strokeOpacity={0.2}
-				/>
-				<GridColumns
-					scale={yScale}
-					width={innerWidth}
-					height={innerHeight}
-					stroke='#000000'
-					strokeOpacity={0.2}
-				/>
-	*/
+
 	return (
 		<svg width={width} height={height}>
 			<Group left={margin.left} top={margin.top}>
@@ -79,7 +64,20 @@ const LineChart: React.FC<LineChartProps> = ({ data, width, height }) => {
 						textAnchor: 'middle'
 					})}
 				/>
-
+				<GridRows
+					scale={yScale}
+					width={innerWidth}
+					height={innerHeight}
+					stroke='#000000'
+					strokeOpacity={0.2}
+				/>
+				<GridColumns
+					scale={xScale}
+					width={innerWidth}
+					height={innerHeight}
+					stroke='#000000'
+					strokeOpacity={0.2}
+				/>
 				{series.map((sData, i) => {
 					return (
 						<Group key={'lines' + i}>
