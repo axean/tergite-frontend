@@ -4,6 +4,7 @@ import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
 import { Box, Grid, GridItem } from '@chakra-ui/react';
 import React, { useContext, useEffect, useRef } from 'react';
 import { BackendContext, MapActions } from '../../state/BackendContext';
+import ToolTip from './ToolTip';
 
 type CustomNodeProps = {
 	id: number;
@@ -50,8 +51,6 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 	const { tooltipOpen, tooltipTop, tooltipLeft, hideTooltip, showTooltip, tooltipData } =
 		useTooltip();
 
-	let tooltipTimeout;
-
 	const formattedValue =
 		!hideLabels && data.nodeData.data
 			? Math.abs(data.nodeData.data[0].value) > 9999
@@ -62,26 +61,22 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 	const [{ selectedNode }, dispatch] = useContext(BackendContext);
 
 	const nodeRef = useRef(null);
-	useEffect(() => {
-		console.log(nodeRef.current.getBoundingClientRect());
-	}, []);
+
 	return (
 		<Group
 			top={yMax / 10 - size / 2}
 			left={xMax / 10 - size / 2}
 			onMouseEnter={(e) => {
-				e.currentTarget.firstElementChild.setAttribute('fill', '#38B2AC');
-				e.currentTarget.firstElementChild.setAttribute('stroke', '#66FFF7');
+				nodeRef.current.setAttribute('fill', '#38B2AC');
+				nodeRef.current.setAttribute('stroke', '#66FFF7');
 			}}
 			onMouseLeave={(e) => {
 				if (selectedNode !== id) {
-					e.currentTarget.firstElementChild.setAttribute('fill', '#366361');
-					e.currentTarget.firstElementChild.setAttribute('stroke', '#366361');
+					nodeRef.current.setAttribute('fill', '#366361');
+					nodeRef.current.setAttribute('stroke', '#366361');
 				}
 
-				tooltipTimeout = window.setTimeout(() => {
-					hideTooltip();
-				}, 10);
+				hideTooltip();
 			}}
 			onMouseDown={() => {
 				dispatch({ type: MapActions.SELECT_NODE, payload: id });
@@ -89,7 +84,6 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 			}}
 			style={{ cursor: 'pointer' }}
 			onMouseMove={(event) => {
-				// if (tooltipTimeout) clearTimeout(tooltipTimeout);
 				const { top, left } = nodeRef.current.getBoundingClientRect();
 
 				showTooltip({
@@ -134,37 +128,4 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 	);
 };
 
-type ToolTipProps = {
-	toolTipData: API.ComponentData;
-	top: number;
-	left: number;
-};
-const ToolTip: React.FC<ToolTipProps> = ({ toolTipData, top, left }) => {
-	const keys = Object.keys(toolTipData);
-	const { TooltipInPortal } = useTooltipInPortal();
-
-	return (
-		<TooltipInPortal key={Math.random()} top={top} left={left}>
-			<Box>
-				<Grid templateRows='repeat(5, 1fr)' gap={0}>
-					{keys.map((key, index) => {
-						if (key === 'id')
-							return (
-								<GridItem w='100%' h='5' color='#2B8A79' key={index}>
-									<strong>{key}</strong>: {toolTipData[key] as number}
-								</GridItem>
-							);
-						return (
-							<GridItem w='100%' h='5' color='#2B8A79' key={index}>
-								<strong>{key}</strong>:{' '}
-								{(toolTipData[key] as API.Property[])[0].value.toFixed(3)}
-								{(toolTipData[key] as API.Property[])[0].unit}
-							</GridItem>
-						);
-					})}
-				</Grid>
-			</Box>
-		</TooltipInPortal>
-	);
-};
 export default CustomNode;
