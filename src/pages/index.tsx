@@ -15,7 +15,7 @@ const Index = () => {
 	);
 
 	const [search, setSearch] = useState('');
-	const [sort, setSort] = useState({ order: 'asc', option: 'name' });
+	const [sort, setSort] = useState({ order: 'asc', option: 'backend_name' });
 	const [filter, setFilter] = useState(['online', 'offline']);
 	function filterParser(data: API.Device): string {
 		return data.is_online ? 'online' : 'offline';
@@ -30,11 +30,12 @@ const Index = () => {
 			regex = new RegExp('^' + search, 'i');
 		} else {
 			regex = new RegExp(search, 'i');
-			console.log('filtered', filtered);
 		}
-
+		console.log('filtered before', filtered);
 		filtered = filtered.filter(({ backend_name }) => regex.test(backend_name));
+		console.log('filtered after', filtered);
 		if (sort.order === 'asc') {
+			console.log('sort option', sort.option);
 			return filtered.sort((a, b) => a[sort.option].localeCompare(b[sort.option]));
 		} else {
 			return filtered.sort((a, b) => b[sort.option].localeCompare(a[sort.option]));

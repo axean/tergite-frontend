@@ -3,7 +3,7 @@ import React from 'react';
 import NextLink from 'next/link';
 const Navbar = () => {
 	return (
-		<Container bg='teal.400' maxW='full' centerContent>
+		<Container bg='teal.400' maxW='full' centerContent id='main-navbar' data-cy-main-navbar>
 			<Container py='2' maxW='8xl'>
 				<Box>
 					<Text

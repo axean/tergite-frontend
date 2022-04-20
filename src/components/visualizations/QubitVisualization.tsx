@@ -55,6 +55,7 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 		}
 	}, [isCollapsed]);
 
+	console.error('hello??');
 	useEffect(() => {
 		if (data && deviceLayouts && deviceLayouts.nodeLayouts && deviceLayouts.linkLayouts) {
 			setMapData(facadeType1(data, deviceLayouts));
