@@ -77,6 +77,7 @@ namespace API {
 		};
 
 		type DeviceDetail = Device & {
+			description: string;
 			qubits: Qubit[];
 			gates: Gate[];
 			resonators: Resonator[];
@@ -107,6 +108,7 @@ namespace API {
 		date: string;
 		name: string;
 		value: number;
+		unit: string;
 		types: string[];
 	};
 
