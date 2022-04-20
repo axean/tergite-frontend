@@ -57,7 +57,6 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	squareSize,
 	type
 }) => {
-
 	const marginX = 25;
 	const marginY = 25;
 	const maxY = height - marginY;
@@ -114,6 +113,17 @@ const VisxChart: React.FC<VisxChartProps> = ({
 			hideLabels
 		]
 	);
+
+	const {
+		isLoading,
+		error,
+		data: fetchdata
+	} = useQuery<API.Response.Type1>('NodeTooltipData', () =>
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu/data').then((res) =>
+			res.json()
+		)
+	);
+
 	const newLinks = useMemo(
 		() =>
 			layout?.links.map((link) => {
@@ -146,13 +156,8 @@ const VisxChart: React.FC<VisxChartProps> = ({
 			hideLabels
 		]
 	);
-	if (layout === null) return <div>loading...</div>;
 
-	const { isLoading, error, data: fetchdata } = useQuery<API.Response.Type1>('NodeTooltipData', () =>
-	fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu/data').then((res) =>
-		res.json()
-	)
-	);
+	if (layout === null) return <div>loading...</div>;
 
 	if (isLoading || error) return <div> loading... </div>;
 

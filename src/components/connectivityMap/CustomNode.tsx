@@ -1,8 +1,8 @@
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
-import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
-import {Box, Grid, GridItem} from '@chakra-ui/react';
-import React, { useContext } from 'react';
+import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
+import { Box, Grid, GridItem } from '@chakra-ui/react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { BackendContext, MapActions } from '../../state/BackendContext';
 
 type CustomNodeProps = {
@@ -24,8 +24,6 @@ type CustomNodeProps = {
 };
 
 const CustomNode: React.FC<CustomNodeProps> = ({
-	qubits,
-	resonators,
 	data,
 	yMax,
 	xMax,
@@ -49,42 +47,24 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 			size = yMax / 7;
 			break;
 	}
+	const { tooltipOpen, tooltipTop, tooltipLeft, hideTooltip, showTooltip, tooltipData } =
+		useTooltip();
 
-	const {
-		tooltipOpen,
-		tooltipTop,
-		tooltipLeft,
-		hideTooltip,
-		showTooltip,
-		tooltipData
-	  } = useTooltip();
+	let tooltipTimeout;
 
-	const qubitProps = {
-		x: qubits.x,
-		y: qubits.y,
-		freq: Math.round((qubits.static_properties[0].value / 1000000000) * 100) / 100,
-		freqUnit: 'G' + qubits.static_properties[0].unit,
-		anharm: "TEMP",
-		anharmUnit: "TEMP",
-		resFreq: Math.round((resonators.static_properties[0].value / 1000000000) * 100) / 100,
-		resFreqUnit: 'G' + resonators.static_properties[0].unit,
-		dli: qubits.xy_drive_line
-	}
-
-	  const { containerRef, TooltipInPortal } = useTooltipInPortal();
-
-	  let tooltipTimeout;
-
-	  console.log(qubits);
-	  console.log(resonators);
-
-	  const formattedValue = data.nodeData.data
-		? Math.abs(data.nodeData.data[0].value) > 9999
-			? data.nodeData.data[0].value.toFixed(0)
-			: data.nodeData.data[0].value.toFixed(3)
-		: id;
+	const formattedValue =
+		!hideLabels && data.nodeData.data
+			? Math.abs(data.nodeData.data[0].value) > 9999
+				? data.nodeData.data[0].value.toFixed(0)
+				: data.nodeData.data[0].value.toFixed(3)
+			: id;
 
 	const [{ selectedNode }, dispatch] = useContext(BackendContext);
+
+	const nodeRef = useRef(null);
+	useEffect(() => {
+		console.log(nodeRef.current.getBoundingClientRect());
+	}, []);
 	return (
 		<Group
 			top={yMax / 10 - size / 2}
@@ -101,27 +81,26 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 
 				tooltipTimeout = window.setTimeout(() => {
 					hideTooltip();
-				  }, 10);
+				}, 10);
 			}}
 			onMouseDown={() => {
 				dispatch({ type: MapActions.SELECT_NODE, payload: id });
 				onSelect && onSelect(id);
 			}}
 			style={{ cursor: 'pointer' }}
-
 			onMouseMove={(event) => {
-				if (tooltipTimeout) clearTimeout(tooltipTimeout);
-				const top = event.clientY;
-				const left = event.clientX;
+				// if (tooltipTimeout) clearTimeout(tooltipTimeout);
+				const { top, left } = nodeRef.current.getBoundingClientRect();
 
 				showTooltip({
-				  tooltipData: selectedNode,
-				  tooltipTop: top,
-				  tooltipLeft: left
+					tooltipData: selectedNode,
+					tooltipTop: top + 20,
+					tooltipLeft: left + 20
 				});
-			  }}
+			}}
 		>
 			<rect
+				ref={nodeRef}
 				x={x}
 				y={y}
 				width={size}
@@ -144,35 +123,48 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 				</Text>
 			)}
 
-			{tooltipOpen && tooltipData && (
-        	<TooltipInPortal
-         		 key={Math.random()}
-         		 top={tooltipTop}
-          		left={tooltipLeft}
-        	>
-          	<Box>
-				<Grid templateRows='repeat(5, 1fr)' gap={0}>
-					<GridItem w='100%' h='5' color="#2B8A79">
-						<strong>Qubit ({qubitProps.x}, {qubitProps.y}) </strong>
-					</GridItem>
-					<GridItem w='100%' h='5'>
-						Qubit Frequency: {qubitProps.freq} {qubitProps.freqUnit}
-					</GridItem>
-					<GridItem w='100%' h='5'>
-						Anharmonicity: {qubitProps.anharm} {qubitProps.anharmUnit}
-					</GridItem>
-					<GridItem w='100%' h='5'>
-						Resonator Frequency: {qubitProps.resFreq} {qubitProps.resFreqUnit}
-					</GridItem>
-					<GridItem w='100%' h='5'>
-						Drive Line Index: {qubitProps.dli}
-					</GridItem>
-				</Grid>
-		</Box>
-        </TooltipInPortal>
-		)}
+			{tooltipOpen && tooltipData && data && (
+				<ToolTip
+					toolTipData={data.allNodeData.find((n) => n.id === id)}
+					top={tooltipTop}
+					left={tooltipLeft}
+				/>
+			)}
 		</Group>
 	);
 };
 
+type ToolTipProps = {
+	toolTipData: API.ComponentData;
+	top: number;
+	left: number;
+};
+const ToolTip: React.FC<ToolTipProps> = ({ toolTipData, top, left }) => {
+	const keys = Object.keys(toolTipData);
+	const { TooltipInPortal } = useTooltipInPortal();
+
+	return (
+		<TooltipInPortal key={Math.random()} top={top} left={left}>
+			<Box>
+				<Grid templateRows='repeat(5, 1fr)' gap={0}>
+					{keys.map((key, index) => {
+						if (key === 'id')
+							return (
+								<GridItem w='100%' h='5' color='#2B8A79' key={index}>
+									<strong>{key}</strong>: {toolTipData[key] as number}
+								</GridItem>
+							);
+						return (
+							<GridItem w='100%' h='5' color='#2B8A79' key={index}>
+								<strong>{key}</strong>:{' '}
+								{(toolTipData[key] as API.Property[])[0].value.toFixed(3)}
+								{(toolTipData[key] as API.Property[])[0].unit}
+							</GridItem>
+						);
+					})}
+				</Grid>
+			</Box>
+		</TooltipInPortal>
+	);
+};
 export default CustomNode;

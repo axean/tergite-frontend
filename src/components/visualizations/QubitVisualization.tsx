@@ -44,7 +44,6 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 
 	//console.log(data?.resonators[0].static_properties[0]);
 
-
 	// this is needed to ensure proper resizing of the component after the sidepanel collapse/expand
 	useEffect(() => {
 		if (rerenderRef.current !== isCollapsed) {
