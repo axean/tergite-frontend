@@ -24,8 +24,9 @@ type CustomNodeProps = {
 };
 
 const CustomNode: React.FC<CustomNodeProps> = ({
+	qubits,
+	resonators,
 	data,
-	resonator,
 	yMax,
 	xMax,
 	x,
@@ -33,8 +34,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 	id,
 	onSelect,
 	squareSize,
-	hideLabels,
-	data
+	hideLabels
 }) => {
 	squareSize = squareSize || 'medium';
 	let size = 0;
@@ -60,18 +60,23 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 	  } = useTooltip();
 
 	const qubitProps = {
-		freq: "TEMP",
-		freqUnit: "TEMP",
+		x: qubits.x,
+		y: qubits.y,
+		freq: Math.round((qubits.static_properties[0].value / 1000000000) * 100) / 100,
+		freqUnit: 'G' + qubits.static_properties[0].unit,
 		anharm: "TEMP",
 		anharmUnit: "TEMP",
-		resFreq: "TEMP",
-		resFreqUnit: "TEMP",
-		dli: "TEMP"
+		resFreq: Math.round((resonators.static_properties[0].value / 1000000000) * 100) / 100,
+		resFreqUnit: 'G' + resonators.static_properties[0].unit,
+		dli: qubits.xy_drive_line
 	}
 
 	  const { containerRef, TooltipInPortal } = useTooltipInPortal();
 
 	  let tooltipTimeout;
+
+	  console.log(qubits);
+	  console.log(resonators);
 
 	  const formattedValue = data.nodeData.data
 		? Math.abs(data.nodeData.data[0].value) > 9999
@@ -148,7 +153,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
           	<Box>
 				<Grid templateRows='repeat(5, 1fr)' gap={0}>
 					<GridItem w='100%' h='5' color="#2B8A79">
-						<strong>Qubit ({data.x}, {data.y}) </strong>
+						<strong>Qubit ({qubitProps.x}, {qubitProps.y}) </strong>
 					</GridItem>
 					<GridItem w='100%' h='5'>
 						Qubit Frequency: {qubitProps.freq} {qubitProps.freqUnit}

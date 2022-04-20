@@ -7,6 +7,7 @@ import { ParentSize } from '@visx/responsive';
 import { scaleLinear } from '@visx/scale';
 import { Text } from '@visx/text';
 import React, { useMemo, useState } from 'react';
+import { useQuery } from 'react-query';
 
 import CustomNode from './CustomNode';
 import CustomLink from './CustomLink';
@@ -147,6 +148,14 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	);
 	if (layout === null) return <div>loading...</div>;
 
+	const { isLoading, error, data: fetchdata } = useQuery<API.Response.Type1>('NodeTooltipData', () =>
+	fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu/data').then((res) =>
+		res.json()
+	)
+	);
+
+	if (isLoading || error) return <div> loading... </div>;
+
 	return (
 		maxX > 0 &&
 		maxY > 0 && (
@@ -189,8 +198,8 @@ const VisxChart: React.FC<VisxChartProps> = ({
 						nodeComponent={({ node: { x, y, id, data } }) =>
 							type === 'node' && (
 								<CustomNode
-									data={data.nodes.filter (node => node.id == id)[0]}
-									resonator={data.resonators?.filter (res => res.id == id)[0]}
+									qubits={fetchdata.qubits[id]}
+									resonators={fetchdata.resonators[id]}
 									yMax={maxY}
 									xMax={maxX}
 									x={x}
