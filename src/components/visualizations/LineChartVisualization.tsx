@@ -4,6 +4,7 @@ import { ParentSize } from '@visx/responsive';
 import { useEffect, useState } from 'react';
 import LineChart from '../lineChart/LineChart';
 import RadioButtons from '../RadioButtons';
+import { objectKeys } from '@chakra-ui/utils';
 
 export interface LineData {
 	x: number;
@@ -35,30 +36,33 @@ const LineChartVisualization = ({ backend }) => {
 	const [coDomTabs, setCoDomTabs] = useState<string[]>();
 	const [tabDom, setTabDom] = useState<string>();
 	const [tabCo, setTabCo] = useState<string>();
-	const [paramDom, setParamDom] = useState<string>();
-	const [paramCo, setParamCo] = useState<string>();
+	const [params, setParams] = useState<{ domain: string; coDomain: string }>({
+		domain: '',
+		coDomain: ''
+	});
 	const [domain, setDomain] = useState<string[]>();
 	const [coDomain, setCoDomain] = useState<string[]>();
 	const [lineData, setLineData] = useState<LineData[]>();
 
 	useEffect(() => {
-		console.log(paramDom + '  ' + paramCo);
-		if (domain && coDomain && paramDom && paramCo) {
+		console.log(params);
+		if (domain && coDomain && params.domain && params.coDomain) {
 			let data = [];
 			for (let i = 0; i < 5; i++) {
 				data.push({
-					x: domain[tabDom][i][paramDom][0].value,
-					y: coDomain[tabCo][i][paramCo][0].value
+					x: domain[tabDom][i][params.domain][0].value,
+					y: coDomain[tabCo][i][params.coDomain][0].value
 				});
 			}
 			setLineData(data);
 		}
-	}, [paramDom, paramCo]);
+	}, [params]);
 
 	const getParameters = (options: string[], selectedTab: string) => {
 		let parameters = [];
 		if (options[selectedTab][0]) {
 			parameters = Object.keys(options[selectedTab][0]).map((key, i) => {
+				if (key === 'id') return;
 				return (
 					<option key={i} value={key}>
 						{key}
@@ -82,8 +86,8 @@ const LineChartVisualization = ({ backend }) => {
 					<FormLabel fontSize={'large'}> Domain: </FormLabel>
 					<RadioButtons tabs={domTabs} setTab={setTabDom} />
 					<Select
-						onChange={(e) => {
-							setParamDom(e.target.value);
+						onClick={(e) => {
+							setParams({ domain: e.target.value, coDomain: params.coDomain });
 						}}
 					>
 						{getParameters(domain, tabDom)}
@@ -93,8 +97,8 @@ const LineChartVisualization = ({ backend }) => {
 					<FormLabel fontSize={'large'}> Codomain: </FormLabel>
 					<RadioButtons tabs={coDomTabs} setTab={setTabCo} />
 					<Select
-						onChange={(e) => {
-							setParamCo(e.target.value);
+						onClick={(e) => {
+							setParams({ domain: params.domain, coDomain: e.target.value });
 						}}
 					>
 						{getParameters(coDomain, tabCo)}
