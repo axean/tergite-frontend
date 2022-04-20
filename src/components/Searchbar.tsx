@@ -18,6 +18,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ search, setSearch }) => {
 				backgroundColor='#FFFFFF'
 				onChange={(e) => setSearch(e.target.value)}
 				value={search}
+				data-cy-devices-search
 			/>
 		</InputGroup>
 	);
