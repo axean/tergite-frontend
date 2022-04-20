@@ -14,6 +14,13 @@ type CustomNodeProps = {
 	onSelect?: (id: number) => void;
 	squareSize: 'small' | 'medium' | 'large';
 	hideLabels: boolean;
+	data: Nullable<{
+		allNodeData: API.ComponentData[];
+		nodeData: {
+			id: number;
+			data?: API.Property[];
+		};
+	}>;
 };
 
 const CustomNode: React.FC<CustomNodeProps> = ({
@@ -24,8 +31,10 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 	x,
 	y,
 	id,
+	onSelect,
 	squareSize,
-	hideLabels
+	hideLabels,
+	data
 }) => {
 	squareSize = squareSize || 'medium';
 	let size = 0;
@@ -51,22 +60,27 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 	  } = useTooltip();
 
 	const qubitProps = {
-		freq: data.static_properties?.[0].value,
-		freqUnit: data.static_properties?.[0].unit,
+		freq: "TEMP",
+		freqUnit: "TEMP",
 		anharm: "TEMP",
 		anharmUnit: "TEMP",
-		resFreq: resonator?.static_properties?.[0].value,
-		resFreqUnit: resonator?.static_properties?.[0].unit,
-		dli: data.xy_drive_line
+		resFreq: "TEMP",
+		resFreqUnit: "TEMP",
+		dli: "TEMP"
 	}
 
 	  const { containerRef, TooltipInPortal } = useTooltipInPortal();
 
 	  let tooltipTimeout;
 
+	  const formattedValue = data.nodeData.data
+		? Math.abs(data.nodeData.data[0].value) > 9999
+			? data.nodeData.data[0].value.toFixed(0)
+			: data.nodeData.data[0].value.toFixed(3)
+		: id;
+
 	const [{ selectedNode }, dispatch] = useContext(BackendContext);
 	return (
-		// yMax/10 is the size of half a square
 		<Group
 			top={yMax / 10 - size / 2}
 			left={xMax / 10 - size / 2}
@@ -86,6 +100,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 			}}
 			onMouseDown={() => {
 				dispatch({ type: MapActions.SELECT_NODE, payload: id });
+				onSelect && onSelect(id);
 			}}
 			style={{ cursor: 'pointer' }}
 
@@ -120,7 +135,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 					scaleToFit='shrink-only'
 					width={(xMax / 10) * 0.9}
 				>
-					{id}
+					{formattedValue}
 				</Text>
 			)}
 

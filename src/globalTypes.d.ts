@@ -1,42 +1,108 @@
 type Undefinable<T> = T | undefined;
 type Nullable<T> = T | null;
 
-namespace API {
-	type Device = {
-		backend_name: string;
-		n_qubits: number;
-		is_online: boolean;
-		last_update_date: string;
-		backend_version: string;
-		online_date: string;
-		sample_name: string;
+type OneOf<T> = T[keyof T];
+
+namespace Application {
+	type Type1Nodes = {
+		one_qubit_gates: API.ComponentData[];
+		qubits: API.ComponentData[];
+		resonators: API.ComponentData[];
 	};
 
-	type DeviceDetail = Device & {
-		qubits: Qubit[];
-		gates: Gate[];
-		resonators: Resonator[];
-		couplers: Coupler[];
+	type Type1Links = {
+		two_qubit_gates: API.ComponentData[];
+		couplers: API.ComponentData[];
 	};
 
-	type ComponentData = Record<string, Property[] | number>;
+	type Id = number;
 
+	type DeviceLayout = {
+		nodes: OneOf<DeviceDetailNodes>;
+		links: OneOf<DeviceDetailLinks>;
+	};
 	type Type1 = {
-		qubits: ComponentData[];
-		gates: ComponentData[];
-		resonators: ComponentData[];
-		couplers: ComponentData[];
+		nodes: Type1Nodes;
+		links: Type1Links;
 	};
 
-	type Type2 = Pick<Type1, 'qubits'>;
+	type Link = {
+		id: number;
+		from: API.Qubit;
+		to: API.Qubit;
+		vertical: boolean;
+	};
 
-	type Type3 = Pick<Type1, 'gates'>;
+	type TwoQubitGate = Link & {
+		gate: string;
+		name: string;
+	};
+	type OneQubitGate = {
+		id: number;
+		name: string;
+		gate: string;
+		x: number;
+		y: number;
+	};
 
-	type Type4Domain = Omit<Type1, 'couplers'>;
+	type Coupler = Link & {
+		z_drive_line: number;
+	};
 
-	type Type4Codomain = Omit<Type1, 'qubits'>;
+	type NodeKeys = keyof DeviceDetailNodes;
 
-	type Type5 = {};
+	type LinkKeys = keyof DeviceDetailLinks;
+
+	type DeviceDetailNodes = {
+		one_qubit_gates: OneQubitGate[];
+		qubits: API.Qubit[];
+		resonators: API.Resonator[];
+	};
+
+	type DeviceDetailLinks = { two_qubit_gates: TwoQubitGate[]; couplers: Coupler[] };
+
+	type DeviceLayouts = { nodeLayouts: DeviceDetailNodes; linkLayouts: DeviceDetailLinks };
+}
+
+namespace API {
+	namespace Response {
+		type Device = {
+			backend_name: string;
+			n_qubits: number;
+			is_online: boolean;
+			last_update_date: string;
+			backend_version: string;
+			online_date: string;
+			sample_name: string;
+		};
+
+		type DeviceDetail = Device & {
+			description: string;
+			qubits: Qubit[];
+			gates: Gate[];
+			resonators: Resonator[];
+			couplers: Coupler[];
+		};
+
+		type Type1 = {
+			qubits: ComponentData[];
+			gates: ComponentData[];
+			resonators: ComponentData[];
+			couplers: ComponentData[];
+		};
+
+		type Type2 = Pick<Type1, 'qubits'>;
+
+		type Type3 = Pick<Type1, 'gates'>;
+
+		type Type4Domain = Omit<Type1, 'couplers'>;
+
+		type Type4Codomain = Omit<Type1, 'qubits'>;
+
+		type Type5 = {};
+	}
+
+	type ComponentData = { [key: string]: Property[] | number };
 
 	type Property = {
 		date: string;
