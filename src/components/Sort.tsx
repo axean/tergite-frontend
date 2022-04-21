@@ -43,9 +43,9 @@ const Sort: React.FC<SortMenuProps> = ({ sort: { order, option }, setSort }) => 
 					type='radio'
 					onChange={(e) => setSort({ order, option: e as string })}
 				>
-					<MenuItemOption value='name'>Name</MenuItemOption>
-					<MenuItemOption value='onlineSince'>Online date</MenuItemOption>
-					<MenuItemOption value='status'>Online/Offline</MenuItemOption>
+					<MenuItemOption value='backend_name'>Name</MenuItemOption>
+					<MenuItemOption value='online_date'>Online date</MenuItemOption>
+					<MenuItemOption value='is_online'>Online/Offline</MenuItemOption>
 				</MenuOptionGroup>
 			</MenuList>
 		</Menu>
