@@ -21,7 +21,8 @@ const BoxPlot: React.FC<BoxPlotProps> = ({ data }) => {
 				style={[{ fill: '#374151', fontSize: 12 }]}
 			/>
 			<VictoryAxis
-				tickCount={7}
+				tickCount={data.length}
+				crossAxis={false}
 				style={{
 					axis: { stroke: '#9CA3AF', strokeDasharray: '8' },
 					tickLabels: { fontSize: 12, padding: 5, fill: '#9CA3AF' },
@@ -31,7 +32,7 @@ const BoxPlot: React.FC<BoxPlotProps> = ({ data }) => {
 			<VictoryAxis
 				dependentAxis
 				style={{
-					axis: { stroke: '#9CA3AF', strokeDasharray: '8' },
+					axis: { stroke: 0 },
 					tickLabels: { fontSize: 12, padding: 5, fill: '#9CA3AF' },
 					grid: { stroke: '#9CA3AF', strokeWidth: 1, strokeDasharray: '8' }
 				}}
@@ -52,4 +53,3 @@ const BoxPlot: React.FC<BoxPlotProps> = ({ data }) => {
 	);
 };
 export default BoxPlot;
-
