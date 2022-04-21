@@ -7,14 +7,10 @@ import { SmallConnectivityMap } from '../components/connectivityMap/Connectivity
 import { HistogramVisualization } from '../components/visualizations/HistogramVisualization';
 import NavbarVisualizations from '../components/NavbarVisualizations';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
-import {
-	BackendContext,
-	MapActions,
-	useAllLayouts,
-	useSelectionMaps
-} from '../state/BackendContext';
+import BoxPlot from '../components/BoxPlot';
+import { GateErrorVisualization } from '../components/visualizations/GateErrorVisualization';
+import { useAllLayouts, useSelectionMaps } from '../state/BackendContext';
 import { facadeDeviceDetail } from '../utils/facade';
-import CardBackend from '../components/CardBackend';
 import LineChartVisualization from '../components/visualizations/LineChartVisualization';
 
 type VisualizationRoutes =
@@ -77,7 +73,7 @@ const VisualizationPanel = ({ isCollapsed, type }) => {
 		case 'Histogram':
 			return <HistogramVisualization backend={id} />;
 		case 'Graphdeviation':
-			return <>Graphdeviation</>;
+			return <GateErrorVisualization backend={id} />;
 		case 'Linegraph':
 			return <LineChartVisualization backend={id} />;
 		case 'Tableview':
