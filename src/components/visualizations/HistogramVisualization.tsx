@@ -1,5 +1,5 @@
 import { Box, Flex, Spacer } from '@chakra-ui/react';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { BackendContext, useSelectionMaps } from '../../state/BackendContext';
 import DatePicker from '../DatePicker';
@@ -27,7 +27,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 
 	const [dataToVisualize, setDataToVisualize] = useState<string>('T1');
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		setSelectionMap(true, true);
 	}, []);
 

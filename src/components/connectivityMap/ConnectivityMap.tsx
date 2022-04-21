@@ -24,6 +24,7 @@ type ConnectivityMapProps = {
 	borderRadius?: number;
 	nodeColor?: string;
 	linkColor?: string;
+	linkWidth?: number;
 };
 
 const ConnectivityMap: React.FC<ConnectivityMapProps> = (props) => {
@@ -55,7 +56,8 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	smallTicks,
 	onSelect,
 	squareSize,
-	type
+	type,
+	linkWidth
 }) => {
 	const marginX = 25;
 	const marginY = 25;
@@ -225,6 +227,8 @@ const VisxChart: React.FC<VisxChartProps> = ({
 									data={link.link.data}
 									xMax={maxX}
 									yMax={maxY}
+									linkWidth={linkWidth}
+									hideLabels={hideLabels}
 									onSelect={onSelect}
 								/>
 							)
@@ -241,7 +245,15 @@ type SmallConnectivityMapProps = Omit<
 	'smallTicks' | 'hideLabels' | 'squareSize'
 >;
 const SmallConnectivityMap: React.FC<SmallConnectivityMapProps> = (props) => {
-	return <ConnectivityMap {...props} smallTicks={true} hideLabels={true} squareSize='large' />;
+	return (
+		<ConnectivityMap
+			{...props}
+			smallTicks={true}
+			hideLabels={true}
+			squareSize='large'
+			linkWidth={16}
+		/>
+	);
 };
 export default ConnectivityMap;
 export { SmallConnectivityMap };

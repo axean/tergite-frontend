@@ -10,14 +10,14 @@ import GridBackends from '../components/GridBackends';
 
 const Index = () => {
 	// Just use setBackends and data when backend fixed the cors errors
-	const { isLoading, data, error } = useQuery('backendOverview', () =>
+	const { isLoading, data, error } = useQuery<API.Response.Devices>('backendOverview', () =>
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/').then((res) => res.json())
 	);
 
 	const [search, setSearch] = useState('');
-	const [sort, setSort] = useState({ order: 'asc', option: 'name' });
+	const [sort, setSort] = useState({ order: 'asc', option: 'backend_name' });
 	const [filter, setFilter] = useState(['online', 'offline']);
-	function filterParser(data): string {
+	function filterParser(data: API.Device): string {
 		return data.is_online ? 'online' : 'offline';
 	}
 
@@ -25,16 +25,17 @@ const Index = () => {
 		if (isLoading || error || !data) return [];
 
 		let filtered = data.filter((backend) => filter.includes(filterParser(backend)));
-
 		let regex;
 		if (search.split('').length === 0) {
 			regex = new RegExp('^' + search, 'i');
 		} else {
 			regex = new RegExp(search, 'i');
 		}
-
-		filtered = filtered.filter(({ name }) => regex.test(name));
+		console.log('filtered before', filtered);
+		filtered = filtered.filter(({ backend_name }) => regex.test(backend_name));
+		console.log('filtered after', filtered);
 		if (sort.order === 'asc') {
+			console.log('sort option', sort.option);
 			return filtered.sort((a, b) => a[sort.option].localeCompare(b[sort.option]));
 		} else {
 			return filtered.sort((a, b) => b[sort.option].localeCompare(a[sort.option]));
@@ -44,7 +45,7 @@ const Index = () => {
 	if (isLoading) return 'Loading...';
 
 	if (error) return 'Error, prob no devices found';
-
+	console.log(sortedBackends);
 	return (
 		<>
 			<Flex gap='8' my='8' height='max-content'>

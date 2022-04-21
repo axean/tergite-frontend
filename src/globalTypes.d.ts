@@ -65,17 +65,17 @@ namespace Application {
 }
 
 namespace API {
+	type Device = {
+		backend_name: string;
+		n_qubits: number;
+		is_online: boolean;
+		last_update_date: string;
+		backend_version: string;
+		online_date: string;
+		sample_name: string;
+	};
 	namespace Response {
-		type Device = {
-			backend_name: string;
-			n_qubits: number;
-			is_online: boolean;
-			last_update_date: string;
-			backend_version: string;
-			online_date: string;
-			sample_name: string;
-		};
-
+		type Devices = Device[];
 		type DeviceDetail = Device & {
 			description: string;
 			qubits: Qubit[];

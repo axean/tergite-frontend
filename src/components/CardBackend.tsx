@@ -28,12 +28,12 @@ const CardBackend: React.FC<CardBackendProps> = ({
 		>
 			<Flex justify='space-between'>
 				{' '}
-				<Text fontSize='xl' fontWeight='extrabold'>
+				<Text fontSize='xl' fontWeight='extrabold' data-cy-device-name>
 					{' '}
 					{backend_name}
 				</Text>{' '}
 				<Flex align='center'>
-					<Text fontSize='sm' mr='2'>
+					<Text fontSize='sm' mr='2' data-cy-device-status>
 						{is_online ? 'online' : 'offline'}{' '}
 					</Text>
 					<Box
@@ -49,19 +49,25 @@ const CardBackend: React.FC<CardBackendProps> = ({
 				<Text fontSize='md' fontWeight='regular' mr='2'>
 					version:
 				</Text>
-				<Text fontWeight='bold'>{backend_version}</Text>
+				<Text fontWeight='bold' data-cy-device-version>
+					{backend_version}
+				</Text>
 			</Flex>
 			<Flex>
 				<Text fontSize='md' fontWeight='regular' mr='2'>
 					qubits:
 				</Text>
-				<Text fontWeight='bold'>{n_qubits}</Text>
+				<Text fontWeight='bold' data-cy-device-n-qubits>
+					{n_qubits}
+				</Text>
 			</Flex>
 			<Flex>
 				<Text fontSize='md' fontWeight='regular' mr='2'>
 					last update:
 				</Text>
-				<Text fontWeight='bold'>{last_update_date?.split('T')[0]}</Text>
+				<Text fontWeight='bold' data-cy-device-last-update>
+					{last_update_date?.split('T')[0]}
+				</Text>
 			</Flex>
 			<Text fontWeight='bold' fontSize='sm' mt='2' color={is_online ? 'gray.700' : 'inherit'}>
 				{' '}

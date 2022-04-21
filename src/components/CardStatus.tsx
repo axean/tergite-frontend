@@ -34,10 +34,11 @@ const CardStatus = () => {
 			p='8'
 			alignContent='center'
 			h='full'
+			data-cy-online-statuses
 		>
 			<Flex direction='column' justify='space-between'>
 				<Text fontSize='2xl'>Systems online</Text>
-				<Text fontWeight='bold' fontSize='xl'>
+				<Text fontWeight='bold' fontSize='xl' data-cy-systems-online>
 					{online}
 				</Text>
 			</Flex>
@@ -49,7 +50,7 @@ const CardStatus = () => {
 					size='3em'
 				>
 					<CircularProgressLabel>
-						<Text fontSize='lg' fontWeight='bold'>
+						<Text fontSize='lg' fontWeight='bold' data-cy-circle-text>
 							{Math.round((online / total) * 100)}%
 						</Text>
 					</CircularProgressLabel>
