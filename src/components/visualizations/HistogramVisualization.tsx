@@ -1,10 +1,11 @@
-import { Box, Flex, Skeleton, Spacer, Stack } from '@chakra-ui/react';
-import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
+import { Box, Flex, Spacer } from '@chakra-ui/react';
+import React, { useContext, useLayoutEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { BackendContext, useSelectionMaps } from '../../state/BackendContext';
 import DatePicker from '../DatePicker';
 import Histogram from '../histogram/Histogram';
 import RadioButtons from '../RadioButtons';
+import { VisualizationSkeleton } from '../VisualizationSkeleton';
 
 interface HistogramVisualizationProps {
 	backend: string | string[];
@@ -36,19 +37,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 	console.log(state.selectedNode);
 	console.log(data);
 
-	if (isLoading || isFetching)
-		return (
-			<Flex flexDir ='column' gap = '8'>
-				<Flex flex='1' gap='8' flexDir='row'>
-					<Skeleton w='100%'></Skeleton>
-					<Skeleton w='100%'></Skeleton>
-				</Flex>
-				<Flex flex='1' gap='8' flexDir='row'>
-					<Skeleton w='100%'></Skeleton>
-					<Skeleton w='100%'></Skeleton>
-				</Flex>
-			</Flex>
-		);
+	if (isLoading || isFetching) return <VisualizationSkeleton />;
 
 	if (state.selectedNode !== -1)
 		return (

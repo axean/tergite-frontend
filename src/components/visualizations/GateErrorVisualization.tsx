@@ -1,9 +1,10 @@
 import { Box, Flex } from '@chakra-ui/react';
-import React, { useContext } from 'react';
+import React, { useContext, useLayoutEffect } from 'react';
 import { useQuery } from 'react-query';
-import { BackendContext } from '../../state/BackendContext';
+import { BackendContext, useSelectionMaps } from '../../state/BackendContext';
 import BoxPlot from '../boxPlot/BoxPlot';
 import DatePicker from '../DatePicker';
+import { VisualizationSkeleton } from '../VisualizationSkeleton';
 
 interface GateErrorVisualizationProps {
 	backend: string | string[];
@@ -11,6 +12,7 @@ interface GateErrorVisualizationProps {
 
 export const GateErrorVisualization: React.FC<GateErrorVisualizationProps> = ({ backend }) => {
 	const [state, dispatch] = useContext(BackendContext);
+	const { setSelectionMap } = useSelectionMaps();
 
 	const { isLoading, data, error, refetch, isFetching } = useQuery('gateError', () =>
 		fetch(
@@ -22,12 +24,12 @@ export const GateErrorVisualization: React.FC<GateErrorVisualizationProps> = ({ 
 				state.timeTo.toISOString()
 		).then((res) => res.json())
 	);
-
-	if (isLoading) return <span>Loading...</span>;
+	useLayoutEffect(() => {
+		setSelectionMap(false, false);
+	}, []);
 
 	if (error) return <span>Error</span>;
-
-	if (isFetching) return <span>is fetching</span>;
+	if (isLoading || isFetching) return <VisualizationSkeleton />;
 
 	return (
 		<Box>
