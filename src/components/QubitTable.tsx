@@ -9,7 +9,7 @@ function parseValue(value: number, exponent:number){
 const QubitTable = () => {
 
     const { isLoading, data, error } = useQuery('backendOverview', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu/data').then((res) => res.json())
 	);
 
     if(isLoading) return <span>'Loading'</span>
