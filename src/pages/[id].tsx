@@ -98,7 +98,7 @@ Detail.getInitialProps = async (ctx) => {
 export default Detail;
 
 function SidePanel({ isCollapsed, setCollapsed, MdFirstPage, backend, type }) {
-	const showMap = type !== undefined && type !== 'Qubitmap';
+	const showMap = type !== undefined && type !== 'Qubitmap' && type !=='Boxplot' && type !== 'Linegraph' && type !== 'Tableview';
 	const { isLoading, data, error } = useQuery<API.Response.DeviceDetail>('backendDetail', () =>
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend).then((res) =>
 			res.json()
