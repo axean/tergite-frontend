@@ -78,9 +78,9 @@ const LineChartVisualization = ({ backend }) => {
 						}}
 					>
 						{domain[tabDom][0] &&
-							Object.keys(domain[tabDom][0]).map((key, index) => (
-								<option key={index}> {key} </option>
-							))}
+							Object.keys(domain[tabDom][0]).map((key, index) => {
+								if (key !== 'id') return <option key={index}> {key} </option>;
+							})}
 					</Select>
 				</Flex>
 				<Flex alignItems='center'>
@@ -95,9 +95,9 @@ const LineChartVisualization = ({ backend }) => {
 						}}
 					>
 						{coDomain[tabCo][0] &&
-							Object.keys(coDomain[tabCo][0]).map((key, index) => (
-								<option key={index}> {key} </option>
-							))}
+							Object.keys(coDomain[tabCo][0]).map((key, index) => {
+								if (key !== 'id') return <option key={index}> {key} </option>;
+							})}
 					</Select>
 				</Flex>
 			</Box>
