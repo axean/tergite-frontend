@@ -2,73 +2,50 @@ import { Flex, Box } from '@chakra-ui/react';
 import { useMemo, useState } from 'react';
 import CardStatus from '../components/CardStatus';
 import Filter from '../components/Filter';
-import GridBackends, { CardBackendProps, GridBackendsProps } from '../components/GridBackends';
 import SearchBar from '../components/Searchbar';
 import Sort from '../components/Sort';
 import { WacqtInfoCard } from '../components/WacqtInfoCard';
+import { useQuery } from 'react-query';
+import GridBackends from '../components/GridBackends';
 
 const Index = () => {
+	// Just use setBackends and data when backend fixed the cors errors
+	const { isLoading, data, error } = useQuery<API.Response.Devices>('backendOverview', () =>
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/').then((res) => res.json())
+	);
+
 	const [search, setSearch] = useState('');
-	const [sort, setSort] = useState({ order: 'asc', option: 'name' });
+	const [sort, setSort] = useState({ order: 'asc', option: 'backend_name' });
 	const [filter, setFilter] = useState(['online', 'offline']);
+	function filterParser(data: API.Device): string {
+		return data.is_online ? 'online' : 'offline';
+	}
 
-	const [backends, setBackends] = useState<CardBackendProps[]>([
-		{
-			name: 'IBMQ Santiago',
-			version: '2.1.0',
-			qubits: 24,
-			status: 'online',
-			lastSample: '2020-07-23 15:30',
-			onlineSince: '2020-07-22 15:30',
-			offlineSince: ''
-		},
-		{
-			name: 'IBMQ Montevideo',
-			version: '1.0.2',
-			qubits: 16,
-			status: 'online',
-			lastSample: '2018-02-12 12:30',
-			onlineSince: '2015-03-22 18:30',
-			offlineSince: ''
-		},
-		{
-			name: 'IBMQ Lima',
-			version: '16.2.0',
-			qubits: 5,
-			status: 'online',
-			lastSample: '2021-07-22 15:30',
-			onlineSince: '2021-02-18 12:30',
-			offlineSince: ''
-		},
-		{
-			name: 'IBMQ Manilla',
-			version: '0.1.1',
-			qubits: 8,
-			status: 'offline',
-			lastSample: '2022-01-02 13:30',
-			onlineSince: '',
-			offlineSince: '2022-02-22 18:30'
-		}
-	]);
 	const sortedBackends = useMemo(() => {
-		let filtered = backends.filter((backend) => filter.includes(backend.status));
+		if (isLoading || error || !data) return [];
 
+		let filtered = data.filter((backend) => filter.includes(filterParser(backend)));
 		let regex;
 		if (search.split('').length === 0) {
 			regex = new RegExp('^' + search, 'i');
 		} else {
 			regex = new RegExp(search, 'i');
 		}
-
-		filtered = filtered.filter(({ name }) => regex.test(name));
+		console.log('filtered before', filtered);
+		filtered = filtered.filter(({ backend_name }) => regex.test(backend_name));
+		console.log('filtered after', filtered);
 		if (sort.order === 'asc') {
+			console.log('sort option', sort.option);
 			return filtered.sort((a, b) => a[sort.option].localeCompare(b[sort.option]));
 		} else {
 			return filtered.sort((a, b) => b[sort.option].localeCompare(a[sort.option]));
 		}
-	}, [search, sort.order, sort.option, backends, filter]);
+	}, [search, sort.order, sort.option, data, filter, isLoading, error]);
 
-	console.log('index render');
+	if (isLoading) return 'Loading...';
+
+	if (error) return 'Error, prob no devices found';
+	console.log(sortedBackends);
 	return (
 		<>
 			<Flex gap='8' my='8' height='max-content'>
