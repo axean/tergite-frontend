@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { BackendContext, useSelectionMaps } from '../../state/BackendContext';
 import DatePicker from '../DatePicker';
-import Histogram from '../Histogram';
+import Histogram from '../histogram/Histogram';
 import RadioButtons from '../RadioButtons';
 
 interface HistogramVisualizationProps {

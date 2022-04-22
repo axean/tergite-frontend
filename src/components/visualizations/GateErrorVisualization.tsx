@@ -2,7 +2,7 @@ import { Box, Flex } from '@chakra-ui/react';
 import React, { useContext } from 'react';
 import { useQuery } from 'react-query';
 import { BackendContext } from '../../state/BackendContext';
-import BoxPlot from '../BoxPlot';
+import BoxPlot from '../boxPlot/BoxPlot';
 import DatePicker from '../DatePicker';
 
 interface GateErrorVisualizationProps {

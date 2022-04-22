@@ -100,8 +100,8 @@ const NAV_ITEMS: Array<NavItem> = [
 		href: 'Histogram'
 	},
 	{
-		label: 'Graph deviation',
-		href: 'Graphdeviation'
+		label: 'Box plot',
+		href: 'Boxplot'
 	},
 	{
 		label: 'Line graph',

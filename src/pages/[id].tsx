@@ -7,7 +7,7 @@ import { SmallConnectivityMap } from '../components/connectivityMap/Connectivity
 import { HistogramVisualization } from '../components/visualizations/HistogramVisualization';
 import NavbarVisualizations from '../components/NavbarVisualizations';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
-import BoxPlot from '../components/BoxPlot';
+import BoxPlot from '../components/boxPlot/BoxPlot';
 import { GateErrorVisualization } from '../components/visualizations/GateErrorVisualization';
 import { useAllLayouts, useSelectionMaps } from '../state/BackendContext';
 import { facadeDeviceDetail } from '../utils/facade';
@@ -16,7 +16,7 @@ import LineChartVisualization from '../components/visualizations/LineChartVisual
 type VisualizationRoutes =
 	| 'Qubitmap'
 	| 'Histogram'
-	| 'Graphdeviation'
+	| 'Boxplot'
 	| 'Linegraph'
 	| 'Tableview'
 	| 'Cityplot';
@@ -72,7 +72,7 @@ const VisualizationPanel = ({ isCollapsed, type }) => {
 			return <QubitVisualization isCollapsed={isCollapsed} />;
 		case 'Histogram':
 			return <HistogramVisualization backend={id} />;
-		case 'Graphdeviation':
+		case 'Boxplot':
 			return <GateErrorVisualization backend={id} />;
 		case 'Linegraph':
 			return <LineChartVisualization backend={id} />;
