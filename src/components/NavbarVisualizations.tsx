@@ -7,6 +7,7 @@ import {
 	Popover,
 	PopoverTrigger,
 	Stack,
+	textDecoration,
 	useColorModeValue
 } from '@chakra-ui/react';
 import React from 'react';
@@ -71,6 +72,12 @@ const DesktopNav = () => {
 										_hover={{
 											textDecoration: 'none',
 											color: linkHoverColor
+										}}
+										_focus={{
+											color: linkHoverColor,
+											boxShadow: 'none',
+											textDecoration: 'underline',
+											textUnderlineOffset: '0.5em'
 										}}
 									>
 										{navItem.label}

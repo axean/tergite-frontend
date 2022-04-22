@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, Spacer, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useState } from 'react';
 import { MdFirstPage, MdLastPage } from 'react-icons/md';
@@ -98,7 +98,12 @@ Detail.getInitialProps = async (ctx) => {
 export default Detail;
 
 function SidePanel({ isCollapsed, setCollapsed, MdFirstPage, backend, type }) {
-	const showMap = type !== undefined && type !== 'Qubitmap' && type !=='Boxplot' && type !== 'Linegraph' && type !== 'Tableview';
+	const showMap =
+		type !== undefined &&
+		type !== 'Qubitmap' &&
+		type !== 'Boxplot' &&
+		type !== 'Linegraph' &&
+		type !== 'Tableview';
 	const { isLoading, data, error } = useQuery<API.Response.DeviceDetail>('backendDetail', () =>
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend).then((res) =>
 			res.json()
@@ -120,26 +125,41 @@ function SidePanel({ isCollapsed, setCollapsed, MdFirstPage, backend, type }) {
 				boxShadow='lg'
 			>
 				{showMap ? (
-					<Flex flexDir='column' alignItems='center'>
-						{showNodeSelectorMap && (
-							<Box w={{ xl: '90%', '2xl': '80%' }}>
-								<SmallConnectivityMap
-									backgroundColor='white'
-									type='node'
-									size={5}
-								/>
-							</Box>
-						)}
-						{showLinkSelectorMap && (
-							<Box w={{ xl: '90%', '2xl': '80%' }}>
-								<SmallConnectivityMap
-									backgroundColor='white'
-									type='link'
-									size={5}
-								/>
-							</Box>
-						)}
-					</Flex>
+					<Box pl='2'>
+						<Flex px={0} justifyContent='space-between'>
+							<BackendInfo {...data} />
+
+							<Button ml='5' p='1' onClick={() => setCollapsed(!isCollapsed)}>
+								<Icon as={MdFirstPage} w={8} h={8} />
+							</Button>
+						</Flex>
+						<Text fontSize='2xl' fontWeight='bold' color='black' mt='10'>
+							Description
+						</Text>
+						<Text fontSize='lg' color='black'>
+							{data.description}
+						</Text>
+						<Flex flexDir='column' mt={'4em'} justifyContent='center' alignItems= 'center'>
+							{showNodeSelectorMap && (
+								<Box w={{ xl: '90%', '2xl': '80%' }}>
+									<SmallConnectivityMap
+										backgroundColor='white'
+										type='node'
+										size={5}
+									/>
+								</Box>
+							)}
+							{showLinkSelectorMap && (
+								<Box w={{ xl: '90%', '2xl': '80%' }}>
+									<SmallConnectivityMap
+										backgroundColor='white'
+										type='link'
+										size={5}
+									/>
+								</Box>
+							)}
+						</Flex>
+					</Box>
 				) : (
 					<Box pl='2'>
 						<Flex px={0} justifyContent='space-between'>
