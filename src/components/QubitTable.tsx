@@ -1,64 +1,86 @@
-import { Box, Table, TableCaption, TableContainer, Tbody, Td, Tfoot, Th, Thead, Tr } from "@chakra-ui/react";
-import React from "react";
-import { QueryClient, useQuery } from "react-query";
+import {
+	Box,
+	Table,
+	TableCaption,
+	TableContainer,
+	Tbody,
+	Td,
+	Tfoot,
+	Th,
+	Thead,
+	Tr
+} from '@chakra-ui/react';
+import React from 'react';
+import { QueryClient, useQuery } from 'react-query';
 
-function parseValue(value: number, exponent:number){
-    return( (value * 10**exponent).toPrecision(4) )
+function parseValue(value: number, exponent: number) {
+	return (value * 10 ** exponent).toPrecision(4);
 }
 
 const QubitTable = () => {
-
-    const { isLoading, data, error } = useQuery('backendOverview', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu/data').then((res) => res.json())
+	const { isLoading, data, error } = useQuery('backendOverview', () =>
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu/data').then((res) =>
+			res.json()
+		)
 	);
 
-    if(isLoading) return <span>'Loading'</span>
+	if (isLoading) return <span>'Loading'</span>;
 
-    if(error) return <span>{error}</span>
+	if (error) return <span>{error}</span>;
 
-    console.log(data)
+	console.log(data);
 
+	return (
+		<TableContainer>
+			<Table variant='striped' colorScheme='teal'>
+				<Thead>
+					<Tr>
+						<Th>Qubit</Th>
+						<Th>Index[X,Y]</Th>
+						<Th>T1</Th>
+						<Th>T2*</Th>
+						<Th>T_{'\u03A6'}</Th>
+						<Th>Assignment error ge</Th>
+						<Th>Frequency</Th>
+						<Th>{'\u03C7'}_shift</Th>
+						<Th>G_rq</Th>
+						<Th>Q_Tpurcell</Th>
+						<Th>Q_Tdrive</Th>
+					</Tr>
+				</Thead>
+				<Tbody>
+					{data.qubits.map((qubit) => (
+						<Tr>
+							<Td>Q{qubit.id}</Td>
+							<Td>
+								{qubit.x} , {qubit.y}
+							</Td>
+							<Td>
+								{parseValue(qubit.dynamic_properties[0].value, 6)} {'\u03BC'}s
+							</Td>
+							<Td>
+								{parseValue(qubit.dynamic_properties[1].value, 6)}
+								{'\u03BC'}s
+							</Td>
+							<Td>
+								{parseValue(qubit.dynamic_properties[2].value, 6)}
+								{'\u03BC'}s
+							</Td>
+							<Td>{qubit.dynamic_properties[3].value.toPrecision(2)}</Td>
+							<Td>{parseValue(qubit.static_properties[0].value, -9)} GHz</Td>
+							<Td>{parseValue(qubit.static_properties[1].value, -6)} MHz</Td>
+							<Td>{parseValue(qubit.static_properties[2].value, -6)} MHz</Td>
+							<Td>{parseValue(qubit.static_properties[3].value, -6)} ms</Td>
+							<Td>{parseValue(qubit.static_properties[4].value, -6)} ms</Td>
+						</Tr>
+					))}
+				</Tbody>
+			</Table>
+		</TableContainer>
+	);
+};
 
-    return(
-        <TableContainer>
-        <Table variant='striped' colorScheme='teal'>
-          <Thead>
-            <Tr>
-              <Th>Qubit</Th>
-              <Th>Index[X,Y]</Th>
-              <Th>T1</Th>
-              <Th>T2*</Th>
-              <Th>T_{'\u03A6'}</Th>
-              <Th>Assignment error ge</Th>
-              <Th>Frequency</Th>
-              <Th>{'\u03C7'}_shift</Th>
-              <Th>G_rq</Th>
-              <Th>Q_Tpurcell</Th>
-              <Th>Q_Tdrive</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-              {data.qubits.map(qubit => 
-              <Tr> 
-                 <Td>Q{qubit.id}</Td>
-                 <Td>{qubit.x} , {qubit.y}</Td> 
-                 <Td>{parseValue(qubit.dynamic_properties[0].value,6)} {'\u03BC'}s</Td>
-                 <Td>{parseValue(qubit.dynamic_properties[1].value,6)}{'\u03BC'}s</Td>
-                 <Td>{parseValue(qubit.dynamic_properties[2].value,6)}{'\u03BC'}s</Td>
-                 <Td>{(qubit.dynamic_properties[3].value).toPrecision(2)}</Td>
-                 <Td>{parseValue(qubit.static_properties[0].value,-9)} GHz</Td>
-                 <Td>{parseValue(qubit.static_properties[1].value,-6)} MHz</Td>
-                 <Td>{parseValue(qubit.static_properties[2].value,-6)} MHz</Td>
-                 <Td>{parseValue(qubit.static_properties[3].value,-6)} ms</Td>
-                 <Td>{parseValue(qubit.static_properties[4].value,-6)} ms</Td>
-              </Tr>)}
-          </Tbody>
-        </Table>
-      </TableContainer>
-    )
-}
-
-export default QubitTable; 
+export default QubitTable;
 
 /*
 
