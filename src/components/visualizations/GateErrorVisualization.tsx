@@ -29,10 +29,6 @@ export const GateErrorVisualization: React.FC<GateErrorVisualizationProps> = ({ 
 
 	if (isFetching) return <span>is fetching</span>;
 
-	console.log(data);
-	console.log(data.gates.map((gate) => gate.id));
-	console.log(data.gates.map((gate) => ({ x: gate.id, y: gate.gate_err.map((e) => e.value) })));
-
 	return (
 		<Box>
 			<Flex flexDir={'row'} align={'center'} p={3}>

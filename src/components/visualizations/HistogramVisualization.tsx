@@ -1,4 +1,4 @@
-import { Box, Flex, Spacer } from '@chakra-ui/react';
+import { Box, Flex, Skeleton, Spacer, Stack } from '@chakra-ui/react';
 import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { BackendContext, useSelectionMaps } from '../../state/BackendContext';
@@ -28,14 +28,69 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 	const [dataToVisualize, setDataToVisualize] = useState<string>('T1');
 
 	useLayoutEffect(() => {
-		setSelectionMap(true, true);
+		setSelectionMap(false, true);
 	}, []);
-
-	if (isLoading) return <span>Loading...</span>;
 
 	if (error) return <span>Error</span>;
 
-	if (isFetching) return <span>is fetching</span>;
+	console.log(state.selectedNode);
+	console.log(data);
+
+	if (isLoading || isFetching)
+		return (
+			<Flex flexDir ='column' gap = '8'>
+				<Flex flex='1' gap='8' flexDir='row'>
+					<Skeleton w='100%'></Skeleton>
+					<Skeleton w='100%'></Skeleton>
+				</Flex>
+				<Flex flex='1' gap='8' flexDir='row'>
+					<Skeleton w='100%'></Skeleton>
+					<Skeleton w='100%'></Skeleton>
+				</Flex>
+			</Flex>
+		);
+
+	if (state.selectedNode !== -1)
+		return (
+			<Box>
+				<Flex flexDir={'row'} align={'center'} p={3}>
+					<Box ml={'3em'}>
+						<RadioButtons
+							setTab={setDataToVisualize}
+							tabs={['T1', 'T2', 'T' + '\u03C6']}
+						></RadioButtons>
+					</Box>
+					<Spacer />
+					<Box mr='3em'>
+						<DatePicker refetchFunction={refetch}></DatePicker>
+					</Box>
+				</Flex>
+				{dataToVisualize === 'T1' && (
+					<Histogram
+						data={data.qubits[state.selectedNode].qubit_T1.map((t1data) => ({
+							x: t1data.value * 1000000
+						}))}
+						label='T1(us)'
+					></Histogram>
+				)}
+				{dataToVisualize === 'T2' && (
+					<Histogram
+						data={data.qubits[state.selectedNode].qubit_T2_star.map((t2data) => ({
+							x: t2data.value * 1000000
+						}))}
+						label='T2(us)'
+					></Histogram>
+				)}
+				{dataToVisualize === 'T' + '\u03C6' && (
+					<Histogram
+						data={data.qubits[state.selectedNode].qubit_T_phi.map((t2data) => ({
+							x: t2data.value * 1000000
+						}))}
+						label='TPhi(us)'
+					></Histogram>
+				)}
+			</Box>
+		);
 
 	return (
 		<Box>
