@@ -7,6 +7,7 @@ import {
 	Popover,
 	PopoverTrigger,
 	Stack,
+	textDecoration,
 	useColorModeValue
 } from '@chakra-ui/react';
 import React from 'react';
@@ -72,6 +73,12 @@ const DesktopNav = () => {
 											textDecoration: 'none',
 											color: linkHoverColor
 										}}
+										_focus={{
+											color: linkHoverColor,
+											boxShadow: 'none',
+											textDecoration: 'underline',
+											textUnderlineOffset: '0.5em'
+										}}
 									>
 										{navItem.label}
 									</Link>
@@ -100,8 +107,8 @@ const NAV_ITEMS: Array<NavItem> = [
 		href: 'Histogram'
 	},
 	{
-		label: 'Graph deviation',
-		href: 'Graphdeviation'
+		label: 'Box plot',
+		href: 'Boxplot'
 	},
 	{
 		label: 'Line graph',

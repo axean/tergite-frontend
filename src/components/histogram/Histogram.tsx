@@ -1,5 +1,4 @@
 import React from 'react';
-import { useQuery } from 'react-query';
 import { VictoryAxis, VictoryChart, VictoryHistogram, VictoryLabel } from 'victory';
 
 interface elementShape {

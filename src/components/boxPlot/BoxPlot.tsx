@@ -14,10 +14,17 @@ const BoxPlot: React.FC<BoxPlotProps> = ({ data }) => {
 	return (
 		<VictoryChart>
 			<VictoryLabel
+				x={40}
+				y={30}
+				textAnchor={'middle'}
+				text={'Gate error'}
+				style={[{fill: '#374151', fontSize: 12}]}/>
+				
+			<VictoryLabel
 				x={400}
 				y={280}
 				textAnchor={'middle'}
-				text={'qubit index'}
+				text={'Qubit index'}
 				style={[{ fill: '#374151', fontSize: 12 }]}
 			/>
 			<VictoryAxis
