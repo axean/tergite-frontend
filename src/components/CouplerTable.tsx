@@ -15,7 +15,7 @@ const CouplerTable = () => {
 
 	if (isLoading) return <span>Loading</span>;
 
-	if (error) return <span>{error} + 'error'</span>;
+	if (error) return <span>{error} + error</span>;
 
 	console.log(data);
 
@@ -35,13 +35,13 @@ const CouplerTable = () => {
 				</Thead>
 				<Tbody>
 					{data.couplers.map((coupler) => (
-						<Tr>
+						<Tr key={coupler.id}>
 							<Td>C{coupler.id}</Td>
 							<Td>{coupler.z_drive_line}</Td>
-                            <Td>{coupler.qubits[0]}, {coupler.qubits[1]}</Td>
 							<Td>
-								{coupler.dynamic_properties[0].value.toPrecision(3)}V
+								{coupler.qubits[0]}, {coupler.qubits[1]}
 							</Td>
+							<Td>{coupler.dynamic_properties[0].value.toPrecision(3)}V</Td>
 							<Td>{parseValue(coupler.static_properties[0].value, -9)}GHz</Td>
 							<Td>{coupler.static_properties[1].value.toPrecision(3)}V</Td>
 							<Td>{coupler.static_properties[2].value.toPrecision(3)}</Td>

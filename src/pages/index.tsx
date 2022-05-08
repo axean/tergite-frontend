@@ -35,10 +35,10 @@ const Index = () => {
 		filtered = filtered.filter(({ backend_name }) => regex.test(backend_name));
 		console.log('filtered after', filtered);
 		if (sort.order === 'asc') {
-			console.log('sort option', sort.option);
-			return filtered.sort((a, b) => a[sort.option].localeCompare(b[sort.option]));
+			console.log('sort option', filtered[0][sort.option]);
+			return filtered.sort((a, b) => a[sort.option].toString().localeCompare(b[sort.option]));
 		} else {
-			return filtered.sort((a, b) => b[sort.option].localeCompare(a[sort.option]));
+			return filtered.sort((a, b) => b[sort.option].toString().localeCompare(a[sort.option]));
 		}
 	}, [search, sort.order, sort.option, data, filter, isLoading, error]);
 

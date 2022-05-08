@@ -21,7 +21,7 @@ interface SortMenuProps {
 const Sort: React.FC<SortMenuProps> = ({ sort: { order, option }, setSort }) => {
 	return (
 		<Menu closeOnSelect={false}>
-			<MenuButton as={Button} leftIcon={<MdOutlineSort />}>
+			<MenuButton data-cy-sort-button as={Button} leftIcon={<MdOutlineSort />}>
 				Sort
 			</MenuButton>
 			<MenuList minWidth='240px'>
@@ -32,8 +32,12 @@ const Sort: React.FC<SortMenuProps> = ({ sort: { order, option }, setSort }) => 
 					type='radio'
 					onChange={(e) => setSort({ order: e as string, option })}
 				>
-					<MenuItemOption value='asc'>Ascending</MenuItemOption>
-					<MenuItemOption value='desc'>Descending</MenuItemOption>
+					<MenuItemOption data-cy-sort-order-asc value='asc'>
+						Ascending
+					</MenuItemOption>
+					<MenuItemOption data-cy-sort-order-desc value='desc'>
+						Descending
+					</MenuItemOption>
 				</MenuOptionGroup>
 				<MenuDivider />
 				<MenuOptionGroup
@@ -43,9 +47,15 @@ const Sort: React.FC<SortMenuProps> = ({ sort: { order, option }, setSort }) => 
 					type='radio'
 					onChange={(e) => setSort({ order, option: e as string })}
 				>
-					<MenuItemOption value='backend_name'>Name</MenuItemOption>
-					<MenuItemOption value='online_date'>Online date</MenuItemOption>
-					<MenuItemOption value='is_online'>Online/Offline</MenuItemOption>
+					<MenuItemOption data-cy-sort-name value='backend_name'>
+						Name
+					</MenuItemOption>
+					<MenuItemOption data-cy-sort-online-date value='online_date'>
+						Online date
+					</MenuItemOption>
+					<MenuItemOption data-cy-sort-status value='is_online'>
+						Online/Offline
+					</MenuItemOption>
 				</MenuOptionGroup>
 			</MenuList>
 		</Menu>

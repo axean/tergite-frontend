@@ -15,7 +15,7 @@ const ResonatorTable = () => {
 
 	if (isLoading) return <span>Loading</span>;
 
-	if (error) return <span>{error} + 'error'</span>;
+	if (error) return <span>{error} + error</span>;
 
 	console.log(data);
 
@@ -40,7 +40,7 @@ const ResonatorTable = () => {
 				</Thead>
 				<Tbody>
 					{data.resonators.map((resonator) => (
-						<Tr>
+						<Tr key={resonator.id}>
 							<Td>R{resonator.id}</Td>
 							<Td>
 								{resonator.x},{resonator.y}

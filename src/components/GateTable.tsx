@@ -15,7 +15,7 @@ const GateTable = () => {
 
 	if (isLoading) return <span>Loading</span>;
 
-	if (error) return <span>{error} + 'error'</span>;
+	if (error) return <span>{error} + error</span>;
 
 	console.log(data);
 
@@ -31,22 +31,22 @@ const GateTable = () => {
 						<Th>Pulse Freq</Th>
 						<Th>Pulse Drag</Th>
 						<Th>Pulse Detune</Th>
-                        <Th>Qubit Pulse Length</Th>
-                        <Th>Gate Err</Th>
+						<Th>Qubit Pulse Length</Th>
+						<Th>Gate Err</Th>
 					</Tr>
 				</Thead>
 				<Tbody>
 					{data.gates.map((gate) => (
-						<Tr>
+						<Tr key={gate.id}>
 							<Td>G{gate.id}</Td>
 							<Td>{gate.name}</Td>
-                            <Td>{gate.qubits[0]}</Td>
+							<Td>{gate.qubits[0]}</Td>
 							<Td>{gate.dynamic_properties[0].value.toPrecision(3)}V</Td>
 							<Td>{parseValue(gate.dynamic_properties[1].value, -6)}MHz</Td>
 							<Td>{gate.dynamic_properties[2].value.toPrecision(3)}V</Td>
 							<Td>{parseValue(gate.dynamic_properties[3].value, -6)}MHz</Td>
-                            <Td>{parseValue(gate.dynamic_properties[4].value, 9)}ns</Td>
-                            <Td>{parseValue(gate.dynamic_properties[5].value, 3)}mHz</Td>
+							<Td>{parseValue(gate.dynamic_properties[4].value, 9)}ns</Td>
+							<Td>{parseValue(gate.dynamic_properties[5].value, 3)}mHz</Td>
 						</Tr>
 					))}
 				</Tbody>

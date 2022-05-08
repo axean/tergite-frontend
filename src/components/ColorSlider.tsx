@@ -1,43 +1,50 @@
-import { Box, HStack, Icon, VStack,Text } from "@chakra-ui/react";
-import React from "react";
-import {TiArrowSortedUp} from 'react-icons/ti'
+import { Box, HStack, Icon, VStack, Text } from '@chakra-ui/react';
+import React from 'react';
+import { TiArrowSortedUp } from 'react-icons/ti';
 
-interface ColorSliderProps{
-    values: number[]
-    displayValue: number
-    unit: string
+interface ColorSliderProps {
+	values: number[];
+	displayValue: number;
+	unit: string;
 }
 
-function normalizeDisplayValue(min,max,displayValue){
-    let a = max - min
-    let b = max - displayValue
-    let c = b/a
+function normalizeDisplayValue(min, max, displayValue) {
+	let a = max - min;
+	let b = max - displayValue;
+	let c = b / a;
 
-    console.log(c)
-    //console.log(((0.9 - c) * 100 + 10))
-    return Math.min(c * 100 + 5,103)
-    
-    //Math.min(((0.9 - c) * 100 + 13),94)
-     
+	console.log(c);
+	//console.log(((0.9 - c) * 100 + 10))
+	return Math.min(c * 100 + 5, 103);
+
+	//Math.min(((0.9 - c) * 100 + 13),94)
 }
 
-const ColorSlider = ({values,displayValue,unit}:ColorSliderProps) =>{
-
-    return(
-            <VStack w='30%' m='10px'>
-            <Box h='10px' w='100%'  bgGradient='linear(to-r, teal.200, teal.500)' borderRadius='10px'> </Box>
-            <Box alignSelf='end'  w={normalizeDisplayValue(values[0],values[1],displayValue)+'%'}>
-                <VStack alignSelf='end'w='fit-content'>
-                    <Icon  as={TiArrowSortedUp}/>
-                    <Text fontSize='10'>{displayValue} {unit}</Text>
-
-                </VStack>
-            </Box>
-            </VStack>
-        
-        
-    )
-}
+const ColorSlider = ({ values, displayValue, unit }: ColorSliderProps) => {
+	return (
+		<VStack w='30%' m='10px'>
+			<Box
+				h='10px'
+				w='100%'
+				bgGradient='linear(to-r, teal.200, teal.500)'
+				borderRadius='10px'
+			>
+				{' '}
+			</Box>
+			<Box
+				alignSelf='end'
+				w={normalizeDisplayValue(values[0], values[1], displayValue) + '%'}
+			>
+				<VStack alignSelf='end' w='fit-content'>
+					<Icon as={TiArrowSortedUp} />
+					<Text fontSize='10'>
+						{displayValue} {unit}
+					</Text>
+				</VStack>
+			</Box>
+		</VStack>
+	);
+};
 
 export default ColorSlider;
 

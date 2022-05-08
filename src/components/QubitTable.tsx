@@ -24,7 +24,7 @@ const QubitTable = () => {
 		)
 	);
 
-	if (isLoading) return <span>'Loading'</span>;
+	if (isLoading) return <span>Loading</span>;
 
 	if (error) return <span>{error}</span>;
 
@@ -50,7 +50,7 @@ const QubitTable = () => {
 				</Thead>
 				<Tbody>
 					{data.qubits.map((qubit) => (
-						<Tr>
+						<Tr key={qubit.id}>
 							<Td>Q{qubit.id}</Td>
 							<Td>
 								{qubit.x} , {qubit.y}

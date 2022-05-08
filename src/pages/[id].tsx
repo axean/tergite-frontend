@@ -139,7 +139,12 @@ function SidePanel({ isCollapsed, setCollapsed, MdFirstPage, backend, type }) {
 						<Text fontSize='lg' color='black'>
 							{data.description}
 						</Text>
-						<Flex flexDir='column' mt={'4em'} justifyContent='center' alignItems= 'center'>
+						<Flex
+							flexDir='column'
+							mt={'4em'}
+							justifyContent='center'
+							alignItems='center'
+						>
 							{showNodeSelectorMap && (
 								<Box w={{ xl: '90%', '2xl': '80%' }}>
 									<SmallConnectivityMap

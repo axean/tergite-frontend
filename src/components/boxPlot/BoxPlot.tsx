@@ -18,8 +18,9 @@ const BoxPlot: React.FC<BoxPlotProps> = ({ data }) => {
 				y={30}
 				textAnchor={'middle'}
 				text={'Gate error'}
-				style={[{fill: '#374151', fontSize: 12}]}/>
-				
+				style={[{ fill: '#374151', fontSize: 12 }]}
+			/>
+
 			<VictoryLabel
 				x={400}
 				y={280}

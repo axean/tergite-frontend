@@ -9,8 +9,9 @@ describe('index page', () => {
 			fixture: 'statuses.json'
 		});
 		cy.visit('/');
-		cy.wait(1000);
+		// cy.wait(1000);
 	});
+
 	it('renders navbar', () => {
 		cy.get('[data-cy-main-navbar]')
 			.find('h1')
@@ -42,10 +43,58 @@ describe('index page', () => {
 		});
 	});
 
-	it('renders sorted searched', () => {
+	it('renders searched searched', () => {
 		cy.get('[data-cy-devices-search]').type('Pingu');
-		cy.get('[data-cy-devices]').within(() => {
-			cy.get('[data-cy-device-name]').should('contain', 'Pingu');
-		});
+		cy.get('[data-cy-devices]')
+			.first()
+			.within(() => {
+				cy.get('[data-cy-device-name]').should('contain', 'Pingu');
+			});
+	});
+
+	it('filters devices', () => {
+		cy.get('[data-cy-filter-button]').click();
+		cy.get('[data-cy-filter-online]').click();
+		cy.get('[data-cy-devices]')
+			.first()
+			.within(() => {
+				cy.get('[data-cy-device-status]').should('contain', 'offline');
+			});
+	});
+
+	it('sorts devices by name', () => {
+		cy.get('[data-cy-devices]')
+			.first()
+			.within(() => {
+				cy.get('[data-cy-device-name]').should('contain', 'Luki');
+			});
+
+		cy.get('[data-cy-sort-button]').click();
+		cy.get('[data-cy-sort-order-desc]').click();
+		cy.get('[data-cy-devices]')
+			.first()
+			.within(() => {
+				cy.get('[data-cy-device-name]').should('contain', 'Pingu');
+			});
+	});
+
+	it('sorts devices by status', () => {
+		cy.get('[data-cy-sort-button]').click();
+		cy.get('[data-cy-sort-status]').click();
+		cy.get('[data-cy-devices]')
+			.first()
+			.within(() => {
+				cy.get('[data-cy-device-name]').should('contain', 'Pingu');
+			});
+	});
+
+	it('sorts devices by online date', () => {
+		cy.get('[data-cy-sort-button]').click();
+		cy.get('[data-cy-sort-online-date]').click();
+		cy.get('[data-cy-devices]')
+			.first()
+			.within(() => {
+				cy.get('[data-cy-device-name]').should('contain', 'Pingu');
+			});
 	});
 });
