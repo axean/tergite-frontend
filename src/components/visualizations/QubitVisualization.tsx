@@ -13,7 +13,7 @@ import {
 	Button
 } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from 'react-query';
 import {
 	BackendContext,
@@ -55,7 +55,6 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 		}
 	}, [isCollapsed]);
 
-	console.error('hello??');
 	useEffect(() => {
 		if (data && deviceLayouts && deviceLayouts.nodeLayouts && deviceLayouts.linkLayouts) {
 			setMapData(facadeType1(data, deviceLayouts));
@@ -119,17 +118,18 @@ type MapSelectionsProps = {
 
 const MapSelections: React.FC<MapSelectionsProps> = ({ selectType }) => {
 	const { allData } = useMapData();
-	const [{ nodeComponent: nodeType, linkComponent: linkType }, dispatch] =
+	const [{ nodeComponent, linkComponent, linkProperty, nodeProperty }, dispatch] =
 		useContext(BackendContext);
-	const selectionType = selectType === 'node' ? nodeType : linkType;
-	const data = selectType === 'node' ? allData.nodes : allData.links;
 
-	const defaultValue = Object.keys(data[selectionType][0])[0];
+	const selectionType = selectType === 'node' ? nodeComponent : linkComponent;
+	const data = selectType === 'node' ? allData.nodes : allData.links;
+	const defaultValue = selectType === 'node' ? nodeProperty : linkProperty;
 
 	return (
 		<Box flex='1'>
 			<RadioButtons
 				tabs={Object.keys(data)}
+				defaultTab={selectionType}
 				setTab={(value) => {
 					dispatch({
 						type:
@@ -145,8 +145,10 @@ const MapSelections: React.FC<MapSelectionsProps> = ({ selectType }) => {
 			</Text>
 
 			<Select
+				id='selectItem'
 				defaultValue={defaultValue}
 				onChange={(e) => {
+					console.log('onchange', e);
 					dispatch({
 						type:
 							selectType === 'node'
