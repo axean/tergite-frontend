@@ -25,6 +25,7 @@ const CardBackend: React.FC<CardBackendProps> = ({
 			borderRadius='md'
 			boxShadow='lg'
 			color={is_online ? 'black' : 'gray.500'}
+			data-cy-device
 		>
 			<Flex justify='space-between'>
 				{' '}

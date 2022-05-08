@@ -1,0 +1,285 @@
+{
+    "backend_name": "Pingu",
+    "backend_version": "2.2.1",
+    "description": "5 qubit device Luki",
+    "sample_name": "sample name",
+    "n_qubits": 5,
+    "last_update_date": "2022-04-18T23:31:16.209000Z",
+    "online_date": "2022-04-04T22:07:00.554000Z",
+    "is_online": true,
+    "qubits": [
+        {
+            "id": 0,
+            "x": 0,
+            "y": 0,
+            "xy_drive_line": 0,
+            "z_drive_line": 1
+        },
+        {
+            "id": 1,
+            "x": 1,
+            "y": 0,
+            "xy_drive_line": 2,
+            "z_drive_line": 3
+        },
+        {
+            "id": 2,
+            "x": 2,
+            "y": 0,
+            "xy_drive_line": 4,
+            "z_drive_line": 5
+        },
+        {
+            "id": 3,
+            "x": 1,
+            "y": 1,
+            "xy_drive_line": 6,
+            "z_drive_line": 7
+        },
+        {
+            "id": 4,
+            "x": 1,
+            "y": 2,
+            "xy_drive_line": 8,
+            "z_drive_line": 9
+        }
+    ],
+    "gates": [
+        {
+            "id": 0,
+            "name": "ID_0",
+            "gate": "id",
+            "qubits": [
+                0
+            ],
+            "qasm_def": "gate id q { U(0, 0, 0) q; }",
+            "parameters": []
+        },
+        {
+            "id": 1,
+            "name": "ID_1",
+            "gate": "id",
+            "qubits": [
+                1
+            ],
+            "qasm_def": "gate id q { U(0, 0, 0) q; }",
+            "parameters": []
+        },
+        {
+            "id": 2,
+            "name": "ID_2",
+            "gate": "id",
+            "qubits": [
+                2
+            ],
+            "qasm_def": "gate id q { U(0, 0, 0) q; }",
+            "parameters": []
+        },
+        {
+            "id": 3,
+            "name": "ID_3",
+            "gate": "id",
+            "qubits": [
+                3
+            ],
+            "qasm_def": "gate id q { U(0, 0, 0) q; }",
+            "parameters": []
+        },
+        {
+            "id": 4,
+            "name": "ID_4",
+            "gate": "id",
+            "qubits": [
+                4
+            ],
+            "qasm_def": "gate id q { U(0, 0, 0) q; }",
+            "parameters": []
+        },
+        {
+            "id": 5,
+            "name": "CX_0_1",
+            "gate": "cx",
+            "qubits": [
+                0,
+                1
+            ],
+            "qasm_def": "gate id q { U(0, 0, 0) q; }",
+            "parameters": []
+        },
+        {
+            "id": 6,
+            "name": "CX_1_0",
+            "gate": "cx",
+            "qubits": [
+                1,
+                0
+            ],
+            "qasm_def": "gate id q { U(0, 0, 0) q; }",
+            "parameters": []
+        },
+        {
+            "id": 7,
+            "name": "CX_1_2",
+            "gate": "cx",
+            "qubits": [
+                1,
+                2
+            ],
+            "qasm_def": "gate id q { U(0, 0, 0) q; }",
+            "parameters": []
+        },
+        {
+            "id": 8,
+            "name": "CX_2_1",
+            "gate": "cx",
+            "qubits": [
+                2,
+                1
+            ],
+            "qasm_def": "gate id q { U(0, 0, 0) q; }",
+            "parameters": []
+        },
+        {
+            "id": 9,
+            "name": "CX_1_3",
+            "gate": "cx",
+            "qubits": [
+                1,
+                3
+            ],
+            "qasm_def": "gate id q { U(0, 0, 0) q; }",
+            "parameters": []
+        },
+        {
+            "id": 10,
+            "name": "CX_3_1",
+            "gate": "cx",
+            "qubits": [
+                3,
+                1
+            ],
+            "qasm_def": "gate id q { U(0, 0, 0) q; }",
+            "parameters": []
+        },
+        {
+            "id": 11,
+            "name": "CX_3_4",
+            "gate": "cx",
+            "qubits": [
+                3,
+                4
+            ],
+            "qasm_def": "gate id q { U(0, 0, 0) q; }",
+            "parameters": []
+        },
+        {
+            "id": 12,
+            "name": "CX_4_3",
+            "gate": "cx",
+            "qubits": [
+                4,
+                3
+            ],
+            "qasm_def": "gate id q { U(0, 0, 0) q; }",
+            "parameters": []
+        }
+    ],
+    "resonators": [
+        {
+            "id": 0,
+            "x": 0,
+            "y": 1,
+            "readout_line": 33
+        },
+        {
+            "id": 1,
+            "x": 0,
+            "y": 2,
+            "readout_line": 33
+        },
+        {
+            "id": 2,
+            "x": 1,
+            "y": 2,
+            "readout_line": 33
+        },
+        {
+            "id": 3,
+            "x": 2,
+            "y": 2,
+            "readout_line": 33
+        },
+        {
+            "id": 4,
+            "x": 2,
+            "y": 3,
+            "readout_line": 33
+        }
+    ],
+    "couplers": [
+        {
+            "id": 0,
+            "z_drive_line": 0,
+            "qubits": [
+                0,
+                1
+            ]
+        },
+        {
+            "id": 1,
+            "z_drive_line": 1,
+            "qubits": [
+                1,
+                0
+            ]
+        },
+        {
+            "id": 2,
+            "z_drive_line": 2,
+            "qubits": [
+                1,
+                2
+            ]
+        },
+        {
+            "id": 3,
+            "z_drive_line": 3,
+            "qubits": [
+                2,
+                1
+            ]
+        },
+        {
+            "id": 4,
+            "z_drive_line": 4,
+            "qubits": [
+                1,
+                3
+            ]
+        },
+        {
+            "id": 5,
+            "z_drive_line": 5,
+            "qubits": [
+                3,
+                1
+            ]
+        },
+        {
+            "id": 6,
+            "z_drive_line": 6,
+            "qubits": [
+                3,
+                4
+            ]
+        },
+        {
+            "id": 7,
+            "z_drive_line": 7,
+            "qubits": [
+                4,
+                3
+            ]
+        }
+    ]
+}
