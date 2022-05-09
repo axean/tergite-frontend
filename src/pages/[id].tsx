@@ -12,6 +12,7 @@ import { GateErrorVisualization } from '../components/visualizations/GateErrorVi
 import { useAllLayouts, useSelectionMaps } from '../state/BackendContext';
 import { facadeDeviceDetail } from '../utils/facade';
 import LineChartVisualization from '../components/visualizations/LineChartVisualization';
+import TableVisualization from '../components/visualizations/TableVisualization';
 
 type VisualizationRoutes =
 	| 'Qubitmap'
@@ -77,7 +78,7 @@ const VisualizationPanel = ({ isCollapsed, type }) => {
 		case 'Linegraph':
 			return <LineChartVisualization backend={id} />;
 		case 'Tableview':
-			return <>Tableview</>;
+			return <TableVisualization backend={id}/>;
 		case 'Cityplot':
 			return <>Cityplot</>;
 		default:

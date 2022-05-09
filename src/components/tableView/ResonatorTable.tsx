@@ -2,20 +2,15 @@ import { TableContainer, Table, Thead, Tr, Th, Tbody, Td } from '@chakra-ui/reac
 import React from 'react';
 import { useQuery } from 'react-query';
 
+interface ResonatorTableProps {
+	data : any;
+}
+
 function parseValue(value: number, exponent: number) {
 	return (value * 10 ** exponent).toPrecision(3);
 }
 
-const ResonatorTable = () => {
-	const { isLoading, data, error } = useQuery('backendOverview', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu/data').then((res) =>
-			res.json()
-		)
-	);
-
-	if (isLoading) return <span>Loading</span>;
-
-	if (error) return <span>{error} + error</span>;
+const ResonatorTable = ({data}:ResonatorTableProps) => {
 
 	console.log(data);
 
