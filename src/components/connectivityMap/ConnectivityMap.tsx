@@ -116,16 +116,6 @@ const VisxChart: React.FC<VisxChartProps> = ({
 		]
 	);
 
-	const {
-		isLoading,
-		error,
-		data: fetchdata
-	} = useQuery<API.Response.Type1>('NodeTooltipData', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu/data').then((res) =>
-			res.json()
-		)
-	);
-
 	const newLinks = useMemo(
 		() =>
 			layout?.links.map((link) => {
@@ -160,8 +150,6 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	);
 
 	if (layout === null) return <div>loading...</div>;
-
-	if (isLoading || error) return <div> loading... </div>;
 
 	return (
 		maxX > 0 &&
@@ -205,8 +193,6 @@ const VisxChart: React.FC<VisxChartProps> = ({
 						nodeComponent={({ node: { x, y, id, data } }) =>
 							type === 'node' && (
 								<CustomNode
-									qubits={fetchdata.qubits[id]}
-									resonators={fetchdata.resonators[id]}
 									yMax={maxY}
 									xMax={maxX}
 									x={x}

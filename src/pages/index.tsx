@@ -45,7 +45,6 @@ const Index = () => {
 	if (isLoading) return 'Loading...';
 
 	if (error) return 'Error, prob no devices found';
-	console.log(sortedBackends);
 	return (
 		<>
 			<Flex gap='8' my='8' height='max-content'>
