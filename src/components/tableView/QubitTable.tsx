@@ -13,20 +13,15 @@ import {
 import React from 'react';
 import { QueryClient, useQuery } from 'react-query';
 
+interface QubitTableProps {
+	data:any;
+}
+
 function parseValue(value: number, exponent: number) {
 	return (value * 10 ** exponent).toPrecision(4);
 }
 
-const QubitTable = () => {
-	const { isLoading, data, error } = useQuery('backendOverview', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu/data').then((res) =>
-			res.json()
-		)
-	);
-
-	if (isLoading) return <span>Loading</span>;
-
-	if (error) return <span>{error}</span>;
+const QubitTable = ({data}:QubitTableProps) => {
 
 	console.log(data);
 
@@ -40,7 +35,6 @@ const QubitTable = () => {
 						<Th>T1</Th>
 						<Th>T2*</Th>
 						<Th>T_{'\u03A6'}</Th>
-						<Th>Assignment error ge</Th>
 						<Th>Frequency</Th>
 						<Th>{'\u03C7'}_shift</Th>
 						<Th>G_rq</Th>
@@ -66,7 +60,7 @@ const QubitTable = () => {
 								{parseValue(qubit.dynamic_properties[2].value, 6)}
 								{'\u03BC'}s
 							</Td>
-							<Td>{qubit.dynamic_properties[3].value.toPrecision(2)}</Td>
+							
 							<Td>{parseValue(qubit.static_properties[0].value, -9)} GHz</Td>
 							<Td>{parseValue(qubit.static_properties[1].value, -6)} MHz</Td>
 							<Td>{parseValue(qubit.static_properties[2].value, -6)} MHz</Td>
