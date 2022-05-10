@@ -3,15 +3,14 @@ import React from 'react';
 import { useQuery } from 'react-query';
 
 interface GateTableProps {
-	data:any;
+	data: any;
 }
 
 function parseValue(value: number, exponent: number) {
 	return (value * 10 ** exponent).toPrecision(3);
 }
 
-const GateTable = ({data}:GateTableProps) => {
-
+const GateTable = ({ data }: GateTableProps) => {
 	console.log(data);
 
 	return (

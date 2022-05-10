@@ -12,11 +12,20 @@ interface RadioButtonsProps {
 	tabs: string[];
 	setTab: (value: string) => void;
 	defaultTab?: string;
+	id?: string;
 }
 
-const RadioButtons = ({ setTab, tabs, defaultTab }: RadioButtonsProps) => {
+const RadioButtons = ({ setTab, tabs, defaultTab, id }: RadioButtonsProps) => {
 	return (
-		<Box borderRadius='full' border='1px' borderColor='grey' p='1' m='2px' w='fit-content'>
+		<Box
+			id={id}
+			borderRadius='full'
+			border='1px'
+			borderColor='grey'
+			p='1'
+			m='2px'
+			w='fit-content'
+		>
 			<Tabs
 				variant='soft-rounded'
 				onChange={(index) => setTab(tabs[index])}

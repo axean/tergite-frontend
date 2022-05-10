@@ -10,8 +10,7 @@ function parseValue(value: number, exponent: number) {
 	return (value * 10 ** exponent).toPrecision(3);
 }
 
-const CouplerTable = ({data}:CouplerTableProps) => {
-
+const CouplerTable = ({ data }: CouplerTableProps) => {
 	console.log(data);
 
 	return (

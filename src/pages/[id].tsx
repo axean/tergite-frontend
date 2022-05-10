@@ -78,7 +78,7 @@ const VisualizationPanel = ({ isCollapsed, type }) => {
 		case 'Linegraph':
 			return <LineChartVisualization backend={id} />;
 		case 'Tableview':
-			return <TableVisualization backend={id}/>;
+			return <TableVisualization backend={id} />;
 		case 'Cityplot':
 			return <>Cityplot</>;
 		default:

@@ -67,9 +67,13 @@ const LineChartVisualization = ({ backend }) => {
 		<>
 			<Box p={'32px'}>
 				<Flex pb={'16px'} alignItems='center'>
-					<FormLabel fontSize={'large'}> Domain: </FormLabel>
-					<RadioButtons tabs={domTabs} setTab={setTabDom} />
+					<FormLabel id='domain-label' fontSize={'large'}>
+						{' '}
+						Domain:{' '}
+					</FormLabel>
+					<RadioButtons id='domain-radio-btns' tabs={domTabs} setTab={setTabDom} />
 					<Select
+						id='domain-select'
 						onClick={(e) => {
 							setActiveParams({
 								domain: e.target.value,
@@ -84,9 +88,13 @@ const LineChartVisualization = ({ backend }) => {
 					</Select>
 				</Flex>
 				<Flex alignItems='center'>
-					<FormLabel fontSize={'large'}> Codomain: </FormLabel>
-					<RadioButtons tabs={coDomTabs} setTab={setTabCo} />
+					<FormLabel id='codomain-label' fontSize={'large'}>
+						{' '}
+						Codomain:{' '}
+					</FormLabel>
+					<RadioButtons id='codomain-radio-btns' tabs={coDomTabs} setTab={setTabCo} />
 					<Select
+						id='codomain-select'
 						onClick={(e) => {
 							setActiveParams({
 								domain: activeParams.domain,
