@@ -28,7 +28,7 @@ describe('histogram component', () => {
 	it('displays histogram tphi', () => {
 		cy.visit('/Pingu?type=Histogram');
 		cy.wait(3000).then(() => {
-			cy.get('data-index=2').click();
+			cy.get("[data-index='2']").click();
 			cy.get("[data-cy-histogram='TPhi(us)']").should('exist');
 		});
 	});
