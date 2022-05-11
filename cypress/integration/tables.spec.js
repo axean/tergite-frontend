@@ -29,7 +29,7 @@ describe('table page', () => {
 		cy.get('[data-cy-coupler-table]').should('exist');
 	});
 
-	it('Load coupler table', () => {
+	it('Load res table', () => {
 		cy.visit('/Pingu?type=Tableview');
 		cy.wait(200);
 		cy.get('[data-index=3]').click();
