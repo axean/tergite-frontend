@@ -35,7 +35,7 @@ const TableVisualization = ({ backend }: TableVisualizationProps) => {
 const Table = ({ table, backend, data }) => {
 	switch (table) {
 		case 'Qubits':
-			return <QubitTable data={data}  />;
+			return <QubitTable data={data} />;
 		case 'Gates':
 			return <GateTable data={data} />;
 		case 'Couplers':
