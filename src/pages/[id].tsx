@@ -78,7 +78,7 @@ const VisualizationPanel = ({ isCollapsed, type }) => {
 		case 'Linegraph':
 			return <LineChartVisualization backend={id} />;
 		case 'Tableview':
-			return <TableVisualization backend={id}/>;
+			return <TableVisualization backend={id} />;
 		case 'Cityplot':
 			return <>Cityplot</>;
 		default:
@@ -124,65 +124,48 @@ function SidePanel({ isCollapsed, setCollapsed, MdFirstPage, backend, type }) {
 				py='6'
 				borderRadius='md'
 				boxShadow='lg'
+				data-cy-sidepanel
 			>
-				{showMap ? (
-					<Box pl='2'>
-						<Flex px={0} justifyContent='space-between'>
-							<BackendInfo {...data} />
+				<Box pl='2'>
+					<Flex px={0} justifyContent='space-between'>
+						<BackendInfo {...data} />
 
-							<Button ml='5' p='1' onClick={() => setCollapsed(!isCollapsed)}>
-								<Icon as={MdFirstPage} w={8} h={8} />
-							</Button>
-						</Flex>
-						<Text fontSize='2xl' fontWeight='bold' color='black' mt='10'>
-							Description
-						</Text>
-						<Text fontSize='lg' color='black'>
-							{data.description}
-						</Text>
-						<Flex
-							flexDir='column'
-							mt={'4em'}
-							justifyContent='center'
-							alignItems='center'
+						<Button
+							data-cy-collapse-button
+							ml='5'
+							p='1'
+							onClick={() => setCollapsed(!isCollapsed)}
 						>
-							{showNodeSelectorMap && (
-								<Box w={{ xl: '90%', '2xl': '80%' }}>
-									<SmallConnectivityMap
-										backgroundColor='white'
-										type='node'
-										size={5}
-									/>
-								</Box>
-							)}
-							{showLinkSelectorMap && (
-								<Box w={{ xl: '90%', '2xl': '80%' }}>
-									<SmallConnectivityMap
-										backgroundColor='white'
-										type='link'
-										size={5}
-									/>
-								</Box>
-							)}
-						</Flex>
-					</Box>
-				) : (
-					<Box pl='2'>
-						<Flex px={0} justifyContent='space-between'>
-							<BackendInfo {...data} />
-
-							<Button ml='5' p='1' onClick={() => setCollapsed(!isCollapsed)}>
-								<Icon as={MdFirstPage} w={8} h={8} />
-							</Button>
-						</Flex>
-						<Text fontSize='2xl' fontWeight='bold' color='black' mt='10'>
-							Description
-						</Text>
-						<Text fontSize='lg' color='black'>
-							{data.description}
-						</Text>
-					</Box>
-				)}
+							<Icon as={MdFirstPage} w={8} h={8} />
+						</Button>
+					</Flex>
+					<Text fontSize='2xl' fontWeight='bold' color='black' mt='10'>
+						Description
+					</Text>
+					<Text fontSize='lg' color='black' data-cy-description>
+						{data.description}
+					</Text>
+					<Flex flexDir='column' mt={'4em'} justifyContent='center' alignItems='center'>
+						{showNodeSelectorMap && (
+							<Box w={{ xl: '90%', '2xl': '80%' }}>
+								<SmallConnectivityMap
+									backgroundColor='white'
+									type='node'
+									size={5}
+								/>
+							</Box>
+						)}
+						{showLinkSelectorMap && (
+							<Box w={{ xl: '90%', '2xl': '80%' }}>
+								<SmallConnectivityMap
+									backgroundColor='white'
+									type='link'
+									size={5}
+								/>
+							</Box>
+						)}
+					</Flex>
+				</Box>
 			</Flex>
 		)
 	);
@@ -211,12 +194,12 @@ const BackendInfo: React.FC<BackendInfoProps> = ({
 		>
 			<Flex justify='space-between'>
 				{' '}
-				<Text fontSize='2xl' fontWeight='extrabold'>
+				<Text fontSize='2xl' fontWeight='extrabold' data-cy-name>
 					{' '}
 					{backend_name}
 				</Text>{' '}
 				<Flex align='center'>
-					<Text fontSize='sm' mr='2'>
+					<Text fontSize='sm' mr='2' data-cy-status>
 						{is_online ? 'online' : 'offline'}{' '}
 					</Text>
 					<Box
@@ -232,25 +215,33 @@ const BackendInfo: React.FC<BackendInfoProps> = ({
 				<Text fontSize='md' fontWeight='regular' mr='2'>
 					version:
 				</Text>
-				<Text fontWeight='bold'>{backend_version}</Text>
+				<Text fontWeight='bold' data-cy-version>
+					{backend_version}
+				</Text>
 			</Flex>
 			<Flex>
 				<Text fontSize='md' fontWeight='regular' mr='2'>
 					qubits:
 				</Text>
-				<Text fontWeight='bold'>{n_qubits}</Text>
+				<Text fontWeight='bold' data-cy-qubits>
+					{n_qubits}
+				</Text>
 			</Flex>
 			<Flex>
 				<Text fontSize='md' fontWeight='regular' mr='2'>
 					last update:
 				</Text>
-				<Text fontWeight='bold'>{last_update_date?.split('T')[0]}</Text>
+				<Text fontWeight='bold' data-cy-last-update>
+					{last_update_date?.split('T')[0]}
+				</Text>
 			</Flex>
 			<Flex>
 				<Text fontSize='md' fontWeight='regular' mr='2'>
 					sample name:
 				</Text>
-				<Text fontWeight='bold'>{sample_name}</Text>
+				<Text fontWeight='bold' data-cy-sample-name>
+					{sample_name}
+				</Text>
 			</Flex>
 			<Text fontWeight='bold' fontSize='sm' mt='2' color={is_online ? 'gray.700' : 'inherit'}>
 				{' '}

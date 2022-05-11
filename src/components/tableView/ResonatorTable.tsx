@@ -3,15 +3,14 @@ import React from 'react';
 import { useQuery } from 'react-query';
 
 interface ResonatorTableProps {
-	data : any;
+	data: any;
 }
 
 function parseValue(value: number, exponent: number) {
 	return (value * 10 ** exponent).toPrecision(3);
 }
 
-const ResonatorTable = ({data}:ResonatorTableProps) => {
-
+const ResonatorTable = ({ data }: ResonatorTableProps) => {
 	console.log(data);
 
 	return (
