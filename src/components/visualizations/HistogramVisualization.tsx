@@ -39,52 +39,6 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 
 	if (isLoading || isFetching) return <VisualizationSkeleton />;
 
-	if (state.selectedNode !== -1)
-		return (
-			<Box>
-				<Flex flexDir={'row'} align={'center'} p={3}>
-					<Box ml={'3em'}>
-						<RadioButtons
-							setTab={setDataToVisualize}
-							tabs={['T1', 'T2', 'T' + '\u03C6']}
-						></RadioButtons>
-					</Box>
-					<Spacer />
-					<Box mr='3em'>
-						<DatePicker refetchFunction={refetch}></DatePicker>
-					</Box>
-				</Flex>
-				{/* get('[data-cy-histogram=T1]') */}
-				{dataToVisualize === 'T1' && (
-					<Histogram
-						data={data.qubits[state.selectedNode].qubit_T1.map((t1data) => ({
-							x: t1data.value * 1000000
-						}))}
-						label='T1(us)'
-						data-cy-histogram-t1-clicked
-					></Histogram>
-				)}
-				{dataToVisualize === 'T2' && (
-					<Histogram
-						data={data.qubits[state.selectedNode].qubit_T2_star.map((t2data) => ({
-							x: t2data.value * 1000000
-						}))}
-						label='T2(us)'
-						data-cy-histogram-t2-clicked
-					></Histogram>
-				)}
-				{dataToVisualize === 'T' + '\u03C6' && (
-					<Histogram
-						data={data.qubits[state.selectedNode].qubit_T_phi.map((t2data) => ({
-							x: t2data.value * 1000000
-						}))}
-						label='TPhi(us)'
-						data-cy-histogram-tphi-clicked
-					></Histogram>
-				)}
-			</Box>
-		);
-
 	return (
 		<Box>
 			<Flex flexDir={'row'} align={'center'} p={3}>
@@ -96,31 +50,34 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 				</Box>
 				<Spacer />
 				<Box mr='3em'>
-					<DatePicker refetchFunction={refetch} data-cy-date-picker-default></DatePicker>
+					<DatePicker refetchFunction={refetch}></DatePicker>
 				</Box>
 			</Flex>
 			{dataToVisualize === 'T1' && (
 				<Histogram
-					data={data.qubits[0].qubit_T1.map((t1data) => ({ x: t1data.value * 1000000 }))}
+					data={data.qubits[state.selectedNode].qubit_T1.map((t1data) => ({
+						x: t1data.value * 1000000
+					}))}
 					label='T1(us)'
+					data-cy-histogram-t1-clicked
 				></Histogram>
 			)}
 			{dataToVisualize === 'T2' && (
 				<Histogram
-					data={data.qubits[0].qubit_T2_star.map((t2data) => ({
+					data={data.qubits[state.selectedNode].qubit_T2_star.map((t2data) => ({
 						x: t2data.value * 1000000
 					}))}
 					label='T2(us)'
-					data-cy-histogram-t2-default
+					data-cy-histogram-t2-clicked
 				></Histogram>
 			)}
 			{dataToVisualize === 'T' + '\u03C6' && (
 				<Histogram
-					data={data.qubits[0].qubit_T_phi.map((t2data) => ({
+					data={data.qubits[state.selectedNode].qubit_T_phi.map((t2data) => ({
 						x: t2data.value * 1000000
 					}))}
 					label='TPhi(us)'
-					data-cy-histogram-tphi-default
+					data-cy-histogram-tphi-clicked
 				></Histogram>
 			)}
 		</Box>
