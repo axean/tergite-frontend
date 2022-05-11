@@ -14,15 +14,14 @@ import React from 'react';
 import { QueryClient, useQuery } from 'react-query';
 
 interface QubitTableProps {
-	data:any;
+	data: any;
 }
 
 function parseValue(value: number, exponent: number) {
 	return (value * 10 ** exponent).toPrecision(4);
 }
 
-const QubitTable = ({data}:QubitTableProps) => {
-
+const QubitTable = ({ data }: QubitTableProps) => {
 	console.log(data);
 
 	return (
@@ -60,7 +59,7 @@ const QubitTable = ({data}:QubitTableProps) => {
 								{parseValue(qubit.dynamic_properties[2].value, 6)}
 								{'\u03BC'}s
 							</Td>
-							
+
 							<Td>{parseValue(qubit.static_properties[0].value, -9)} GHz</Td>
 							<Td>{parseValue(qubit.static_properties[1].value, -6)} MHz</Td>
 							<Td>{parseValue(qubit.static_properties[2].value, -6)} MHz</Td>

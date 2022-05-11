@@ -1,7 +1,7 @@
 import { Box, Flex, Spacer } from '@chakra-ui/react';
 import React, { useContext, useLayoutEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import { BackendContext, useSelectionMaps } from '../../state/BackendContext';
+import { BackendContext, MapActions, useSelectionMaps } from '../../state/BackendContext';
 import DatePicker from '../DatePicker';
 import Histogram from '../histogram/Histogram';
 import RadioButtons from '../RadioButtons';
@@ -30,12 +30,12 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 
 	useLayoutEffect(() => {
 		setSelectionMap(false, true);
+		if (state.selectedNode === -1) {
+			dispatch({ type: MapActions.SELECT_NODE, payload: 0 });
+		}
 	}, []);
 
 	if (error) return <span>Error</span>;
-
-	console.log(state.selectedNode);
-	console.log(data);
 
 	if (isLoading || isFetching) return <VisualizationSkeleton />;
 

@@ -154,7 +154,7 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	return (
 		maxX > 0 &&
 		maxY > 0 && (
-			<svg width={width} height={height} rx={14}>
+			<svg width={width} height={height} rx={14} data-cy-map={type}>
 				<Group left={marginX} top={0}>
 					<Grid
 						xScale={scaleX}
