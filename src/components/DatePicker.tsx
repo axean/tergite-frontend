@@ -51,7 +51,8 @@ const DatePicker: React.FC<DatePickerProps> = ({ refetchFunction }) => {
 
 	return (
 		<Box data-cy-date-picker>
-			<Popover onClose={() => refetchFunction()}>
+			<Popover onClose={() => refetchFunction()}
+			data-cy-date-picker-test>
 				<PopoverTrigger>
 					<Button
 						boxShadow='4px 4px 2px 1px rgba(0, 0, 0, .1)'
