@@ -14,7 +14,7 @@ const GateTable = ({ data }: GateTableProps) => {
 	console.log(data);
 
 	return (
-		<TableContainer>
+		<TableContainer data-cy-gate-table>
 			<Table variant='striped' colorScheme='teal'>
 				<Thead>
 					<Tr>

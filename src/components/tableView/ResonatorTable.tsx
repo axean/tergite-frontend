@@ -14,7 +14,7 @@ const ResonatorTable = ({ data }: ResonatorTableProps) => {
 	console.log(data);
 
 	return (
-		<TableContainer>
+		<TableContainer data-cy-res-table>
 			<Table variant='striped' colorScheme='teal'>
 				<Thead>
 					<Tr>

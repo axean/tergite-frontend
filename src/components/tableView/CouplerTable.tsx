@@ -14,7 +14,7 @@ const CouplerTable = ({ data }: CouplerTableProps) => {
 	console.log(data);
 
 	return (
-		<TableContainer>
+		<TableContainer data-cy-coupler-table>
 			<Table variant='striped' colorScheme='teal'>
 				<Thead>
 					<Tr>
