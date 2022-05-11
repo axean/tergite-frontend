@@ -12,7 +12,7 @@ interface HistogramProps {
 
 const Histogram: React.FC<HistogramProps> = ({ data, label }) => {
 	return (
-		<VictoryChart data-cy-histogram>
+		<VictoryChart data-cy-histogram={label}>
 			<VictoryLabel
 				x={400}
 				y={280}

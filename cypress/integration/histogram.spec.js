@@ -20,4 +20,3 @@ describe('histogram component', () => {
 		});
 	});
 });
-

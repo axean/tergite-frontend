@@ -51,11 +51,10 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 					</Box>
 					<Spacer />
 					<Box mr='3em'>
-						<DatePicker
-							refetchFunction={refetch}
-						></DatePicker>
+						<DatePicker refetchFunction={refetch}></DatePicker>
 					</Box>
 				</Flex>
+				{/* get('[data-cy-histogram=T1]') */}
 				{dataToVisualize === 'T1' && (
 					<Histogram
 						data={data.qubits[state.selectedNode].qubit_T1.map((t1data) => ({
