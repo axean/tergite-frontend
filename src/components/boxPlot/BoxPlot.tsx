@@ -12,7 +12,7 @@ interface BoxPlotProps {
 
 const BoxPlot: React.FC<BoxPlotProps> = ({ data }) => {
 	return (
-		<VictoryChart>
+		<VictoryChart data-cy-box-plot>
 			<VictoryLabel
 				x={40}
 				y={30}

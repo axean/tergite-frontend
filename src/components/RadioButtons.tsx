@@ -16,7 +16,15 @@ interface RadioButtonsProps {
 
 const RadioButtons = ({ setTab, tabs, defaultTab }: RadioButtonsProps) => {
 	return (
-		<Box borderRadius='full' border='1px' borderColor='grey' p='1' m='2px' w='fit-content'>
+		<Box
+			borderRadius='full'
+			border='1px'
+			borderColor='grey'
+			p='1'
+			m='2px'
+			w='fit-content'
+			data-cy-radiobutton
+		>
 			<Tabs
 				variant='soft-rounded'
 				onChange={(index) => setTab(tabs[index])}
