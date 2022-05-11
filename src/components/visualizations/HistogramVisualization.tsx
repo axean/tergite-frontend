@@ -51,7 +51,9 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 					</Box>
 					<Spacer />
 					<Box mr='3em'>
-						<DatePicker refetchFunction={refetch}></DatePicker>
+						<DatePicker
+							refetchFunction={refetch}
+						></DatePicker>
 					</Box>
 				</Flex>
 				{dataToVisualize === 'T1' && (
@@ -60,6 +62,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 							x: t1data.value * 1000000
 						}))}
 						label='T1(us)'
+						data-cy-histogram-t1-clicked
 					></Histogram>
 				)}
 				{dataToVisualize === 'T2' && (
@@ -68,6 +71,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 							x: t2data.value * 1000000
 						}))}
 						label='T2(us)'
+						data-cy-histogram-t2-clicked
 					></Histogram>
 				)}
 				{dataToVisualize === 'T' + '\u03C6' && (
@@ -76,6 +80,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 							x: t2data.value * 1000000
 						}))}
 						label='TPhi(us)'
+						data-cy-histogram-tphi-clicked
 					></Histogram>
 				)}
 			</Box>
@@ -92,7 +97,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 				</Box>
 				<Spacer />
 				<Box mr='3em'>
-					<DatePicker refetchFunction={refetch}></DatePicker>
+					<DatePicker refetchFunction={refetch} data-cy-date-picker-default></DatePicker>
 				</Box>
 			</Flex>
 			{dataToVisualize === 'T1' && (
@@ -107,6 +112,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 						x: t2data.value * 1000000
 					}))}
 					label='T2(us)'
+					data-cy-histogram-t2-default
 				></Histogram>
 			)}
 			{dataToVisualize === 'T' + '\u03C6' && (
@@ -115,6 +121,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 						x: t2data.value * 1000000
 					}))}
 					label='TPhi(us)'
+					data-cy-histogram-tphi-default
 				></Histogram>
 			)}
 		</Box>
