@@ -58,12 +58,14 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 				: data.nodeData.data[0].value.toFixed(3)
 			: id;
 
-	const [{ selectedNode }, dispatch] = useContext(BackendContext);
+	const [{ selectedNode, nodeComponent }, dispatch] = useContext(BackendContext);
 
 	const nodeRef = useRef(null);
 
 	return (
 		<Group
+			data-cy-qubitmap-node-type={nodeComponent}
+			data-cy-qubitmap-node-id={id}
 			top={yMax / 10 - size / 2}
 			left={xMax / 10 - size / 2}
 			onMouseEnter={(e) => {

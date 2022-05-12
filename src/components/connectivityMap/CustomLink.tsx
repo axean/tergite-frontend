@@ -31,13 +31,12 @@ const CustomLink: React.FC<CustomLinkProps> = ({
 	hideLabels,
 	linkWidth
 }) => {
-	const [{ selectedLink }, dispatch] = useContext(BackendContext);
+	const [{ selectedLink, linkComponent }, dispatch] = useContext(BackendContext);
 
 	const { tooltipOpen, tooltipTop, tooltipLeft, hideTooltip, showTooltip, tooltipData } =
 		useTooltip();
 
 	const linkRef = useRef(null);
-	// console.log('link', data.linkData);
 
 	const formattedValue = data && data.linkData.data ? data.linkData.data[0].value.toFixed(3) : id;
 
@@ -45,6 +44,8 @@ const CustomLink: React.FC<CustomLinkProps> = ({
 
 	return (
 		<Group
+			data-cy-qubitmap-link-type={linkComponent}
+			data-cy-qubitmap-link-id={id}
 			top={-yMax / 10}
 			left={xMax / 10}
 			style={{ cursor: 'pointer' }}

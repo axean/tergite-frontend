@@ -110,6 +110,7 @@ describe('index page', () => {
 	});
 	it('navigates back to index page', () => {
 		cy.get('[data-cy-device]').first().click();
+		cy.wait(2000);
 		cy.get('[data-cy-main-navbar]').get('a').first().click();
 		cy.url().should('equal', 'http://localhost:3000/');
 	});

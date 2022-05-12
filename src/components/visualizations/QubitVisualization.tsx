@@ -1,26 +1,12 @@
-import {
-	Flex,
-	Box,
-	Spinner,
-	Grid,
-	Skeleton,
-	Menu,
-	MenuButton,
-	MenuItem,
-	Text,
-	MenuList,
-	Select,
-	Button
-} from '@chakra-ui/react';
+import { Box, Flex, Select, Skeleton, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useQuery } from 'react-query';
 import {
 	BackendContext,
 	MapActions,
 	useAllLayouts,
 	useMapData,
-	useSelectedComponentLayout,
 	useSelectionMaps
 } from '../../state/BackendContext';
 import { facadeType1 } from '../../utils/facade';
@@ -31,9 +17,10 @@ type QubitVisualizationProps = {
 	isCollapsed: boolean;
 };
 const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) => {
+	const router = useRouter();
 	const { isLoading, error, data } = useQuery<API.Response.Type1>('QubitVisualizationType1', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu/type1').then((res) =>
-			res.json()
+		fetch(`http://qtl-webgui-2.mc2.chalmers.se:8080/devices/${router.query.id}/type1`).then(
+			(res) => res.json()
 		)
 	);
 	const { deviceLayouts } = useAllLayouts();
@@ -41,11 +28,8 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 	const [isRerendering, setIsRerendering] = useState(false);
 	const { allData, setMapData } = useMapData();
 	const [{ nodeProperty }, dispatch] = useContext(BackendContext);
-	const router = useRouter();
 	const { setSelectionMap } = useSelectionMaps();
-	//console.log(data?.resonators[0].static_properties[0]);
 
-	// this is needed to ensure proper resizing of the component after the sidepanel collapse/expand
 	useEffect(() => {
 		if (rerenderRef.current !== isCollapsed) {
 			rerenderRef.current = isCollapsed;
@@ -104,7 +88,6 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 				</Flex>
 				<Flex gap='8'>
 					<MapSelections selectType='node' />
-
 					<MapSelections selectType='link' />
 				</Flex>
 			</Box>
@@ -130,6 +113,7 @@ const MapSelections: React.FC<MapSelectionsProps> = ({ selectType }) => {
 	return (
 		<Box flex='1'>
 			<RadioButtons
+				dataAttribute={selectType}
 				tabs={Object.keys(data)}
 				defaultTab={selectionType}
 				setTab={(value) => {
@@ -138,7 +122,7 @@ const MapSelections: React.FC<MapSelectionsProps> = ({ selectType }) => {
 							selectType === 'node'
 								? MapActions.SET_NODE_COMPONENT
 								: MapActions.SET_LINK_COMPONENT,
-						payload: value
+						payload: value as any
 					});
 				}}
 			/>
@@ -149,6 +133,7 @@ const MapSelections: React.FC<MapSelectionsProps> = ({ selectType }) => {
 			<Select
 				id='selectItem'
 				defaultValue={defaultValue}
+				data-cy-dropdown={selectType}
 				onChange={(e) => {
 					console.log('onchange', e);
 					dispatch({
@@ -156,7 +141,7 @@ const MapSelections: React.FC<MapSelectionsProps> = ({ selectType }) => {
 							selectType === 'node'
 								? MapActions.SET_NODE_PROPERTY
 								: MapActions.SET_LINK_PROPERTY,
-						payload: e.target.value
+						payload: e.target.value as any
 					});
 				}}
 			>

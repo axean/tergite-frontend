@@ -24,8 +24,10 @@ type VisualizationRoutes =
 
 const Detail = ({ id, type }) => {
 	const [isCollapsed, setCollapsed] = useState(false);
+
+	console.log(id);
 	const { isLoading, error, data } = useQuery<API.Response.DeviceDetail>('DetailPageEEEE', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + id).then((res) => res.json())
 	);
 	const { deviceLayouts, setDeviceLayouts } = useAllLayouts();
 	useEffect(() => {
