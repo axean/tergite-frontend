@@ -25,7 +25,7 @@ const QubitTable = ({ data }: QubitTableProps) => {
 	console.log(data);
 
 	return (
-		<TableContainer>
+		<TableContainer data-cy-qubit-table>
 			<Table variant='striped' colorScheme='teal'>
 				<Thead>
 					<Tr>

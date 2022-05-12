@@ -14,7 +14,7 @@ interface TableVisualizationProps {
 const TableVisualization = ({ backend }: TableVisualizationProps) => {
 	const [tab, setTab] = useState('Qubits');
 
-	const { isLoading, data, error } = useQuery('backendOverview', () =>
+	const { isLoading, data, error } = useQuery('tableQuery', () =>
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend + '/data').then((res) =>
 			res.json()
 		)

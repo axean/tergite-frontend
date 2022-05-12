@@ -40,10 +40,11 @@ const NavbarVisualizations: React.FC<NavbarVisualizationsProps> = ({
 			>
 				<Flex display={{ base: 'none', md: 'flex' }} align='center'>
 					{isCollapsed && (
-						<Button p='2' onClick={() => onToggleCollapse()}>
+						<Button data-cy-expand-button p='2' onClick={() => onToggleCollapse()}>
 							<Icon as={MdLastPage} w={8} h={8} />
 						</Button>
 					)}
+
 					<DesktopNav />
 				</Flex>
 			</Flex>

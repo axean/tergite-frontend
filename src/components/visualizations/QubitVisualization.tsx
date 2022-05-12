@@ -13,14 +13,15 @@ import {
 	Button
 } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from 'react-query';
 import {
 	BackendContext,
 	MapActions,
 	useAllLayouts,
 	useMapData,
-	useSelectedComponentLayout
+	useSelectedComponentLayout,
+	useSelectionMaps
 } from '../../state/BackendContext';
 import { facadeType1 } from '../../utils/facade';
 import ConnectivityMap from '../connectivityMap/';
@@ -41,7 +42,7 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 	const { allData, setMapData } = useMapData();
 	const [{ nodeProperty }, dispatch] = useContext(BackendContext);
 	const router = useRouter();
-
+	const { setSelectionMap } = useSelectionMaps();
 	//console.log(data?.resonators[0].static_properties[0]);
 
 	// this is needed to ensure proper resizing of the component after the sidepanel collapse/expand
@@ -55,8 +56,9 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 		}
 	}, [isCollapsed]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (data && deviceLayouts && deviceLayouts.nodeLayouts && deviceLayouts.linkLayouts) {
+			setSelectionMap(false, false);
 			setMapData(facadeType1(data, deviceLayouts));
 		}
 	}, [isLoading, error, data]); // eslint-disable-line

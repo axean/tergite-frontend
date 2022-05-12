@@ -25,6 +25,7 @@ const RadioButtons = ({ setTab, tabs, defaultTab, id }: RadioButtonsProps) => {
 			p='1'
 			m='2px'
 			w='fit-content'
+			data-cy-radiobutton
 		>
 			<Tabs
 				variant='soft-rounded'
