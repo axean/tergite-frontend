@@ -5,11 +5,11 @@ import { BackendContext, MapActions } from '../../state/BackendContext';
 import ConnectivityMap from '../connectivityMap/';
 import Graph3D from "react-graph3d-vis";
 
-const cityplot = ({ }) => {
+const cityplot = ({ backend }) => {
     const data1 = [];
 
     const { isLoading, error, data } = useQuery('QubitVisualization', async () =>
-        await fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu/type5').then((res) => res.json())
+        await fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend + '/type5').then((res) => res.json())
     );
 
     if (isLoading || error) return <div> loading... </div>
@@ -27,8 +27,8 @@ const cityplot = ({ }) => {
             <Graph3D
                 data={data1}
                 options={{
-                    width: "600px",
-                    height: "500px",
+                    width: "800px",
+                    height: "650px",
                     style: "bar",
                     tooltip: true,
                     keepAspectRatio: true,
