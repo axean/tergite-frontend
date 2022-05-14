@@ -11,12 +11,27 @@ Example:
 interface RadioButtonsProps {
 	tabs: string[];
 	setTab: (value: string) => void;
+	defaultTab?: string;
+	id?: string;
 }
 
-const RadioButtons = ({ setTab, tabs }: RadioButtonsProps) => {
+const RadioButtons = ({ setTab, tabs, defaultTab, id }: RadioButtonsProps) => {
 	return (
-		<Box borderRadius='full' border='1px' borderColor='grey' p='1' m='2px' w='fit-content'>
-			<Tabs variant='soft-rounded' onChange={(index) => setTab(tabs[index])}>
+		<Box
+			id={id}
+			borderRadius='full'
+			border='1px'
+			borderColor='grey'
+			p='1'
+			m='2px'
+			w='fit-content'
+			data-cy-radiobutton
+		>
+			<Tabs
+				variant='soft-rounded'
+				onChange={(index) => setTab(tabs[index])}
+				defaultIndex={defaultTab ? tabs.indexOf(defaultTab) : 0}
+			>
 				<TabList>
 					{tabs.map((item, index) => (
 						<Tab

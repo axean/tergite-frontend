@@ -7,22 +7,24 @@ import { ParentSize } from '@visx/responsive';
 import { scaleLinear } from '@visx/scale';
 import { Text } from '@visx/text';
 import React, { useMemo, useState } from 'react';
+import { useQuery } from 'react-query';
 
 import CustomNode from './CustomNode';
 import CustomLink from './CustomLink';
+import { useMapData, useSelectedComponentLayout } from '../../state/BackendContext';
 
 type ConnectivityMapProps = {
-	data: Data;
 	type: 'node' | 'link';
+	size: number;
 	hideLabels?: boolean;
 	smallTicks?: boolean;
-	size: number;
 	squareSize?: 'small' | 'medium' | 'large';
 	onSelect?: (id: number) => void;
 	backgroundColor?: string;
 	borderRadius?: number;
 	nodeColor?: string;
 	linkColor?: string;
+	linkWidth?: number;
 };
 
 const ConnectivityMap: React.FC<ConnectivityMapProps> = (props) => {
@@ -47,14 +49,15 @@ type VisxChartProps = ConnectivityMapProps & {
 };
 
 const VisxChart: React.FC<VisxChartProps> = ({
-	data,
 	height,
 	width,
 	size,
 	hideLabels,
 	smallTicks,
+	onSelect,
 	squareSize,
-	type
+	type,
+	linkWidth
 }) => {
 	const marginX = 25;
 	const marginY = 25;
@@ -70,6 +73,9 @@ const VisxChart: React.FC<VisxChartProps> = ({
 		[maxX, size]
 	);
 
+	const { layout } = useSelectedComponentLayout();
+	const { selectedComponentData, selectedComponentPropertyData } = useMapData();
+
 	const scaleY = useMemo(
 		() =>
 			scaleLinear({
@@ -82,14 +88,37 @@ const VisxChart: React.FC<VisxChartProps> = ({
 
 	const newData = useMemo(
 		() =>
-			data.nodes.map(({ x, y, id }) => {
-				return { x: scaleX(x / 2), y: scaleY(y / 2 + 0.5) - maxY / 2, id };
+			layout?.nodes.map((node) => {
+				let { x, y, id } = node;
+
+				return {
+					x: scaleX(x / 2),
+					y: scaleY(y / 2 + 0.5) - maxY / 2,
+					id,
+					data: hideLabels
+						? null
+						: {
+								allNodeData: selectedComponentData.nodeData,
+								nodeData: selectedComponentPropertyData.nodeData.find(
+									(node) => node.id === id
+								)
+						  }
+				};
 			}),
-		[data.nodes, scaleX, scaleY, maxY]
+		[
+			layout.nodes,
+			scaleX,
+			scaleY,
+			maxY,
+			selectedComponentData,
+			selectedComponentPropertyData,
+			hideLabels
+		]
 	);
+
 	const newLinks = useMemo(
 		() =>
-			data.links.map((link) => {
+			layout?.links.map((link) => {
 				return {
 					...link,
 					from: {
@@ -99,16 +128,33 @@ const VisxChart: React.FC<VisxChartProps> = ({
 					to: {
 						x: link.vertical ? scaleX(link.to.x) : scaleX(link.to.x + 0.15),
 						y: link.vertical ? scaleY(link.to.y + 0.15) : scaleY(link.from.y)
-					}
+					},
+					data: hideLabels
+						? null
+						: {
+								allLinkData: selectedComponentData.linkData,
+								linkData: selectedComponentPropertyData.linkData.find(
+									(linkData) => linkData.id === link.id
+								)
+						  }
 				};
 			}),
-		[data.links, scaleX, scaleY]
+		[
+			layout.links,
+			scaleX,
+			scaleY,
+			selectedComponentData.linkData,
+			selectedComponentPropertyData.linkData,
+			hideLabels
+		]
 	);
+
+	if (layout === null) return <div>loading...</div>;
 
 	return (
 		maxX > 0 &&
 		maxY > 0 && (
-			<svg width={width} height={height} rx={14}>
+			<svg width={width} height={height} rx={14} data-cy-map={type}>
 				<Group left={marginX} top={0}>
 					<Grid
 						xScale={scaleX}
@@ -144,22 +190,33 @@ const VisxChart: React.FC<VisxChartProps> = ({
 							nodes: newData,
 							links: newLinks
 						}}
-						nodeComponent={({ node: { x, y, id } }) =>
+						nodeComponent={({ node: { x, y, id, data } }) =>
 							type === 'node' && (
 								<CustomNode
 									yMax={maxY}
 									xMax={maxX}
 									x={x}
 									y={y}
+									data={data}
+									id={id}
+									onSelect={onSelect}
 									hideLabels={hideLabels}
 									squareSize={squareSize}
-									id={id}
 								/>
 							)
 						}
 						linkComponent={(link) =>
 							type === 'link' && (
-								<CustomLink link={link.link} id={link} xMax={maxX} yMax={maxY} />
+								<CustomLink
+									link={link.link}
+									id={link.link.id}
+									data={link.link.data}
+									xMax={maxX}
+									yMax={maxY}
+									linkWidth={linkWidth}
+									hideLabels={hideLabels}
+									onSelect={onSelect}
+								/>
 							)
 						}
 					></Graph>
@@ -174,7 +231,15 @@ type SmallConnectivityMapProps = Omit<
 	'smallTicks' | 'hideLabels' | 'squareSize'
 >;
 const SmallConnectivityMap: React.FC<SmallConnectivityMapProps> = (props) => {
-	return <ConnectivityMap {...props} smallTicks={true} hideLabels={true} squareSize='large' />;
+	return (
+		<ConnectivityMap
+			{...props}
+			smallTicks={true}
+			hideLabels={true}
+			squareSize='large'
+			linkWidth={16}
+		/>
+	);
 };
 export default ConnectivityMap;
 export { SmallConnectivityMap };

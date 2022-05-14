@@ -8,9 +8,9 @@ export interface GridBackendsProps {
 }
 const GridBackends: React.FC<GridBackendsProps> = ({ backends }) => {
 	return (
-		<SimpleGrid columns={4} gap='8'>
+		<SimpleGrid columns={4} gap='8' data-cy-devices>
 			{backends.map((backend, index) => (
-				<NextLink href={`/${backend.backend_name}`}>
+				<NextLink href={`/${backend.backend_name}`} key={index}>
 					<a>
 						<CardBackend key={index} {...backend} />
 					</a>

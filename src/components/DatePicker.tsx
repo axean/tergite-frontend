@@ -50,27 +50,32 @@ const DatePicker: React.FC<DatePickerProps> = ({ refetchFunction }) => {
 	};
 
 	return (
-		<Popover onClose={() => refetchFunction()}>
-			<PopoverTrigger>
-				<Button boxShadow='4px 4px 2px 1px rgba(0, 0, 0, .1)' _focus={{ outline: 'none' }}>
-					Period: {parseDates()}
-				</Button>
-			</PopoverTrigger>
-			<PopoverContent _focus={{ outline: 'none' }}>
-				<PopoverArrow />
-				<Box>
-					<DateRange
-						editableDateInputs={true}
-						onChange={(item) => handleChange(item)}
-						moveRangeOnFirstSelection={false}
-						ranges={range}
-						locale={sv}
-						maxDate={new Date()}
-						weekStartsOn={1}
-					/>
-				</Box>
-			</PopoverContent>
-		</Popover>
+		<Box data-cy-date-picker>
+			<Popover onClose={() => refetchFunction()} data-cy-date-picker-test>
+				<PopoverTrigger>
+					<Button
+						boxShadow='4px 4px 2px 1px rgba(0, 0, 0, .1)'
+						_focus={{ outline: 'none' }}
+					>
+						Period: {parseDates()}
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent _focus={{ outline: 'none' }}>
+					<PopoverArrow />
+					<Box>
+						<DateRange
+							editableDateInputs={true}
+							onChange={(item) => handleChange(item)}
+							moveRangeOnFirstSelection={false}
+							ranges={range}
+							locale={sv}
+							maxDate={new Date()}
+							weekStartsOn={1}
+						/>
+					</Box>
+				</PopoverContent>
+			</Popover>
+		</Box>
 	);
 };
 

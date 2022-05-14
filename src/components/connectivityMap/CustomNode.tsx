@@ -1,7 +1,10 @@
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
-import React, { useContext } from 'react';
+import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
+import { Box, Grid, GridItem } from '@chakra-ui/react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { BackendContext, MapActions } from '../../state/BackendContext';
+import ToolTip from './ToolTip';
 
 type CustomNodeProps = {
 	id: number;
@@ -12,14 +15,23 @@ type CustomNodeProps = {
 	onSelect?: (id: number) => void;
 	squareSize: 'small' | 'medium' | 'large';
 	hideLabels: boolean;
+	data: Nullable<{
+		allNodeData: API.ComponentData[];
+		nodeData: {
+			id: number;
+			data?: API.Property[];
+		};
+	}>;
 };
 
 const CustomNode: React.FC<CustomNodeProps> = ({
+	data,
 	yMax,
 	xMax,
 	x,
 	y,
 	id,
+	onSelect,
 	squareSize,
 	hideLabels
 }) => {
@@ -36,28 +48,53 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 			size = yMax / 7;
 			break;
 	}
+	const { tooltipOpen, tooltipTop, tooltipLeft, hideTooltip, showTooltip, tooltipData } =
+		useTooltip();
+
+	const formattedValue =
+		!hideLabels && data.nodeData.data
+			? Math.abs(data.nodeData.data[0].value) > 9999
+				? data.nodeData.data[0].value.toFixed(0)
+				: data.nodeData.data[0].value.toFixed(3)
+			: id;
+
 	const [{ selectedNode }, dispatch] = useContext(BackendContext);
+
+	const nodeRef = useRef(null);
+
 	return (
-		// yMax/10 is the size of half a square
 		<Group
 			top={yMax / 10 - size / 2}
 			left={xMax / 10 - size / 2}
 			onMouseEnter={(e) => {
-				e.currentTarget.firstElementChild.setAttribute('fill', '#38B2AC');
-				e.currentTarget.firstElementChild.setAttribute('stroke', '#66FFF7');
+				nodeRef.current.setAttribute('fill', '#38B2AC');
+				nodeRef.current.setAttribute('stroke', '#66FFF7');
 			}}
 			onMouseLeave={(e) => {
 				if (selectedNode !== id) {
-					e.currentTarget.firstElementChild.setAttribute('fill', '#366361');
-					e.currentTarget.firstElementChild.setAttribute('stroke', '#366361');
+					nodeRef.current.setAttribute('fill', '#366361');
+					nodeRef.current.setAttribute('stroke', '#366361');
 				}
+
+				hideTooltip();
 			}}
 			onMouseDown={() => {
 				dispatch({ type: MapActions.SELECT_NODE, payload: id });
+				onSelect && onSelect(id);
 			}}
 			style={{ cursor: 'pointer' }}
+			onMouseMove={(event) => {
+				const { top, left } = nodeRef.current.getBoundingClientRect();
+
+				showTooltip({
+					tooltipData: selectedNode,
+					tooltipTop: top + 20,
+					tooltipLeft: left + 20
+				});
+			}}
 		>
 			<rect
+				ref={nodeRef}
 				x={x}
 				y={y}
 				width={size}
@@ -76,8 +113,16 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 					scaleToFit='shrink-only'
 					width={(xMax / 10) * 0.9}
 				>
-					{id}
+					{formattedValue}
 				</Text>
+			)}
+
+			{tooltipOpen && tooltipData && data && (
+				<ToolTip
+					toolTipData={data.allNodeData.find((n) => n.id === id)}
+					top={tooltipTop}
+					left={tooltipLeft}
+				/>
 			)}
 		</Group>
 	);

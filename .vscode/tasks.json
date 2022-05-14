@@ -24,11 +24,19 @@
 		},
 		{
 			"type": "npm",
-			"script": "test",
+			"script": "teste2e",
 			"group": "test",
 			"problemMatcher": [],
-			"label": "test",
-			"detail": "run cypress tests"
+			"label": "teste2e",
+			"detail": "run e2e tests"
+		},
+		{
+			"type": "npm",
+			"script": "teste2e-headless",
+			"group": "test",
+			"problemMatcher": [],
+			"label": "teste2e-headless",
+			"detail": "run e2e tests in headless mode"
 		},
 		{
 			"type": "shell",

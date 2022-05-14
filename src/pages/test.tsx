@@ -1,9 +1,15 @@
+import { Box } from '@chakra-ui/react';
 import React from 'react';
-import Histogram from '../components/Histogram';
+import QubitTable from '../components/QubitTable';
+import ResonatorTable from '../components/ResonatorTable';
 
-interface testProps {}
-
-const test: React.FC<testProps> = ({}) => {
-	return <Histogram></Histogram>;
+const test = () => {
+	return (
+		<Box>
+			<QubitTable />
+			<ResonatorTable />
+		</Box>
+	);
 };
+
 export default test;

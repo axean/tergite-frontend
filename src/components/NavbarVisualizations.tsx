@@ -7,6 +7,7 @@ import {
 	Popover,
 	PopoverTrigger,
 	Stack,
+	textDecoration,
 	useColorModeValue
 } from '@chakra-ui/react';
 import React from 'react';
@@ -39,10 +40,11 @@ const NavbarVisualizations: React.FC<NavbarVisualizationsProps> = ({
 			>
 				<Flex display={{ base: 'none', md: 'flex' }} align='center'>
 					{isCollapsed && (
-						<Button p='2' onClick={() => onToggleCollapse()}>
+						<Button data-cy-expand-button p='2' onClick={() => onToggleCollapse()}>
 							<Icon as={MdLastPage} w={8} h={8} />
 						</Button>
 					)}
+
 					<DesktopNav />
 				</Flex>
 			</Flex>
@@ -72,6 +74,12 @@ const DesktopNav = () => {
 											textDecoration: 'none',
 											color: linkHoverColor
 										}}
+										_focus={{
+											color: linkHoverColor,
+											boxShadow: 'none',
+											textDecoration: 'underline',
+											textUnderlineOffset: '0.5em'
+										}}
 									>
 										{navItem.label}
 									</Link>
@@ -100,8 +108,8 @@ const NAV_ITEMS: Array<NavItem> = [
 		href: 'Histogram'
 	},
 	{
-		label: 'Graph deviation',
-		href: 'Graphdeviation'
+		label: 'Box plot',
+		href: 'Boxplot'
 	},
 	{
 		label: 'Line graph',

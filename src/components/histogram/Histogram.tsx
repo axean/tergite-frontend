@@ -1,5 +1,4 @@
 import React from 'react';
-import { useQuery } from 'react-query';
 import { VictoryAxis, VictoryChart, VictoryHistogram, VictoryLabel } from 'victory';
 
 interface elementShape {
@@ -13,7 +12,7 @@ interface HistogramProps {
 
 const Histogram: React.FC<HistogramProps> = ({ data, label }) => {
 	return (
-		<VictoryChart>
+		<VictoryChart data-cy-histogram={label}>
 			<VictoryLabel
 				x={400}
 				y={280}
