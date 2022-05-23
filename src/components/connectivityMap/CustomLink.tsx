@@ -49,7 +49,7 @@ const CustomLink: React.FC<CustomLinkProps> = ({
 			top={-yMax / 10}
 			left={xMax / 10}
 			style={{ cursor: 'pointer' }}
-			onMouseEnter={() => {
+			onMouseMove={() => {
 				linkRef.current.setAttribute('stroke', '#38B2AC');
 				const { top, left } = linkRef.current.getBoundingClientRect();
 

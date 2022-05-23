@@ -38,8 +38,8 @@ describe('detail page', () => {
 			cy.get('[data-cy-description]').should('contain', device.description);
 		});
 	});
+
 	it('collapses sidepanel', () => {
-		// data-cy-collapse-button
 		cy.get('[data-cy-collapse-button]').click();
 		cy.get('[data-cy-sidepanel]').should('not.exist');
 		cy.get('[data-cy-expand-button]').click();

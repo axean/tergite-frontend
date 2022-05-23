@@ -13,11 +13,13 @@ interface RadioButtonsProps {
 	setTab: (value: string) => void;
 	defaultTab?: string;
 	dataAttribute?: string;
+	id?: string;
 }
 
-const RadioButtons = ({ setTab, tabs, defaultTab, dataAttribute }: RadioButtonsProps) => {
+const RadioButtons = ({ setTab, tabs, defaultTab, dataAttribute, id }: RadioButtonsProps) => {
 	return (
 		<Box
+			id={id}
 			borderRadius='full'
 			border='1px'
 			borderColor='grey'

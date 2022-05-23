@@ -60,10 +60,54 @@ describe('qubitmap', () => {
 		});
 	});
 
-	it('displays the values of the qubits', () => {});
-	it('displays the values of the gates', () => {});
-	it('displays tool tip when hovering over qubit', () => {});
-	it('displays tool tip when hovering over gate', () => {});
-	it('dropdown contains the properties of qubits when qubit option in radio button is clicked', () => {});
-	it('selecting a propety displays the correct value on the map', () => {});
+	it('displays the values of the qubits', () => {
+		cy.fixture('qubitValues.json').then((values) => {
+			cy.get('[data-cy-map="node"]').within(() => {
+				values.forEach((value, index) => {
+					cy.get(`[data-cy-qubitmap-node-id=${index}]`)
+						.find('tspan')
+						.should('contain.html', value);
+				});
+			});
+		});
+	});
+	it('displays the values of the gates', () => {
+		cy.fixture('gateValues.json').then((values) => {
+			cy.get('[data-cy-map="link"]').within(() => {
+				let index = 5;
+				values.forEach((value) => {
+					cy.get(`[data-cy-qubitmap-link-id=${index++}]`)
+						.find('tspan')
+						.should('contain.html', value);
+				});
+			});
+		});
+	});
+	it('displays tool tip when hovering over qubit', () => {
+		cy.get(`[data-cy-qubitmap-node-id="0"]`).trigger('mousemove');
+		cy.get('[data-cy-tooltip]').should('exist');
+	});
+	it('displays tool tip when hovering over gate', () => {
+		cy.get(`[data-cy-qubitmap-link-id="6"]`).trigger('mousemove');
+		cy.get('[data-cy-tooltip]').should('exist');
+	});
+	it('dropdown contains the properties of qubits when qubit option in radio button is clicked', () => {
+		cy.fixture('dropDownOptions.json').then((values) => {
+			cy.get('[data-cy-dropdown="node"]').within(() => {
+				values.forEach((value) => {
+					cy.get('option').should('contain.text', value);
+				});
+			});
+		});
+	});
+	it('selecting a propety displays the correct value on the map', () => {
+		cy.fixture('resonatorValues.json').then((values) => {
+			cy.get('[data-cy-radiobutton="node"]').find('#tabs-13--tab-2').click();
+			cy.get('[data-cy-map="node"]').within(() => {
+				values.forEach((value, index) => {
+					cy.get(`[data-cy-qubitmap-node-id=${index}]`).should('contain', value);
+				});
+			});
+		});
+	});
 });

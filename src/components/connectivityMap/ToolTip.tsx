@@ -11,7 +11,7 @@ const ToolTip: React.FC<ToolTipProps> = ({ toolTipData, top, left }) => {
 	const { TooltipInPortal } = useTooltipInPortal();
 
 	return (
-		<TooltipInPortal key={Math.random()} top={top} left={left}>
+		<TooltipInPortal key={Math.random()} top={top} left={left} data-cy-tooltip>
 			<Box>
 				<Grid templateRows='repeat(5, 1fr)' gap={0}>
 					{keys.map((key, index) => {
