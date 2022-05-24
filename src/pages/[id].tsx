@@ -82,7 +82,7 @@ const VisualizationPanel = ({ isCollapsed, type }) => {
 		case 'Tableview':
 			return <TableVisualization backend={id} />;
 		case 'Cityplot':
-			return <CityPlot backend={id}/>;
+			return <CityPlot backend={id} />;
 		default:
 			return <QubitVisualization isCollapsed={isCollapsed} />;
 	}
