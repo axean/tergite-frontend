@@ -7,6 +7,8 @@ import { SmallConnectivityMap } from '../components/connectivityMap/Connectivity
 import { HistogramVisualization } from '../components/visualizations/HistogramVisualization';
 import NavbarVisualizations from '../components/NavbarVisualizations';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
+import CardBackend from '../components/CardBackend';
+import CityPlot from '../components/visualizations/cityplot';
 import BoxPlot from '../components/boxPlot/BoxPlot';
 import { GateErrorVisualization } from '../components/visualizations/GateErrorVisualization';
 import { useAllLayouts, useSelectionMaps } from '../state/BackendContext';
@@ -82,7 +84,7 @@ const VisualizationPanel = ({ isCollapsed, type }) => {
 		case 'Tableview':
 			return <TableVisualization backend={id} />;
 		case 'Cityplot':
-			return <>Cityplot</>;
+			return <CityPlot backend={id} />;
 		default:
 			return <QubitVisualization isCollapsed={isCollapsed} />;
 	}
