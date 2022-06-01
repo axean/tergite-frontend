@@ -30,6 +30,7 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 	const [{ nodeProperty }, dispatch] = useContext(BackendContext);
 	const { setSelectionMap } = useSelectionMaps();
 
+	// this is needed due to rendering issues
 	useEffect(() => {
 		if (rerenderRef.current !== isCollapsed) {
 			rerenderRef.current = isCollapsed;

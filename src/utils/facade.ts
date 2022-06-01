@@ -1,6 +1,8 @@
+/**
+	this function ensures that for all links {x0,y0,x1,y1} x0 < x1 and y0 < y1
+	this is needed for the padding of the links to work correctly
+*/
 function fixDirections(link: Application.TwoQubitGate | Application.Coupler) {
-	// this function ensures that for all links {x0,y0,x1,y1} x0 < x1 and y0 < y1
-	// this is needed for the padding of the links to work correctly
 	let { from, to, id } = link;
 	let temp;
 	if (from.x < to.x) {

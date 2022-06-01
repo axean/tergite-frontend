@@ -1,6 +1,6 @@
 const ApiBaseUrl = 'http://qtl-webgui-2.mc2.chalmers.se:8080';
 
-/* 
+/**
 if only period is given then the function returns the string 'period'.
 if from and to are also given then the string of the form 'period?from=<from>&to=<to>' is returned
 if period is undefined then '' is returned
@@ -9,7 +9,7 @@ function formatPeriod(period?: { from?: string; to?: string }): string {
 	return period ? `period${period.from ? `?from=${period.from}&to=${period.to}` : ''}` : '';
 }
 
-/*
+/**
  Routes for the API
 */
 const ApiRoutes: {

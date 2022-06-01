@@ -114,6 +114,7 @@ const BackendContextProvider: React.FC<BackendContextProviderProps> = ({ childre
 	return <BackendContext.Provider value={x}>{children}</BackendContext.Provider>;
 };
 
+/** This function is used to get and set the qubitmap layouts */
 function useAllLayouts(): {
 	deviceLayouts: Nullable<Application.DeviceLayouts>;
 	setDeviceLayouts: (layouts: Application.DeviceLayouts) => void;
@@ -126,7 +127,7 @@ function useAllLayouts(): {
 
 	return { deviceLayouts, setDeviceLayouts };
 }
-
+/** This function returns the layout of the selected components */
 function useSelectedComponentLayout(): {
 	layout: Nullable<Application.DeviceLayout>;
 } {
@@ -139,7 +140,7 @@ function useSelectedComponentLayout(): {
 		}
 	};
 }
-
+/** This function returns the type1 data, the selected component data and the selected component property data and a modifier function */
 function useMapData() {
 	const [{ type1Data, nodeComponent, linkComponent, nodeProperty, linkProperty }, dispatch] =
 		useContext(BackendContext);
@@ -166,7 +167,7 @@ function useMapData() {
 
 	return { allData: type1Data, selectedComponentData, selectedComponentPropertyData, setMapData };
 }
-
+/** This fuction is used to controll the side panel */
 function useSelectionMaps() {
 	const [{ showLinkSelectorMap, showNodeSelectorMap }, dispatch] = useContext(BackendContext);
 
