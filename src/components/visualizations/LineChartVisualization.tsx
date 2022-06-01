@@ -15,9 +15,25 @@ const LineChartVisualization = ({ backend }) => {
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend + '/type4_domain')
 			.then((res) => res.json())
 			.then((json) => {
+				let keys = Object.keys(json);
+				keys.forEach((key, index) => {
+					if (json[key].length === 0) {
+						delete json[key];
+						keys.splice(index, 1);
+					}
+				});
+
 				setDomain(json);
-				setDomTabs(Object.keys(json));
-				setTabDom(Object.keys(json)[0]);
+				setDomTabs(keys);
+				setTabDom(keys[0]);
+				// sets the first property of the first component as domain property
+				// this style of set state is needed due to stale closures
+				setActiveParams((oldVal) => {
+					return {
+						coDomain: oldVal.coDomain,
+						domain: Object.keys(json[keys[0]][0])[0]
+					};
+				});
 			})
 	);
 
@@ -25,16 +41,34 @@ const LineChartVisualization = ({ backend }) => {
 		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend + '/type4_codomain')
 			.then((res) => res.json())
 			.then((json) => {
+				let keys = Object.keys(json);
+				// remove empty objects
+				keys.forEach((key, index) => {
+					if (json[key].length === 0) {
+						delete json[key];
+						keys.splice(index, 1);
+					}
+				});
+
 				setCoDomain(json);
-				setCoDomTabs(Object.keys(json));
-				setTabCo(Object.keys(json)[0]);
+				setCoDomTabs(keys);
+				setTabCo(keys[0]);
+				// sets the first property of the first component as codomain property
+				// this style of set state is needed due to stale closures
+				setActiveParams((oldVal) => {
+					console.log('old val', oldVal);
+					return {
+						coDomain: Object.keys(json[keys[0]][0])[0],
+						domain: oldVal.domain
+					};
+				});
 			})
 	);
 
-	const [domTabs, setDomTabs] = useState<string[]>();
-	const [coDomTabs, setCoDomTabs] = useState<string[]>();
-	const [tabDom, setTabDom] = useState<string>();
-	const [tabCo, setTabCo] = useState<string>();
+	const [domTabs, setDomTabs] = useState<string[]>([]);
+	const [coDomTabs, setCoDomTabs] = useState<string[]>([]);
+	const [tabDom, setTabDom] = useState<string>('');
+	const [tabCo, setTabCo] = useState<string>('');
 	const [activeParams, setActiveParams] = useState<{ domain: string; coDomain: string }>({
 		domain: '',
 		coDomain: ''
@@ -43,11 +77,41 @@ const LineChartVisualization = ({ backend }) => {
 	const [coDomain, setCoDomain] = useState<string[]>();
 	const [lineData, setLineData] = useState<LineData[]>();
 
+	// useEffect(() => {
+	// 	// if (coDomain) {
+	// 	// 	console.log('codomain: ', Object.keys(coDomain[Object.keys(coDomain)[0]][0])[0]);
+	// 	// }
+	// 	if (coDomTabs && coDomTabs.length > 0 && coDomain) {
+	// 		setActiveParams((oldVal) => {
+	// 			console.log('old val', oldVal);
+	// 			return {
+	// 				domain: oldVal.domain,
+	// 				coDomain: Object.keys(coDomain[coDomTabs[0]][0])[0]
+	// 			};
+	// 		});
+	// 	}
+	// }, [coDomTabs, coDomain]);
+
 	useEffect(() => {
-		console.log(activeParams);
-		if (domain && coDomain && activeParams.domain && activeParams.coDomain) {
+		console.log('second');
+		if (
+			tabDom.length > 0 &&
+			tabCo.length > 0 &&
+			domain &&
+			coDomain &&
+			activeParams.domain &&
+			activeParams.coDomain
+		) {
 			let data = [];
 			for (let i = 0; i < 5; i++) {
+				// console.log('error3', domain[tabDom]);
+				// console.log('error2', domain[tabDom][i]);
+				// console.log('error1', activeParams.domain);
+				// console.log('error', domain[tabDom][i][activeParams.domain][0]);
+				console.log('params', activeParams);
+				console.log('tabDom', tabDom);
+				console.log('tabCo', tabCo);
+
 				data.push({
 					x: domain[tabDom][i][activeParams.domain][0].value,
 					y: coDomain[tabCo][i][activeParams.coDomain][0].value
@@ -55,7 +119,7 @@ const LineChartVisualization = ({ backend }) => {
 			}
 			setLineData(data);
 		}
-	}, [activeParams.domain, activeParams.coDomain]);
+	}, [activeParams.domain, activeParams.coDomain, tabCo, tabDom, domain, coDomain, activeParams]);
 
 	if (domainQuery.isLoading || coDomainQuery.isLoading) return <span>Loading...</span>;
 
@@ -71,10 +135,25 @@ const LineChartVisualization = ({ backend }) => {
 						{' '}
 						Domain:{' '}
 					</FormLabel>
-					<RadioButtons id='domain-radio-btns' tabs={domTabs} setTab={setTabDom} />
+					<RadioButtons
+						id='domain-radio-btns'
+						tabs={domTabs}
+						setTab={(tab) => {
+							setTabDom(() => {
+								setActiveParams((oldVal) => {
+									return {
+										coDomain: oldVal.coDomain,
+										domain: Object.keys(domain[tab][0])[0]
+									};
+								});
+								return tab;
+							});
+						}}
+					/>
 					<Select
 						id='domain-select'
-						onClick={(e) => {
+						onChange={(e) => {
+							console.log(e.target.value);
 							setActiveParams({
 								domain: e.target.value,
 								coDomain: activeParams.coDomain
@@ -92,10 +171,24 @@ const LineChartVisualization = ({ backend }) => {
 						{' '}
 						Codomain:{' '}
 					</FormLabel>
-					<RadioButtons id='codomain-radio-btns' tabs={coDomTabs} setTab={setTabCo} />
+					<RadioButtons
+						id='codomain-radio-btns'
+						tabs={coDomTabs}
+						setTab={(tab) => {
+							setTabCo(() => {
+								setActiveParams((oldVal) => {
+									return {
+										domain: oldVal.domain,
+										coDomain: Object.keys(coDomain[tab][0])[0]
+									};
+								});
+								return tab;
+							});
+						}}
+					/>
 					<Select
 						id='codomain-select'
-						onClick={(e) => {
+						onChange={(e) => {
 							setActiveParams({
 								domain: activeParams.domain,
 								coDomain: e.target.value

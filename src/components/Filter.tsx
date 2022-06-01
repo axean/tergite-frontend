@@ -39,9 +39,9 @@ const Filter: React.FC<FilterMenuProps> = ({ filter, setFilter }) => {
 					<MenuItemOption data-cy-filter-offline value='offline'>
 						Offline
 					</MenuItemOption>
-					<MenuItemOption data-cy-filter-other value='other'>
+					{/* <MenuItemOption data-cy-filter-other value='other'>
 						Other
-					</MenuItemOption>
+					</MenuItemOption> */}
 				</MenuOptionGroup>
 			</MenuList>
 		</Menu>

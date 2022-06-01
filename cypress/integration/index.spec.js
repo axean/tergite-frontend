@@ -12,8 +12,11 @@ describe('index page', () => {
 		cy.intercept('GET', ApiRoutes.device('Luki'), {
 			fixture: 'deviceLuki.json'
 		});
+		cy.intercept('GET', ApiRoutes.type1('Luki'), {
+			fixture: 'type1.json'
+		});
 		cy.visit('/');
-		// cy.wait(1000);
+		cy.wait(1000);
 	});
 
 	it('renders navbar', () => {
@@ -110,7 +113,9 @@ describe('index page', () => {
 	});
 	it('navigates back to index page', () => {
 		cy.get('[data-cy-device]').first().click();
+		cy.wait(3000);
 		cy.get('[data-cy-main-navbar]').get('a').first().click();
+		cy.wait(3000);
 		cy.url().should('equal', 'http://localhost:3000/');
 	});
 });

@@ -12,10 +12,11 @@ interface RadioButtonsProps {
 	tabs: string[];
 	setTab: (value: string) => void;
 	defaultTab?: string;
+	dataAttribute?: string;
 	id?: string;
 }
 
-const RadioButtons = ({ setTab, tabs, defaultTab, id }: RadioButtonsProps) => {
+const RadioButtons = ({ setTab, tabs, defaultTab, dataAttribute, id }: RadioButtonsProps) => {
 	return (
 		<Box
 			id={id}
@@ -25,7 +26,7 @@ const RadioButtons = ({ setTab, tabs, defaultTab, id }: RadioButtonsProps) => {
 			p='1'
 			m='2px'
 			w='fit-content'
-			data-cy-radiobutton
+			data-cy-radiobutton={dataAttribute ? dataAttribute : true}
 		>
 			<Tabs
 				variant='soft-rounded'

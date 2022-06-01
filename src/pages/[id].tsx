@@ -7,6 +7,8 @@ import { SmallConnectivityMap } from '../components/connectivityMap/Connectivity
 import { HistogramVisualization } from '../components/visualizations/HistogramVisualization';
 import NavbarVisualizations from '../components/NavbarVisualizations';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
+import CardBackend from '../components/CardBackend';
+import CityPlot from '../components/visualizations/cityplot';
 import BoxPlot from '../components/boxPlot/BoxPlot';
 import { GateErrorVisualization } from '../components/visualizations/GateErrorVisualization';
 import { useAllLayouts, useSelectionMaps } from '../state/BackendContext';
@@ -24,8 +26,10 @@ type VisualizationRoutes =
 
 const Detail = ({ id, type }) => {
 	const [isCollapsed, setCollapsed] = useState(false);
+
+	console.log(id);
 	const { isLoading, error, data } = useQuery<API.Response.DeviceDetail>('DetailPageEEEE', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/pingu').then((res) => res.json())
+		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + id).then((res) => res.json())
 	);
 	const { deviceLayouts, setDeviceLayouts } = useAllLayouts();
 	useEffect(() => {
@@ -80,7 +84,7 @@ const VisualizationPanel = ({ isCollapsed, type }) => {
 		case 'Tableview':
 			return <TableVisualization backend={id} />;
 		case 'Cityplot':
-			return <>Cityplot</>;
+			return <CityPlot backend={id} />;
 		default:
 			return <QubitVisualization isCollapsed={isCollapsed} />;
 	}

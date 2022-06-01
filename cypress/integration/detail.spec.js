@@ -12,6 +12,10 @@ describe('detail page', () => {
 		cy.intercept('GET', ApiRoutes.device('Luki'), {
 			fixture: 'deviceLuki.json'
 		});
+		cy.intercept('GET', ApiRoutes.type1('Luki'), {
+			fixture: 'type1.json'
+		});
+
 		cy.visit('/Luki');
 	});
 
@@ -34,6 +38,7 @@ describe('detail page', () => {
 			cy.get('[data-cy-description]').should('contain', device.description);
 		});
 	});
+
 	it('collapses sidepanel', () => {
 		cy.get('[data-cy-collapse-button]').click();
 		cy.get('[data-cy-sidepanel]').should('not.exist');
