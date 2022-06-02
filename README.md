@@ -91,11 +91,11 @@ pnpm run dev
 
 In the root of the project there are two main folders, src and cypress. The src folder contains all of the source files for the application. The cypress folder contains the cypress tests. The rest of the files in the root directory are configuration files.
 
-![chrome_CUn0Qy04ha.png](Frontend%20docs%20e9a7187cb5ac4b85b75f2a3e1f467cfc/chrome_CUn0Qy04ha.png)
+![chrome_CUn0Qy04ha.png](chrome_CUn0Qy04ha.png)
 
 ## Src
 
-![chrome_RcLThJAXAx.png](Frontend%20docs%20e9a7187cb5ac4b85b75f2a3e1f467cfc/chrome_RcLThJAXAx.png)
+![chrome_RcLThJAXAx.png](chrome_RcLThJAXAx.png)
 
 **Components**
 
