@@ -117,9 +117,9 @@ This folder is used for any utility objects/functions.
 
 # Contact
 
-Vlad Dragos vladinatorr@gmail.com
-Jamal Aldiwani plwgamaldiwani@gmail.com
-David Andreasson daandre@student.chalmers.se
-Karl Gunnarsson karlgunnarsson98@gmail.com
-Alexander Jyborn alexander.jyborn@gmail.com
-Lucas Karlsson lucaskode@gmail.com
+Vlad Dragos vladinatorr@gmail.com  
+Jamal Aldiwani plwgamaldiwani@gmail.com  
+David Andreasson daandre@student.chalmers.se  
+Karl Gunnarsson karlgunnarsson98@gmail.com  
+Alexander Jyborn alexander.jyborn@gmail.com  
+Lucas Karlsson lucaskode@gmail.com  
