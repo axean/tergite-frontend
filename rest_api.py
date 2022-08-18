@@ -13,7 +13,8 @@
 from fastapi import FastAPI, Body
 from uuid import uuid4, UUID
 import motor.motor_asyncio
-from starlette.config import Config
+
+# from starlette.config import Config
 from datetime import datetime
 import pymongo
 import settings
@@ -26,7 +27,8 @@ DB_NAME = settings.DB_NAME
 # mongodb
 mongodb = motor.motor_asyncio.AsyncIOMotorClient(str(DB_MACHINE_ROOT_URL))
 db = mongodb[DB_NAME]
-jobs_col = db["jobs"]
+jobs_col = db["jobs"]  # job collection
+calib_col = db["calibrations"]  # experimentally measured data
 
 # application
 app = FastAPI(
@@ -35,15 +37,21 @@ app = FastAPI(
     version="0.0.1",
 )
 
+
+def new_timestamp():
+    return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+
+
 # routing
 @app.get("/")
 async def root():
     return "Welcome to the MSS machine"
 
 
+# insert new job in the job collection
 @app.post("/jobs")
 async def create_job():
-    timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+    timestamp = new_timestamp()
     job_id = uuid4()
 
     job_entry = {
@@ -65,6 +73,42 @@ async def create_job():
     }
 
 
+# insert new calibrated quantity of interest
+@app.post("/calibrations")
+async def store_calibration(documents: list):
+
+    # mark all documents with timestamp
+    timestamp = new_timestamp()
+    for doc in documents:
+        doc.update({"timelog": {"REGISTERED": timestamp}})
+
+    # insert timestamped documents as they appear
+    response = await calib_col.insert_many(documents)
+
+    if response.acknowledged == True:
+        print(f"Inserted {len(documents)} calibrated values")
+        return "OK"
+    elif response.acknowledged:
+        return {"message": "Failed POST", "raw_result": response.raw_result}
+    else:
+        return {"message": "Failed POST. Operation not acknowledged"}
+
+
+# list the latest calibrations
+@app.get("/calibrations")
+async def list_calibrations(nlast: int = 10):
+    db_cursor = calib_col.find({}, {"_id": 0})
+    db_cursor.sort("timelog.REGISTERED", pymongo.DESCENDING)
+    db_cursor.limit(nlast)
+
+    response = []
+    async for document in db_cursor:
+        response.append(document)
+
+    return response
+
+
+# list the latest jobs
 @app.get("/jobs")
 async def list_jobs(nlast: int = 10):
     db_cursor = jobs_col.find({}, {"_id": 0})
@@ -172,7 +216,7 @@ async def update_job_download_url(job_id: UUID, url: str = Body(..., max_length=
 @app.post("/jobs/{job_id}/timelog")
 async def create_timelog_entry(job_id: UUID, event_name: str = Body(..., max_legth=10)):
     # TODO: would be best to enforce an event_name str enum
-    timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+    timestamp = new_timestamp()
     response = await jobs_col.update_one(
         {"job_id": str(job_id)}, {"$set": {"timelog." + event_name: timestamp}}
     )
