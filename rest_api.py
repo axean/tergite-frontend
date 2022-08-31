@@ -46,6 +46,7 @@ REGSORT = {"key_or_list": "timelog.REGISTERED", "direction": pymongo.DESCENDING}
 def new_timestamp():
     return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
+
 async def retrieve_using_tag(search_filter: dict, collection: object, /) -> dict:
     document = await collection.find_one(search_filter, {"_id": 0})
     if document is None:
