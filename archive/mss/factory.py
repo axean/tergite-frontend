@@ -15,14 +15,14 @@ from flask import Flask
 from flask_cors import CORS
 from mss.api.routes import mss_routes
 
+
 def create_app():
     app = Flask(__name__)
     CORS(app)
     app.register_blueprint(mss_routes)
 
-    @app.route('/')
+    @app.route("/")
     def serve():
         return "Welcome to Main Service Server (MSS)"
 
     return app
-

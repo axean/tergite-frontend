@@ -1,6 +1,7 @@
 # This code is part of Tergite
 #
 # (C) Copyright Miroslav Dobsicek 2021
+# (C) Copyright Abdullah-Al Amin 2021
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -21,6 +22,9 @@ REQUIREMENTS = [
     "requests>=2.25.1",
     "rq>=1.8.1",
     "uvicorn>=0.13.4",
+    "aiohttp>=3.8.1",
+    "websockets>=10.3",
+    "tomli>=2.0.1",
 ]
 
 setup(

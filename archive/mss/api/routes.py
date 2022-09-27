@@ -16,14 +16,13 @@ from flask import jsonify, Blueprint, current_app, g, request
 from werkzeug.local import LocalProxy
 from mss.db import get_t1
 
-mss_routes = Blueprint('mss_routes','mss_routes')
+mss_routes = Blueprint("mss_routes", "mss_routes")
 CORS(mss_routes)
 
-@mss_routes.route('/t1', methods=['GET'])
+
+@mss_routes.route("/t1", methods=["GET"])
 def api_get_t1():
-    nlast = int(request.args.get('nlast',1))
+    nlast = int(request.args.get("nlast", 1))
     results = get_t1(nlast)
     print(results)
     return jsonify(results)
-
-

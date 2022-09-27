@@ -1,6 +1,7 @@
 # This code is part of Tergite
 #
-# (C) Copyright Miroslav Dobsicek 2019
+# (C) Copyright Simon Genne, Arvid Holmqvist, Bashar Oumari, Jakob Ristner,
+#               Björn Rosengren, and Jakob Wik 2022 (BSc project)
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,16 +12,17 @@
 # that they have been altered from the originals.
 
 
-from mss.factory import create_app
+from pydantic import BaseModel
+from api.dto.NDUV import NDUV, List
 
-from os import path
-import configparser
 
-config = configparser.ConfigParser()
-config.read(path.abspath(path.join("config.ini")))
+class ResonatorConfig(BaseModel):
+    id: int
+    x: int
+    y: int
+    readout_line: int
 
-app = create_app()
-app.config["DB_URI"] = config["DATABASE"]["DB_URI"]
 
-if __name__ == "__main__":
-    app.run()
+class Resonator(ResonatorConfig):
+    dynamic_properties: List[NDUV]
+    static_properties: List[NDUV]

@@ -1,6 +1,7 @@
 # This code is part of Tergite
 #
-# (C) Copyright Miroslav Dobsicek 2019
+# (C) Copyright Simon Genne, Arvid Holmqvist, Bashar Oumari, Jakob Ristner,
+#               Björn Rosengren, and Jakob Wik 2022 (BSc project)
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,16 +12,14 @@
 # that they have been altered from the originals.
 
 
-from mss.factory import create_app
+from datetime import datetime
 
-from os import path
-import configparser
+from pydantic import BaseModel
+from api.utils.datetime_utils import datetime_to_zulu
 
-config = configparser.ConfigParser()
-config.read(path.abspath(path.join("config.ini")))
 
-app = create_app()
-app.config["DB_URI"] = config["DATABASE"]["DB_URI"]
-
-if __name__ == "__main__":
-    app.run()
+class ZEncodedBaseModel(BaseModel):
+    class Config:
+        json_encoders = {
+            datetime: datetime_to_zulu,
+        }

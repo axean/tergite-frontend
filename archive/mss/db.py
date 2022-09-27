@@ -17,6 +17,7 @@ import json
 
 from pymongo import MongoClient, DESCENDING
 
+
 def get_db():
     db = getattr(g, "_database", None)
     DB_URI = current_app.config["DB_URI"]
@@ -28,16 +29,16 @@ def get_db():
 
     return db
 
+
 db = LocalProxy(get_db)
 
 # db.t1_mon.find({}).sort({date:-1}).limit(3)
 
-def get_t1(nlast = 1):
-    #return list(db.t1_mon.find({},{"_id:0"}).sort({"date": DESCENDING}).limit(nlast))
-    cursor = db.t1_mon.find({},{"_id":0}).sort([("date", DESCENDING)]).limit(nlast)
+
+def get_t1(nlast=1):
+    # return list(db.t1_mon.find({},{"_id:0"}).sort({"date": DESCENDING}).limit(nlast))
+    cursor = db.t1_mon.find({}, {"_id": 0}).sort([("date", DESCENDING)]).limit(nlast)
     response = []
     for document in cursor:
         response.append(document)
     return response
-
-

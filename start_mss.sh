@@ -11,5 +11,9 @@ PORT_NUMBER="${PORT_CONFIG#*=}"                  # extract the number
 [[ -z "$PORT_NUMBER" ]]  &&  exit_with_error     # validation
 [[ ! "$PORT_NUMBER" =~ ^[0-9]+$ ]]  &&  exit_with_error
 
+
 # rest-api
 uvicorn --host 0.0.0.0 --port "$PORT_NUMBER" rest_api:app --reload
+
+# websocket server
+# python3 ws_main.py &

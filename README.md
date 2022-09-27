@@ -10,5 +10,8 @@
 * create .env file with MSS configuration. See dot-env-template.txt.
 
 ## Start
+### To start the Main Service Server(MSS):
 * ./start_mss.sh
 
+### (optional) To strat the web socket server for webgui:
+* python3 ws_main.py

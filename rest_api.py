@@ -1,6 +1,10 @@
 # This code is part of Tergite
 #
 # (C) Copyright Miroslav Dobsicek 2020
+# (C) Copyright Simon Genne, Arvid Holmqvist, Bashar Oumari, Jakob Ristner,
+#               Björn Rosengren, and Jakob Wik 2022 (BSc project)
+# (C) Copyright Fabian Forslund, Niklas Botö 2022
+# (C) Copyright Abdullah-Al Amin 2022
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,13 +16,17 @@
 
 from fastapi import FastAPI, Body
 from uuid import uuid4, UUID
-import motor.motor_asyncio
-
-# from starlette.config import Config
+from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime
 import pymongo
 import settings
+
+# Imports for Webgui
 import functools
+from fastapi.middleware.cors import CORSMiddleware
+from api.routers import devices
+from api.services import service
+
 
 # settings
 BCC_MACHINE_ROOT_URL = settings.BCC_MACHINE_ROOT_URL
@@ -26,11 +34,12 @@ DB_MACHINE_ROOT_URL = settings.DB_MACHINE_ROOT_URL
 DB_NAME = settings.DB_NAME
 
 # mongodb
-mongodb = motor.motor_asyncio.AsyncIOMotorClient(str(DB_MACHINE_ROOT_URL))
+mongodb = AsyncIOMotorClient(str(DB_MACHINE_ROOT_URL))
 db = mongodb[DB_NAME]
 jobs_col = db["jobs"]  # job collection
 calib_col = db["calibrations"]  # experimentally measured data
 backend_col = db["backends"]  # quantum device backend data
+
 
 # application
 app = FastAPI(
@@ -39,8 +48,10 @@ app = FastAPI(
     version="0.0.1",
 )
 
+
 # ------------ Sorting templates ------------ #
 REGSORT = {"key_or_list": "timelog.REGISTERED", "direction": pymongo.DESCENDING}
+
 
 # ------------ Helper functions ------------ #
 def new_timestamp():
@@ -253,3 +264,22 @@ def update_job_download_url(job_id: UUID, url: str = Body(..., max_length=140)):
 def update_timelog_entry(job_id: UUID, event_name: str = Body(..., max_legth=10)):
     timestamp = new_timestamp()
     return {"job_id": str(job_id)}, {"$set": {"timelog." + event_name: timestamp}}, "OK"
+
+
+# Webgui Public services
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.on_event("startup")
+async def startup_event():
+    await service.on_startup()
+
+
+app.include_router(devices.router)
