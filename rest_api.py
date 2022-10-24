@@ -175,6 +175,9 @@ async def read_jobs(nlast: int = 10):
 async def read_backend(backend_name: str):
     return await retrieve_using_tag({"backend_name": backend_name}, backend_col)
 
+@app.get("/calibrations/{job_id}")
+async def read_calibration(job_id: UUID):
+    return await retrieve_using_tag({"job_id": str(job_id)}, calib_col)
 
 @app.get("/jobs/{job_id}")
 async def read_job(job_id: UUID):
@@ -238,7 +241,6 @@ def create_calibration_documents(documents: list):
 
 
 # ------------ UPDATE OPERATIONS ------------ #
-
 
 @app.put("/jobs/{job_id}/result")
 @update_documents(collection="jobs")
