@@ -175,6 +175,11 @@ async def read_jobs(nlast: int = 10):
 async def read_backend(backend_name: str):
     return await retrieve_using_tag({"backend_name": backend_name}, backend_col)
 
+
+@app.get("/rng/{job_id}")
+async def read_rng(job_id: UUID):
+    return await retrieve_using_tag({"job_id": str(job_id)}, db["rng"])
+
 @app.get("/calibrations/{job_id}")
 async def read_calibration(job_id: UUID):
     return await retrieve_using_tag({"job_id": str(job_id)}, calib_col)
@@ -239,6 +244,21 @@ def create_backend_document(backend_dict: dict):
 def create_calibration_documents(documents: list):
     return documents, "OK"
 
+@app.post("/random")
+@create_new_documents(collection="rng")
+def create_rng_documents(documents: list):
+    """
+        Store documents containing batches of random numbers.
+        One document is one batch of random numbers requested by a user.
+
+        Document schema: {
+            job_id : str,   # id of the job, queued by the user
+            numbers : list, # the random integers
+            N : int,        # how many integers did the user request
+            width : int     # how many bits is the integer, 32, 64, etc.
+        }
+    """
+    return documents, "OK"
 
 # ------------ UPDATE OPERATIONS ------------ #
 
