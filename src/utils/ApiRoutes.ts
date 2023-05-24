@@ -1,4 +1,4 @@
-const ApiBaseUrl = 'http://qtl-webgui-2.mc2.chalmers.se:8080';
+const ApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 /**
 if only period is given then the function returns the string 'period'.

@@ -4,16 +4,14 @@ import { useQuery } from 'react-query';
 import { BackendContext, MapActions } from '../../state/BackendContext';
 import ConnectivityMap from '../connectivityMap/';
 import Graph3D from 'react-graph3d-vis';
+import ApiRoutes from '../../utils/ApiRoutes';
 
 const Cityplot: React.FC<{ backend: any }> = ({ backend }) => {
 	const data1 = [];
 
 	const { isLoading, error, data } = useQuery(
 		'QubitVisualization',
-		async () =>
-			await fetch(
-				'http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend + '/type5'
-			).then((res) => res.json())
+		async () => await fetch(`${ApiRoutes.devices}/${backend}/type5`).then((res) => res.json())
 	);
 
 	if (isLoading || error) return <div> loading... </div>;

@@ -4,6 +4,7 @@ import { ParentSize } from '@visx/responsive';
 import { useEffect, useState } from 'react';
 import LineChart from '../lineChart/LineChart';
 import RadioButtons from '../RadioButtons';
+import ApiRoutes from '../../utils/ApiRoutes';
 
 export interface LineData {
 	x: number;
@@ -12,7 +13,7 @@ export interface LineData {
 
 const LineChartVisualization = ({ backend }) => {
 	const domainQuery = useQuery('linechartDomain', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend + '/type4_domain')
+		fetch(`${ApiRoutes.devices}/${backend}/type4_domain`)
 			.then((res) => res.json())
 			.then((json) => {
 				let keys = Object.keys(json);
@@ -38,7 +39,7 @@ const LineChartVisualization = ({ backend }) => {
 	);
 
 	const coDomainQuery = useQuery('linechartCodomain', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend + '/type4_codomain')
+		fetch(`${ApiRoutes.devices}/${backend}/type4_codomain`)
 			.then((res) => res.json())
 			.then((json) => {
 				let keys = Object.keys(json);

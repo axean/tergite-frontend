@@ -6,6 +6,7 @@ import CouplerTable from '../tableView/CouplerTable';
 import GateTable from '../tableView/GateTable';
 import QubitTable from '../tableView/QubitTable';
 import ResonatorTable from '../tableView/ResonatorTable';
+import ApiRoutes from '../../utils/ApiRoutes';
 
 interface TableVisualizationProps {
 	backend: string | string[];
@@ -15,9 +16,7 @@ const TableVisualization = ({ backend }: TableVisualizationProps) => {
 	const [tab, setTab] = useState('Qubits');
 
 	const { isLoading, data, error } = useQuery('tableQuery', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend + '/data').then((res) =>
-			res.json()
-		)
+		fetch(`${ApiRoutes.devices}/${backend}/data`).then((res) => res.json())
 	);
 
 	if (isLoading) return <span>Loading</span>;

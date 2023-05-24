@@ -5,6 +5,7 @@ import { BackendContext, useSelectionMaps } from '../../state/BackendContext';
 import BoxPlot from '../boxPlot/BoxPlot';
 import DatePicker from '../DatePicker';
 import { VisualizationSkeleton } from '../VisualizationSkeleton';
+import ApiRoutes from '../../utils/ApiRoutes';
 
 interface GateErrorVisualizationProps {
 	backend: string | string[];
@@ -16,12 +17,9 @@ export const GateErrorVisualization: React.FC<GateErrorVisualizationProps> = ({ 
 
 	const { isLoading, data, error, refetch, isFetching } = useQuery('gateError', () =>
 		fetch(
-			'http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' +
-				backend +
-				'/type3/period?from=' +
-				state.timeFrom.toISOString() +
-				'&to=' +
-				state.timeTo.toISOString()
+			`${
+				ApiRoutes.devices
+			}/${backend}/type3/period?from=${state.timeFrom.toISOString()}&to=${state.timeTo.toISOString()}`
 		).then((res) => res.json())
 	);
 	useLayoutEffect(() => {

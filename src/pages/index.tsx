@@ -7,11 +7,12 @@ import Sort from '../components/Sort';
 import { WacqtInfoCard } from '../components/WacqtInfoCard';
 import { useQuery } from 'react-query';
 import GridBackends from '../components/GridBackends';
+import ApiRoutes from '../utils/ApiRoutes';
 
 const Index = () => {
 	// Just use setBackends and data when backend fixed the cors errors
 	const { isLoading, data, error } = useQuery<API.Response.Devices>('backendOverview', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/').then((res) => res.json())
+		fetch(`${ApiRoutes.devices}/`).then((res) => res.json())
 	);
 
 	const [search, setSearch] = useState('');

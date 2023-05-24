@@ -12,6 +12,7 @@ import {
 import { facadeType1 } from '../../utils/facade';
 import ConnectivityMap from '../connectivityMap/';
 import RadioButtons from '../RadioButtons';
+import ApiRoutes from '../../utils/ApiRoutes';
 
 type QubitVisualizationProps = {
 	isCollapsed: boolean;
@@ -19,9 +20,7 @@ type QubitVisualizationProps = {
 const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) => {
 	const router = useRouter();
 	const { isLoading, error, data } = useQuery<API.Response.Type1>('QubitVisualizationType1', () =>
-		fetch(`http://qtl-webgui-2.mc2.chalmers.se:8080/devices/${router.query.id}/type1`).then(
-			(res) => res.json()
-		)
+		fetch(`${ApiRoutes.devices}/${router.query.id}/type1`).then((res) => res.json())
 	);
 	const { deviceLayouts } = useAllLayouts();
 	const rerenderRef = useRef(isCollapsed);

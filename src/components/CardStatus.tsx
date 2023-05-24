@@ -1,10 +1,11 @@
 import React from 'react';
 import { Text, CircularProgress, CircularProgressLabel, Flex } from '@chakra-ui/react';
 import { useQuery } from 'react-query';
+import ApiRoutes from '../utils/ApiRoutes';
 
 const CardStatus = () => {
 	const { isLoading, data, error } = useQuery('backendStatus', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/online_statuses').then((res) => {
+		fetch(`${ApiRoutes.devices}/online_statuses`).then((res) => {
 			return res.json();
 		})
 	);

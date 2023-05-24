@@ -15,6 +15,7 @@ import { useAllLayouts, useSelectionMaps } from '../state/BackendContext';
 import { facadeDeviceDetail } from '../utils/facade';
 import LineChartVisualization from '../components/visualizations/LineChartVisualization';
 import TableVisualization from '../components/visualizations/TableVisualization';
+import ApiRoutes from '../utils/ApiRoutes';
 
 type VisualizationRoutes =
 	| 'Qubitmap'
@@ -29,7 +30,7 @@ const Detail = ({ id, type }) => {
 
 	console.log(id);
 	const { isLoading, error, data } = useQuery<API.Response.DeviceDetail>('DetailPageEEEE', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + id).then((res) => res.json())
+		fetch(`${ApiRoutes.devices}/${id}`).then((res) => res.json())
 	);
 	const { deviceLayouts, setDeviceLayouts } = useAllLayouts();
 	useEffect(() => {
@@ -110,9 +111,7 @@ function SidePanel({ isCollapsed, setCollapsed, MdFirstPage, backend, type }) {
 		type !== 'Linegraph' &&
 		type !== 'Tableview';
 	const { isLoading, data, error } = useQuery<API.Response.DeviceDetail>('backendDetail', () =>
-		fetch('http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' + backend).then((res) =>
-			res.json()
-		)
+		fetch(`${ApiRoutes.devices}/${backend}`).then((res) => res.json())
 	);
 
 	const { showLinkSelectorMap, showNodeSelectorMap } = useSelectionMaps();

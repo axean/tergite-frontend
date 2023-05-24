@@ -48,6 +48,12 @@ install dependencies
 pnpm i
 ```
 
+Copy the `.env` file to `.env.local` and update the secret variables in `.env.local`
+
+```
+cp .env .env.local
+```
+
 run dev server 
 
 ```bash

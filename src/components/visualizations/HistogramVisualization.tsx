@@ -6,6 +6,7 @@ import DatePicker from '../DatePicker';
 import Histogram from '../histogram/Histogram';
 import RadioButtons from '../RadioButtons';
 import { VisualizationSkeleton } from '../VisualizationSkeleton';
+import ApiRoutes from '../../utils/ApiRoutes';
 
 interface HistogramVisualizationProps {
 	backend: string | string[];
@@ -17,12 +18,9 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 
 	const { isLoading, data, error, refetch, isFetching } = useQuery('histogramData', () =>
 		fetch(
-			'http://qtl-webgui-2.mc2.chalmers.se:8080/devices/' +
-				backend +
-				'/type2/period?from=' +
-				state.timeFrom.toISOString() +
-				'&to=' +
-				state.timeTo.toISOString()
+			`${
+				ApiRoutes.devices
+			}/${backend}/type2/period?from=${state.timeFrom.toISOString()}&to=${state.timeTo.toISOString()}`
 		).then((res) => res.json())
 	);
 
