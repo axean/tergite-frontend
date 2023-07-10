@@ -1,0 +1,30 @@
+image: node:18-alpine
+pipelines:
+  default:
+    - step:
+        name: Code linting
+        caches:
+          - node
+        script:
+          - npm i -g pnpm
+          - pnpm i
+          - next lint
+    - step:
+        name: Build and test
+        caches:
+          - node
+        script:
+          - pnpm run e2e
+        artifacts:
+          - .next/**
+    # - step:
+    #     name: Deploy artifacts using SCP to STAGING
+    #     deployment: staging
+    #     script:
+    #       # You need to set up pipelines SSH keys first. Read https://support.atlassian.com/bitbucket-cloud/docs/set-up-pipelines-ssh-keys-on-linux/#Update-the-known-hosts
+    #       - pipe: atlassian/scp-deploy:0.3.3
+    #         variables:
+    #           USER: $USER
+    #           SERVER: $SERVER
+    #           REMOTE_PATH: '/home/ahindura/repos/tergite-webgui'
+    #           LOCAL_PATH: '.next/*'
