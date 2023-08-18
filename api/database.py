@@ -18,12 +18,6 @@ from datetime import datetime
 
 from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorClient
 
-# from settings import DB_MACHINE_ROOT_URL, DB_NAME
-
-# client = motor.motor_asyncio.AsyncIOMotorClient(str(DB_MACHINE_ROOT_URL))
-# collection = client[str(DB_NAME)]["data"]
-# config_collection = client[str(DB_NAME)]["config"]
-
 
 # Code section deletes entries from data base
 # Used for test purposes

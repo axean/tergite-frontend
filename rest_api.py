@@ -33,13 +33,6 @@ BCC_MACHINE_ROOT_URL = settings.BCC_MACHINE_ROOT_URL
 DB_MACHINE_ROOT_URL = settings.DB_MACHINE_ROOT_URL
 DB_NAME = settings.DB_NAME
 
-# mongodb
-# mongodb = AsyncIOMotorClient(str(DB_MACHINE_ROOT_URL))
-# db = mongodb[DB_NAME]
-# jobs_col = db["jobs"]  # job collection
-# calib_col = db["calibrations"]  # experimentally measured data
-# backend_col = db["backends"]  # quantum device backend data
-
 
 # application
 app = FastAPI(
