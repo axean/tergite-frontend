@@ -15,6 +15,11 @@
 from datetime import datetime, timezone
 from fastapi import HTTPException
 
+import settings
+
+
+_DATETIME_PRECISION = settings.DATETIME_PRECISION
+
 
 def parse_datetime_string(datetime_str: str) -> datetime:
     """
@@ -36,4 +41,10 @@ def datetime_to_zulu(d: datetime) -> str:
     Returns the given datetime object in string format with an ending Z.
     """
 
-    return d.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+    # FIXME: mongo db saves timestamps only up to the millisecond level. For more precision, save the timestamp
+    #   as an integer thus you will need to change your pydantic model to have an int not a datetime
+    return (
+        d.astimezone(timezone.utc)
+        .isoformat(timespec=_DATETIME_PRECISION)
+        .replace("+00:00", "Z")
+    )

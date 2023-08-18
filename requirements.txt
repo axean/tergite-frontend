@@ -8,3 +8,10 @@ uvicorn>=0.13.4
 aiohttp>=3.8.1
 websockets>=10.3
 tomli>=2.0.1
+isort
+black
+pytest
+pytest-lazy-fixture
+pytest-asyncio
+httpx
+pytest-mock

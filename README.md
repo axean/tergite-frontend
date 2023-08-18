@@ -7,7 +7,7 @@
 ## Package installation
 * cd tergite-mss
 * pip install -e .
-* create .env file with MSS configuration. See dot-env-template.txt.
+* create .env file with MSS configuration. See .env.example
 
 ## Start
 ### To start the Main Service Server(MSS):

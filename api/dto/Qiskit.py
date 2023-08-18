@@ -15,14 +15,16 @@
 from datetime import datetime
 from pydantic import BaseModel
 from api.dto.ZEncodedBaseModel import ZEncodedBaseModel
-from typing import List
+from typing import List, Optional
 
 
 class QiskitNDUV(BaseModel):
     name: str
     date: datetime
     unit: str
-    value: float
+    value: Optional[
+        float
+    ]  # FIXME: the data in the database has nulls in this property for some records
 
 
 class QiskitGate(BaseModel):

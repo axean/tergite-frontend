@@ -19,7 +19,7 @@ from api.dto.DeviceConfiguration import PrivateBackendConfiguration, QiskitConfi
 from typing import List, Union
 
 
-async def private_backend_config_to_qiskit_format(
+def private_backend_config_to_qiskit_format(
     config: PrivateBackendConfiguration,
 ) -> QiskitConfiguration:
     """
@@ -35,7 +35,8 @@ async def private_backend_config_to_qiskit_format(
         config.qubits,
     )
 
-    config_dict = dict(config) | {
+    config_dict = {
+        **dict(config),
         "coupling_map": qiskit_coupling_map,
         "gates": qiskit_gates,
     }
