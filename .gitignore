@@ -130,4 +130,4 @@ config.ini
 # nohup
 nohup.out
 
-./idea
+.idea/
