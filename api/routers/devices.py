@@ -23,7 +23,7 @@ from api.dto.FilteredDeviceData import FilteredComponent, FilteredDeviceData
 from api.dto.Device import DeviceData, DeviceInfo, DevicesSimpleInfo
 from api.dto.VisualisationType import VisualisationType
 from api.services import service
-from deps import MongoDbDep
+from mongodb_dependency import MongoDbDep
 
 router = APIRouter(prefix="/devices", tags=["devices"])
 

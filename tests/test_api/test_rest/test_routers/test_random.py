@@ -7,7 +7,7 @@ from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection
 from tests._utils.records import pop_field
 
-_RNG_LIST = load_json_fixture("many_rngs.json")
+_RNG_LIST = load_json_fixture("rng_list.json")
 _JOB_IDS = [item["job_id"] for item in _RNG_LIST]
 _COLLECTION = "rng"
 _EXCLUDED_FIELDS = ["_id"]

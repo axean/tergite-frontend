@@ -26,7 +26,7 @@ import functools
 from fastapi.middleware.cors import CORSMiddleware
 from api.routers import devices
 from api.services import service
-from deps import MongoDbDep
+from mongodb_dependency import MongoDbDep
 
 # settings
 BCC_MACHINE_ROOT_URL = settings.BCC_MACHINE_ROOT_URL

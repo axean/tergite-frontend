@@ -7,7 +7,7 @@ from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection
 from tests._utils.records import order_by, pop_field
 
-_CALIBRATIONS_LIST = load_json_fixture("many_calibrations.json")
+_CALIBRATIONS_LIST = load_json_fixture("calibration_list.json")
 _JOB_IDS = [item["job_id"] for item in _CALIBRATIONS_LIST]
 _COLLECTION = "calibrations"
 _EXCLUDED_FIELDS = ["_id"]

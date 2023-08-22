@@ -10,7 +10,7 @@ from tests._utils.records import order_by, pop_field
 _STATUSES = ["DONE", "REGISTERED", "EXECUTING"]
 _URLS = ["http://example.com", "http://foo.com", "http://bar.com"]
 _DEFAULT_MEMORY_LIST = ["0x0", "0x1", "0x0", "0x0", "0x0", "0x1"]
-_JOBS_LIST = load_json_fixture("many_jobs.json")
+_JOBS_LIST = load_json_fixture("job_list.json")
 _JOB_IDS = [item["job_id"] for item in _JOBS_LIST]
 _MEMORY_LIST = [
     [f"{index}-{v}" for v in _DEFAULT_MEMORY_LIST]

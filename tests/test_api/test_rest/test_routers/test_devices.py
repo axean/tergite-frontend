@@ -47,9 +47,9 @@ _ENDPOINTS_MAP = app_config["ENDPOINTS_URL"]
 _ENDPOINT_RESPONSE_MAP = {
     addr: 200 if is_even(i) else 408 for i, addr in enumerate(_ENDPOINTS_MAP.values())
 }
-_BACKENDS_LIST = load_json_fixture("many_backends.json")
-_DEVICE_DATA_LIST = load_json_fixture("many_device_data.json")
-_DEVICE_CONFIG_LIST = load_json_fixture("many_device_config.json")
+_BACKENDS_LIST = load_json_fixture("backend_list.json")
+_DEVICE_DATA_LIST = load_json_fixture("device_data_list.json")
+_DEVICE_CONFIG_LIST = load_json_fixture("device_config_list.json")
 
 _DEVICE_NAMES = list(set([item["backend_name"] for item in _DEVICE_DATA_LIST]))
 _ONLINE_STATUS_MAP = {

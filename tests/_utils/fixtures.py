@@ -24,8 +24,8 @@ def _get_fixture_path(*paths: str) -> str:
     """Gets the path to the fixture
 
     Args:
-        paths: sections of paths to the given fixture e.g. fixtures/api/rest/many_rngs.json
-            would be "api", "rest", "many_rngs.json"
+        paths: sections of paths to the given fixture e.g. fixtures/api/rest/rng_list.json
+            would be "api", "rest", "rng_list.json"
 
     Returns:
         the path to the given fixture
