@@ -2,11 +2,11 @@
 
 We love your input! We want to make contributing to this project as easy and transparent as possible, whether it's:
 
-- Reporting a bug
-- Discussing the current state of the code
-- Submitting a fix
-- Proposing new features
-- Becoming a maintainer
+-   Reporting a bug
+-   Discussing the current state of the code
+-   Submitting a fix
+-   Proposing new features
+-   Becoming a maintainer
 
 ## We Develop with Bitbucket
 
@@ -42,19 +42,19 @@ Here's [another example from Craig Hockenberry](http://www.openradar.me/11905408
 
 **Great Bug Reports** tend to have:
 
-- A quick summary and/or background
-- Steps to reproduce
-  - Be specific!
-  - Give sample code if you can.
-- What you expected would happen
-- What actually happens
-- Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
+-   A quick summary and/or background
+-   Steps to reproduce
+    -   Be specific!
+    -   Give sample code if you can.
+-   What you expected would happen
+-   What actually happens
+-   Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
 
 People _love_ thorough bug reports. I'm not even kidding.
 
 ## Use a Consistent Coding Style
 
-- Use [eslint](https://eslint.org/)
+-   Use [eslint](https://eslint.org/)
 
 ## License
 
@@ -62,35 +62,35 @@ By contributing, you agree that your contributions will be licensed under its Ap
 
 ### Contributors
 
-- Martin Ahindura 2023
+-   Martin Ahindura 2023
 
 ## How to Test
 
-- Ensure you have [nodejs +v18.16.0](https://nodejs.org/en/download) installed
+-   Ensure you have [nodejs +v18.16.0](https://nodejs.org/en/download) installed
 
-- Clone the repo
+-   Clone the repo
 
 ```shell
 git clone git@github.com:tergite/tergite-qal9000.git
 ```
 
-- Install dependencies
+-   Install dependencies
 
 ```shell
 cd tergite-qal9000
 npm install
 ```
 
-- Lint
+-   Lint
 
 ```shell
 npm run lint
 ```
 
-- Run end-to-end tests
+-   Run end-to-end tests
 
 ```shell
-npm test
+npm run e2e
 ```
 
 ## References
@@ -99,3 +99,4 @@ This document was adapted from [a gist by Brian A. Danielak](https://gist.github
 was originally adapted from
 the open-source contribution guidelines
 for [Facebook's Draft](https://github.com/facebook/draft-js/blob/a9316a723f9e918afde44dea68b5f9f39b7d9b00/CONTRIBUTING.md)
+
