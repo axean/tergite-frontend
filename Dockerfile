@@ -42,3 +42,8 @@ RUN rm -rf ./*
 # Copy the files from the static next export
 COPY ./dist /usr/share/nginx/html
 
+LABEL org.opencontainers.image.licenses=APACHE-2.0
+LABEL org.opencontainers.image.description="Landing page for the QAL9000 project at Chalmers University"
+
+EXPOSE 80
+
