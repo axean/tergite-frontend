@@ -34,6 +34,8 @@ pipelines:
             - echo "DB_MACHINE_ROOT_URL=${DB_MACHINE_ROOT_URL}" >> .env
             # you could use the single private repo available to every free docker account
             # $DOCKER_USERNAME and $DOCKER_PASSWORD are a custom bitbucket secrets
+            # Or better still, we could just use Github Container registries which gives us more private containers
+            # https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#pushing-container-images
             - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
             - docker build -t tergite-mss:$BITBUCKET_TAG .
             - docker push tergite-mss:$BITBUCKET_TAG
