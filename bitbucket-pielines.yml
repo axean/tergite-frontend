@@ -18,6 +18,28 @@ pipelines:
           services:
             - mongo
 
+  tags:
+    "*":
+      - step:
+          name: check for Dockerfile
+          script:
+            - if [ -f Dockerfile ]; then printf "building docker image"; else printf "no Dockerfile found"; exit; fi
+      - step:
+          name: Build docker image
+          caches:
+            - pip
+          script:
+            # Add the specific env variables to env file
+            - echo "BCC_MACHINE_ROOT_URL=${BCC_MACHINE_ROOT_URL}" >> .env
+            - echo "DB_MACHINE_ROOT_URL=${DB_MACHINE_ROOT_URL}" >> .env
+            # you could use the single private repo available to every free docker account
+            # $DOCKER_USERNAME and $DOCKER_PASSWORD are a custom bitbucket secrets
+            - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+            - docker build -t tergite-mss:$BITBUCKET_TAG .
+            - docker push tergite-mss:$BITBUCKET_TAG
+            - docker tag tergite-mss:$BITBUCKET_TAG tergite-mss:latest
+            - docker push tergite-mss:latest
+
 definitions:
   services:
     mongo:

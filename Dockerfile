@@ -10,7 +10,8 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./app /code/app
 
-ENV MSS_PORT = 80
+ENV MSS_PORT=80
+ENV WS_PORT=6532
 
 EXPOSE 80
 
