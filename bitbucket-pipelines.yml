@@ -33,8 +33,10 @@ pipelines:
                   caches:
                       - npm
                   script:
-                      # using the single private repo available to every free docker account
+                      # using the single private container available to every free docker account
                       # $DOCKER_USERNAME and $DOCKER_PASSWORD are a custom bitbucket secrets
+                      # Or better still, we could just use Github Container registries which gives us more private containers
+                      # https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#pushing-container-images
                       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
                       - docker build -t tergite-qal9000:$BITBUCKET_TAG .
                       - docker push tergite-qal9000:$BITBUCKET_TAG
