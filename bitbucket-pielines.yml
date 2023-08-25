@@ -17,6 +17,12 @@ pipelines:
             - pytest
           services:
             - mongo
+      - step:
+          name: Lint
+          caches:
+            - pip
+          script:
+            - black --check .
 
   tags:
     "*":
@@ -26,8 +32,6 @@ pipelines:
             - if [ -f Dockerfile ]; then printf "building docker image"; else printf "no Dockerfile found"; exit; fi
       - step:
           name: Build docker image
-          caches:
-            - pip
           script:
             # Add the specific env variables to env file
             - echo "BCC_MACHINE_ROOT_URL=${BCC_MACHINE_ROOT_URL}" >> .env
