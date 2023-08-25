@@ -25,7 +25,7 @@ pipelines:
     tags:
         '*':
             - step:
-                  name: check if main branch
+                  name: check for Dockerfile
                   script:
                       - if [ -f Dockerfile ]; then printf "building docker image"; else printf "no Dockerfile found"; exit; fi
             - step:
