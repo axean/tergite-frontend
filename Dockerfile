@@ -10,6 +10,9 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./app /code/app
 
+LABEL org.opencontainers.image.licenses=APACHE-2.0
+LABEL org.opencontainers.image.description="Public REST API for Quantum Computers in Chalmers University"
+
 ENV MSS_PORT=80
 ENV WS_PORT=6532
 
