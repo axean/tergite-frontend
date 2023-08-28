@@ -11,7 +11,6 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-import asyncio
 import logging
 from datetime import datetime
 
@@ -33,9 +32,7 @@ loop.run_until_complete(do_delete_one())"""
 _CONNECTIONS = {}
 
 
-def get_mongodb(
-    url: str, name: str, _loop: asyncio.AbstractEventLoop
-) -> AsyncIOMotorDatabase:
+def get_mongodb(url: str, name: str) -> AsyncIOMotorDatabase:
     """Returns a mongo db which can be used to get collections
 
     https://fastapi.tiangolo.com/advanced/settings/#lru_cache-technical-details
@@ -62,4 +59,3 @@ def get_mongodb(
 
     _CONNECTIONS[url] = client
     return client[name]
-
