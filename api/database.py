@@ -12,6 +12,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import asyncio
+import contextlib
 import functools
 import logging
 from datetime import datetime
@@ -31,8 +32,9 @@ async def do_delete_one():
 loop = client.get_io_loop()
 loop.run_until_complete(do_delete_one())"""
 
+_CONNECTIONS = {}
 
-@functools.lru_cache
+
 def get_mongodb(
     url: str, name: str, _loop: asyncio.AbstractEventLoop
 ) -> AsyncIOMotorDatabase:
@@ -50,5 +52,16 @@ def get_mongodb(
         a AsyncIOMotorDatabase instance that can be used to extract collections
     """
     logging.debug(f"New mongo db connection at {datetime.utcnow().isoformat()}")
-    client = AsyncIOMotorClient(url, tz_aware=True)
+    global _CONNECTIONS
+
+    try:
+        client = _CONNECTIONS[url]
+        if client.io_loop.is_closed():
+            client.close()
+            client = AsyncIOMotorClient(url, tz_aware=True)
+    except KeyError:
+        client = AsyncIOMotorClient(url, tz_aware=True)
+
+    _CONNECTIONS[url] = client
     return client[name]
+
