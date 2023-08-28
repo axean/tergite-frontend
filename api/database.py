@@ -12,8 +12,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import asyncio
-import contextlib
-import functools
 import logging
 from datetime import datetime
 
