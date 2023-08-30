@@ -36,15 +36,14 @@ pipelines:
             # Add the specific env variables to env file
             - echo "BCC_MACHINE_ROOT_URL=${BCC_MACHINE_ROOT_URL}" >> .env
             - echo "DB_MACHINE_ROOT_URL=${DB_MACHINE_ROOT_URL}" >> .env
-            # you could use the single private repo available to every free docker account
-            # $DOCKER_USERNAME and $DOCKER_PASSWORD are a custom bitbucket secrets
-            # Or better still, we could just use Github Container registries which gives us more private containers
-            # https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#pushing-container-images
-            - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-            - docker build -t tergite-mss:$BITBUCKET_TAG .
-            - docker push tergite-mss:$BITBUCKET_TAG
-            - docker tag tergite-mss:$BITBUCKET_TAG tergite-mss:latest
-            - docker push tergite-mss:latest
+            # using the self-hosted container registry provided by https://github.com/tergite/tergite-registry
+            # its domain is saved in CONTAINER_REGISTRY workspace secret variable in format domain.com:port
+            # $DOCKER_USERNAME and $DOCKER_PASSWORD are also workspace secret variables
+            - docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+            - docker build -t ${CONTAINER_REGISTRY}/tergite-mss:$BITBUCKET_TAG .
+            - docker push ${CONTAINER_REGISTRY}/tergite-mss:$BITBUCKET_TAG
+            - docker tag ${CONTAINER_REGISTRY}/tergite-mss:$BITBUCKET_TAG ${CONTAINER_REGISTRY}tergite-mss:latest
+            - docker push ${CONTAINER_REGISTRY}/tergite-mss:latest
 
 definitions:
   services:
