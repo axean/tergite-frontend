@@ -1,0 +1,18 @@
+services:
+  landing-page:
+***REMOVED***
+    ports:
+      - "8030:80"
+  mss:
+***REMOVED***
+    ports:
+      - "8002:80"
+    env_file:
+      - .env
+  web-gui:
+***REMOVED***
+    ports:
+      - "3000:3000"
+    environment:
+      - API_BASE_URL=http://mss/v2
+    
