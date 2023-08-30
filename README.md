@@ -24,8 +24,9 @@ git clone git@github.com:tergite/tergite-qal9000.git
 # and password is password123
 CONTAINER_REGISTRY=example.com:8002
 DOCKER_USERNAME=johndoe
+DOCKER_PASSWORD=password123
 # feed in password when prompted
-docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME --password-stdin
+docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 ```
 
 - Create a `.env` file basing on the `.env.example` file. 
