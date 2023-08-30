@@ -33,9 +33,6 @@ pipelines:
       - step:
           name: Build docker image
           script:
-            # Add the specific env variables to env file
-            - echo "BCC_MACHINE_ROOT_URL=${BCC_MACHINE_ROOT_URL}" >> .env
-            - echo "DB_MACHINE_ROOT_URL=${DB_MACHINE_ROOT_URL}" >> .env
             # using the self-hosted container registry provided by https://github.com/tergite/tergite-registry
             # its domain is saved in CONTAINER_REGISTRY workspace secret variable in format domain.com:port
             # $DOCKER_USERNAME and $DOCKER_PASSWORD are also workspace secret variables
