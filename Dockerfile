@@ -40,7 +40,9 @@ WORKDIR /usr/share/nginx/html
 # Remove the existing web files
 RUN rm -rf ./*
 # Copy the files from the static next export
-COPY ./dist /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+RUN chown nginx:nginx /usr/share/nginx/html/*
 
 LABEL org.opencontainers.image.licenses=APACHE-2.0
 LABEL org.opencontainers.image.description="Landing page for the QAL9000 project at Chalmers University"
