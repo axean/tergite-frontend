@@ -1,4 +1,4 @@
-# Contributing to tergite-qal9000
+# Contributing to tergite-landing-page
 
 We love your input! We want to make contributing to this project as easy and transparent as possible, whether it's:
 
@@ -30,10 +30,10 @@ requests:
 In short, when you submit code changes, your submissions are understood to be under the
 same [Apache 2.0 License](./LICENSE) that covers the project. Feel free to contact the maintainers if that's a concern.
 
-## Report bugs using Bitbucket's [issues](https://github.com/tergite/tergite-qal9000/issues)
+## Report bugs using Bitbucket's [issues](https://github.com/tergite/tergite-landing-page/issues)
 
 We use Bibucket issues to track bugs. Report a bug
-by [opening a new issue](https://github.com/tergite/tergite-qal9000/issues); it's that easy!
+by [opening a new issue](https://github.com/tergite/tergite-landing-page/issues); it's that easy!
 
 ## Write bug reports with detail, background, and sample code
 
@@ -71,13 +71,13 @@ By contributing, you agree that your contributions will be licensed under its Ap
 -   Clone the repo
 
 ```shell
-git clone git@github.com:tergite/tergite-qal9000.git
+git clone git@github.com:tergite/tergite-landing-page.git
 ```
 
 -   Install dependencies
 
 ```shell
-cd tergite-qal9000
+cd tergite-landing-page
 npm install
 ```
 
