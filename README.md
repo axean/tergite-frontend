@@ -50,8 +50,9 @@ git clone git@github.com:tergite/tergite-landing-page.git
 # and password is password123
 CONTAINER_REGISTRY=example.com:8002
 DOCKER_USERNAME=johndoe
+DOCKER_PASSWORD=password123
 # feed in password when prompted
-docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME --password-stdin
+docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 ```
 
 - Build the docker image
