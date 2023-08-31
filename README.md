@@ -24,9 +24,8 @@ git clone git@github.com:tergite/tergite-qal9000.git
 # and password is password123
 CONTAINER_REGISTRY=example.com:8002
 DOCKER_USERNAME=johndoe
-DOCKER_PASSWORD=password123
 # feed in password when prompted
-docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME
 ```
 
 - Create a `.env` file basing on the `.env.example` file. 
@@ -48,6 +47,12 @@ docker compose up -d
     - [http://localhost:8030](http://localhost:8030) to see the landing page
     - [http://localhost:8002](http://localhost:8002) to see the MSS service
     - [http://localhost:3000](http://localhost:3000) to see the webGUI application
+
+- To ensure that the services start up even on server restarts, run:
+
+```shell
+sudo systemctl enable docker
+```
 
 - To stop the services, run:
 
