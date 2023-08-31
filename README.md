@@ -34,9 +34,8 @@ git clone git@github.com:tergite/tergite-mss.git
 # and password is password123
 CONTAINER_REGISTRY=example.com:8002
 DOCKER_USERNAME=johndoe
-DOCKER_PASSWORD=password123
 # feed in password when prompted
-docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME
 ```
 
 - Build the docker image
