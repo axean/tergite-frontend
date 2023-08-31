@@ -35,7 +35,7 @@ pipelines:
             - docker buildx create --name multi-platform-builder --bootstrap --use
             - docker buildx build --platform linux/amd64,linux/arm64 -t ${CONTAINER_REGISTRY}/tergite-mss:$BITBUCKET_TAG --push .
             - docker pull ${CONTAINER_REGISTRY}/tergite-mss:$BITBUCKET_TAG
-            - docker tag ${CONTAINER_REGISTRY}/tergite-mss:$BITBUCKET_TAG ${CONTAINER_REGISTRY}tergite-mss:latest
+            - docker tag ${CONTAINER_REGISTRY}/tergite-mss:$BITBUCKET_TAG ${CONTAINER_REGISTRY}/tergite-mss:latest
             - docker push ${CONTAINER_REGISTRY}/tergite-mss:latest
 
 definitions:
