@@ -38,17 +38,19 @@ DOCKER_USERNAME=johndoe
 docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME
 ```
 
-- Build the docker image
+- Create a multiplatform docker builder if you haven't already
+
+```shell
+docker buildx create --name multi-platform-builder --bootstrap --use
+```
+
+- Build and push the docker image
 
 ```shell
 cd tergite-mss
-docker build -t ${CONTAINER_REGISTRY}/tergite-mss:local-latest .
-```
-
-- Push the docker image
-
-```shell
-docker push ${CONTAINER_REGISTRY}/tergite-mss:local-latest
+docker buildx build --platform linux/amd64,linux/arm64 \
+  -t ${CONTAINER_REGISTRY}/tergite-mss:local --push .
+docker pull ${CONTAINER_REGISTRY}/tergite-mss:local
 ```
 
 - To run a container based on that image, do
@@ -58,7 +60,7 @@ docker run -p 8002:80 \
   --name mss-local \
   -e BCC_MACHINE_ROOT_URL="http://0.0.0.0:8000" \
   -e DB_MACHINE_ROOT_URL="mongodb://production-db.se" \
-  ${CONTAINER_REGISTRY}/tergite-mss:local-latest
+  ${CONTAINER_REGISTRY}/tergite-mss:local
 ```
 
 - Open your browser at http://localhost:8002/docs and see the docs for mss running.
