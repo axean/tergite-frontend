@@ -54,23 +54,24 @@ DOCKER_USERNAME=johndoe
 docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME
 ```
 
-- Build the docker image
+- Create a multiplatform docker builder if you haven't already
+
+```shell
+docker buildx create --name multi-platform-builder --bootstrap --use
+```
+
+- Build and push the docker image
 
 ```shell
 cd tergite-landing-page
-docker build -t ${CONTAINER_REGISTRY}/tergite-landing-page:local-latest .
-```
-
-- Push the docker image
-
-```shell
-docker push ${CONTAINER_REGISTRY}/tergite-landing-page:local-latest
+docker buildx build --platform linux/amd64,linux/arm64 -t ${CONTAINER_REGISTRY}/tergite-landing-page:local --push .
+docker pull ${CONTAINER_REGISTRY}/tergite-landing-page:local
 ```
 
 - To run a container based on that image, do
 
 ```shell
-docker run -p 3000:3000 --name landing-page ${CONTAINER_REGISTRY}/tergite-landing-page:local-latest
+docker run -p 3000:3000 --name landing-page ${CONTAINER_REGISTRY}/tergite-landing-page:local
 ```
 
 ## License
