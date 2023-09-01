@@ -66,6 +66,21 @@ docker compose stop
 docker compose down
 ```
 
+## FAQ
+
+### Why can't I access the service?
+
+It could be an issue with your iptables. Check them.  
+
+  
+- You could set qal9000 behind an nginx reverse proxy pointing ports 80,443 to the landing page URL (http://localhost:8030), but don't forget to open up your firewall to allow connections on 80,443 ports
+
+```shell
+sudo iptables -I INPUT -p tcp -m state --state NEW -m tcp -m multiport --dports 80,443 -j ACCEPT
+```
+
+You could add ```-s nnn.nnn.n.n/nn ``` arg to the above command to limit access to only a given subnet e.g. ```-s 255.255.0.0/16```
+
 ## License
 
 Licensed under the [Apache 2.0 License](./LICENSE)
