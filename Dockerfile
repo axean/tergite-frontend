@@ -29,6 +29,9 @@ RUN npm run build
 # Use the alpine nginx image as a base
 FROM nginx:alpine
 # Copy the local nginx configuration folder
+ENV WEBGUI_ENDPOINT="http://$host$request_uri"
+ENV MSS_ENDPOINT="http://$host$request_uri"
+
 COPY nginx /etc/nginx
 # Set the working directory to the default nginx html directory
 WORKDIR /usr/share/nginx/html
