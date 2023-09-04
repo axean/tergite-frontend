@@ -8,22 +8,22 @@
 		"start": "next start",
 		"lint": "next lint",
 		"format": "prettier --write \"{src,cypress}/**/*.{js,jsx,ts,tsx}\"",
-		"start-test": "NODE_ENV=test next start",
+		"start-test": "NODE_ENV=test npx serve dist",
 		"build-and-start-test-server": "NODE_ENV=test npm run build && start-server-and-test start-test http://0.0.0.0:3000",
 		"e2e": "npm run build-and-start-test-server -- \"cypress run\"",
 		"visual-e2e": "npm run build-and-start-test-server -- \"cypress open\""
 	},
 	"dependencies": {
+		"@types/node": "20.5.4",
+		"@types/react": "18.2.21",
+		"@types/react-dom": "18.2.7",
 		"autoprefixer": "10.4.15",
 		"next": "13.4.19",
 		"postcss": "8.4.28",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"tailwindcss": "3.3.3",
-		"typescript": "5.1.6",
-		"@types/node": "20.5.4",
-		"@types/react": "18.2.21",
-		"@types/react-dom": "18.2.7"
+		"typescript": "5.1.6"
 	},
 	"devDependencies": {
 		"cypress": "^12.17.4",
@@ -32,6 +32,7 @@
 		"eslint-config-prettier": "^9.0.0",
 		"eslint-plugin-cypress": "^2.14.0",
 		"prettier": "^3.0.2",
+		"serve": "^14.2.1",
 		"start-server-and-test": "^2.0.0"
 	}
 }

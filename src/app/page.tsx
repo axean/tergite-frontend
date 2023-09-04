@@ -1,6 +1,11 @@
 import Image from 'next/image';
 
 export default function Home() {
+	const heroText =
+		'WACQT is a national research programme, coordinated from Chalmers, that aims to take Swedish research and industry to the forefront of quantum technology. Our main project is to develop a high-end quantum computer that can solve problems far beyond the reach of the best conventional supercomputers.';
+
+	const mainContentText =
+		'The world is on the verge of a quantum technology revolution, with extremely powerful computers, intercept-proof communications and hyper-sensitive measuring instruments in sight. Wallenberg Centre for Quantum Technology is a 12 year SEK 1 billion research effort that aims to take Sweden to the forefront of this very rapidly expanding area of technology. Through an extensive research programme, we aim at developing and securing Swedish expertise within the main areas of quantum technology: quantum computing and simulation, quantum communications and quantum sensing. Our main project is to develop a quantum computer that can solve problems far beyond the reach of the best conventional supercomputers.';
 	return (
 		<>
 			<header className='sticky top-0 z-50 flex max-h-full w-full flex-col bg-white shadow-md print:hidden lg:relative'>
@@ -44,6 +49,7 @@ export default function Home() {
 					aria-label='Site actions'
 					className='relative flex mx-auto w-4/5 max-w-screen-2xl justify-between bg-white'
 					data-headlessui-state=''
+					data-cy-site-actions-navbar
 				>
 					<a
 						aria-label='To frontpage'
@@ -101,13 +107,14 @@ export default function Home() {
 				</nav>
 			</header>
 			<main className='w-full'>
-				<header className='relative z-[2] w-full print:hidden'>
-					<img
+				<header className='relative z-[2] w-full print:hidden' data-cy-hero>
+					<Image
 						alt='Quatum computer.'
 						fetchPriority='high'
 						decoding='async'
 						data-nimg='fill'
 						className='z-[-1] object-cover'
+						layout='fill'
 						style={{
 							position: 'absolute',
 							height: '100%',
@@ -120,21 +127,18 @@ export default function Home() {
 					/>
 					<div className='z-10 mx-auto flex h-[478px] w-4/5 max-w-screen-xl items-end sm:h-auto'>
 						<div className='m-4 flex max-w-4xl flex-col items-start bg-black/75 p-5 text-neutral-50 sm:my-28 sm:p-6 sm:py-7 lg:py-10 2xl:mx-0'>
-							<span className='mb-1.5 md:text-2xl'>
+							<span data-cy-hero-title className='mb-1.5 md:text-2xl'>
 								Wallenberg Center for Quantum Technology
 							</span>
 							<h1
 								id='wacqt'
+								data-cy-hero-subtitle
 								className='text-4xl !leading-tight lg:text-4xl font-bold !text-neutral-50 text-neutral-900'
 							>
 								WACQT
 							</h1>
-							<p className='content text-md mt-3.5 mb-2'>
-								WACQT is a national research programme, coordinated from Chalmers,
-								that aims to take Swedish research and industry to the forefront of
-								quantum technology. Our main project is to develop a high-end
-								quantum computer that can solve problems far beyond the reach of the
-								best conventional supercomputers.
+							<p data-cy-hero-text className='content text-md mt-3.5 mb-2'>
+								{heroText}
 							</p>
 						</div>
 					</div>
@@ -142,21 +146,11 @@ export default function Home() {
 				<div id='main-content' className='py-10 px-5 lg:px-12'>
 					<div className='mx-auto mb-5 lg:flex w-4/5 max-w-screen-xl'>
 						<header className='mr-12 flex-1'>
-							<section className='mb-10 text-lg font-light leading-8 text-neutral-800 child:mt-0'>
-								<p>
-									The world is on the verge of a quantum technology revolution,
-									with extremely powerful computers, intercept-proof
-									communications and hyper-sensitive measuring instruments in
-									sight. Wallenberg Centre for Quantum Technology is a 12 year SEK
-									1 billion research effort that aims to take Sweden to the
-									forefront of this very rapidly expanding area of technology.
-									Through an extensive research programme, we aim at developing
-									and securing Swedish expertise within the main areas of quantum
-									technology: quantum computing and simulation, quantum
-									communications and quantum sensing. Our main project is to
-									develop a quantum computer that can solve problems far beyond
-									the reach of the best conventional supercomputers.
-								</p>
+							<section
+								data-cy-main-content
+								className='mb-10 text-lg font-light leading-8 text-neutral-800 child:mt-0'
+							>
+								<p>{mainContentText}</p>
 							</section>
 						</header>
 						<nav
@@ -164,6 +158,7 @@ export default function Home() {
 							aria-label='Secondary navigation'
 						>
 							<a
+								data-cy-app-button
 								href='/webgui'
 								className='block w-full border-b-4 border-blue-300 bg-west-coast px-4 py-3 text-left font-bold text-white outline-none focus:ring-2 focus:ring-inset focus:ring-white focus:ring-offset-2 focus:ring-offset-west-coast'
 							>
@@ -171,6 +166,7 @@ export default function Home() {
 							</a>
 
 							<a
+								data-cy-app-button
 								href='/mss'
 								className='block w-full border-b-4 border-blue-300 bg-west-coast px-4 py-3 text-left font-bold text-white outline-none focus:ring-2 focus:ring-inset focus:ring-white focus:ring-offset-2 focus:ring-offset-west-coast'
 							>
@@ -181,6 +177,7 @@ export default function Home() {
 				</div>
 			</main>
 			<footer
+				data-cy-footer
 				role='contentinfo'
 				className='mt-auto flex max-w-full flex-col  gap-8 bg-west-coast px-5 py-6 pb-20 text-white print:hidden lg:gap-10 lg:px-12 lg:py-20'
 			>
@@ -266,7 +263,7 @@ export default function Home() {
 							className='no-link-formatting flex h-full select-none rounded-lg focus:bg-white/10'
 							href='#'
 						>
-							<img
+							<Image
 								alt='Chalmers logo'
 								loading='lazy'
 								width='133'
