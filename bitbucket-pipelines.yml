@@ -18,6 +18,7 @@ pipelines:
                       - cypress
                       - node
                   script:
+                      - npm ci
                       - npm run lint
                       - npm run e2e
                   artifacts:
@@ -37,3 +38,4 @@ pipelines:
                       - docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
                       - docker buildx create --name multi-platform-builder --bootstrap --use
                       - docker buildx build --platform linux/amd64,linux/arm64 -t ${CONTAINER_REGISTRY}/tergite-landing-page:$BITBUCKET_TAG --push .
+
