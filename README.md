@@ -28,8 +28,8 @@ DOCKER_USERNAME=johndoe
 docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME
 ```
 
-- Create a `.env` file basing on the `.env.example` file. 
-Update the variables therein appropriately.
+- Create a `.env` file basing on the `.env.example` file.
+  Update the variables therein appropriately.
 
 ```shell
 cd tergite-qal9000
@@ -42,11 +42,11 @@ cp .env.example .env
 docker compose up -d
 ```
 
-- Open your browser at 
+- Open your browser at
 
-    - [http://localhost:8030](http://localhost:8030) to see the landing page
-    - [http://localhost:8002](http://localhost:8002) to see the MSS service
-    - [http://localhost:3000](http://localhost:3000) to see the webGUI application
+  - [http://localhost:8030](http://localhost:8030) to see the landing page
+  - [http://localhost:8002](http://localhost:8002) to see the MSS service
+  - [http://localhost:3000](http://localhost:3000) to see the webGUI application
 
 - To ensure that the services start up even on server restarts, run:
 
@@ -66,20 +66,51 @@ docker compose stop
 docker compose down
 ```
 
+## How to Add a Basic Auth User
+
+FOr the start, authentication is being done using [basic authentication via Nginx](https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-http-basic-authentication/).
+
+To add a new user, run the following steps.
+
+- Clone the repo
+
+```shell
+git clone git@github.com:tergite/tergite-qal9000.git
+```
+
+- Make the add-auth-user script executable
+
+```shell
+cd tergite-qal9000
+sudo chmod +x scripts/add-auth-user.sh
+```
+
+- Run the start script
+
+```shell
+# It will prompt you for a password
+./scripts/add-auth-user.sh \
+   --config-file /path/to/Nginx/config/for/domain/example.com \
+   --username johndoe
+```
+
+Note: you might have to run this with sudo permissions.
+
+-
+
 ## FAQ
 
 ### Why can't I access the service?
 
-It could be an issue with your iptables. Check them.  
+It could be an issue with your iptables. Check them.
 
-  
 - You could set qal9000 behind an nginx reverse proxy pointing ports 80,443 to the landing page URL (http://localhost:8030), but don't forget to open up your firewall to allow connections on 80,443 ports
 
 ```shell
 sudo iptables -I INPUT -p tcp -m state --state NEW -m tcp -m multiport --dports 80,443 -j ACCEPT
 ```
 
-You could add ```-s nnn.nnn.n.n/nn ``` arg to the above command to limit access to only a given subnet e.g. ```-s 255.255.0.0/16```
+You could add `-s nnn.nnn.n.n/nn ` arg to the above command to limit access to only a given subnet e.g. `-s 255.255.0.0/16`
 
 ## License
 
