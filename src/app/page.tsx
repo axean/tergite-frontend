@@ -42,13 +42,13 @@ export default function Home() {
 				</nav>
 				<nav
 					aria-label='Site actions'
-					className='relative flex w-2xl max-w-full justify-between bg-white'
+					className='relative flex mx-auto w-4/5 max-w-screen-2xl justify-between bg-white'
 					data-headlessui-state=''
 				>
 					<a
 						aria-label='To frontpage'
 						className='group transition focus:underline lg:hover:underline focus:bg-west-coast focus:text-white outline-none group flex p-4 pr-0 xs:pr-4'
-						href='/en/'
+						href='#'
 					>
 						<Image
 							alt='Chalmers logo'
@@ -99,93 +99,6 @@ export default function Home() {
 						</li>
 					</ul>
 				</nav>
-				<div
-					style={{
-						position: 'fixed',
-						top: 1,
-						left: 1,
-						width: 1,
-						height: 0,
-						padding: 0,
-						margin: -1,
-						overflow: 'hidden',
-						clip: 'rect(0, 0, 0, 0)',
-						whiteSpace: 'nowrap',
-						borderWidth: 0,
-						display: 'none'
-					}}
-				></div>
-				<div
-					style={{
-						position: 'fixed',
-						top: 1,
-						left: 1,
-						width: 1,
-						height: 0,
-						padding: 0,
-						margin: -1,
-						overflow: 'hidden',
-						clip: 'rect(0, 0, 0, 0)',
-						whiteSpace: 'nowrap',
-						borderWidth: 0,
-						display: 'none'
-					}}
-				></div>
-				<span></span>
-				<div
-					className='relative z-40 flex h-full w-full flex-1 flex-col lg:pointer-events-none lg:z-[-1] lg:hidden'
-					data-headlessui-state=''
-				>
-					<div className='flex w-full items-center justify-between bg-west-coast font-bold text-white outline-none'>
-						<h2 className='w-full'>
-							<a className='no-link-formatting block px-4 py-3' href='#'>
-								WACQT
-							</a>
-						</h2>
-						<button
-							aria-label='Show secondary navigation'
-							className='h-full border-l border-white px-4 py-3'
-							type='button'
-							aria-expanded='false'
-							data-headlessui-state=''
-							id='headlessui-popover-button-:R56q6m:'
-						>
-							<span className='transition h-6 w-6 inline-flex h-5 w-5 shrink-0 align-middle transition'>
-								<svg
-									xmlns='http://www.w3.org/2000/svg'
-									fill='none'
-									viewBox='0 0 24 24'
-									strokeWidth='1.5'
-									stroke='currentColor'
-									aria-hidden='true'
-									className='h-full w-full'
-								>
-									<path
-										strokeLinecap='round'
-										strokeLinejoin='round'
-										d='M19.5 8.25l-7.5 7.5-7.5-7.5'
-									></path>
-								</svg>
-							</span>
-						</button>
-					</div>
-				</div>
-				<div
-					style={{
-						position: 'fixed',
-						top: '1px',
-						left: '1px',
-						width: '1px',
-						height: 0,
-						padding: 0,
-						margin: '-1px',
-						overflow: 'hidden',
-						clip: 'rect(0, 0, 0, 0)',
-						whiteSpace: 'nowrap',
-						borderWidth: 0,
-						display: 'none'
-					}}
-				></div>
 			</header>
 			<main className='w-full'>
 				<header className='relative z-[2] w-full print:hidden'>
@@ -205,7 +118,7 @@ export default function Home() {
 						}}
 						src='/img/hero.webp'
 					/>
-					<div className='z-10 mx-auto px-5 lg:px-12 flex h-[478px] w-xl max-w-full items-end sm:h-auto'>
+					<div className='z-10 mx-auto flex h-[478px] w-4/5 max-w-screen-xl items-end sm:h-auto'>
 						<div className='m-4 flex max-w-4xl flex-col items-start bg-black/75 p-5 text-neutral-50 sm:my-28 sm:p-6 sm:py-7 lg:py-10 2xl:mx-0'>
 							<span className='mb-1.5 md:text-2xl'>
 								Wallenberg Center for Quantum Technology
@@ -227,7 +140,7 @@ export default function Home() {
 					</div>
 				</header>
 				<div id='main-content' className='py-10 px-5 lg:px-12'>
-					<div className='mx-auto mb-5 flex w-xl max-w-[calc(100%-1.5rem)]'>
+					<div className='mx-auto mb-5 lg:flex w-4/5 max-w-screen-xl'>
 						<header className='mr-12 flex-1'>
 							<section className='mb-10 text-lg font-light leading-8 text-neutral-800 child:mt-0'>
 								<p>
@@ -247,7 +160,7 @@ export default function Home() {
 							</section>
 						</header>
 						<nav
-							className='mb-auto hidden w-[325px] lg:block relative'
+							className='mb-auto w-[325px] lg:block relative'
 							aria-label='Secondary navigation'
 						>
 							<a
@@ -273,7 +186,7 @@ export default function Home() {
 			>
 				<nav
 					aria-label='Footer navigation'
-					className='flex w-full max-w-full flex-col lg:w-2xl lg:flex-row'
+					className='flex mx-auto w-4/5 max-w-screen-2xl flex-col lg:flex-row'
 				>
 					<div className='flex w-full flex-col child:flex-1 child:flex-col lg:flex-row lg:justify-between lg:gap-8'>
 						<div className=''>
@@ -306,38 +219,11 @@ export default function Home() {
 
 						<ul className='flex flex-col lg:gap-5'>
 							<li>
-								<button
-									className='flex w-full items-center justify-between py-3.5 text-left text-2xl font-semibold focus:underline lg:hidden'
-									id='headlessui-disclosure-button-:Rs5im:'
-									type='button'
-									aria-expanded='false'
-									data-headlessui-state=''
-									aria-controls='headlessui-disclosure-panel-:R1s5im:'
-								>
-									<h2>About the website</h2>
-									<span className='h-6 w-6 transition inline-flex h-5 w-5 shrink-0 align-middle transition'>
-										<svg
-											xmlns='http://www.w3.org/2000/svg'
-											fill='none'
-											viewBox='0 0 24 24'
-											stroke-width='1.5'
-											stroke='currentColor'
-											aria-hidden='true'
-											className='h-full w-full'
-										>
-											<path
-												stroke-linecap='round'
-												stroke-linejoin='round'
-												d='M19.5 8.25l-7.5 7.5-7.5-7.5'
-											></path>
-										</svg>
-									</span>
-								</button>
-								<h2 className='mb-2 hidden text-2xl font-semibold lg:inline-flex'>
+								<h2 className='mb-4 mt-5 lg:mt-0 text-2xl font-semibold lg:inline-flex'>
 									About the website
 								</h2>
 								<ul
-									className='hidden lg:flex flex-col overflow-visible transition'
+									className='block lg:flex flex-col overflow-visible transition'
 									id='headlessui-disclosure-panel-:R1s5im:'
 									data-headlessui-state=''
 								>
@@ -346,7 +232,7 @@ export default function Home() {
 											className='inline-flex flex-1 items-center justify-between py-[2px] transition hover:no-underline focus:underline lg:justify-start lg:hover:underline'
 											href='/en/about-chalmers/about-the-website/processing-of-personal-data/'
 										>
-											<span className='ml-5 py-3 text-lg lg:ml-0 lg:py-0 lg:text-base'>
+											<span className='text-lg lg:text-base'>
 												Processing of personal data
 											</span>
 										</a>
@@ -356,9 +242,7 @@ export default function Home() {
 											className='inline-flex flex-1 items-center justify-between py-[2px] transition hover:no-underline focus:underline lg:justify-start lg:hover:underline'
 											href='/en/about-chalmers/about-the-website/cookies/'
 										>
-											<span className='ml-5 py-3 text-lg lg:ml-0 lg:py-0 lg:text-base'>
-												Cookies
-											</span>
+											<span className='text-lg lg:text-base'>Cookies</span>
 										</a>
 									</li>
 									<li className='flex w-full'>
@@ -366,7 +250,7 @@ export default function Home() {
 											className='inline-flex flex-1 items-center justify-between py-[2px] transition hover:no-underline focus:underline lg:justify-start lg:hover:underline'
 											href='/en/about-chalmers/about-the-website/accessibility-report/'
 										>
-											<span className='ml-5 py-3 text-lg lg:ml-0 lg:py-0 lg:text-base'>
+											<span className='text-lg lg:text-base'>
 												Accessibility statement
 											</span>
 										</a>
@@ -375,9 +259,8 @@ export default function Home() {
 							</li>
 						</ul>
 					</div>
-					<span className='mb-8 mt-4 inline-flex h-px w-full bg-west-coast-600 lg:hidden'></span>
 				</nav>
-				<div className='flex w-2xl max-w-full  gap-14'>
+				<div className='flex mx-auto w-4/5 max-w-screen-2xl  gap-14'>
 					<div className='flex flex-col  xs:flex-row xs:text-left'>
 						<a
 							className='no-link-formatting flex h-full select-none rounded-lg focus:bg-white/10'
