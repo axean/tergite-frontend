@@ -32,8 +32,8 @@ pipelines:
             # its domain is saved in CONTAINER_REGISTRY workspace secret variable in format domain.com:port
             # $DOCKER_USERNAME and $DOCKER_PASSWORD are also workspace secret variables
             - docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-            - docker buildx create --name multi-platform-builder --bootstrap --use
-            - docker buildx build --platform linux/amd64,linux/arm64 -t ${CONTAINER_REGISTRY}/tergite-mss:$BITBUCKET_TAG --push .
+            - docker build -t ${CONTAINER_REGISTRY}/tergite-mss:$BITBUCKET_TAG .
+            - docker push ${CONTAINER_REGISTRY}/tergite-mss:$BITBUCKET_TAG
 
 definitions:
   services:
