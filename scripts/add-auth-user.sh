@@ -76,8 +76,15 @@ fi
 # install apache2-utils
 apt-get install apache2-utils
 
+
+# create the apache2 folder if it does not exist
+APACHE2_DIR="/etc/apache2";
+if [ -f "$APACHE2_DIR" ]; then 
+    mkdir $APACHE2_DIR;
+fi
+
 # create the user. This prompts for a password
-HTPASSWD_FILE="/etc/apache2/.htpasswd"
+HTPASSWD_FILE="$APACHE2_DIR/.htpasswd";
 if [ -f "$HTPASSWD_FILE" ]; then 
   htpasswd $HTPASSWD_FILE $USERNAME || exit 2;
 else
