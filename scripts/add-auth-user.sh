@@ -79,7 +79,7 @@ apt-get install apache2-utils
 
 # create the apache2 folder if it does not exist
 APACHE2_DIR="/etc/apache2";
-if [ -f "$APACHE2_DIR" ]; then 
+if [ ! -f "$APACHE2_DIR" ]; then 
     mkdir $APACHE2_DIR;
 fi
 
