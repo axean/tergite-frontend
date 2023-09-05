@@ -3,6 +3,8 @@ services:
 ***REMOVED***
     ports:
       - "8030:80"
+    env_file:
+      - .env
   mss:
 ***REMOVED***
     ports:
@@ -15,4 +17,3 @@ services:
       - "3000:3000"
     environment:
       - API_BASE_URL=http://mss/v2
-    
