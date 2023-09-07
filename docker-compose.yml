@@ -1,3 +1,6 @@
+---
+version: "3"
+
 services:
   landing-page:
 ***REMOVED***
@@ -5,15 +8,26 @@ services:
       - "8030:80"
     env_file:
       - .env
+
   mss:
 ***REMOVED***
     ports:
       - "8002:80"
     env_file:
       - .env
+
   web-gui:
 ***REMOVED***
     ports:
       - "3000:3000"
     environment:
       - API_BASE_URL=http://mss/v2
+
+  loki-promtail:
+    image: grafana/promtail:2.8.3
+    volumes:
+      - ./promtail.yaml:/etc/promtail/config.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: "-config.expand-env=true -config.file=/etc/promtail/config.yaml"
+    env_file:
+      - .env
