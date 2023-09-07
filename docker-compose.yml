@@ -3,6 +3,7 @@ version: "3"
 
 services:
   landing-page:
+    restart: always
 ***REMOVED***
     ports:
       - "8030:80"
@@ -10,6 +11,7 @@ services:
       - .env
 
   mss:
+    restart: always
 ***REMOVED***
     ports:
       - "8002:80"
@@ -17,6 +19,7 @@ services:
       - .env
 
   web-gui:
+    restart: always
 ***REMOVED***
     ports:
       - "3000:3000"
@@ -24,6 +27,7 @@ services:
       - API_BASE_URL=http://mss/v2
 
   loki-promtail:
+    restart: always
     image: grafana/promtail:2.8.3
     volumes:
       - ./promtail.yaml:/etc/promtail/config.yaml:ro
