@@ -116,18 +116,7 @@ You could add `-s nnn.nnn.n.n/nn ` arg to the above command to limit access to o
 
 When docker is installed, it adds its own `iptables` rules which open all ports by default to the entire world. See [this article](https://docs.docker.com/network/packet-filtering-firewalls/) for more information. In order to customize these rules, new rules have to be added to the DOCKER-USER chain.
 
-If you wish to block all ports exposed by docker containers, you can run the following script.
-
-```shell
-# the step below requires the net-tools package. Install it if you don't have it.
-external_interface="`route | grep '^default' | grep -o '[^ ]*$'`";
-sudo iptables -I DOCKER-USER -i $external_interface -j DROP;
-```
-
-Note that this means you can only expose those ports you wish to, using a reverse proxy like nginx.
-Do note that nginx itself can be used to limit access to a given subnet. See [these instructions](https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-http-basic-authentication/).
-
-You can add other rules in the same DOCKER-USER chain.
+You can add other rules in the same DOCKER-USER chain, carefully :-)
 
 ## License
 
