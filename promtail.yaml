@@ -11,12 +11,17 @@ clients:
     tenant_id: ${LOKI_LOGGER_ID}
 
 scrape_configs:
-  - job_name: general_scrape 
+  - job_name: docker 
+
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 5s
+
     relabel_configs:
       - source_labels: ['__meta_docker_container_name']
         regex: '/(.*)'
         target_label: 'container'
 
+    pipeline_stages:
+      - static_labels:
+          environment: ${ENVIRONMENT}

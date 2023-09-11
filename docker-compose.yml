@@ -5,6 +5,8 @@ services:
   landing-page:
     restart: always
 ***REMOVED***
+    logging:
+      driver: "journald"
     ports:
       - "8030:80"
     env_file:
@@ -13,6 +15,8 @@ services:
   mss:
     restart: always
 ***REMOVED***
+    logging:
+      driver: "journald"
     ports:
       - "8002:80"
     env_file:
@@ -21,14 +25,20 @@ services:
   web-gui:
     restart: always
 ***REMOVED***
+    logging:
+      driver: "journald"
     ports:
       - "3000:3000"
     environment:
       - API_BASE_URL=http://mss/v2
+    env_file:
+      - .env
 
   loki-promtail:
     restart: always
     image: grafana/promtail:2.8.3
+    logging:
+      driver: "journald"
     volumes:
       - ./promtail.yaml:/etc/promtail/config.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock
