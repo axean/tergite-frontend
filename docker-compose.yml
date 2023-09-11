@@ -10,10 +10,8 @@ services:
     logging:
       driver: "journald"
       options:
-        labels:
-          - "name"
-        env: 
-          - "ENVIRONMENT"
+        labels: "name"
+        env: "ENVIRONMENT"
     ports:
       - "8030:80"
     env_file:
@@ -27,10 +25,8 @@ services:
     logging:
       driver: "journald"
       options:
-        labels:
-          - "name"
-        env: 
-          - "ENVIRONMENT"
+        labels: "name"
+        env: "ENVIRONMENT"
     ports:
       - "8002:80"
     env_file:
@@ -44,10 +40,8 @@ services:
     logging:
       driver: "journald"
       options:
-        labels:
-          - "name"
-        env: 
-          - "ENVIRONMENT"
+        labels: "name"
+        env: "ENVIRONMENT"
     ports:
       - "3000:3000"
     environment:
@@ -63,10 +57,8 @@ services:
     logging:
       driver: "journald"
       options:
-        labels:
-          - "name"
-        env: 
-          - "ENVIRONMENT"
+        labels: "name"
+        env: "ENVIRONMENT"
     volumes:
       - ./promtail.yaml:/etc/promtail/config.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock
