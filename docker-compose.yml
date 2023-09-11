@@ -5,13 +5,8 @@ services:
   landing-page:
     restart: always
 ***REMOVED***
-    labels:
-      name: "landing-page"
     logging:
       driver: "journald"
-      options:
-        labels: "name"
-        env: "ENVIRONMENT"
     ports:
       - "8030:80"
     env_file:
@@ -20,13 +15,8 @@ services:
   mss:
     restart: always
 ***REMOVED***
-    labels:
-      name: "mss"
     logging:
       driver: "journald"
-      options:
-        labels: "name"
-        env: "ENVIRONMENT"
     ports:
       - "8002:80"
     env_file:
@@ -35,13 +25,8 @@ services:
   web-gui:
     restart: always
 ***REMOVED***
-    labels:
-      name: "web-gui"
     logging:
       driver: "journald"
-      options:
-        labels: "name"
-        env: "ENVIRONMENT"
     ports:
       - "3000:3000"
     environment:
@@ -52,18 +37,11 @@ services:
   loki-promtail:
     restart: always
     image: grafana/promtail:2.8.3
-    labels:
-      name: "promtail"
     logging:
       driver: "journald"
-      options:
-        labels: "name"
-        env: "ENVIRONMENT"
     volumes:
       - ./promtail.yaml:/etc/promtail/config.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock
-      - /var/log/journal:/var/log/journal
-      - /run/log/journal:/run/log/journal
     command: "-config.expand-env=true -config.file=/etc/promtail/config.yaml"
     env_file:
       - .env

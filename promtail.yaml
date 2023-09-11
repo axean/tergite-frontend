@@ -22,7 +22,6 @@ scrape_configs:
         regex: '/(.*)'
         target_label: 'container'
 
-  - job_name: system 
-
-    journal:
-      max_age: 6h
+    pipeline_stages:
+      - static_labels:
+          environment: ${ENVIRONMENT}
