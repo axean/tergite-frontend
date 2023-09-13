@@ -6,7 +6,7 @@ services:
     restart: always
 ***REMOVED***
     logging:
-      driver: "journald"
+      driver: ${LOGGING_DRIVER}
     ports:
       - "8030:80"
     env_file:
@@ -16,7 +16,7 @@ services:
     restart: always
 ***REMOVED***
     logging:
-      driver: "journald"
+      driver: ${LOGGING_DRIVER}
     ports:
       - "8002:80"
     env_file:
@@ -26,7 +26,7 @@ services:
     restart: always
 ***REMOVED***
     logging:
-      driver: "journald"
+      driver: ${LOGGING_DRIVER}
     ports:
       - "3000:3000"
     environment:
@@ -38,7 +38,7 @@ services:
     restart: always
     image: grafana/promtail:2.8.3
     logging:
-      driver: "journald"
+      driver: ${LOGGING_DRIVER}
     volumes:
       - ./promtail.yaml:/etc/promtail/config.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock
