@@ -42,6 +42,7 @@ services:
     volumes:
       - ./promtail.yaml:/etc/promtail/config.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./.data/promtail:/tmp
     command: "-config.expand-env=true -config.file=/etc/promtail/config.yaml"
     env_file:
       - .env
