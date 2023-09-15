@@ -46,15 +46,16 @@ def get_mongodb(url: str, name: str) -> AsyncIOMotorDatabase:
     Returns:
         a AsyncIOMotorDatabase instance that can be used to extract collections
     """
-    logging.debug(f"New mongo db connection at {datetime.utcnow().isoformat()}")
     global _CONNECTIONS
 
     try:
         client = _CONNECTIONS[url]
         if client.io_loop.is_closed():
             client.close()
+            logging.debug(f"New mongo db connection at {datetime.utcnow().isoformat()}")
             client = AsyncIOMotorClient(url, tz_aware=True)
     except KeyError:
+        logging.debug(f"New mongo db connection at {datetime.utcnow().isoformat()}")
         client = AsyncIOMotorClient(url, tz_aware=True)
 
     _CONNECTIONS[url] = client
