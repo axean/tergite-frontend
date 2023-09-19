@@ -15,4 +15,3 @@ pytest-lazy-fixture
 pytest-asyncio
 httpx
 pytest-mock
-python-dotenv
