@@ -41,7 +41,6 @@ def get_mongodb(url: str, name: str) -> AsyncIOMotorDatabase:
     Args:
         url: the mongo db url
         name: the name of the mongo database
-        _loop: the asyncio loop this db is attached to, just to make sure a new instance is created when loops change
 
     Returns:
         a AsyncIOMotorDatabase instance that can be used to extract collections

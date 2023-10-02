@@ -41,7 +41,6 @@ _NDUV_to_qiskit = lambda nduv: QiskitNDUV.parse_obj(dict(nduv))
 
 
 def _gate_to_qiskit(gate: Gate) -> QiskitGate:
-
     parameters = list(map(_NDUV_to_qiskit, gate.dynamic_properties))
 
     return QiskitGate(
