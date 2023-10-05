@@ -6,23 +6,27 @@ from typing import Any, Dict, List, Union
 import pytest
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from api.dto.DeviceConfiguration import (
+from services.device_info.dto.DeviceConfiguration import (
     PrivateBackendConfiguration as PrivateBackendFullDeviceConfig,
 )
-from api.dto.FilteredDeviceData import FilteredComponent, FilteredDeviceData
-from api.dto.Device import (
+from services.device_info.dto.FilteredDeviceData import (
+    FilteredComponent,
+    FilteredDeviceData,
+)
+from services.device_info.dto.Device import (
     DeviceData,
     DeviceInfo as BasicDeviceConfig,
     DevicesSimpleInfo as BasicDeviceData,
 )
-from api.dto.NDUV import NDUV as Property
-from api.dto.VisualisationType import VisualisationType
-from api.utils.qiskit_utils import device_data_to_qiskit as to_qiskit_device_data
-from api.utils.configuration_utils import (
+from services.device_info.dto.NDUV import NDUV as Property
+from services.device_info.dto.VisualisationType import VisualisationType
+from services.device_info.utils.qiskit_utils import (
+    device_data_to_qiskit as to_qiskit_device_data,
+)
+from services.device_info.utils.configuration_utils import (
     private_backend_config_to_qiskit_format as to_qiskit_config_format,
 )
 from config import app_config
-from tests._utils.aiohttp import MockResponse
 from tests._utils.date_time import is_not_older_than
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection

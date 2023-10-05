@@ -14,7 +14,7 @@
 
 from datetime import datetime
 from pydantic import BaseModel
-from api.dto.ZEncodedBaseModel import ZEncodedBaseModel
+from .ZEncodedBaseModel import ZEncodedBaseModel
 from typing import List, Optional
 
 

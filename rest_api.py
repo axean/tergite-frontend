@@ -25,7 +25,7 @@ import settings
 import functools
 from fastapi.middleware.cors import CORSMiddleware
 from api.routers import devices
-from api.services import service
+from services.device_info import service as device_info_service
 from mongodb_dependency import MongoDbDep
 
 # settings
@@ -323,7 +323,7 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
-    await service.on_startup()
+    await device_info_service.on_startup()
 
 
 app.include_router(devices.router)

@@ -12,8 +12,8 @@
 # that they have been altered from the originals.
 
 
-from api.dto.ZEncodedBaseModel import ZEncodedBaseModel
-from api.dto.NDUV import NDUV, List
+from .ZEncodedBaseModel import ZEncodedBaseModel
+from .NDUV import NDUV, List
 from typing import Dict, Union
 
 

@@ -13,7 +13,7 @@
 
 
 from pydantic import BaseModel
-from api.dto.NDUV import NDUV, List
+from .NDUV import NDUV, List
 
 
 class QubitConfig(BaseModel):
