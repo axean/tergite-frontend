@@ -24,17 +24,25 @@ from datetime import datetime, timezone
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from api.dto.Device import DeviceData, DeviceInfo
-from api.dto.DeviceConfiguration import PrivateBackendConfiguration, QiskitConfiguration
-from api.dto.FilteredDeviceData import FilteredComponent, FilteredDeviceData
-from api.dto.VisualisationType import VisualisationType
-from api.dto.Qiskit import QiskitDeviceData
-from api.utils.configuration_utils import private_backend_config_to_qiskit_format
-from api.utils.filtered_data_utils import (
+from .dto.Device import DeviceData, DeviceInfo
+from .dto.DeviceConfiguration import (
+    PrivateBackendConfiguration,
+    QiskitConfiguration,
+)
+from .dto.FilteredDeviceData import (
+    FilteredComponent,
+    FilteredDeviceData,
+)
+from .dto.VisualisationType import VisualisationType
+from .dto.Qiskit import QiskitDeviceData
+from .utils.configuration_utils import (
+    private_backend_config_to_qiskit_format,
+)
+from .utils.filtered_data_utils import (
     filter_device_data_by_type,
     join_filtered_device_data,
 )
-from api.utils.qiskit_utils import device_data_to_qiskit
+from .utils.qiskit_utils import device_data_to_qiskit
 import websockets.client
 from config import app_config
 

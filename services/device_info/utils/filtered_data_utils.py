@@ -13,13 +13,16 @@
 # that they have been altered from the originals.
 
 
-from api.dto.Device import DeviceData
-from api.dto.VisualisationType import VisualisationType
-from api.dto.FilteredDeviceData import FilteredDeviceData, FilteredComponent
-from api.dto.Coupler import Coupler
-from api.dto.Qubit import Qubit
-from api.dto.Resonator import Resonator
-from api.dto.Gate import Gate
+from ..dto.Device import DeviceData
+from ..dto.VisualisationType import VisualisationType
+from ..dto.FilteredDeviceData import (
+    FilteredDeviceData,
+    FilteredComponent,
+)
+from ..dto.Coupler import Coupler
+from ..dto.Qubit import Qubit
+from ..dto.Resonator import Resonator
+from ..dto.Gate import Gate
 
 from functools import reduce
 

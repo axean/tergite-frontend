@@ -8,6 +8,7 @@ uvicorn>=0.13.4
 aiohttp>=3.8.1
 websockets>=10.3
 tomli>=2.0.1
+fastapi-users[beanie,oauth]>=12.1.2
 isort
 black
 pytest

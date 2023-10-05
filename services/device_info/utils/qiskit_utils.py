@@ -11,11 +11,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-
-from api.dto.Qubit import Qubit, List
-from api.dto.Gate import Gate
-from api.dto.Device import DeviceData
-from api.dto.Qiskit import QiskitDeviceData, QiskitGate, QiskitNDUV
+from typing import List
+from ..dto.Qubit import Qubit
+from ..dto.Gate import Gate
+from ..dto.Device import DeviceData
+from ..dto.Qiskit import QiskitDeviceData, QiskitGate, QiskitNDUV
 
 
 def device_data_to_qiskit(data: DeviceData) -> QiskitDeviceData:

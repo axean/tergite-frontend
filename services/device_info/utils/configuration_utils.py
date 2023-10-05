@@ -12,10 +12,13 @@
 # that they have been altered from the originals.
 
 
-from api.dto.Coupler import CouplerConfig
-from api.dto.Gate import GateConfig
-from api.dto.Qubit import QubitConfig
-from api.dto.DeviceConfiguration import PrivateBackendConfiguration, QiskitConfiguration
+from ..dto.Coupler import CouplerConfig
+from ..dto.Gate import GateConfig
+from ..dto.Qubit import QubitConfig
+from ..dto.DeviceConfiguration import (
+    PrivateBackendConfiguration,
+    QiskitConfiguration,
+)
 from typing import List, Union
 
 

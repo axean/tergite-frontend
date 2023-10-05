@@ -14,11 +14,11 @@
 
 from datetime import datetime
 from typing import Any, Optional, List, Dict
-from api.dto.Gate import GateConfig
-from api.dto.Coupler import CouplerConfig
-from api.dto.Qubit import QubitConfig
-from api.dto.Resonator import ResonatorConfig
-from api.dto.ZEncodedBaseModel import ZEncodedBaseModel
+from .Gate import GateConfig
+from .Coupler import CouplerConfig
+from .Qubit import QubitConfig
+from .Resonator import ResonatorConfig
+from .ZEncodedBaseModel import ZEncodedBaseModel
 
 
 class Configuration(ZEncodedBaseModel):
