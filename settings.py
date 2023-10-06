@@ -38,3 +38,17 @@ MSS_PORT = config("MSS_PORT", cast=int)
 DATETIME_PRECISION = config("DATETIME_PRECISION", cast=str, default="auto")
 root_logger = logging.getLogger()
 root_logger.setLevel(_logger_level)
+
+# auth
+GITHUB_CLIENT_ID = config("GITHUB_CLIENT_ID", cast=str, default=None)
+GITHUB_CLIENT_SECRET = config("GITHUB_CLIENT_SECRET", cast=str, default=None)
+
+MICROSOFT_CLIENT_ID = config("MICROSOFT_CLIENT_ID", cast=str, default=None)
+MICROSOFT_CLIENT_SECRET = config("MICROSOFT_CLIENT_SECRET", cast=str, default=None)
+
+PUHURI_CLIENT_ID = config("PUHURI_CLIENT_ID", cast=str, default=None)
+PUHURI_CLIENT_SECRET = config("PUHURI_CLIENT_SECRET", cast=str, default=None)
+PUHURI_CONFIG_ENDPOINT = config("PUHURI_CONFIG_ENDPOINT", cast=str, default=None)
+
+JWT_SECRET = config("JWT_SECRET", cast=str, default=None)
+JWT_TTL = config("JWT_TTL", cast=int, default=3600)

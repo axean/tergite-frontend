@@ -15,7 +15,7 @@
 # that they have been altered from the originals.
 import logging
 
-from fastapi import FastAPI, Body, HTTPException, status
+from fastapi import FastAPI, Body, HTTPException, status, APIRouter
 from uuid import uuid4, UUID
 from datetime import datetime
 import pymongo
@@ -24,9 +24,10 @@ import settings
 # Imports for Webgui
 import functools
 from fastapi.middleware.cors import CORSMiddleware
-from api.routers import devices
+from api.routers import devices, auth
 from services.device_info import service as device_info_service
-from mongodb_dependency import MongoDbDep
+from services.auth import service as auth_service
+from api.dependencies import MongoDbDep, get_default_mongodb, CurrentProjectDep
 
 # settings
 BCC_MACHINE_ROOT_URL = settings.BCC_MACHINE_ROOT_URL
@@ -40,6 +41,8 @@ app = FastAPI(
     description="A frontend to all our quantum backends",
     version="0.0.1",
 )
+
+root_router = APIRouter(prefix="/", tags=["root"])
 
 
 # ------------ Sorting templates ------------ #
@@ -94,7 +97,9 @@ def create_new_documents(collection: str, *, unique_key: str = None) -> callable
                 else:
                     filtered_documents.append(doc)
 
-                doc.update({"timelog": {"REGISTERED": new_timestamp()}})
+                doc.update(
+                    {"timelog": {"REGISTERED": new_timestamp()}},
+                )
 
             if len(filtered_documents):
                 result = await col.insert_many(filtered_documents)
@@ -148,47 +153,47 @@ def update_documents(collection: str) -> callable:
 
 
 # ------------ GET OPERATIONS ------------ #
-@app.get("/")
+@root_router.get("/")
 async def root():
     return "Welcome to the MSS machine"
 
 
-@app.get("/backends")
+@root_router.get("/backends")
 async def read_backends(db: MongoDbDep):
     return await retrieve_ordered_subset(db.backends, nlast=-1, **REGSORT)
 
 
-@app.get("/calibrations")
+@root_router.get("/calibrations")
 async def read_calibrations(db: MongoDbDep, nlast: int = 10):
     return await retrieve_ordered_subset(db.calibrations, nlast=nlast, **REGSORT)
 
 
-@app.get("/jobs")
+@root_router.get("/jobs")
 async def read_jobs(db: MongoDbDep, nlast: int = 10):
     return await retrieve_ordered_subset(db.jobs, nlast=nlast, **REGSORT)
 
 
-@app.get("/backends/{backend_name}")
+@root_router.get("/backends/{backend_name}")
 async def read_backend(db: MongoDbDep, backend_name: str):
     return await retrieve_using_tag({"name": backend_name}, db.backends)
 
 
-@app.get("/rng/{job_id}")
+@root_router.get("/rng/{job_id}")
 async def read_rng(db: MongoDbDep, job_id: UUID):
     return await retrieve_using_tag({"job_id": str(job_id)}, db["rng"])
 
 
-@app.get("/calibrations/{job_id}")
+@root_router.get("/calibrations/{job_id}")
 async def read_calibration(db: MongoDbDep, job_id: UUID):
     return await retrieve_using_tag({"job_id": str(job_id)}, db.calibrations)
 
 
-@app.get("/jobs/{job_id}")
+@root_router.get("/jobs/{job_id}")
 async def read_job(db: MongoDbDep, job_id: UUID):
     return await retrieve_using_tag({"job_id": str(job_id)}, db.jobs)
 
 
-@app.get("/jobs/{job_id}/result")
+@root_router.get("/jobs/{job_id}/result")
 async def read_job_result(db: MongoDbDep, job_id: UUID):
     try:
         # NOTE: This may raise KeyError
@@ -212,7 +217,7 @@ async def read_job_result(db: MongoDbDep, job_id: UUID):
         )
 
 
-@app.get("/jobs/{job_id}/download_url")
+@root_router.get("/jobs/{job_id}/download_url")
 async def read_job_download_url(db: MongoDbDep, job_id: UUID):
     try:
         # NOTE: This may raise KeyError: download_url might not exist
@@ -230,7 +235,7 @@ async def read_job_download_url(db: MongoDbDep, job_id: UUID):
 # ------------ CREATE OPERATIONS ------------ #
 
 
-@app.post("/jobs")
+@root_router.post("/jobs")
 @create_new_documents(collection="jobs")
 def create_job_document(db: MongoDbDep, backend: str = "pingu"):
     job_id = uuid4()
@@ -243,7 +248,7 @@ def create_job_document(db: MongoDbDep, backend: str = "pingu"):
     return documents, response_content
 
 
-@app.put("/backends")
+@root_router.put("/backends")
 @create_new_documents(collection="backends", unique_key="name")
 def create_backend_document(db: MongoDbDep, backend_dict: dict):
     if "name" not in backend_dict.keys():
@@ -252,13 +257,13 @@ def create_backend_document(db: MongoDbDep, backend_dict: dict):
     return [backend_dict], "OK"
 
 
-@app.post("/calibrations")
+@root_router.post("/calibrations")
 @create_new_documents(collection="calibrations")
 def create_calibration_documents(db: MongoDbDep, documents: list):
     return documents, "OK"
 
 
-@app.post("/random")
+@root_router.post("/random")
 @create_new_documents(collection="rng")
 def create_rng_documents(db: MongoDbDep, documents: list):
     """
@@ -278,13 +283,13 @@ def create_rng_documents(db: MongoDbDep, documents: list):
 # ------------ UPDATE OPERATIONS ------------ #
 
 
-@app.put("/jobs/{job_id}/result")
+@root_router.put("/jobs/{job_id}/result")
 @update_documents(collection="jobs")
 def update_job_result(db: MongoDbDep, job_id: UUID, memory: list):
     return {"job_id": str(job_id)}, {"$set": {"result": {"memory": memory}}}, "OK"
 
 
-@app.put("/jobs/{job_id}/status")
+@root_router.put("/jobs/{job_id}/status")
 @update_documents(collection="jobs")
 def update_job_status(
     db: MongoDbDep, job_id: UUID, status: str = Body(..., max_length=10)
@@ -292,7 +297,7 @@ def update_job_status(
     return {"job_id": str(job_id)}, {"$set": {"status": status}}, "OK"
 
 
-@app.put("/jobs/{job_id}/download_url")
+@root_router.put("/jobs/{job_id}/download_url")
 @update_documents(collection="jobs")
 def update_job_download_url(
     db: MongoDbDep, job_id: UUID, url: str = Body(..., max_length=140)
@@ -301,7 +306,7 @@ def update_job_download_url(
 
 
 # This should probably be a PUT method as well. The decision depends on the wider context.
-@app.post("/jobs/{job_id}/timelog")
+@root_router.post("/jobs/{job_id}/timelog")
 @update_documents(collection="jobs")
 def update_timelog_entry(
     db: MongoDbDep, job_id: UUID, event_name: str = Body(..., max_legth=10)
@@ -324,6 +329,10 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     await device_info_service.on_startup()
+    db = await get_default_mongodb()
+    await auth_service.on_startup(db)
 
 
-app.include_router(devices.router)
+app.include_router(root_router, dependencies=[CurrentProjectDep])
+app.include_router(devices.router, dependencies=[CurrentProjectDep])
+app.include_router(auth.router)

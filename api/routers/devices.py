@@ -29,7 +29,7 @@ from services.device_info.dto.FilteredDeviceData import (
 from services.device_info.dto.Device import DeviceData, DeviceInfo, DevicesSimpleInfo
 from services.device_info.dto.VisualisationType import VisualisationType
 from services.device_info import service
-from mongodb_dependency import MongoDbDep
+from api.dependencies import MongoDbDep
 
 router = APIRouter(prefix="/devices", tags=["devices"])
 
