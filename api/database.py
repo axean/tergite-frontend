@@ -14,8 +14,7 @@
 import logging
 from datetime import datetime
 
-from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorClient
-
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 # Code section deletes entries from data base
 # Used for test purposes

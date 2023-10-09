@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 
 
+from flask import Blueprint, current_app, g, jsonify, request
 from flask_cors import CORS
-from flask import jsonify, Blueprint, current_app, g, request
-from werkzeug.local import LocalProxy
 from mss.db import get_t1
+from werkzeug.local import LocalProxy
 
 mss_routes = Blueprint("mss_routes", "mss_routes")
 CORS(mss_routes)

@@ -13,9 +13,10 @@
 
 
 from datetime import datetime
-from typing import Any, Optional, List, Dict
-from .Gate import GateConfig
+from typing import Any, Dict, List, Optional
+
 from .Coupler import CouplerConfig
+from .Gate import GateConfig
 from .Qubit import QubitConfig
 from .Resonator import ResonatorConfig
 from .ZEncodedBaseModel import ZEncodedBaseModel

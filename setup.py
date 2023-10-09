@@ -13,8 +13,7 @@
 # that they have been altered from the originals.
 
 
-from setuptools import setup, find_packages
-
+from setuptools import find_packages, setup
 
 with open("requirements.txt", mode="r") as _file:
     REQUIREMENTS = _file.readlines()

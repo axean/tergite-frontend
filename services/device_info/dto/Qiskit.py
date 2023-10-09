@@ -13,9 +13,11 @@
 
 
 from datetime import datetime
-from pydantic import BaseModel
-from .ZEncodedBaseModel import ZEncodedBaseModel
 from typing import List, Optional
+
+from pydantic import BaseModel
+
+from .ZEncodedBaseModel import ZEncodedBaseModel
 
 
 class QiskitNDUV(BaseModel):

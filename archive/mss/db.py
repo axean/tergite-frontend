@@ -11,11 +11,11 @@
 # that they have been altered from the originals.
 
 
-from flask import current_app, g
-from werkzeug.local import LocalProxy
 import json
 
-from pymongo import MongoClient, DESCENDING
+from flask import current_app, g
+from pymongo import DESCENDING, MongoClient
+from werkzeug.local import LocalProxy
 
 
 def get_db():

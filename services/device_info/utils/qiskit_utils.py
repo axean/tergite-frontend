@@ -12,10 +12,11 @@
 # that they have been altered from the originals.
 
 from typing import List
-from ..dto.Qubit import Qubit
-from ..dto.Gate import Gate
+
 from ..dto.Device import DeviceData
+from ..dto.Gate import Gate
 from ..dto.Qiskit import QiskitDeviceData, QiskitGate, QiskitNDUV
+from ..dto.Qubit import Qubit
 
 
 def device_data_to_qiskit(data: DeviceData) -> QiskitDeviceData:

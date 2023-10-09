@@ -13,10 +13,10 @@
 
 
 from datetime import datetime, timezone
+
 from fastapi import HTTPException
 
 import settings
-
 
 _DATETIME_PRECISION = settings.DATETIME_PRECISION
 

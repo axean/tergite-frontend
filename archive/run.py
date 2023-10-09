@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 
 
-from mss.factory import create_app
-
-from os import path
 import configparser
+from os import path
+
+from mss.factory import create_app
 
 config = configparser.ConfigParser()
 config.read(path.abspath(path.join("config.ini")))

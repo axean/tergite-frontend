@@ -14,23 +14,24 @@
 # that they have been altered from the originals.
 
 
-from contextlib import suppress
-import aiohttp
 import argparse
 import asyncio
 import functools
 import json
 import logging
 import re
+from contextlib import suppress
 from datetime import datetime
-from motor.motor_asyncio import (
-    AsyncIOMotorClient as MotorClient,
-    AsyncIOMotorCollection as MotorCollection,
-)
 from typing import Union
-from websockets.server import WebSocketServerProtocol, serve as WebSocketServer
-from settings import DB_MACHINE_ROOT_URL, DB_NAME
+
+import aiohttp
+from motor.motor_asyncio import AsyncIOMotorClient as MotorClient
+from motor.motor_asyncio import AsyncIOMotorCollection as MotorCollection
+from websockets.server import WebSocketServerProtocol
+from websockets.server import serve as WebSocketServer
+
 from config import app_config
+from settings import DB_MACHINE_ROOT_URL, DB_NAME
 
 
 async def main():

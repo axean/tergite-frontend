@@ -14,22 +14,24 @@
 
 
 from datetime import datetime, timezone
-from typing import List, Dict, Union
+from typing import Dict, List, Union
+
 from fastapi import APIRouter, HTTPException, Query
-from services.device_info.dto.Qiskit import QiskitDeviceData
+
+from api.dependencies import MongoDbDep
+from api.utils.datetime_utils import parse_datetime_string
+from services.device_info import service
+from services.device_info.dto.Device import DeviceData, DeviceInfo, DevicesSimpleInfo
 from services.device_info.dto.DeviceConfiguration import (
     PrivateBackendConfiguration,
     QiskitConfiguration,
 )
-from api.utils.datetime_utils import parse_datetime_string
 from services.device_info.dto.FilteredDeviceData import (
     FilteredComponent,
     FilteredDeviceData,
 )
-from services.device_info.dto.Device import DeviceData, DeviceInfo, DevicesSimpleInfo
+from services.device_info.dto.Qiskit import QiskitDeviceData
 from services.device_info.dto.VisualisationType import VisualisationType
-from services.device_info import service
-from api.dependencies import MongoDbDep
 
 router = APIRouter(prefix="/devices", tags=["devices"])
 

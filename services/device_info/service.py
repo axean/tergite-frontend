@@ -13,38 +13,30 @@
 # that they have been altered from the originals.
 
 import asyncio
-from functools import reduce
-from fastapi import HTTPException
-from typing import List, Dict, Union
-
 import json
 import re
 from contextlib import suppress
 from datetime import datetime, timezone
+from functools import reduce
+from typing import Dict, List, Union
 
+import websockets.client
+from fastapi import HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
+from config import app_config
+
 from .dto.Device import DeviceData, DeviceInfo
-from .dto.DeviceConfiguration import (
-    PrivateBackendConfiguration,
-    QiskitConfiguration,
-)
-from .dto.FilteredDeviceData import (
-    FilteredComponent,
-    FilteredDeviceData,
-)
-from .dto.VisualisationType import VisualisationType
+from .dto.DeviceConfiguration import PrivateBackendConfiguration, QiskitConfiguration
+from .dto.FilteredDeviceData import FilteredComponent, FilteredDeviceData
 from .dto.Qiskit import QiskitDeviceData
-from .utils.configuration_utils import (
-    private_backend_config_to_qiskit_format,
-)
+from .dto.VisualisationType import VisualisationType
+from .utils.configuration_utils import private_backend_config_to_qiskit_format
 from .utils.filtered_data_utils import (
     filter_device_data_by_type,
     join_filtered_device_data,
 )
 from .utils.qiskit_utils import device_data_to_qiskit
-import websockets.client
-from config import app_config
 
 # DON NOT CHANGE THIS
 DB_SORT_DESCENDING = -1

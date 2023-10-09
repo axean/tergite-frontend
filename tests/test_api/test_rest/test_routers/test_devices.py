@@ -6,6 +6,10 @@ from typing import Any, Dict, List, Union
 import pytest
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
+from config import app_config
+from services.device_info.dto.Device import DeviceData
+from services.device_info.dto.Device import DeviceInfo as BasicDeviceConfig
+from services.device_info.dto.Device import DevicesSimpleInfo as BasicDeviceData
 from services.device_info.dto.DeviceConfiguration import (
     PrivateBackendConfiguration as PrivateBackendFullDeviceConfig,
 )
@@ -13,20 +17,14 @@ from services.device_info.dto.FilteredDeviceData import (
     FilteredComponent,
     FilteredDeviceData,
 )
-from services.device_info.dto.Device import (
-    DeviceData,
-    DeviceInfo as BasicDeviceConfig,
-    DevicesSimpleInfo as BasicDeviceData,
-)
 from services.device_info.dto.NDUV import NDUV as Property
 from services.device_info.dto.VisualisationType import VisualisationType
-from services.device_info.utils.qiskit_utils import (
-    device_data_to_qiskit as to_qiskit_device_data,
-)
 from services.device_info.utils.configuration_utils import (
     private_backend_config_to_qiskit_format as to_qiskit_config_format,
 )
-from config import app_config
+from services.device_info.utils.qiskit_utils import (
+    device_data_to_qiskit as to_qiskit_device_data,
+)
 from tests._utils.date_time import is_not_older_than
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection

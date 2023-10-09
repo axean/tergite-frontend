@@ -13,20 +13,16 @@
 # that they have been altered from the originals.
 
 
-from ..dto.Device import DeviceData
-from ..dto.VisualisationType import VisualisationType
-from ..dto.FilteredDeviceData import (
-    FilteredDeviceData,
-    FilteredComponent,
-)
+from functools import reduce
+from typing import List, Union
+
 from ..dto.Coupler import Coupler
+from ..dto.Device import DeviceData
+from ..dto.FilteredDeviceData import FilteredComponent, FilteredDeviceData
+from ..dto.Gate import Gate
 from ..dto.Qubit import Qubit
 from ..dto.Resonator import Resonator
-from ..dto.Gate import Gate
-
-from functools import reduce
-
-from typing import List, Union
+from ..dto.VisualisationType import VisualisationType
 
 
 def filter_device_data_by_type(

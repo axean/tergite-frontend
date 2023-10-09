@@ -12,14 +12,12 @@
 # that they have been altered from the originals.
 
 
+from typing import List, Union
+
 from ..dto.Coupler import CouplerConfig
+from ..dto.DeviceConfiguration import PrivateBackendConfiguration, QiskitConfiguration
 from ..dto.Gate import GateConfig
 from ..dto.Qubit import QubitConfig
-from ..dto.DeviceConfiguration import (
-    PrivateBackendConfiguration,
-    QiskitConfiguration,
-)
-from typing import List, Union
 
 
 def private_backend_config_to_qiskit_format(

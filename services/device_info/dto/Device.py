@@ -13,12 +13,13 @@
 
 
 from datetime import datetime
-from typing import Any, List, Dict
-from .ZEncodedBaseModel import ZEncodedBaseModel
-from .Qubit import Qubit, QubitConfig
-from .Gate import Gate, GateConfig
-from .Resonator import Resonator, ResonatorConfig
+from typing import Any, Dict, List
+
 from .Coupler import Coupler, CouplerConfig
+from .Gate import Gate, GateConfig
+from .Qubit import Qubit, QubitConfig
+from .Resonator import Resonator, ResonatorConfig
+from .ZEncodedBaseModel import ZEncodedBaseModel
 
 
 class DeviceInfo(ZEncodedBaseModel):

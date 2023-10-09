@@ -12,9 +12,10 @@
 # that they have been altered from the originals.
 
 
-from .ZEncodedBaseModel import ZEncodedBaseModel
-from .NDUV import NDUV, List
 from typing import Dict, Union
+
+from .NDUV import NDUV, List
+from .ZEncodedBaseModel import ZEncodedBaseModel
 
 
 class FilteredComponent(ZEncodedBaseModel):
