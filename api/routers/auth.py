@@ -22,27 +22,9 @@ from services.auth import (
     JWT_BACKEND,
     MICROSOFT_OAUTH_CLIENT,
     PUHURI_OAUTH_CLIENT,
-    UserCreate,
-    UserRead,
-    UserUpdate,
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-
-router.include_router(
-    JWT_AUTH.get_auth_router(JWT_BACKEND), prefix="/auth/jwt", tags=["auth"]
-)
-
-router.include_router(
-    JWT_AUTH.get_register_router(UserRead, UserCreate),
-    tags=["auth"],
-)
-
-router.include_router(
-    JWT_AUTH.get_users_router(UserRead, UserUpdate),
-    prefix="/users",
-    tags=["users"],
-)
 
 router.include_router(
     JWT_AUTH.get_oauth_router(
