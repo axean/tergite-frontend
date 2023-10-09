@@ -13,7 +13,6 @@ PORT_NUMBER="${PORT_CONFIG#*=}"                  # extract the number
 
 
 # rest-api
-uvicorn --host 0.0.0.0 --port "$PORT_NUMBER" rest_api:app --reload
-
+uvicorn --host 0.0.0.0 --port "$PORT_NUMBER" rest_api:app  --proxy-headers --reload
 # websocket server
 # python3 ws_main.py &
