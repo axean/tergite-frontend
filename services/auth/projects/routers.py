@@ -1,26 +1,41 @@
-"""A collection of routers utilities for auth"""
-from typing import Type, TYPE_CHECKING, Tuple
+# This code is part of Tergite
+#
+# (C) Copyright Martin Ahindura 2023
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
 
-from fastapi import APIRouter, status, Request, Depends, HTTPException
+"""A collection of routers for the projects submodule of the auth service"""
+from typing import TYPE_CHECKING, Tuple, Type
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import Response
-from fastapi_users import schemas, models, exceptions
+from fastapi_users import exceptions, schemas
 from fastapi_users.authentication import AuthenticationBackend
 from fastapi_users.openapi import OpenAPIResponseType
-from fastapi_users.router.common import ErrorModel, ErrorCode
+from fastapi_users.router.common import ErrorCode, ErrorModel
+from fastapi_users.types import DependencyCallable
 
-
-from .. import exc
-from ..dtos import Project, ProjectCreate, AppTokenCreate, User, ProjectUpdate
+from ..users.dtos import User
+from . import exc
+from .dtos import AppTokenCreate, Project, ProjectCreate, ProjectUpdate
 
 if TYPE_CHECKING:
-    from ..service import (
-        ProjectManagerDependency,
-        ProjectManager,
+    from .app_tokens import (
         AppTokenAuthenticator,
-        CurrentUserDependency,
-        CurrentSuperUserDependency,
         AppTokenStrategy,
+        ProjectManagerDependency,
     )
+    from .manager import ProjectManager
+
+
+CurrentUserDependency = DependencyCallable[User]
+CurrentSuperUserDependency = DependencyCallable[User]
 
 
 class ExtendedErrorCode(ErrorCode):

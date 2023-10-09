@@ -6,11 +6,11 @@ from typing_extensions import Annotated
 import settings
 from api.database import get_mongodb
 from services.auth import (
-    GET_CURRENT_USER,
-    GET_CURRENT_SUPERUSER,
     GET_CURRENT_PROJECT,
-    User,
+    GET_CURRENT_SUPERUSER,
+    GET_CURRENT_USER,
     Project,
+    User,
 )
 
 

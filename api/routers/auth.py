@@ -15,38 +15,38 @@ from fastapi import APIRouter
 
 import settings
 from services.auth import (
-    JWT_BACKEND,
-    JWT_AUTH_INSTANCE,
-    APP_TOKEN_AUTH_INSTANCE,
+    APP_TOKEN_AUTH,
     APP_TOKEN_BACKEND,
-    UserRead,
-    UserCreate,
-    UserUpdate,
     GITHUB_OAUTH_CLIENT,
+    JWT_AUTH,
+    JWT_BACKEND,
     MICROSOFT_OAUTH_CLIENT,
     PUHURI_OAUTH_CLIENT,
+    UserCreate,
+    UserRead,
+    UserUpdate,
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 router.include_router(
-    JWT_AUTH_INSTANCE.get_auth_router(JWT_BACKEND), prefix="/auth/jwt", tags=["auth"]
+    JWT_AUTH.get_auth_router(JWT_BACKEND), prefix="/auth/jwt", tags=["auth"]
 )
 
 router.include_router(
-    JWT_AUTH_INSTANCE.get_register_router(UserRead, UserCreate),
+    JWT_AUTH.get_register_router(UserRead, UserCreate),
     prefix="/",
     tags=["auth"],
 )
 
 router.include_router(
-    JWT_AUTH_INSTANCE.get_users_router(UserRead, UserUpdate),
+    JWT_AUTH.get_users_router(UserRead, UserUpdate),
     prefix="/users",
     tags=["users"],
 )
 
 router.include_router(
-    JWT_AUTH_INSTANCE.get_oauth_router(
+    JWT_AUTH.get_oauth_router(
         oauth_client=GITHUB_OAUTH_CLIENT,
         backend=JWT_BACKEND,
         state_secret=settings.JWT_SECRET,
@@ -56,7 +56,7 @@ router.include_router(
 )
 
 router.include_router(
-    JWT_AUTH_INSTANCE.get_oauth_router(
+    JWT_AUTH.get_oauth_router(
         oauth_client=MICROSOFT_OAUTH_CLIENT,
         backend=JWT_BACKEND,
         state_secret=settings.JWT_SECRET,
@@ -66,7 +66,7 @@ router.include_router(
 )
 
 router.include_router(
-    JWT_AUTH_INSTANCE.get_oauth_router(
+    JWT_AUTH.get_oauth_router(
         oauth_client=PUHURI_OAUTH_CLIENT,
         backend=JWT_BACKEND,
         state_secret=settings.JWT_SECRET,
@@ -76,13 +76,13 @@ router.include_router(
 )
 
 router.include_router(
-    APP_TOKEN_AUTH_INSTANCE.get_app_tokens_router(backend=APP_TOKEN_BACKEND),
+    APP_TOKEN_AUTH.get_app_tokens_router(backend=APP_TOKEN_BACKEND),
     prefix="/app-tokens",
     tags=["auth"],
 )
 
 router.include_router(
-    APP_TOKEN_AUTH_INSTANCE.get_projects_router(backend=JWT_BACKEND),
+    APP_TOKEN_AUTH.get_projects_router(backend=JWT_BACKEND),
     prefix="/projects",
     tags=["auth"],
 )

@@ -9,34 +9,14 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Data Transfer Objects for the projects submodule in the auth service"""
 from typing import List, Optional
 
 import pymongo
-from beanie import PydanticObjectId, Document
-from fastapi_users import schemas, db
+from beanie import Document
 from fastapi_users_db_beanie.access_token import BeanieBaseAccessToken
-from pydantic import Field, BaseModel
+from pydantic import BaseModel
 from pymongo import IndexModel
-
-
-class UserRead(schemas.BaseUser[PydanticObjectId]):
-    pass
-
-
-class UserCreate(schemas.BaseUserCreate):
-    pass
-
-
-class UserUpdate(schemas.BaseUserUpdate):
-    pass
-
-
-class OAuthAccount(db.BaseOAuthAccount):
-    pass
-
-
-class User(db.BeanieBaseUser, Document):
-    oauth_accounts: List[OAuthAccount] = Field(default_factory=list)
 
 
 class ProjectCreate(BaseModel):

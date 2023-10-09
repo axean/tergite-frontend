@@ -10,9 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Exceptions for auth"""
-import fastapi_users
+"""Exceptions for auth with respect to the projects submodule"""
+from fastapi_users.exceptions import UserNotExists
 
 
-class ProjectNotExists(fastapi_users.exceptions.UserNotExists):
+class ProjectNotExists(UserNotExists):
     pass

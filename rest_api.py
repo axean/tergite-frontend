@@ -13,21 +13,21 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-import logging
-
-from fastapi import FastAPI, Body, HTTPException, status, APIRouter
-from uuid import uuid4, UUID
-from datetime import datetime
-import pymongo
-import settings
-
 # Imports for Webgui
 import functools
+import logging
+from datetime import datetime
+from uuid import UUID, uuid4
+
+import pymongo
+from fastapi import APIRouter, Body, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from api.routers import devices, auth
-from services.device_info import service as device_info_service
+
+import settings
+from api.dependencies import CurrentProjectDep, MongoDbDep, get_default_mongodb
+from api.routers import auth, devices
 from services.auth import service as auth_service
-from api.dependencies import MongoDbDep, get_default_mongodb, CurrentProjectDep
+from services.device_info import service as device_info_service
 
 # settings
 BCC_MACHINE_ROOT_URL = settings.BCC_MACHINE_ROOT_URL
