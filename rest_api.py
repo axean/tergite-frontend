@@ -42,7 +42,7 @@ app = FastAPI(
     version="0.0.1",
 )
 
-root_router = APIRouter(prefix="/", tags=["root"])
+root_router = APIRouter(tags=["root"])
 
 
 # ------------ Sorting templates ------------ #

@@ -27,8 +27,7 @@ from httpx_oauth.clients.github import GitHubOAuth2
 from httpx_oauth.clients.microsoft import MicrosoftGraphOAuth2
 from httpx_oauth.clients.openid import OpenID
 
-from services.auth import User
-from services.auth.users.dtos import OAuthAccount
+from services.auth.users.dtos import OAuthAccount, User
 
 
 def get_jwt_backend(

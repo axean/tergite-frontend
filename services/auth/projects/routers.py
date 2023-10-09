@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """A collection of routers for the projects submodule of the auth service"""
+from enum import Enum
 from typing import TYPE_CHECKING, Tuple, Type
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -24,21 +25,19 @@ from fastapi_users.types import DependencyCallable
 from ..users.dtos import User
 from . import exc
 from .dtos import AppTokenCreate, Project, ProjectCreate, ProjectUpdate
-
-if TYPE_CHECKING:
-    from .app_tokens import (
-        AppTokenAuthenticator,
-        AppTokenStrategy,
-        ProjectManagerDependency,
-    )
-    from .manager import ProjectManager
+from .app_tokens import (
+    AppTokenAuthenticator,
+    AppTokenStrategy,
+    ProjectManagerDependency,
+)
+from .manager import ProjectManager
 
 
 CurrentUserDependency = DependencyCallable[User]
 CurrentSuperUserDependency = DependencyCallable[User]
 
 
-class ExtendedErrorCode(ErrorCode):
+class ExtendedErrorCode(str, Enum):
     PROJECT_ALREADY_EXISTS = "PROJECT_ALREADY_EXISTS"
     BAD_CREDENTIALS = "BAD_CREDENTIALS"
     UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS = "UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS"
@@ -80,9 +79,9 @@ def get_app_tokens_router(
     async def generate_app_token(
         request: Request,
         payload: AppTokenCreate,
-        project_manager: "ProjectManager" = Depends(get_project_manager),
-        strategy: "AppTokenStrategy" = Depends(backend.get_strategy),
-        current_user: "User" = Depends(get_current_user),
+        project_manager: ProjectManager = Depends(get_project_manager),
+        strategy: AppTokenStrategy = Depends(backend.get_strategy),
+        current_user: User = Depends(get_current_user),
     ):
         project = await project_manager.authenticate(
             details=payload, current_user=current_user
@@ -114,7 +113,7 @@ def get_app_tokens_router(
     )
     async def logout(
         project_token: Tuple[Project, str] = Depends(get_current_project_token),
-        strategy: "AppTokenStrategy" = Depends(backend.get_strategy),
+        strategy: AppTokenStrategy = Depends(backend.get_strategy),
     ):
         project, token = project_token
         return await backend.logout(strategy, project, token)
@@ -123,8 +122,8 @@ def get_app_tokens_router(
 
 
 def get_projects_router(
-    get_project_manager: "ProjectManagerDependency",
-    get_current_superuser: "CurrentSuperUserDependency",
+    get_project_manager: ProjectManagerDependency,
+    get_current_superuser: CurrentSuperUserDependency,
     project_schema: Type[Project],
     project_update_schema: Type[ProjectUpdate],
     project_create_schema: Type[ProjectCreate],
@@ -135,7 +134,7 @@ def get_projects_router(
 
     async def get_project_or_404(
         id: str,
-        project_manager: "ProjectManager" = Depends(get_project_manager),
+        project_manager: ProjectManager = Depends(get_project_manager),
     ) -> Project:
         try:
             parsed_id = project_manager.parse_id(id)
@@ -169,7 +168,7 @@ def get_projects_router(
     )
     async def create(
         project_create: project_create_schema,  # type: ignore
-        project_manager: "ProjectManager" = Depends(get_project_manager),
+        project_manager: ProjectManager = Depends(get_project_manager),
     ):
         try:
             created_project = await project_manager.create(
@@ -239,7 +238,7 @@ def get_projects_router(
         project_update: project_update_schema,  # type: ignore
         request: Request,
         project=Depends(get_project_or_404),
-        project_manager: "ProjectManager" = Depends(get_project_manager),
+        project_manager: ProjectManager = Depends(get_project_manager),
     ):
         try:
             project = await project_manager.update(
@@ -273,7 +272,7 @@ def get_projects_router(
     async def delete_project(
         request: Request,
         project=Depends(get_project_or_404),
-        project_manager: "ProjectManager" = Depends(get_project_manager),
+        project_manager: ProjectManager = Depends(get_project_manager),
     ):
         await project_manager.delete(project, request=request)
         return None

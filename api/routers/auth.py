@@ -35,7 +35,6 @@ router.include_router(
 
 router.include_router(
     JWT_AUTH.get_register_router(UserRead, UserCreate),
-    prefix="/",
     tags=["auth"],
 )
 
@@ -82,7 +81,7 @@ router.include_router(
 )
 
 router.include_router(
-    APP_TOKEN_AUTH.get_projects_router(backend=JWT_BACKEND),
+    APP_TOKEN_AUTH.get_projects_router(),
     prefix="/projects",
     tags=["auth"],
 )
