@@ -29,3 +29,26 @@ TEST_DB_MACHINE_ROOT_URL=mongodb://localhost:27017
 # For datetime precisions; number of additional components of the time to include
 # See https://docs.python.org/3/library/datetime.html#datetime.datetime.isoformat
 # DATETIME_PRECISION=<any of 'milliseconds', 'auto', 'microseconds', 'seconds', 'minutes', 'hours'>
+
+# Authentication with Github (Just for testing purposes)
+# See https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps
+GITHUB_CLIENT_ID=<some-github-client-id>
+GITHUB_CLIENT_SECRET=<some-github-client-secret>
+
+# Authentication with Microsoft
+# See https://learn.microsoft.com/en-us/azure/active-directory/develop/quickstart-web-app-python-sign-in?tabs=windows
+MICROSOFT_CLIENT_ID=<some-microsoft-client-id>
+MICROSOFT_CLIENT_SECRET=<some-microsoft-client-secret>
+
+# Authentication with Puhuri
+# Register an application at https://webapp.prod.puhuri.eduteams.org/sp_request
+# to get the client ID and the client secret
+PUHURI_CLIENT_ID=<some-puhuri-client-id>
+PUHURI_CLIENT_SECRET=<some-puhuri-client-secret>
+PUHURI_CONFIG_ENDPOINT=https://proxy.acc.puhuri.eduteams.org/.well-known/openid-configuration
+
+# Secret for regenerating JWT.
+# It can be generated using `openssl rand -base64 45`
+JWT_SECRET=<some-jwt-secret>
+# JWT token lifespan in seconds. default = 3600
+JWT_TTL=3600
