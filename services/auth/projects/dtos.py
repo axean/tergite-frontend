@@ -39,6 +39,7 @@ class Project(ProjectCreate, Document):
     is_active: bool = True
 
     class Settings:
+        name = "auth_projects"
         indexes = [
             IndexModel("ext_id", unique=True),
         ]
@@ -56,6 +57,7 @@ class AppToken(BeanieBaseAccessToken, AppTokenCreate, Document):
     """App token stored in the database"""
 
     class Settings(BeanieBaseAccessToken.Settings):
+        name = "auth_app_tokens"
         indexes = BeanieBaseAccessToken.Settings.indexes + [
             IndexModel(
                 [("project_ext_id", pymongo.ASCENDING), ("user_id", pymongo.ASCENDING)],

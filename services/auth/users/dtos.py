@@ -36,3 +36,6 @@ class OAuthAccount(db.BaseOAuthAccount):
 
 class User(db.BeanieBaseUser, Document):
     oauth_accounts: List[OAuthAccount] = Field(default_factory=list)
+
+    class Settings(db.BeanieBaseUser.Settings):
+        name = "auth_users"
