@@ -11,11 +11,21 @@
 # that they have been altered from the originals.
 
 """Data Transafer Objects for the users submodule of the auth service"""
-from typing import List
+import enum
+from typing import Any, List, Set
 
 from beanie import Document, PydanticObjectId
 from fastapi_users import db, schemas
-from pydantic import Field
+from pydantic import BaseModel, Field
+from pymongo import IndexModel
+from pymongo.collation import Collation
+
+
+class UserRole(str, enum.Enum):
+    USER = "user"
+    RESEARCHER = "researcher"
+    ADMIN = "admin"
+    PARTNER = "partner"
 
 
 class UserRead(schemas.BaseUser[PydanticObjectId]):
@@ -34,8 +44,34 @@ class OAuthAccount(db.BaseOAuthAccount):
     pass
 
 
-class User(db.BeanieBaseUser, Document):
+class User(Document):
+    email: str
+    hashed_password: str
+    is_active: bool = True
+    is_verified: bool = False
     oauth_accounts: List[OAuthAccount] = Field(default_factory=list)
+    roles: Set[UserRole] = {UserRole.USER}
 
-    class Settings(db.BeanieBaseUser.Settings):
+    class Settings:
         name = "auth_users"
+        email_collation = Collation("en", strength=2)
+        indexes = [
+            IndexModel("email", unique=True),
+            IndexModel(
+                "email", name="case_insensitive_email_index", collation=email_collation
+            ),
+        ]
+
+    @property
+    def is_superuser(self):
+        return UserRole.ADMIN in self.roles
+
+    @is_superuser.setter
+    def is_superuser(self, value: bool):
+        if value:
+            self.roles.add(UserRole.ADMIN)
+        elif not value:
+            try:
+                self.roles.remove(UserRole.ADMIN)
+            except KeyError:
+                pass

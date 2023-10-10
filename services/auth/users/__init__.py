@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 """Entry point for the users submodule of the auth module"""
 from functools import lru_cache
-from typing import Optional
+from typing import Any, Dict, Optional, Sequence, Tuple
 
 from beanie import PydanticObjectId
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from fastapi.requests import Request
 from fastapi_users import BaseUserManager, models
 from fastapi_users.authentication import (
@@ -24,15 +24,19 @@ from fastapi_users.authentication import (
 )
 from fastapi_users.db import BaseUserDatabase
 from fastapi_users.password import PasswordHelperProtocol
+from fastapi_users.types import DependencyCallable
 from fastapi_users_db_beanie import BeanieUserDatabase, ObjectIDIDMixin
 from httpx_oauth.clients.github import GitHubOAuth2
 from httpx_oauth.clients.microsoft import MicrosoftGraphOAuth2
 from httpx_oauth.clients.openid import OpenID
+from starlette import status
 
 import settings
 from services.auth.users import exc
-from services.auth.users.dtos import OAuthAccount, User
+from services.auth.users.dtos import OAuthAccount, User, UserRole
 from services.auth.users.validators import EmailRegexValidator, Validator
+
+CurrentUserDependency = DependencyCallable[User]
 
 
 def get_jwt_backend(
@@ -55,7 +59,7 @@ def get_jwt_backend(
 
 async def get_user_db():
     """Dependency injector of the users database"""
-    yield BeanieUserDatabase(User, OAuthAccount)
+    yield UserDatabase(settings.AUTH_ROLES_MAP)
 
 
 async def get_email_validator() -> Validator:
@@ -69,6 +73,34 @@ async def get_user_manager(
 ):
     """Dependency injector for UserManager"""
     yield UserManager(user_db, email_validator=email_validator)
+
+
+def get_current_user_of_any(
+    roles: Tuple[UserRole], get_current_user: CurrentUserDependency
+):
+    """Creates dependency injector of current user if user has any of the given roles
+
+    Args:
+        roles: the roles to check for
+        get_current_user: the dependency injector that retrieves the current user
+
+    Returns:
+        the dependency injector function
+    """
+
+    async def get_user(user: User = Depends(get_current_user)):
+        is_permitted = False
+        for role in roles:
+            if role in user.roles:
+                is_permitted = True
+                break
+
+        if not is_permitted:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+        yield user
+
+    return get_user
 
 
 @lru_cache()
@@ -178,3 +210,22 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
             associate_by_email=associate_by_email,
             is_verified_by_default=is_verified_by_default,
         )
+
+
+class UserDatabase(BeanieUserDatabase):
+    def __init__(self, user_roles_config: Dict[str, Optional[Sequence[str]]] = None):
+        super().__init__(
+            user_model=User,
+            oauth_account_model=OAuthAccount,
+        )
+        self.__roles_map = user_roles_config if user_roles_config else {}
+
+    async def add_oauth_account(self, user: User, create_dict: Dict[str, Any]) -> User:
+        try:
+            oauth_name = create_dict["oauth_name"]
+            user_roles = self.__roles_map[oauth_name]
+            user.roles.update({UserRole(v) for v in user_roles if v})
+        except (KeyError, TypeError):
+            pass
+
+        return await super().add_oauth_account(user, create_dict)

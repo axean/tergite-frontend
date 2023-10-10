@@ -35,19 +35,40 @@ TEST_DB_MACHINE_ROOT_URL=mongodb://localhost:27017
 #
 # All auth options are optional, but to use auth, you must set client ID's and secrets and the JWT secret
 #
-# Authentication with tergite admins (Just for testing purposes)
+# In order to give different groups of users, different access, each group will have its
+# own client
+#
+# Authentication with tergite admins
 # See https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps
 TERGITE_CLIENT_ID=<some-github-client-id>
 TERGITE_CLIENT_SECRET=<some-github-client-secret>
 # the regex validation for emails to allow for this login. default: ".*"
 TERGITE_EMAIL_REGEX=".*"
+# Roles are comma-separated.
+# roles can be: "admin", "user", "researcher", "partner". Default is "user".
+TERGITE_ROLES="admin"
 
-# Authentication with Microsoft
+# Authentication with Chalmers
 # See https://learn.microsoft.com/en-us/azure/active-directory/develop/quickstart-web-app-python-sign-in?tabs=windows
 CHALMERS_CLIENT_ID=<some-microsoft-client-id>
 CHALMERS_CLIENT_SECRET=<some-microsoft-client-secret>
 # the regex validation for emails to allow for this login. default: ".*"
 CHALMERS_EMAIL_REGEX=".*"
+# Roles are comma-separated.
+# roles can be: "admin", "user", "researcher", "partner". Default is "user".
+CHALMERS_ROLES="researcher"
+
+# # Authentication with WACQT Partners; each partner has own set of credentials
+# # e.g. assuming Erikson uses OpenID connect
+# ERIKSON_CLIENT_ID=<some-openid-client-id>
+# ERIKSON_CLIENT_SECRET=<some-openid-client-secret>
+# ERIKSON_CONFIG_ENDPOINT=<some-openid-config-endpoint>
+# # the regex validation for emails to allow for this login. default: ".*"
+# ERIKSON_EMAIL_REGEX=".*"
+# # Roles are comma-separated.
+# # roles can be: "admin", "user", "researcher", "partner". Default is "user".
+# ERIKSON_ROLES="partner"
+# # to use the above configs, however, the settings file as well as the auth service have to updated
 
 # Authentication with Puhuri
 # Register an application at https://webapp.prod.puhuri.eduteams.org/sp_request
@@ -57,6 +78,9 @@ PUHURI_CLIENT_SECRET=<some-puhuri-client-secret>
 PUHURI_CONFIG_ENDPOINT=https://proxy.acc.puhuri.eduteams.org/.well-known/openid-configuration
 # the regex validation for emails to allow for this login. default: ".*"
 PUHURI_EMAIL_REGEX=".*"
+# Roles are comma-separated.
+# roles can be: "admin", "user", "researcher", "partner". Default is "user".
+PUHURI_ROLES="user"
 
 # Secret for regenerating JWT.
 # It can be generated using `openssl rand -base64 45`

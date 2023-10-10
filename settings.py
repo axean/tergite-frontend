@@ -12,7 +12,7 @@
 import logging
 
 from starlette.config import Config
-from starlette.datastructures import URL
+from starlette.datastructures import URL, CommaSeparatedStrings
 
 # NOTE: shell env variables take precedence over the configuration file
 config = Config(".env")
@@ -60,4 +60,16 @@ AUTH_EMAIL_REGEX_MAP = {
     TERGITE_CLIENT_NAME: config("TERGITE_EMAIL_REGEX", cast=str, default=".*"),
     CHALMERS_CLIENT_NAME: config("CHALMERS_EMAIL_REGEX", cast=str, default=".*"),
     PUHURI_CLIENT_NAME: config("PUHURI_EMAIL_REGEX", cast=str, default=".*"),
+}
+
+AUTH_ROLES_MAP = {
+    TERGITE_CLIENT_NAME: config(
+        "TERGITE_ROLES", cast=CommaSeparatedStrings, default=None
+    ),
+    CHALMERS_CLIENT_NAME: config(
+        "CHALMERS_ROLES", cast=CommaSeparatedStrings, default=None
+    ),
+    PUHURI_CLIENT_NAME: config(
+        "PUHURI_ROLES", cast=CommaSeparatedStrings, default=None
+    ),
 }

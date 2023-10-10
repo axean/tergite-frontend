@@ -23,6 +23,7 @@ from .service import (
     TERGITE_OAUTH_CLIENT,
     on_startup,
 )
+from .users import get_current_user_of_any
 from .users.dtos import User, UserCreate, UserRead, UserUpdate
 
 __all__ = [
@@ -46,4 +47,5 @@ __all__ = [
     CHALMERS_OAUTH_CLIENT,
     PUHURI_OAUTH_CLIENT,
     on_startup,
+    get_current_user_of_any,
 ]

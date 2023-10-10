@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """Service for oauth2 authentication and project-based authorization"""
+
 import motor.motor_asyncio
 from beanie import PydanticObjectId, init_beanie
 from fastapi_users import FastAPIUsers
