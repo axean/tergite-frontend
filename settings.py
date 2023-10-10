@@ -40,15 +40,24 @@ root_logger = logging.getLogger()
 root_logger.setLevel(_logger_level)
 
 # auth
-GITHUB_CLIENT_ID = config("GITHUB_CLIENT_ID", cast=str, default=None)
-GITHUB_CLIENT_SECRET = config("GITHUB_CLIENT_SECRET", cast=str, default=None)
+TERGITE_CLIENT_NAME = "github"
+TERGITE_CLIENT_ID = config("TERGITE_CLIENT_ID", cast=str, default=None)
+TERGITE_CLIENT_SECRET = config("TERGITE_CLIENT_SECRET", cast=str, default=None)
 
-MICROSOFT_CLIENT_ID = config("MICROSOFT_CLIENT_ID", cast=str, default=None)
-MICROSOFT_CLIENT_SECRET = config("MICROSOFT_CLIENT_SECRET", cast=str, default=None)
+CHALMERS_CLIENT_NAME = "chalmers"
+CHALMERS_CLIENT_ID = config("CHALMERS_CLIENT_ID", cast=str, default=None)
+CHALMERS_CLIENT_SECRET = config("CHALMERS_CLIENT_SECRET", cast=str, default=None)
 
+PUHURI_CLIENT_NAME = "puhuri"
 PUHURI_CLIENT_ID = config("PUHURI_CLIENT_ID", cast=str, default=None)
 PUHURI_CLIENT_SECRET = config("PUHURI_CLIENT_SECRET", cast=str, default=None)
 PUHURI_CONFIG_ENDPOINT = config("PUHURI_CONFIG_ENDPOINT", cast=str, default=None)
 
 JWT_SECRET = config("JWT_SECRET", cast=str, default=None)
 JWT_TTL = config("JWT_TTL", cast=int, default=3600)
+
+AUTH_EMAIL_REGEX_MAP = {
+    TERGITE_CLIENT_NAME: config("TERGITE_EMAIL_REGEX", cast=str, default=".*"),
+    CHALMERS_CLIENT_NAME: config("CHALMERS_EMAIL_REGEX", cast=str, default=".*"),
+    PUHURI_CLIENT_NAME: config("PUHURI_EMAIL_REGEX", cast=str, default=".*"),
+}

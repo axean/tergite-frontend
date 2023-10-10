@@ -24,14 +24,13 @@ from fastapi_users.types import DependencyCallable
 
 from ..users.dtos import User
 from . import exc
-from .dtos import AppTokenCreate, Project, ProjectCreate, ProjectUpdate
 from .app_tokens import (
     AppTokenAuthenticator,
     AppTokenStrategy,
     ProjectManagerDependency,
 )
+from .dtos import AppTokenCreate, Project, ProjectCreate, ProjectUpdate
 from .manager import ProjectManager
-
 
 CurrentUserDependency = DependencyCallable[User]
 CurrentSuperUserDependency = DependencyCallable[User]

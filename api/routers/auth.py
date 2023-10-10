@@ -17,34 +17,34 @@ import settings
 from services.auth import (
     APP_TOKEN_AUTH,
     APP_TOKEN_BACKEND,
-    GITHUB_OAUTH_CLIENT,
+    CHALMERS_OAUTH_CLIENT,
     JWT_AUTH,
     JWT_BACKEND,
-    MICROSOFT_OAUTH_CLIENT,
     PUHURI_OAUTH_CLIENT,
+    TERGITE_OAUTH_CLIENT,
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 router.include_router(
     JWT_AUTH.get_oauth_router(
-        oauth_client=GITHUB_OAUTH_CLIENT,
+        oauth_client=TERGITE_OAUTH_CLIENT,
         backend=JWT_BACKEND,
         state_secret=settings.JWT_SECRET,
         is_verified_by_default=True,
     ),
-    prefix="/github",
+    prefix=f"/{TERGITE_OAUTH_CLIENT.name}",
     tags=["auth"],
 )
 
 router.include_router(
     JWT_AUTH.get_oauth_router(
-        oauth_client=MICROSOFT_OAUTH_CLIENT,
+        oauth_client=CHALMERS_OAUTH_CLIENT,
         backend=JWT_BACKEND,
         state_secret=settings.JWT_SECRET,
         is_verified_by_default=True,
     ),
-    prefix="/microsoft",
+    prefix=f"/{CHALMERS_OAUTH_CLIENT.name}",
     tags=["auth"],
 )
 
@@ -55,7 +55,7 @@ router.include_router(
         state_secret=settings.JWT_SECRET,
         is_verified_by_default=True,
     ),
-    prefix="/puhuri",
+    prefix=f"/{PUHURI_OAUTH_CLIENT.name}",
     tags=["auth"],
 )
 

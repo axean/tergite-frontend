@@ -13,14 +13,14 @@ from .projects.dtos import Project, ProjectCreate, ProjectUpdate
 from .service import (
     APP_TOKEN_AUTH,
     APP_TOKEN_BACKEND,
+    CHALMERS_OAUTH_CLIENT,
     GET_CURRENT_PROJECT,
     GET_CURRENT_SUPERUSER,
     GET_CURRENT_USER,
-    GITHUB_OAUTH_CLIENT,
     JWT_AUTH,
     JWT_BACKEND,
-    MICROSOFT_OAUTH_CLIENT,
     PUHURI_OAUTH_CLIENT,
+    TERGITE_OAUTH_CLIENT,
     on_startup,
 )
 from .users.dtos import User, UserCreate, UserRead, UserUpdate
@@ -42,8 +42,8 @@ __all__ = [
     GET_CURRENT_SUPERUSER,
     APP_TOKEN_AUTH,
     GET_CURRENT_PROJECT,
-    GITHUB_OAUTH_CLIENT,
-    MICROSOFT_OAUTH_CLIENT,
+    TERGITE_OAUTH_CLIENT,
+    CHALMERS_OAUTH_CLIENT,
     PUHURI_OAUTH_CLIENT,
     on_startup,
 ]

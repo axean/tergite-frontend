@@ -34,19 +34,23 @@ GET_CURRENT_USER = JWT_AUTH.current_user(active=True)
 GET_CURRENT_SUPERUSER = JWT_AUTH.current_user(active=True, superuser=True)
 
 # Oauth clients for authentication
-GITHUB_OAUTH_CLIENT = users.get_github_client(
-    client_id=settings.GITHUB_CLIENT_ID, client_secret=settings.GITHUB_CLIENT_SECRET
+TERGITE_OAUTH_CLIENT = users.get_github_client(
+    client_id=settings.TERGITE_CLIENT_ID,
+    client_secret=settings.TERGITE_CLIENT_SECRET,
+    name=settings.TERGITE_CLIENT_NAME,
 )
 
-MICROSOFT_OAUTH_CLIENT = users.get_microsoft_client(
-    client_id=settings.MICROSOFT_CLIENT_ID,
-    client_secret=settings.MICROSOFT_CLIENT_SECRET,
+CHALMERS_OAUTH_CLIENT = users.get_microsoft_client(
+    client_id=settings.CHALMERS_CLIENT_ID,
+    client_secret=settings.CHALMERS_CLIENT_SECRET,
+    name=settings.CHALMERS_CLIENT_NAME,
 )
 
 PUHURI_OAUTH_CLIENT = users.get_openid_client(
     client_id=settings.PUHURI_CLIENT_ID,
     client_secret=settings.PUHURI_CLIENT_SECRET,
     openid_configuration_endpoint=settings.PUHURI_CONFIG_ENDPOINT,
+    name=settings.PUHURI_CLIENT_NAME,
 )
 
 # Project-based app token auth
