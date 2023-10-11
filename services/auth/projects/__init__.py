@@ -21,7 +21,7 @@ from .app_tokens import (
     AppTokenStrategy,
     ProjectManagerDependency,
 )
-from .dtos import Project, ProjectCreate, ProjectUpdate
+from .dtos import Project, ProjectCreate, ProjectRead, ProjectUpdate
 from .manager import ProjectDatabase, ProjectManager
 from .routers import CurrentSuperUserDependency, CurrentUserDependency
 
@@ -71,7 +71,7 @@ class ProjectBasedAuth:
         return routers.get_projects_router(
             get_project_manager=self.get_project_manager,
             get_current_superuser=self.get_current_superuser,
-            project_schema=Project,
+            project_schema=ProjectRead,
             project_update_schema=ProjectUpdate,
             project_create_schema=ProjectCreate,
         )

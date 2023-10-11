@@ -13,7 +13,7 @@
 from typing import List, Optional
 
 import pymongo
-from beanie import Document
+from beanie import Document, PydanticObjectId
 from fastapi_users_db_beanie.access_token import BeanieBaseAccessToken
 from pydantic import BaseModel
 from pymongo import IndexModel
@@ -26,6 +26,16 @@ class ProjectCreate(BaseModel):
     ext_id: str
     user_ids: List[str] = []
     qpu_seconds: int = 0
+
+
+class ProjectRead(ProjectCreate):
+    """The schema for viewing a project"""
+
+    id: PydanticObjectId
+    is_active: bool = True
+
+    class Config:
+        orm_mode = True
 
 
 class ProjectUpdate(BaseModel):

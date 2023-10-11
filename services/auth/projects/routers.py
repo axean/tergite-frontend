@@ -28,7 +28,7 @@ from .app_tokens import (
     AppTokenStrategy,
     ProjectManagerDependency,
 )
-from .dtos import AppTokenCreate, Project, ProjectCreate, ProjectUpdate
+from .dtos import AppTokenCreate, Project, ProjectCreate, ProjectRead, ProjectUpdate
 from .exc import ExtendedErrorCode
 from .manager import ProjectManager
 
@@ -117,7 +117,7 @@ def get_app_tokens_router(
 def get_projects_router(
     get_project_manager: ProjectManagerDependency,
     get_current_superuser: CurrentSuperUserDependency,
-    project_schema: Type[Project],
+    project_schema: Type[ProjectRead],
     project_update_schema: Type[ProjectUpdate],
     project_create_schema: Type[ProjectCreate],
     **kwargs,

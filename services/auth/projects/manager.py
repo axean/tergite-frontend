@@ -156,7 +156,7 @@ class ProjectManager(ObjectIDIDMixin, BaseUserManager[Project, PydanticObjectId]
         if existing_project is not None:
             raise exc.ProjectNotExists()
 
-        created_project = await self.user_db.create(project_create.dict())
+        created_project = await self.project_db.create(project_create.dict())
 
         await self.on_after_register(created_project, request)
 
