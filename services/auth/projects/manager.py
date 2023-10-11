@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """Logic managing projects"""
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Mapping, Optional
 
 from beanie import PydanticObjectId
 from beanie.odm.operators.find.comparison import NotIn
@@ -49,6 +49,28 @@ class ProjectDatabase(BaseUserDatabase[Project, PydanticObjectId]):
         return await Project.find_one(
             Project.ext_id == ext_id, Project.user_ids == user_id
         )
+
+    @staticmethod
+    async def get_many(
+        filter_obj: Mapping[str, Any], skip: int = 0, limit: Optional[int] = None
+    ) -> List[Project]:
+        """
+        Get a list of projects to basing on filter.
+
+        Args:
+            filter_obj: the PyMongo-like filter object e.g. `{"user_id": "uidufiud"}`.
+            skip: the number of matched records to skip
+            limit: the maximum number of records to return.
+                If None, all possible records are returned.
+
+        Returns:
+            the list of matched projects
+        """
+        return await Project.find(
+            filter_obj,
+            skip=skip,
+            limit=limit,
+        ).to_list()
 
     async def create(self, create_dict: Dict[str, Any]) -> Project:
         """Create a project."""
@@ -105,7 +127,7 @@ class ProjectManager(ObjectIDIDMixin, BaseUserManager[Project, PydanticObjectId]
         self, ext_id: str, user_id: PydanticObjectId
     ) -> Project:
         """
-        Get a user by ext_id and user_id.
+        Get a project by ext_id and user_id.
 
         The user_id must be attached to this project.
 
@@ -127,6 +149,27 @@ class ProjectManager(ObjectIDIDMixin, BaseUserManager[Project, PydanticObjectId]
             raise exc.ProjectNotExists()
 
         return project
+
+    async def get_many(
+        self, filter_obj: Mapping[str, Any], skip: int = 0, limit: Optional[int] = None
+    ) -> List[Project]:
+        """
+        Get a list of projects to basing on filter.
+
+        Args:
+            filter_obj: the PyMongo-like filter object e.g. `{"user_id": "uidufiud"}`.
+            skip: the number of matched records to skip
+            limit: the maximum number of records to return.
+                If None, all possible records are returned.
+
+        Returns:
+            the list of matched projects
+        """
+        return await self.project_db.get_many(
+            filter_obj,
+            skip=skip,
+            limit=limit,
+        )
 
     async def create(
         self,

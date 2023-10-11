@@ -19,6 +19,7 @@ from fastapi_users import FastAPIUsers
 import settings
 
 from . import projects, users
+from .users import CustomJWTAuth
 
 # JWT-based authentication
 JWT_BACKEND = users.get_jwt_backend(
@@ -27,11 +28,12 @@ JWT_BACKEND = users.get_jwt_backend(
     lifetime_seconds=settings.JWT_TTL,
 )
 
-JWT_AUTH = FastAPIUsers[users.dtos.User, PydanticObjectId](
+JWT_AUTH = CustomJWTAuth[users.dtos.User, PydanticObjectId](
     users.get_user_manager, [JWT_BACKEND]
 )
 
 GET_CURRENT_USER = JWT_AUTH.current_user(active=True)
+GET_CURRENT_USER_ID = JWT_AUTH.current_user_id()
 GET_CURRENT_SUPERUSER = JWT_AUTH.current_user(active=True, superuser=True)
 
 # Oauth clients for authentication
@@ -59,6 +61,7 @@ APP_TOKEN_BACKEND = projects.get_app_token_backend("auth/app-tokens/generate")
 APP_TOKEN_AUTH = projects.ProjectBasedAuth(
     get_project_manager_dep=projects.get_project_manager,
     get_current_user_dep=GET_CURRENT_USER,
+    get_current_user_id_dep=GET_CURRENT_USER_ID,
     get_current_superuser_dep=GET_CURRENT_SUPERUSER,
     auth_backends=[APP_TOKEN_BACKEND],
 )

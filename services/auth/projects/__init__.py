@@ -21,9 +21,13 @@ from .app_tokens import (
     AppTokenStrategy,
     ProjectManagerDependency,
 )
-from .dtos import Project, ProjectCreate, ProjectRead, ProjectUpdate
+from .dtos import Project, ProjectAdminView, ProjectCreate, ProjectRead, ProjectUpdate
 from .manager import ProjectDatabase, ProjectManager
-from .routers import CurrentSuperUserDependency, CurrentUserDependency
+from .routers import (
+    CurrentSuperUserDependency,
+    CurrentUserDependency,
+    CurrentUserIdDependency,
+)
 
 
 async def get_project_db():
@@ -41,6 +45,7 @@ class ProjectBasedAuth:
         self,
         get_project_manager_dep: ProjectManagerDependency,
         get_current_user_dep: CurrentUserDependency,
+        get_current_user_id_dep: CurrentUserIdDependency,
         get_current_superuser_dep: CurrentSuperUserDependency,
         auth_backends: Sequence[AuthenticationBackend],
     ):
@@ -49,6 +54,7 @@ class ProjectBasedAuth:
         )
         self.get_project_manager = get_project_manager_dep
         self.get_current_user = get_current_user_dep
+        self.get_current_user_id = get_current_user_id_dep
         self.get_current_superuser = get_current_superuser_dep
         self.current_project = self.authenticator.current_project
 
@@ -71,9 +77,17 @@ class ProjectBasedAuth:
         return routers.get_projects_router(
             get_project_manager=self.get_project_manager,
             get_current_superuser=self.get_current_superuser,
-            project_schema=ProjectRead,
+            project_schema=ProjectAdminView,
             project_update_schema=ProjectUpdate,
             project_create_schema=ProjectCreate,
+        )
+
+    def get_my_projects_router(self) -> APIRouter:
+        """Return a router for viewing current user's projects."""
+        return routers.get_my_projects_router(
+            get_project_manager=self.get_project_manager,
+            get_current_user_id=self.get_current_user_id,
+            project_schema=ProjectRead,
         )
 
 

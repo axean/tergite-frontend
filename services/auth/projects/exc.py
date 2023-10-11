@@ -12,7 +12,9 @@
 
 """Exceptions for auth with respect to the projects submodule"""
 from enum import Enum
+from typing import Any, Dict, Optional
 
+from fastapi import HTTPException, status
 from fastapi_users.exceptions import UserNotExists
 
 
@@ -25,3 +27,25 @@ class ExtendedErrorCode(str, Enum):
 
 class ProjectNotExists(UserNotExists):
     pass
+
+
+class TooManyListQueryParams(HTTPException):
+    """HTTPException when the items passed to a list query param item are too many.
+
+    It is useful to avoid deteriorated performance with the databases.
+    e.g. it is recommended for mongodb $in to have less than 100 items in list.
+    as can be seen at
+    https://www.mongodb.com/docs/manual/reference/operator/query/in/#syntax
+    """
+
+    def __init__(
+        self,
+        query_param: str,
+        expected: int,
+        got: int,
+        headers: Optional[Dict[str, Any]] = None,
+    ):
+        message = f"too many items passed to query {query_param}; expected {expected}, got {got}"
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=message, headers=headers
+        )

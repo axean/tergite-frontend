@@ -11,9 +11,10 @@
 # that they have been altered from the originals.
 
 """A collection of routers for the projects submodule of the auth service"""
-from typing import Tuple, Type
+from typing import List, Optional, Tuple, Type
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from beanie import PydanticObjectId
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import Response
 from fastapi_users import exceptions, schemas
 from fastapi_users.authentication import AuthenticationBackend
@@ -28,12 +29,20 @@ from .app_tokens import (
     AppTokenStrategy,
     ProjectManagerDependency,
 )
-from .dtos import AppTokenCreate, Project, ProjectCreate, ProjectRead, ProjectUpdate
-from .exc import ExtendedErrorCode
+from .dtos import (
+    AppTokenCreate,
+    PaginatedResponse,
+    Project,
+    ProjectAdminView,
+    ProjectCreate,
+    ProjectRead,
+    ProjectUpdate,
+)
 from .manager import ProjectManager
 
 CurrentUserDependency = DependencyCallable[User]
 CurrentSuperUserDependency = DependencyCallable[User]
+CurrentUserIdDependency = DependencyCallable[PydanticObjectId]
 
 
 def get_app_tokens_router(
@@ -53,9 +62,9 @@ def get_app_tokens_router(
             "content": {
                 "application/json": {
                     "examples": {
-                        ExtendedErrorCode.BAD_CREDENTIALS: {
+                        exc.ExtendedErrorCode.BAD_CREDENTIALS: {
                             "summary": "Bad credentials or you don't have access to project.",
-                            "value": {"detail": ExtendedErrorCode.BAD_CREDENTIALS},
+                            "value": {"detail": exc.ExtendedErrorCode.BAD_CREDENTIALS},
                         },
                     }
                 }
@@ -117,7 +126,7 @@ def get_app_tokens_router(
 def get_projects_router(
     get_project_manager: ProjectManagerDependency,
     get_current_superuser: CurrentSuperUserDependency,
-    project_schema: Type[ProjectRead],
+    project_schema: Type[ProjectAdminView],
     project_update_schema: Type[ProjectUpdate],
     project_create_schema: Type[ProjectCreate],
     **kwargs,
@@ -147,10 +156,10 @@ def get_projects_router(
                 "content": {
                     "application/json": {
                         "examples": {
-                            ExtendedErrorCode.PROJECT_ALREADY_EXISTS: {
+                            exc.ExtendedErrorCode.PROJECT_ALREADY_EXISTS: {
                                 "summary": "A project with this ext_id already exists.",
                                 "value": {
-                                    "detail": ExtendedErrorCode.PROJECT_ALREADY_EXISTS
+                                    "detail": exc.ExtendedErrorCode.PROJECT_ALREADY_EXISTS
                                 },
                             },
                         }
@@ -170,7 +179,7 @@ def get_projects_router(
         except exc.ProjectNotExists:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=ExtendedErrorCode.PROJECT_ALREADY_EXISTS,
+                detail=exc.ExtendedErrorCode.PROJECT_ALREADY_EXISTS,
             )
 
         return schemas.model_validate(project_schema, created_project)
@@ -179,7 +188,7 @@ def get_projects_router(
         "/{id}",
         response_model=project_schema,
         dependencies=[Depends(get_current_superuser)],
-        name="projects:projects",
+        name="projects:single_project",
         responses={
             status.HTTP_401_UNAUTHORIZED: {
                 "description": "Missing token or inactive project.",
@@ -194,6 +203,76 @@ def get_projects_router(
     )
     async def get_project(project=Depends(get_project_or_404)):
         return schemas.model_validate(project_schema, project)
+
+    @router.get(
+        "/",
+        response_model=PaginatedResponse[project_schema],
+        dependencies=[Depends(get_current_superuser)],
+        name="projects:many_projects",
+        responses={
+            status.HTTP_401_UNAUTHORIZED: {
+                "description": "Missing token or inactive project.",
+            },
+            status.HTTP_403_FORBIDDEN: {
+                "description": "Not a superuser.",
+            },
+        },
+    )
+    async def get_many_projects(
+        project_manager: ProjectManager = Depends(get_project_manager),
+        skip: int = Query(0),
+        limit: Optional[int] = Query(None),
+        ids: Optional[List[PydanticObjectId]] = Query(None, alias="id"),
+        user_ids: Optional[List[PydanticObjectId]] = Query(None),
+        ext_id: Optional[List[str]] = Query(None),
+        is_active: Optional[bool] = Query(None),
+        min_qpu_seconds: Optional[int] = Query(None),
+        max_qpu_seconds: Optional[int] = Query(None),
+    ):
+        max_list_length = 99
+
+        filter_obj = {}
+        if ids is not None:
+            if len(ids) > max_list_length:
+                raise exc.TooManyListQueryParams(
+                    "id", expected=max_list_length, got=len(ids)
+                )
+
+            filter_obj["_id"] = {"$in": ids}
+
+        if user_ids is not None:
+            if len(user_ids) > max_list_length:
+                raise exc.TooManyListQueryParams(
+                    "user_ids", expected=max_list_length, got=len(user_ids)
+                )
+
+            filter_obj["user_ids"] = {"$in": user_ids}
+
+        if ext_id is not None:
+            if len(ext_id) > max_list_length:
+                raise exc.TooManyListQueryParams(
+                    "ext_id", expected=max_list_length, got=len(ext_id)
+                )
+
+            filter_obj["ext_id"] = {"$in": ext_id}
+
+        if is_active is not None:
+            filter_obj["is_active"] = is_active
+
+        if min_qpu_seconds is not None:
+            filter_obj["qpu_seconds"] = {"$gte": min_qpu_seconds}
+
+        if max_qpu_seconds is not None:
+            if "qpu_seconds" not in filter_obj:
+                filter_obj["min_qpu_seconds"] = {}
+
+            filter_obj["qpu_seconds"].update({"$lte": max_qpu_seconds})
+
+        projects = await project_manager.get_many(
+            filter_obj=filter_obj, skip=skip, limit=limit
+        )
+        data = [schemas.model_validate(project_schema, project) for project in projects]
+        return PaginatedResponse[project_schema](data=data, skip=skip, limit=limit)
 
     @router.patch(
         "/{id}",
@@ -215,10 +294,10 @@ def get_projects_router(
                 "content": {
                     "application/json": {
                         "examples": {
-                            ExtendedErrorCode.UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS: {
+                            exc.ExtendedErrorCode.UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS: {
                                 "summary": "A project with this ext_id already exists.",
                                 "value": {
-                                    "detail": ExtendedErrorCode.UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS
+                                    "detail": exc.ExtendedErrorCode.UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS
                                 },
                             },
                         }
@@ -241,7 +320,7 @@ def get_projects_router(
         except exc.ProjectNotExists:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                detail=ExtendedErrorCode.UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS,
+                detail=exc.ExtendedErrorCode.UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS,
             )
 
     @router.delete(
@@ -269,5 +348,72 @@ def get_projects_router(
     ):
         await project_manager.delete(project, request=request)
         return None
+
+    return router
+
+
+def get_my_projects_router(
+    get_project_manager: ProjectManagerDependency,
+    get_current_user_id: CurrentUserIdDependency,
+    project_schema: Type[ProjectRead],
+    **kwargs,
+) -> APIRouter:
+    """Generate a router for viewing my the projects."""
+    router = APIRouter()
+
+    @router.get(
+        "/",
+        response_model=PaginatedResponse[project_schema],
+        name="projects:my_many_projects",
+        responses={
+            status.HTTP_401_UNAUTHORIZED: {
+                "description": "Missing token or inactive user.",
+            },
+        },
+    )
+    async def get_projects(
+        user_id: PydanticObjectId = Depends(get_current_user_id),
+        project_manager: ProjectManager = Depends(get_project_manager),
+        skip: int = Query(0),
+        limit: Optional[int] = Query(None),
+    ):
+        projects = await project_manager.get_many(
+            filter_obj={"user_ids": user_id}, skip=skip, limit=limit
+        )
+
+        data = [schemas.model_validate(project_schema, project) for project in projects]
+        return PaginatedResponse[project_schema](data=data, skip=skip, limit=limit)
+
+    @router.get(
+        "/{id}",
+        response_model=project_schema,
+        name="projects:my_single_project",
+        responses={
+            status.HTTP_401_UNAUTHORIZED: {
+                "description": "Missing token or inactive user.",
+            },
+            status.HTTP_404_NOT_FOUND: {
+                "description": "The project does not exist.",
+            },
+        },
+    )
+    async def get_project(
+        id: str,
+        user_id: PydanticObjectId = Depends(get_current_user_id),
+        project_manager: ProjectManager = Depends(get_project_manager),
+    ):
+        try:
+            parsed_id = project_manager.parse_id(id)
+            project = await project_manager.get(parsed_id)
+        except (exc.ProjectNotExists, exceptions.InvalidID) as e:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from e
+
+        if user_id not in project.user_ids:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="the project does not exist.",
+            )
+
+        return schemas.model_validate(project_schema, project)
 
     return router

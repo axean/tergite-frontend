@@ -10,13 +10,15 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Data Transfer Objects for the projects submodule in the auth service"""
-from typing import List, Optional
+from typing import Generic, List, Optional, TypeVar
 
 import pymongo
 from beanie import Document, PydanticObjectId
 from fastapi_users_db_beanie.access_token import BeanieBaseAccessToken
 from pydantic import BaseModel
 from pymongo import IndexModel
+
+ITEM = TypeVar("ITEM", bound=BaseModel)
 
 
 class ProjectCreate(BaseModel):
@@ -28,8 +30,20 @@ class ProjectCreate(BaseModel):
     qpu_seconds: int = 0
 
 
-class ProjectRead(ProjectCreate):
-    """The schema for viewing a project"""
+class ProjectRead(BaseModel):
+    """The schema for viewing a project as non admin"""
+
+    id: PydanticObjectId
+    ext_id: str
+    qpu_seconds: int = 0
+    is_active: bool = True
+
+    class Config:
+        orm_mode = True
+
+
+class ProjectAdminView(ProjectCreate):
+    """The schema for viewing a project as an admin"""
 
     id: PydanticObjectId
     is_active: bool = True
@@ -73,3 +87,11 @@ class AppToken(BeanieBaseAccessToken, AppTokenCreate, Document):
                 [("project_ext_id", pymongo.ASCENDING), ("user_id", pymongo.ASCENDING)],
             ),
         ]
+
+
+class PaginatedResponse(Generic[ITEM], BaseModel):
+    """The response when sending paginated data"""
+
+    skip: int = 0
+    limit: Optional[int] = None
+    data: List[ITEM] = []

@@ -70,3 +70,9 @@ router.include_router(
     prefix="/projects",
     tags=["auth"],
 )
+
+router.include_router(
+    APP_TOKEN_AUTH.get_my_projects_router(),
+    prefix="/me/projects",
+    tags=["auth"],
+)
