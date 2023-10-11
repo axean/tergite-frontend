@@ -42,20 +42,15 @@ class Validator(Protocol):
 class EmailRegexValidator(Validator, dict):
     """A helper for validating emails using regex"""
 
-    def __init__(
-        self, regex_flags: Dict[str, Union[int, re.RegexFlag]] = None, *args, **kwargs
-    ):
-        self.__regex_flags = regex_flags if regex_flags else {}
-
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for k, v in self.items():
             self.__setitem__(k, v)
 
     def __setitem__(self, oauth_name, value):
-        """Set self[oauth_name] to re.compile(value, regex_flags)"""
-        flag = self.__regex_flags.get(oauth_name, 0)
+        """Set self[oauth_name] to re.compile(value)"""
         try:
-            return super().__setitem__(oauth_name, re.compile(value, flag))
+            return super().__setitem__(oauth_name, re.compile(value))
         except TypeError:
             raise TypeError(
                 f"value for key '{oauth_name}' expected to be string, got '{type(value)}'"
