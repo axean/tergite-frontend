@@ -14,12 +14,11 @@
 
 import motor.motor_asyncio
 from beanie import PydanticObjectId, init_beanie
-from fastapi_users import FastAPIUsers
 
+import services.auth.app_tokens.dtos
 import settings
 
 from . import projects, users
-from .users import CustomJWTAuth
 
 # JWT-based authentication
 JWT_BACKEND = users.get_jwt_backend(
@@ -28,7 +27,7 @@ JWT_BACKEND = users.get_jwt_backend(
     lifetime_seconds=settings.JWT_TTL,
 )
 
-JWT_AUTH = CustomJWTAuth[users.dtos.User, PydanticObjectId](
+JWT_AUTH = users.UserBasedAuth[users.dtos.User, PydanticObjectId](
     users.get_user_manager, [JWT_BACKEND]
 )
 
@@ -74,7 +73,7 @@ async def on_startup(db: motor.motor_asyncio.AsyncIOMotorDatabase):
         database=db,
         document_models=[
             users.dtos.User,
-            projects.dtos.AppToken,
+            services.auth.app_tokens.dtos.AppToken,
             projects.dtos.Project,
         ],
     )

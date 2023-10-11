@@ -1,0 +1,43 @@
+# This code is part of Tergite
+#
+# (C) Copyright Martin Ahindura 2023
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+"""FastAPIUsers-specific custom definition of JWT Strategy for users"""
+from typing import Generic, Optional
+
+import jwt
+from fastapi_users import BaseUserManager
+from fastapi_users.authentication import JWTStrategy
+from fastapi_users.jwt import decode_jwt
+
+from .dtos import ID, UP
+
+
+class CustomJWTStrategy(
+    JWTStrategy[UP, ID],
+    Generic[UP, ID],
+):
+    """An extension of the basic JWT strategy"""
+
+    def get_user_id(
+        self, token: Optional[str], user_manager: BaseUserManager[UP, ID]
+    ) -> Optional[ID]:
+        """Returns the user id without hitting the database"""
+        try:
+            data = decode_jwt(
+                token, self.decode_key, self.token_audience, algorithms=[self.algorithm]
+            )
+            user_id = data.get("sub")
+            if user_id is None:
+                return None
+        except jwt.PyJWTError:
+            return None
+
+        return user_manager.parse_id(user_id)

@@ -9,16 +9,9 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
-"""App token authorization based on projects.
-
-Every app token is attached to a given project and a given user
-It has a limited amount of time in which it is to be operational.
-"""
-import secrets
-from datetime import datetime, timedelta, timezone
+"""FastAPIUsers-specific definition of Authenticator for app tokens"""
 from inspect import Parameter, Signature
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, cast
+from typing import Callable, List, Optional, Sequence, Tuple, cast
 
 from fastapi import Depends, HTTPException, status
 from fastapi_users import models
@@ -28,15 +21,10 @@ from fastapi_users.authentication.authenticator import (
     name_to_strategy_variable_name,
     name_to_variable_name,
 )
-from fastapi_users.authentication.strategy import DatabaseStrategy
-from fastapi_users.types import DependencyCallable
-from fastapi_users_db_beanie.access_token import BeanieAccessTokenDatabase
 from makefun import with_signature
 
-from .dtos import AppToken, AppTokenCreate, Project
-from .manager import ProjectManager
-
-ProjectManagerDependency = DependencyCallable[ProjectManager]
+from ..projects.dtos import Project
+from ..projects.manager import ProjectManager, ProjectManagerDependency
 
 
 class AppTokenAuthenticator:
@@ -183,38 +171,3 @@ class AppTokenAuthenticator:
             return Signature(parameters)
         except ValueError:
             raise DuplicateBackendNamesError()
-
-
-class AppTokenDatabase(BeanieAccessTokenDatabase):
-    """
-    App token database adapter.
-    """
-
-    def __init__(self):
-        super().__init__(AppToken)
-
-    async def get_by_token(self, token: str, **kwargs) -> Optional[AppToken]:
-        query: Dict[str, Any] = {"token": token}
-        response: Optional[AppToken] = await self.access_token_model.find_one(query)
-        if response:
-            # return None for tokens that are past their age
-            lifespan = response.created_at - datetime.now(timezone.utc)
-            if lifespan >= timedelta(seconds=response.lifetime_seconds):
-                # probably delete it
-                # await response.delete()
-                return None
-
-        return response
-
-
-class AppTokenStrategy(DatabaseStrategy):
-    """Strategy that handles app tokens"""
-
-    def __init__(self, database: AppTokenDatabase):
-        super().__init__(database)
-
-    async def write_token(self, payload: AppTokenCreate) -> str:
-        token_dict = payload.dict()
-        token_dict["token"] = secrets.token_urlsafe()
-        access_token = await self.database.create(token_dict)
-        return access_token.token

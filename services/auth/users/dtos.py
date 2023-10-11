@@ -12,13 +12,18 @@
 
 """Data Transafer Objects for the users submodule of the auth service"""
 import enum
-from typing import Any, List, Set
+from typing import List, Set, TypeVar
 
 from beanie import Document, PydanticObjectId
 from fastapi_users import db, schemas
-from pydantic import BaseModel, Field
+from fastapi_users.models import UserProtocol
+from fastapi_users.types import DependencyCallable
+from pydantic import Field
 from pymongo import IndexModel
 from pymongo.collation import Collation
+
+UP = TypeVar("UP", bound=UserProtocol)
+ID = TypeVar("ID")
 
 
 class UserRole(str, enum.Enum):
@@ -75,3 +80,8 @@ class User(Document):
                 self.roles.remove(UserRole.ADMIN)
             except KeyError:
                 pass
+
+
+CurrentUserDependency = DependencyCallable[User]
+CurrentSuperUserDependency = DependencyCallable[User]
+CurrentUserIdDependency = DependencyCallable[PydanticObjectId]

@@ -14,15 +14,13 @@ from typing import Sequence
 from fastapi import APIRouter, Depends
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport
 
+from ..app_tokens.authenticator import AppTokenAuthenticator
+from ..app_tokens.database import AppTokenDatabase
+from ..app_tokens.strategy import AppTokenStrategy
 from . import routers
-from .app_tokens import (
-    AppTokenAuthenticator,
-    AppTokenDatabase,
-    AppTokenStrategy,
-    ProjectManagerDependency,
-)
+from .database import ProjectDatabase
 from .dtos import Project, ProjectAdminView, ProjectCreate, ProjectRead, ProjectUpdate
-from .manager import ProjectDatabase, ProjectManager
+from .manager import ProjectManager, ProjectManagerDependency
 from .routers import (
     CurrentSuperUserDependency,
     CurrentUserDependency,
@@ -31,13 +29,37 @@ from .routers import (
 
 
 async def get_project_db():
-    """Dependency injector of the users database"""
+    """Dependency injector of the projects database"""
     yield ProjectDatabase()
 
 
-async def get_project_manager(project_db: ProjectDatabase = Depends(get_project_db)):
+def get_app_token_backend(app_token_generation_url: str) -> AuthenticationBackend:
+    """Creates an auth backend that uses database app tokens to authenticate"""
+    bearer_transport = BearerTransport(tokenUrl=app_token_generation_url)
+
+    def get_app_token_strategy(
+        token_db: AppTokenDatabase = Depends(get_app_token_db),
+    ) -> AppTokenStrategy:
+        return AppTokenStrategy(token_db)
+
+    return AuthenticationBackend(
+        name="app-token",
+        transport=bearer_transport,
+        get_strategy=get_app_token_strategy,
+    )
+
+
+async def get_app_token_db():
+    """Dependency injector for getting app token database"""
+    yield AppTokenDatabase()
+
+
+async def get_project_manager(
+    project_db: ProjectDatabase = Depends(get_project_db),
+    app_token_db: AppTokenDatabase = Depends(get_app_token_db),
+):
     """Dependency injector for ProjectManager"""
-    yield ProjectManager(project_db)
+    yield ProjectManager(project_db, app_token_db=app_token_db)
 
 
 class ProjectBasedAuth:
@@ -89,24 +111,3 @@ class ProjectBasedAuth:
             get_current_user_id=self.get_current_user_id,
             project_schema=ProjectRead,
         )
-
-
-def get_app_token_backend(app_token_generation_url: str) -> AuthenticationBackend:
-    """Creates an auth backend that uses database app tokens to authenticate"""
-    bearer_transport = BearerTransport(tokenUrl=app_token_generation_url)
-
-    def get_app_token_strategy(
-        token_db: AppTokenDatabase = Depends(get_app_token_db),
-    ) -> AppTokenStrategy:
-        return AppTokenStrategy(token_db)
-
-    return AuthenticationBackend(
-        name="app-token",
-        transport=bearer_transport,
-        get_strategy=get_app_token_strategy,
-    )
-
-
-async def get_app_token_db():
-    """Dependency injector for getting app token database"""
-    yield AppTokenDatabase()

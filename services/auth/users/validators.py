@@ -14,7 +14,7 @@
 import re
 from typing import Dict, Optional, Protocol, Tuple
 
-from services.auth.users import exc
+from . import exc
 
 
 class Validator(Protocol):

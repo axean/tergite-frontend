@@ -20,17 +20,18 @@ from fastapi_users import exceptions, schemas
 from fastapi_users.authentication import AuthenticationBackend
 from fastapi_users.openapi import OpenAPIResponseType
 from fastapi_users.router.common import ErrorCode, ErrorModel
-from fastapi_users.types import DependencyCallable
 
-from ..users.dtos import User
-from . import exc
-from .app_tokens import (
-    AppTokenAuthenticator,
-    AppTokenStrategy,
-    ProjectManagerDependency,
+from ..app_tokens.authenticator import AppTokenAuthenticator
+from ..app_tokens.dtos import AppTokenCreate
+from ..app_tokens.strategy import AppTokenStrategy
+from ..users.dtos import (
+    CurrentSuperUserDependency,
+    CurrentUserDependency,
+    CurrentUserIdDependency,
+    User,
 )
+from . import exc
 from .dtos import (
-    AppTokenCreate,
     PaginatedResponse,
     Project,
     ProjectAdminView,
@@ -38,11 +39,7 @@ from .dtos import (
     ProjectRead,
     ProjectUpdate,
 )
-from .manager import ProjectManager
-
-CurrentUserDependency = DependencyCallable[User]
-CurrentSuperUserDependency = DependencyCallable[User]
-CurrentUserIdDependency = DependencyCallable[PydanticObjectId]
+from .manager import ProjectManager, ProjectManagerDependency
 
 
 def get_app_tokens_router(
@@ -96,7 +93,6 @@ def get_app_tokens_router(
             )
 
         response = await backend.login(strategy, project)
-        await project_manager.on_after_login(project, request, response)
         return response
 
     logout_responses: OpenAPIResponseType = {

@@ -12,9 +12,7 @@
 """Data Transfer Objects for the projects submodule in the auth service"""
 from typing import Generic, List, Optional, TypeVar
 
-import pymongo
 from beanie import Document, PydanticObjectId
-from fastapi_users_db_beanie.access_token import BeanieBaseAccessToken
 from pydantic import BaseModel
 from pymongo import IndexModel
 
@@ -66,26 +64,6 @@ class Project(ProjectCreate, Document):
         name = "auth_projects"
         indexes = [
             IndexModel("ext_id", unique=True),
-        ]
-
-
-class AppTokenCreate(BaseModel):
-    """The payload passed when generating an app token"""
-
-    title: str
-    project_ext_id: str
-    lifespan_seconds: int
-
-
-class AppToken(BeanieBaseAccessToken, AppTokenCreate, Document):
-    """App token stored in the database"""
-
-    class Settings(BeanieBaseAccessToken.Settings):
-        name = "auth_app_tokens"
-        indexes = BeanieBaseAccessToken.Settings.indexes + [
-            IndexModel(
-                [("project_ext_id", pymongo.ASCENDING), ("user_id", pymongo.ASCENDING)],
-            ),
         ]
 
 

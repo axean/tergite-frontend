@@ -9,88 +9,24 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
-"""Logic managing projects"""
+"""FastAPIUsers-inspired logic for managing projects"""
 from typing import Any, Dict, List, Mapping, Optional
 
 from beanie import PydanticObjectId
-from beanie.odm.operators.find.comparison import NotIn
 from fastapi.requests import Request
-from fastapi_users import BaseUserManager
-from fastapi_users.db import BaseUserDatabase
 from fastapi_users.models import ID
+from fastapi_users.types import DependencyCallable
 from fastapi_users_db_beanie import ObjectIDIDMixin
 
+from ..app_tokens.database import AppTokenDatabase
+from ..app_tokens.dtos import AppTokenCreate
 from ..users.dtos import User
 from . import exc
-from .dtos import AppToken, AppTokenCreate, Project, ProjectCreate, ProjectUpdate
+from .database import ProjectDatabase
+from .dtos import Project, ProjectCreate, ProjectUpdate
 
 
-class ProjectDatabase(BaseUserDatabase[Project, PydanticObjectId]):
-    """Database adapter for accessing projects"""
-
-    async def get(self, id: ID) -> Optional[Project]:
-        """Get a single project by id."""
-        return await Project.get(id)  # type: ignore
-
-    @staticmethod
-    async def get_by_ext_id(ext_id: str) -> Optional[Project]:
-        """Get a single project by ext_id."""
-        return await Project.find_one(Project.ext_id == ext_id)
-
-    @staticmethod
-    async def get_by_ext_and_user_id(
-        ext_id: str, user_id: PydanticObjectId
-    ) -> Optional[Project]:
-        """Get a single project by ext_id and user_id.
-
-        The user_id must be among the Project's user ids
-        """
-        return await Project.find_one(
-            Project.ext_id == ext_id, Project.user_ids == user_id
-        )
-
-    @staticmethod
-    async def get_many(
-        filter_obj: Mapping[str, Any], skip: int = 0, limit: Optional[int] = None
-    ) -> List[Project]:
-        """
-        Get a list of projects to basing on filter.
-
-        Args:
-            filter_obj: the PyMongo-like filter object e.g. `{"user_id": "uidufiud"}`.
-            skip: the number of matched records to skip
-            limit: the maximum number of records to return.
-                If None, all possible records are returned.
-
-        Returns:
-            the list of matched projects
-        """
-        return await Project.find(
-            filter_obj,
-            skip=skip,
-            limit=limit,
-        ).to_list()
-
-    async def create(self, create_dict: Dict[str, Any]) -> Project:
-        """Create a project."""
-        project = Project(**create_dict)
-        await project.create()
-        return project
-
-    async def update(self, project: Project, update_dict: Dict[str, Any]) -> Project:
-        """Update a project."""
-        for key, value in update_dict.items():
-            setattr(project, key, value)
-        await project.save()
-        return project
-
-    async def delete(self, project: Project) -> None:
-        """Delete a project."""
-        await project.delete()
-
-
-class ProjectManager(ObjectIDIDMixin, BaseUserManager[Project, PydanticObjectId]):
+class ProjectManager(ObjectIDIDMixin):
     """
     Project management logic.
 
@@ -99,9 +35,11 @@ class ProjectManager(ObjectIDIDMixin, BaseUserManager[Project, PydanticObjectId]
     """
 
     project_db: ProjectDatabase
+    app_token_db: AppTokenDatabase
 
-    def __init__(self, project_db: ProjectDatabase):
+    def __init__(self, project_db: ProjectDatabase, app_token_db: AppTokenDatabase):
         self.project_db = project_db
+        self.app_token_db = app_token_db
 
     async def get(self, id: ID) -> Project:
         """
@@ -174,18 +112,14 @@ class ProjectManager(ObjectIDIDMixin, BaseUserManager[Project, PydanticObjectId]
     async def create(
         self,
         project_create: ProjectCreate,
-        safe: bool = False,
         request: Optional[Request] = None,
+        **kwargs,
     ) -> Project:
         """
         Create a project in database.
 
-        Triggers the on_after_register handler on success.
-
         Args:
             project_create: The UserCreate model to create.
-            safe: If True, sensitive values like is_superuser or is_verified
-                will be ignored during the creation, defaults to False.
             request: Optional FastAPI request that triggered the operation, defaults to None.
 
         Raises:
@@ -200,17 +134,14 @@ class ProjectManager(ObjectIDIDMixin, BaseUserManager[Project, PydanticObjectId]
             raise exc.ProjectNotExists()
 
         created_project = await self.project_db.create(project_create.dict())
-
-        await self.on_after_register(created_project, request)
-
         return created_project
 
     async def update(
         self,
         project_update: ProjectUpdate,
         project: Project,
-        safe: bool = False,
         request: Optional[Request] = None,
+        **kwargs,
     ) -> Project:
         """Update a project.
 
@@ -221,8 +152,6 @@ class ProjectManager(ObjectIDIDMixin, BaseUserManager[Project, PydanticObjectId]
             project_update: The ProjectUpdate model containing
                 the changes to apply to the user.
             project: The current user to update.
-            safe: If True, sensitive values like is_superuser or is_verified
-                will be ignored during the update, defaults to False
             request: Optional FastAPI request that
                 triggered the operation, defaults to None.
 
@@ -232,7 +161,6 @@ class ProjectManager(ObjectIDIDMixin, BaseUserManager[Project, PydanticObjectId]
         update_dict = project_update.dict()
         await self.on_before_update(project, update_dict)
         updated_project = await self.project_db.update(project, update_dict)
-        await self.on_after_update(updated_project, update_dict, request)
         return updated_project
 
     async def delete(
@@ -249,10 +177,10 @@ class ProjectManager(ObjectIDIDMixin, BaseUserManager[Project, PydanticObjectId]
         """
         await self.on_before_delete(project, request)
         await self.project_db.delete(project)
-        await self.on_after_delete(project, request)
 
-    @staticmethod
-    async def on_before_update(original: Project, update_dict: Dict[str, Any]) -> None:
+    async def on_before_update(
+        self, original: Project, update_dict: Dict[str, Any]
+    ) -> None:
         """Perform logic before the project is updated.
 
         Here, any AppTokens for this project that have user_ids that have been removed,
@@ -263,10 +191,11 @@ class ProjectManager(ObjectIDIDMixin, BaseUserManager[Project, PydanticObjectId]
             update_dict: the new updates
         """
         if "user_ids" in update_dict:
-            await AppToken.find(
-                NotIn(AppToken.user_id, update_dict["user_ids"]),
-                AppToken.project_ext_id == original.ext_id,
-            ).delete()
+            filter_obj = {
+                "user_id": {"$nin": update_dict["user_ids"]},
+                "project_ext_id": original.ext_id,
+            }
+            await self.app_token_db.delete_many(filter_obj)
 
     async def on_before_delete(
         self, project: Project, request: Optional[Request] = None
@@ -279,7 +208,7 @@ class ProjectManager(ObjectIDIDMixin, BaseUserManager[Project, PydanticObjectId]
             project: the project to be deleted
             request: Optional FastAPI request that triggered the operation
         """
-        await AppToken.find(AppToken.project_ext_id == project.ext_id).delete()
+        await self.app_token_db.delete_many({"project_ext_id": project.ext_id})
 
     async def authenticate(
         self,
@@ -302,3 +231,6 @@ class ProjectManager(ObjectIDIDMixin, BaseUserManager[Project, PydanticObjectId]
         return await self.get_by_ext_and_user_id(
             details.project_ext_id, current_user.id
         )
+
+
+ProjectManagerDependency = DependencyCallable[ProjectManager]

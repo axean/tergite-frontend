@@ -11,44 +11,26 @@
 # that they have been altered from the originals.
 """Entry point for the users submodule of the auth module"""
 from functools import lru_cache
-from typing import Any, Dict, Generic, Optional, Sequence, Tuple, TypeVar
+from typing import Sequence, Tuple
 
-import jwt
-from beanie import PydanticObjectId
-from fastapi import Depends, HTTPException
-from fastapi.requests import Request
-from fastapi_users import BaseUserManager, FastAPIUsers, models
-from fastapi_users.authentication import (
-    AuthenticationBackend,
-    Authenticator,
-    BearerTransport,
-    JWTStrategy,
-    Strategy,
-)
-from fastapi_users.authentication.authenticator import (
-    EnabledBackendsDependency,
-    name_to_strategy_variable_name,
-    name_to_variable_name,
-)
-from fastapi_users.db import BaseUserDatabase
-from fastapi_users.jwt import decode_jwt
+from fastapi import Depends, HTTPException, status
+from fastapi_users import FastAPIUsers, models
+from fastapi_users.authentication import AuthenticationBackend, BearerTransport
 from fastapi_users.manager import UserManagerDependency
-from fastapi_users.models import OAuthAccountProtocol, UserProtocol
-from fastapi_users.password import PasswordHelperProtocol
-from fastapi_users.types import DependencyCallable
-from fastapi_users_db_beanie import BeanieUserDatabase, ObjectIDIDMixin
+from fastapi_users_db_beanie import BeanieUserDatabase
 from httpx_oauth.clients.github import GitHubOAuth2
 from httpx_oauth.clients.microsoft import MicrosoftGraphOAuth2
 from httpx_oauth.clients.openid import OpenID
-from makefun import with_signature
-from starlette import status
 
 import settings
-from services.auth.users import exc
-from services.auth.users.dtos import OAuthAccount, User, UserRole
-from services.auth.users.validators import EmailRegexValidator, Validator
 
-CurrentUserDependency = DependencyCallable[User]
+from . import exc
+from .authenticator import UserAuthenticator
+from .database import UserDatabase
+from .dtos import ID, UP, CurrentUserDependency, OAuthAccount, User, UserRole
+from .manager import UserManager
+from .strategy import CustomJWTStrategy
+from .validators import EmailRegexValidator, Validator
 
 
 def get_jwt_backend(
@@ -185,176 +167,16 @@ def get_openid_client(
     )
 
 
-class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
-    def __init__(
-        self,
-        user_db: BaseUserDatabase[models.UP, models.ID],
-        password_helper: Optional[PasswordHelperProtocol] = None,
-        email_validator: Optional[Validator] = None,
-    ):
-        super().__init__(user_db=user_db, password_helper=password_helper)
-        self.__email_validator = (
-            email_validator if email_validator else EmailRegexValidator()
-        )
-
-    async def oauth_callback(
-        self,
-        oauth_name: str,
-        access_token: str,
-        account_id: str,
-        account_email: str,
-        expires_at: Optional[int] = None,
-        refresh_token: Optional[str] = None,
-        request: Optional[Request] = None,
-        *,
-        associate_by_email: bool = False,
-        is_verified_by_default: bool = False,
-    ) -> models.UOAP:
-        await self.__email_validator.validate(account_email, oauth_name=oauth_name)
-        return await super().oauth_callback(
-            oauth_name,
-            access_token,
-            account_id,
-            account_email,
-            expires_at,
-            refresh_token,
-            request,
-            associate_by_email=associate_by_email,
-            is_verified_by_default=is_verified_by_default,
-        )
-
-
-class UserDatabase(BeanieUserDatabase):
-    def __init__(self, user_roles_config: Dict[str, Optional[Sequence[str]]] = None):
-        super().__init__(
-            user_model=User,
-            oauth_account_model=OAuthAccount,
-        )
-        self.__roles_map = user_roles_config if user_roles_config else {}
-
-    async def add_oauth_account(self, user: User, create_dict: Dict[str, Any]) -> User:
-        try:
-            oauth_name = create_dict["oauth_name"]
-            user_roles = self.__roles_map[oauth_name]
-            user.roles.update({UserRole(v) for v in user_roles if v})
-        except (KeyError, TypeError):
-            pass
-
-        return await super().add_oauth_account(user, create_dict)
-
-
-UP = TypeVar("UP", bound=UserProtocol)
-OAP = TypeVar("OAP", bound=OAuthAccountProtocol)
-ID = TypeVar("ID")
-
-
-class CustomJWTStrategy(
-    JWTStrategy[UP, ID],
-    Generic[UP, ID],
-):
-    """An extension of the basic JWT strategy"""
-
-    def get_user_id(
-        self, token: Optional[str], user_manager: BaseUserManager[UP, ID]
-    ) -> Optional[ID]:
-        """Returns the user id without hitting the database"""
-        try:
-            data = decode_jwt(
-                token, self.decode_key, self.token_audience, algorithms=[self.algorithm]
-            )
-            user_id = data.get("sub")
-            if user_id is None:
-                return None
-        except jwt.PyJWTError:
-            return None
-
-        return user_manager.parse_id(user_id)
-
-
-class CustomAuthenticator(Authenticator):
-    def current_user_id(
-        self,
-        optional: bool = False,
-        get_enabled_backends: Optional[EnabledBackendsDependency] = None,
-    ):
-        """Creates a dependency callable to retrieve currently authenticated user's id.
-
-        It is faster as it avoid hitting the database
-
-        Args:
-            optional: If `True`, `None` is returned if there is no authenticated user
-                or if it doesn't pass the other requirements.
-                Otherwise, throw `401 Unauthorized`. Defaults to `False`.
-                Otherwise, an exception is raised. Defaults to `False`.
-            get_enabled_backends: Optional dependency callable returning
-                a list of enabled authentication backends.
-                Useful if you want to dynamically enable some authentication backends
-                based on external logic, like a configuration in database.
-                By default, all specified authentication backends are enabled.
-                Please note however that every backends will appear in the OpenAPI documentation,
-                as FastAPI resolves it statically.
-
-        Returns:
-            the dependency injector callable
-        """
-        signature = self._get_dependency_signature(get_enabled_backends)
-
-        @with_signature(signature)
-        async def current_user_id_dependency(*args, **kwargs):
-            return await self._authenticate_without_db(
-                *args,
-                optional=optional,
-                **kwargs,
-            )
-
-        return current_user_id_dependency
-
-    async def _authenticate_without_db(
-        self,
-        *args,
-        user_manager: BaseUserManager[UP, ID],
-        optional: bool = False,
-        **kwargs,
-    ) -> Optional[ID]:
-        """Attempts to authenticate the given user without hitting the database"""
-        user_id: Optional[ID] = None
-        enabled_backends: Sequence[AuthenticationBackend] = kwargs.get(
-            "enabled_backends", self.backends
-        )
-        for backend in self.backends:
-            if backend in enabled_backends:
-                token = kwargs[name_to_variable_name(backend.name)]
-                strategy: CustomJWTStrategy[UP, ID] = kwargs[
-                    name_to_strategy_variable_name(backend.name)
-                ]
-                if token is not None:
-                    try:
-                        user_id = await strategy.get_user_id(token, user_manager)
-                        if user_id:
-                            break
-
-                    except AttributeError:
-                        pass
-
-        status_code = status.HTTP_401_UNAUTHORIZED
-        if user_id:
-            status_code = status.HTTP_403_FORBIDDEN
-
-        if not user_id and not optional:
-            raise HTTPException(status_code=status_code)
-        return user_id
-
-
-class CustomJWTAuth(FastAPIUsers[models.UP, models.ID]):
-    authenticator: CustomAuthenticator
+class UserBasedAuth(FastAPIUsers[models.UP, models.ID]):
+    authenticator: UserAuthenticator
 
     def __init__(
         self,
-        get_user_manager: UserManagerDependency[models.UP, models.ID],
+        get_user_manager_dep: UserManagerDependency[models.UP, models.ID],
         auth_backends: Sequence[AuthenticationBackend],
     ):
         super().__init__(get_user_manager, auth_backends)
-        self.authenticator = CustomAuthenticator(auth_backends, get_user_manager)
-        self.get_user_manager = get_user_manager
+        self.authenticator = UserAuthenticator(auth_backends, get_user_manager_dep)
+        self.get_user_manager = get_user_manager_dep
         self.current_user = self.authenticator.current_user
         self.current_user_id = self.authenticator.current_user_id
