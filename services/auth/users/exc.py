@@ -15,6 +15,8 @@ from typing import Any
 
 from fastapi_users.exceptions import FastAPIUsersException, InvalidPasswordException
 
+# TODO: Add exception handler for these exceptions
+
 
 class InvalidEmailException(InvalidPasswordException):
     pass

@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import logging
+import re
+from typing import Dict, Tuple
 
 from starlette.config import Config
 from starlette.datastructures import URL, CommaSeparatedStrings
@@ -56,10 +58,10 @@ PUHURI_CONFIG_ENDPOINT = config("PUHURI_CONFIG_ENDPOINT", cast=str, default=None
 JWT_SECRET = config("JWT_SECRET", cast=str, default=None)
 JWT_TTL = config("JWT_TTL", cast=int, default=3600)
 
-AUTH_EMAIL_REGEX_MAP = {
-    TERGITE_CLIENT_NAME: config("TERGITE_EMAIL_REGEX", cast=str, default=".*"),
-    CHALMERS_CLIENT_NAME: config("CHALMERS_EMAIL_REGEX", cast=str, default=".*"),
-    PUHURI_CLIENT_NAME: config("PUHURI_EMAIL_REGEX", cast=str, default=".*"),
+AUTH_EMAIL_REGEX_MAP: Dict[str, Tuple[str, re.RegexFlag]] = {
+    TERGITE_CLIENT_NAME: (config("TERGITE_EMAIL_REGEX", cast=str, default=".*"), 0),
+    CHALMERS_CLIENT_NAME: (config("CHALMERS_EMAIL_REGEX", cast=str, default=".*"), 0),
+    PUHURI_CLIENT_NAME: (config("PUHURI_EMAIL_REGEX", cast=str, default=".*"), 0),
 }
 
 AUTH_ROLES_MAP = {

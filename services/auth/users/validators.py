@@ -12,7 +12,7 @@
 
 """Validators for the users submodule in the auth service"""
 import re
-from typing import Dict, Optional, Protocol, Union
+from typing import Optional, Protocol, Dict, Tuple
 
 from services.auth.users import exc
 
@@ -39,28 +39,19 @@ class Validator(Protocol):
         raise NotImplementedError("validate must be implemented")
 
 
-class EmailRegexValidator(Validator, dict):
+class EmailRegexValidator(Validator):
     """A helper for validating emails using regex"""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for k, v in self.items():
-            self.__setitem__(k, v)
-
-    def __setitem__(self, oauth_name, value):
-        """Set self[oauth_name] to re.compile(value)"""
-        try:
-            return super().__setitem__(oauth_name, re.compile(value))
-        except TypeError:
-            raise TypeError(
-                f"value for key '{oauth_name}' expected to be string, got '{type(value)}'"
-            )
+    def __init__(self, config: Dict[str, Tuple[str, re.RegexFlag]]):
+        self.__config = {
+            k: re.compile(text, flag) for k, (text, flag) in config.items()
+        }
 
     async def validate(
         self, email: str, oauth_name: Optional[str] = None, **kwargs
     ) -> None:
         try:
-            email_regex: re.Pattern = self[oauth_name]
+            email_regex: re.Pattern = self.__config[oauth_name]
             if email_regex.match(email) is None:
                 raise exc.InvalidEmailException("the email is invalid")
 
