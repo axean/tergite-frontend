@@ -53,7 +53,7 @@ class EmailRegexValidator(Validator):
         try:
             email_regex: re.Pattern = self.__config[oauth_name]
             if email_regex.match(email) is None:
-                raise exc.InvalidEmailException("the email is invalid")
+                raise exc.InvalidEmailException("user not permitted")
 
         except KeyError:
             raise exc.UnsupportedOauthException("this oauth login type not supported")
