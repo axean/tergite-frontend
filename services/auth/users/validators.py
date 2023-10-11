@@ -12,7 +12,7 @@
 
 """Validators for the users submodule in the auth service"""
 import re
-from typing import Optional, Protocol, Dict, Tuple
+from typing import Dict, Optional, Protocol, Tuple
 
 from services.auth.users import exc
 

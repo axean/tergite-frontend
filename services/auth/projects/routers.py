@@ -11,8 +11,7 @@
 # that they have been altered from the originals.
 
 """A collection of routers for the projects submodule of the auth service"""
-from enum import Enum
-from typing import TYPE_CHECKING, Tuple, Type
+from typing import Tuple, Type
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import Response
@@ -30,16 +29,11 @@ from .app_tokens import (
     ProjectManagerDependency,
 )
 from .dtos import AppTokenCreate, Project, ProjectCreate, ProjectUpdate
+from .exc import ExtendedErrorCode
 from .manager import ProjectManager
 
 CurrentUserDependency = DependencyCallable[User]
 CurrentSuperUserDependency = DependencyCallable[User]
-
-
-class ExtendedErrorCode(str, Enum):
-    PROJECT_ALREADY_EXISTS = "PROJECT_ALREADY_EXISTS"
-    BAD_CREDENTIALS = "BAD_CREDENTIALS"
-    UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS = "UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS"
 
 
 def get_app_tokens_router(

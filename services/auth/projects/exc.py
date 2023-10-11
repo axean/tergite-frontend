@@ -11,7 +11,16 @@
 # that they have been altered from the originals.
 
 """Exceptions for auth with respect to the projects submodule"""
+from enum import Enum
+
 from fastapi_users.exceptions import UserNotExists
+
+
+class ExtendedErrorCode(str, Enum):
+    PROJECT_ALREADY_EXISTS = "PROJECT_ALREADY_EXISTS"
+    PROJECT_NOT_FOUND = "PROJECT_NOT_FOUND"
+    BAD_CREDENTIALS = "BAD_CREDENTIALS"
+    UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS = "UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS"
 
 
 class ProjectNotExists(UserNotExists):
