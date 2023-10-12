@@ -14,18 +14,18 @@ from typing import Sequence
 from fastapi import APIRouter, Depends
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport
 
+from ..app_tokens.auth_backend import AppTokenAuthenticationBackend
 from ..app_tokens.authenticator import AppTokenAuthenticator
 from ..app_tokens.database import AppTokenDatabase
+from ..app_tokens.routers import get_app_tokens_router
 from ..app_tokens.strategy import AppTokenStrategy
+from ..users.dtos import CurrentUserDependency
+from ..users.manager import UserManagerDependency
 from . import routers
 from .database import ProjectDatabase
 from .dtos import Project, ProjectAdminView, ProjectCreate, ProjectRead, ProjectUpdate
-from .manager import ProjectManager, ProjectManagerDependency
-from .routers import (
-    CurrentSuperUserDependency,
-    CurrentUserDependency,
-    CurrentUserIdDependency,
-)
+from .manager import ProjectAppTokenManager, ProjectManagerDependency
+from .routers import CurrentSuperUserDependency, CurrentUserIdDependency
 
 
 async def get_project_db():
@@ -58,14 +58,15 @@ async def get_project_manager(
     project_db: ProjectDatabase = Depends(get_project_db),
     app_token_db: AppTokenDatabase = Depends(get_app_token_db),
 ):
-    """Dependency injector for ProjectManager"""
-    yield ProjectManager(project_db, app_token_db=app_token_db)
+    """Dependency injector for ProjectAppTokenManager"""
+    yield ProjectAppTokenManager(project_db, app_token_db=app_token_db)
 
 
 class ProjectBasedAuth:
     def __init__(
         self,
         get_project_manager_dep: ProjectManagerDependency,
+        get_user_manager_dep: UserManagerDependency,
         get_current_user_dep: CurrentUserDependency,
         get_current_user_id_dep: CurrentUserIdDependency,
         get_current_superuser_dep: CurrentSuperUserDependency,
@@ -75,22 +76,26 @@ class ProjectBasedAuth:
             backends=auth_backends, get_project_manager_dep=get_project_manager_dep
         )
         self.get_project_manager = get_project_manager_dep
+        self.get_user_manager = get_user_manager_dep
         self.get_current_user = get_current_user_dep
         self.get_current_user_id = get_current_user_id_dep
         self.get_current_superuser = get_current_superuser_dep
         self.current_project = self.authenticator.current_project
 
-    def get_app_tokens_router(self, backend: AuthenticationBackend) -> APIRouter:
+    def get_app_tokens_router(
+        self, backend: AppTokenAuthenticationBackend
+    ) -> APIRouter:
         """
         Return an auth router for a given authentication backend.
 
         Args:
             backend: The authentication backend instance.
         """
-        return routers.get_app_tokens_router(
+        return get_app_tokens_router(
             backend=backend,
             get_project_manager=self.get_project_manager,
-            get_current_user=self.get_current_user,
+            get_user_manager=self.get_user_manager,
+            get_current_user_id=self.get_current_user_id,
             authenticator=self.authenticator,
         )
 

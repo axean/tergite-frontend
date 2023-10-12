@@ -13,7 +13,6 @@
 """Definition of the FastAPIUsers-inspired Database adapter for projects"""
 from typing import Any, Dict, List, Mapping, Optional
 
-from beanie import PydanticObjectId
 from fastapi_users.models import ID
 
 from .dtos import Project
@@ -32,9 +31,7 @@ class ProjectDatabase:
         return await Project.find_one(Project.ext_id == ext_id)
 
     @staticmethod
-    async def get_by_ext_and_user_id(
-        ext_id: str, user_id: PydanticObjectId
-    ) -> Optional[Project]:
+    async def get_by_ext_and_user_id(ext_id: str, user_id: str) -> Optional[Project]:
         """Get a single project by ext_id and user_id.
 
         The user_id must be among the Project's user ids

@@ -1,0 +1,180 @@
+# This code is part of Tergite
+#
+# (C) Copyright Martin Ahindura 2023
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+"""A collection of routers for the app_tokens submodule of the auth service"""
+from typing import List, Optional, Tuple
+
+from beanie import PydanticObjectId
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.requests import Request
+from fastapi_users import schemas
+from fastapi_users.router import ErrorCode
+from fastapi_users.router.common import ErrorModel
+
+from ..projects.dtos import Project
+from ..projects.manager import ProjectAppTokenManager, ProjectManagerDependency
+from ..users.dtos import CurrentUserIdDependency
+from ..users.manager import UserManager, UserManagerDependency
+from ..utils import MAX_LIST_QUERY_LEN, TooManyListQueryParams
+from . import exc
+from .auth_backend import AppTokenAuthenticationBackend
+from .authenticator import AppTokenAuthenticator
+from .dtos import AppTokenCreate, AppTokenListResponse, AppTokenRead
+from .strategy import AppTokenStrategy
+
+
+def get_app_tokens_router(
+    backend: AppTokenAuthenticationBackend,
+    get_project_manager: "ProjectManagerDependency",
+    get_user_manager: "UserManagerDependency",
+    get_current_user_id: "CurrentUserIdDependency",
+    authenticator: "AppTokenAuthenticator",
+    **kwargs,
+) -> APIRouter:
+    """Generate a router with login/logout routes for an authentication backend."""
+    router = APIRouter()
+    get_current_project_token = authenticator.current_project_token(active=True)
+
+    # route to view list of app tokens
+    @router.get(
+        "/me",
+        response_model=AppTokenListResponse,
+        name="app_tokens:my_many_app_tokens",
+        responses={
+            status.HTTP_401_UNAUTHORIZED: {
+                "description": "Missing token or inactive user.",
+            },
+        },
+    )
+    async def get_my_app_tokens(
+        user_id: str = Depends(get_current_user_id),
+        project_manager: ProjectAppTokenManager = Depends(get_project_manager),
+        user_manager: UserManager = Depends(get_user_manager),
+        skip: int = Query(0),
+        limit: Optional[int] = Query(None),
+        ids: Optional[List[PydanticObjectId]] = Query(None, alias="id"),
+        project_ext_id: Optional[List[str]] = Query(None),
+        title: Optional[List[str]] = Query(None),
+        min_lifespan_seconds: Optional[int] = Query(None),
+        max_lifespan_seconds: Optional[int] = Query(None),
+    ):
+        parsed_user_id = user_manager.parse_id(user_id)
+        filter_obj = {"user_id": parsed_user_id}
+
+        if ids is not None:
+            if len(ids) > MAX_LIST_QUERY_LEN:
+                raise TooManyListQueryParams(
+                    "id", expected=MAX_LIST_QUERY_LEN, got=len(ids)
+                )
+
+            filter_obj["_id"] = {"$in": ids}
+
+        if project_ext_id is not None:
+            if len(project_ext_id) > MAX_LIST_QUERY_LEN:
+                raise TooManyListQueryParams(
+                    "project_ext_id",
+                    expected=MAX_LIST_QUERY_LEN,
+                    got=len(project_ext_id),
+                )
+
+            filter_obj["project_ext_id"] = {"$in": project_ext_id}
+
+        if title is not None:
+            if len(title) > MAX_LIST_QUERY_LEN:
+                raise TooManyListQueryParams(
+                    "title", expected=MAX_LIST_QUERY_LEN, got=len(title)
+                )
+
+            filter_obj["title"] = {"$in": title}
+
+        if min_lifespan_seconds is not None:
+            filter_obj["lifespan_seconds"] = {"$gte": min_lifespan_seconds}
+
+        if max_lifespan_seconds is not None:
+            if "lifespan_seconds" not in filter_obj:
+                filter_obj["lifespan_seconds"] = {}
+
+            filter_obj["lifespan_seconds"].update({"$lte": max_lifespan_seconds})
+
+        app_tokens = await project_manager.get_many_app_tokens(
+            filter_obj=filter_obj, skip=skip, limit=limit
+        )
+
+        data = [schemas.model_validate(AppTokenRead, token) for token in app_tokens]
+        return AppTokenListResponse(data=data, skip=skip, limit=limit)
+
+    # route to generate tokens
+    @router.post(
+        "/generate",
+        name=f"app_tokens:{backend.name}.generate_token",
+        responses={
+            status.HTTP_400_BAD_REQUEST: {
+                "model": ErrorModel,
+                "content": {
+                    "application/json": {
+                        "examples": {
+                            exc.ExtendedErrorCode.BAD_CREDENTIALS: {
+                                "summary": "Bad credentials or you don't have access to project.",
+                                "value": {
+                                    "detail": exc.ExtendedErrorCode.BAD_CREDENTIALS
+                                },
+                            },
+                        }
+                    }
+                },
+            },
+            **backend.transport.get_openapi_login_responses_success(),
+        },
+    )
+    async def generate_app_token(
+        request: Request,
+        payload: AppTokenCreate,
+        project_manager: ProjectAppTokenManager = Depends(get_project_manager),
+        user_manager: UserManager = Depends(get_user_manager),
+        strategy: AppTokenStrategy = Depends(backend.get_strategy),
+        user_id: str = Depends(get_current_user_id),
+    ):
+        project = await project_manager.authenticate(details=payload, user_id=user_id)
+
+        if project is None or not project.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
+            )
+
+        parsed_user_id = user_manager.parse_id(user_id)
+        response = await backend.generate_token(
+            strategy=strategy, payload=payload, user_id=parsed_user_id
+        )
+        return response
+
+    # route to destroy tokens
+    @router.post(
+        "/destroy",
+        name=f"app_tokens:{backend.name}.destroy_token",
+        responses={
+            **{
+                status.HTTP_401_UNAUTHORIZED: {
+                    "description": "Missing token or inactive project or no access to project."
+                }
+            },
+            **backend.transport.get_openapi_logout_responses_success(),
+        },
+    )
+    async def destroy(
+        project_token: Tuple[Project, str] = Depends(get_current_project_token),
+        strategy: AppTokenStrategy = Depends(backend.get_strategy),
+    ):
+        _, token = project_token
+        return await backend.destroy_token(strategy=strategy, token=token)
+
+    return router

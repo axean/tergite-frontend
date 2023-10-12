@@ -13,7 +13,6 @@
 from typing import Optional, Sequence
 
 from fastapi import HTTPException, status
-from fastapi_users import BaseUserManager
 from fastapi_users.authentication import AuthenticationBackend, Authenticator
 from fastapi_users.authentication.authenticator import (
     EnabledBackendsDependency,

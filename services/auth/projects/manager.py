@@ -12,7 +12,6 @@
 """FastAPIUsers-inspired logic for managing projects"""
 from typing import Any, Dict, List, Mapping, Optional
 
-from beanie import PydanticObjectId
 from fastapi.requests import Request
 from fastapi_users.models import ID
 from fastapi_users.types import DependencyCallable
@@ -20,13 +19,12 @@ from fastapi_users_db_beanie import ObjectIDIDMixin
 
 from ..app_tokens.database import AppTokenDatabase
 from ..app_tokens.dtos import AppTokenCreate
-from ..users.dtos import User
 from . import exc
 from .database import ProjectDatabase
 from .dtos import Project, ProjectCreate, ProjectUpdate
 
 
-class ProjectManager(ObjectIDIDMixin):
+class ProjectAppTokenManager(ObjectIDIDMixin):
     """
     Project management logic.
 
@@ -61,9 +59,7 @@ class ProjectManager(ObjectIDIDMixin):
 
         return project
 
-    async def get_by_ext_and_user_id(
-        self, ext_id: str, user_id: PydanticObjectId
-    ) -> Project:
+    async def get_by_ext_and_user_id(self, ext_id: str, user_id: str) -> Project:
         """
         Get a project by ext_id and user_id.
 
@@ -104,6 +100,27 @@ class ProjectManager(ObjectIDIDMixin):
             the list of matched projects
         """
         return await self.project_db.get_many(
+            filter_obj,
+            skip=skip,
+            limit=limit,
+        )
+
+    async def get_many_app_tokens(
+        self, filter_obj: Mapping[str, Any], skip: int = 0, limit: Optional[int] = None
+    ) -> List[Project]:
+        """
+        Get a list of app tokens to basing on filter.
+
+        Args:
+            filter_obj: the PyMongo-like filter object e.g. `{"user_id": "uidufiud"}`.
+            skip: the number of matched records to skip
+            limit: the maximum number of records to return.
+                If None, all possible records are returned.
+
+        Returns:
+            the list of matched app tokens
+        """
+        return await self.app_token_db.get_many(
             filter_obj,
             skip=skip,
             limit=limit,
@@ -213,14 +230,14 @@ class ProjectManager(ObjectIDIDMixin):
     async def authenticate(
         self,
         details: AppTokenCreate,
-        current_user: User,
+        user_id: str,
     ) -> Optional[Project]:
         """
         Authenticate and return a project following an ext_id and a current_user.
 
         Args:
             details: The app token details to use to generate an app token.
-            current_user: the User who is logged in now
+            user_id: the id of the user who is logged in now
 
         Raises:
             ProjectNotExists: if project does not exist or user does not have access.
@@ -229,8 +246,8 @@ class ProjectManager(ObjectIDIDMixin):
             the project of the given project_ext_id in details, and id in current_user
         """
         return await self.get_by_ext_and_user_id(
-            details.project_ext_id, current_user.id
+            details.project_ext_id, user_id=user_id
         )
 
 
-ProjectManagerDependency = DependencyCallable[ProjectManager]
+ProjectManagerDependency = DependencyCallable[ProjectAppTokenManager]

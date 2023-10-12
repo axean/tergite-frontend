@@ -18,6 +18,7 @@ from fastapi.requests import Request
 from fastapi_users import BaseUserManager, models
 from fastapi_users.db import BaseUserDatabase
 from fastapi_users.password import PasswordHelperProtocol
+from fastapi_users.types import DependencyCallable
 from fastapi_users_db_beanie import ObjectIDIDMixin
 
 from .dtos import User
@@ -61,3 +62,6 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
             associate_by_email=associate_by_email,
             is_verified_by_default=is_verified_by_default,
         )
+
+
+UserManagerDependency = DependencyCallable[UserManager]

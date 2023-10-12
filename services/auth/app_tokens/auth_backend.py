@@ -1,0 +1,92 @@
+# This code is part of Tergite
+#
+# (C) Copyright Martin Ahindura 2023
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+"""FastAPIUsers-specific definition of Authentication Backend"""
+from beanie import PydanticObjectId
+from fastapi import status
+from fastapi.responses import Response
+from fastapi_users.authentication import Transport
+from fastapi_users.authentication.strategy import StrategyDestroyNotSupportedError
+from fastapi_users.authentication.transport import TransportLogoutNotSupportedError
+from fastapi_users.types import DependencyCallable
+
+from .dtos import AppTokenCreate
+from .strategy import AppTokenStrategy
+
+
+class AppTokenAuthenticationBackend:
+    """Combination of an authentication transport and strategy.
+
+    Together, they provide a full authentication method logic.
+
+    Attributes:
+        name: Name of the backend.
+        transport: Authentication transport instance.
+        get_strategy: Dependency callable returning
+            an authentication strategy instance.
+    """
+
+    name: str
+    transport: Transport
+
+    def __init__(
+        self,
+        name: str,
+        transport: Transport,
+        get_strategy: DependencyCallable[AppTokenStrategy],
+    ):
+        self.name = name
+        self.transport = transport
+        self.get_strategy = get_strategy
+
+    async def generate_token(
+        self,
+        strategy: AppTokenStrategy,
+        payload: AppTokenCreate,
+        user_id: PydanticObjectId,
+        **kwargs
+    ) -> Response:
+        """Generates a new token for the given user
+
+        Args:
+            strategy: the FastAPIUsers strategy to use
+            payload: the payload for the creation of the app token
+            user_id: the id of the user for whom the given token is to be created
+
+        Returns:
+            FastAPI response of the created token
+        """
+        token = await strategy.write_token(payload, user_id=user_id)
+        return await self.transport.get_login_response(token)
+
+    async def destroy_token(
+        self, strategy: AppTokenStrategy, token: str, **kwargs
+    ) -> Response:
+        """Destroys a given token.
+
+        Args:
+            strategy: the FastAPIUsers strategy to use
+            token: the token to destroy
+
+        Returns:
+            FastAPI response of the deleted token
+        """
+        try:
+            await strategy.destroy_token(token)
+        except StrategyDestroyNotSupportedError:
+            pass
+
+        try:
+            response = await self.transport.get_logout_response()
+        except TransportLogoutNotSupportedError:
+            response = Response(status_code=status.HTTP_204_NO_CONTENT)
+
+        return response

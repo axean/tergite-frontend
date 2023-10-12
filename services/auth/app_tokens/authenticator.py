@@ -24,7 +24,7 @@ from fastapi_users.authentication.authenticator import (
 from makefun import with_signature
 
 from ..projects.dtos import Project
-from ..projects.manager import ProjectManager, ProjectManagerDependency
+from ..projects.manager import ProjectAppTokenManager, ProjectManagerDependency
 
 
 class AppTokenAuthenticator:
@@ -107,7 +107,7 @@ class AppTokenAuthenticator:
     async def _authenticate(
         self,
         *args,
-        project_manager: ProjectManager,
+        project_manager: ProjectAppTokenManager,
         optional: bool = False,
         active: bool = False,
         **kwargs,

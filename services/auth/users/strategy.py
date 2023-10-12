@@ -13,7 +13,6 @@
 from typing import Generic, Optional
 
 import jwt
-from fastapi_users import BaseUserManager
 from fastapi_users.authentication import JWTStrategy
 from fastapi_users.jwt import decode_jwt
 

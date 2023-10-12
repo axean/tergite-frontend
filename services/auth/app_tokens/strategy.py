@@ -12,6 +12,7 @@
 """FastAPIUsers-specific definition of AppTokens Strategy"""
 import secrets
 
+from beanie import PydanticObjectId
 from fastapi_users.authentication.strategy import DatabaseStrategy
 
 from .database import AppTokenDatabase
@@ -24,8 +25,16 @@ class AppTokenStrategy(DatabaseStrategy):
     def __init__(self, database: AppTokenDatabase):
         super().__init__(database)
 
-    async def write_token(self, payload: AppTokenCreate) -> str:
+    async def write_token(
+        self, payload: AppTokenCreate, user_id: PydanticObjectId
+    ) -> str:
         token_dict = payload.dict()
         token_dict["token"] = secrets.token_urlsafe()
+        token_dict["user_id"] = user_id
         access_token = await self.database.create(token_dict)
         return access_token.token
+
+    async def destroy_token(self, token: str, **kwargs) -> None:
+        access_token = await self.database.get_by_token(token)
+        if access_token is not None:
+            await self.database.delete(access_token)

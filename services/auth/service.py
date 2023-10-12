@@ -59,6 +59,7 @@ PUHURI_OAUTH_CLIENT = users.get_openid_client(
 APP_TOKEN_BACKEND = projects.get_app_token_backend("auth/app-tokens/generate")
 APP_TOKEN_AUTH = projects.ProjectBasedAuth(
     get_project_manager_dep=projects.get_project_manager,
+    get_user_manager_dep=users.get_user_manager,
     get_current_user_dep=GET_CURRENT_USER,
     get_current_user_id_dep=GET_CURRENT_USER_ID,
     get_current_superuser_dep=GET_CURRENT_SUPERUSER,
