@@ -84,7 +84,7 @@ class UserAuthenticator(Authenticator):
                 ]
                 if token is not None:
                     try:
-                        user_id = await strategy.get_user_id(token, user_manager)
+                        user_id = strategy.get_user_id(token, user_manager)
                         if user_id:
                             break
 
