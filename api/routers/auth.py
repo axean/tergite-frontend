@@ -60,12 +60,6 @@ router.include_router(
 )
 
 router.include_router(
-    APP_TOKEN_AUTH.get_app_tokens_router(backend=APP_TOKEN_BACKEND),
-    prefix="/app-tokens",
-    tags=["auth"],
-)
-
-router.include_router(
     APP_TOKEN_AUTH.get_projects_router(),
     prefix="/projects",
     tags=["auth"],
@@ -74,5 +68,11 @@ router.include_router(
 router.include_router(
     APP_TOKEN_AUTH.get_my_projects_router(),
     prefix="/me/projects",
+    tags=["auth"],
+)
+
+router.include_router(
+    APP_TOKEN_AUTH.get_app_tokens_router(backend=APP_TOKEN_BACKEND),
+    prefix="/me/app-tokens",
     tags=["auth"],
 )

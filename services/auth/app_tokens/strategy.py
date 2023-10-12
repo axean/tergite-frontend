@@ -15,12 +15,15 @@ import secrets
 from beanie import PydanticObjectId
 from fastapi_users.authentication.strategy import DatabaseStrategy
 
+from . import exc
 from .database import AppTokenDatabase
 from .dtos import AppTokenCreate
 
 
 class AppTokenStrategy(DatabaseStrategy):
     """Strategy that handles app tokens"""
+
+    database: AppTokenDatabase
 
     def __init__(self, database: AppTokenDatabase):
         super().__init__(database)
@@ -34,7 +37,23 @@ class AppTokenStrategy(DatabaseStrategy):
         access_token = await self.database.create(token_dict)
         return access_token.token
 
-    async def destroy_token(self, token: str, **kwargs) -> None:
-        access_token = await self.database.get_by_token(token)
-        if access_token is not None:
-            await self.database.delete(access_token)
+    async def destroy_token(
+        self, token: str, user_id: PydanticObjectId, **filters
+    ) -> None:
+        """Destroys a given token.
+
+        Args:
+            token: the token to destroy
+            user_id: the id of the user this token should belong to
+            filters: other key-value filters to identify the token
+
+        Raises:
+            HTTPException: Forbidden 403 if token is not user's
+                or token does not exist or is expired already
+        """
+        filters["user_id"] = user_id
+        access_token = await self.database.get_by_token(token, **filters)
+        if access_token is None:
+            raise exc.AppTokenNotFound()
+
+        await self.database.delete(access_token)

@@ -12,7 +12,19 @@
 
 """Exceptions for auth with respect to the app_tokens submodule"""
 from enum import Enum
+from typing import Any, Dict, Optional
+
+from fastapi import HTTPException, status
 
 
 class ExtendedErrorCode(str, Enum):
     BAD_CREDENTIALS = "BAD_CREDENTIALS"
+
+
+class AppTokenNotFound(HTTPException):
+    def __init__(self, headers: Optional[Dict[str, Any]] = None):
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="app token does not exist or is expired.",
+            headers=headers,
+        )

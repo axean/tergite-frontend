@@ -33,7 +33,9 @@ async def get_project_db():
     yield ProjectDatabase()
 
 
-def get_app_token_backend(app_token_generation_url: str) -> AuthenticationBackend:
+def get_app_token_backend(
+    app_token_generation_url: str,
+) -> AppTokenAuthenticationBackend:
     """Creates an auth backend that uses database app tokens to authenticate"""
     bearer_transport = BearerTransport(tokenUrl=app_token_generation_url)
 
@@ -42,7 +44,7 @@ def get_app_token_backend(app_token_generation_url: str) -> AuthenticationBacken
     ) -> AppTokenStrategy:
         return AppTokenStrategy(token_db)
 
-    return AuthenticationBackend(
+    return AppTokenAuthenticationBackend(
         name="app-token",
         transport=bearer_transport,
         get_strategy=get_app_token_strategy,
@@ -96,7 +98,6 @@ class ProjectBasedAuth:
             get_project_manager=self.get_project_manager,
             get_user_manager=self.get_user_manager,
             get_current_user_id=self.get_current_user_id,
-            authenticator=self.authenticator,
         )
 
     def get_projects_router(self) -> APIRouter:

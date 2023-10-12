@@ -31,10 +31,10 @@ class AppTokenCreate(BaseModel):
 class AppTokenRead(AppTokenCreate):
     """The record as seen much later after creation
 
-    It never shows the token string again
+    It never shows the token string again.
+    It also doesn't show the user id
     """
 
-    user_id: PydanticObjectId
     created_at: datetime
 
     class Config:

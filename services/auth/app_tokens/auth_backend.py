@@ -68,19 +68,27 @@ class AppTokenAuthenticationBackend:
         return await self.transport.get_login_response(token)
 
     async def destroy_token(
-        self, strategy: AppTokenStrategy, token: str, **kwargs
+        self,
+        strategy: AppTokenStrategy,
+        token: str,
+        user_id: PydanticObjectId,
+        **kwargs
     ) -> Response:
         """Destroys a given token.
 
         Args:
             strategy: the FastAPIUsers strategy to use
             token: the token to destroy
+            user_id: the id of the user this token should belong to
+
+        Raises:
+            HTTPException: Forbidden 403 if token is not user's or token does not exist
 
         Returns:
             FastAPI response of the deleted token
         """
         try:
-            await strategy.destroy_token(token)
+            await strategy.destroy_token(token=token, user_id=user_id)
         except StrategyDestroyNotSupportedError:
             pass
 

@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """A collection of routers for the app_tokens submodule of the auth service"""
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -20,14 +20,12 @@ from fastapi_users import schemas
 from fastapi_users.router import ErrorCode
 from fastapi_users.router.common import ErrorModel
 
-from ..projects.dtos import Project
 from ..projects.manager import ProjectAppTokenManager, ProjectManagerDependency
 from ..users.dtos import CurrentUserIdDependency
 from ..users.manager import UserManager, UserManagerDependency
 from ..utils import MAX_LIST_QUERY_LEN, TooManyListQueryParams
 from . import exc
 from .auth_backend import AppTokenAuthenticationBackend
-from .authenticator import AppTokenAuthenticator
 from .dtos import AppTokenCreate, AppTokenListResponse, AppTokenRead
 from .strategy import AppTokenStrategy
 
@@ -37,16 +35,14 @@ def get_app_tokens_router(
     get_project_manager: "ProjectManagerDependency",
     get_user_manager: "UserManagerDependency",
     get_current_user_id: "CurrentUserIdDependency",
-    authenticator: "AppTokenAuthenticator",
     **kwargs,
 ) -> APIRouter:
     """Generate a router with login/logout routes for an authentication backend."""
     router = APIRouter()
-    get_current_project_token = authenticator.current_project_token(active=True)
 
     # route to view list of app tokens
     @router.get(
-        "/me",
+        "/",
         response_model=AppTokenListResponse,
         name="app_tokens:my_many_app_tokens",
         responses={
@@ -114,7 +110,7 @@ def get_app_tokens_router(
 
     # route to generate tokens
     @router.post(
-        "/generate",
+        "/",
         name=f"app_tokens:{backend.name}.generate_token",
         responses={
             status.HTTP_400_BAD_REQUEST: {
@@ -158,23 +154,30 @@ def get_app_tokens_router(
         return response
 
     # route to destroy tokens
-    @router.post(
-        "/destroy",
+    @router.delete(
+        "/{token}",
         name=f"app_tokens:{backend.name}.destroy_token",
         responses={
             **{
                 status.HTTP_401_UNAUTHORIZED: {
-                    "description": "Missing token or inactive project or no access to project."
-                }
+                    "description": "user not authenticated."
+                },
+                status.HTTP_403_FORBIDDEN: {
+                    "description": "token is missing or is expired."
+                },
             },
             **backend.transport.get_openapi_logout_responses_success(),
         },
     )
     async def destroy(
-        project_token: Tuple[Project, str] = Depends(get_current_project_token),
+        token: str,
+        user_id: str = Depends(get_current_user_id),
+        user_manager: UserManager = Depends(get_user_manager),
         strategy: AppTokenStrategy = Depends(backend.get_strategy),
     ):
-        _, token = project_token
-        return await backend.destroy_token(strategy=strategy, token=token)
+        parsed_user_id = user_manager.parse_id(user_id)
+        return await backend.destroy_token(
+            strategy=strategy, token=token, user_id=parsed_user_id
+        )
 
     return router
