@@ -158,7 +158,7 @@ class ProjectManager(ObjectIDIDMixin):
         Returns:
             the updated project.
         """
-        update_dict = project_update.dict()
+        update_dict = project_update.dict(exclude_none=True)
         await self.on_before_update(project, update_dict)
         updated_project = await self.project_db.update(project, update_dict)
         return updated_project
