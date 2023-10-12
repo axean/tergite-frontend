@@ -16,8 +16,6 @@ from beanie import Document, PydanticObjectId
 from pydantic import BaseModel
 from pymongo import IndexModel
 
-ITEM = TypeVar("ITEM", bound=BaseModel)
-
 
 class ProjectCreate(BaseModel):
     """The schema for creating a project"""
@@ -40,11 +38,10 @@ class ProjectRead(BaseModel):
         orm_mode = True
 
 
-class ProjectAdminView(ProjectCreate):
+class ProjectAdminView(ProjectRead):
     """The schema for viewing a project as an admin"""
 
-    id: PydanticObjectId
-    is_active: bool = True
+    user_ids: List[str] = []
 
     class Config:
         orm_mode = True
@@ -67,7 +64,10 @@ class Project(ProjectCreate, Document):
         ]
 
 
-class PaginatedResponse(Generic[ITEM], BaseModel):
+ITEM = TypeVar("ITEM")
+
+
+class ProjectListResponse(BaseModel, Generic[ITEM]):
     """The response when sending paginated data"""
 
     skip: int = 0

@@ -67,10 +67,9 @@ class UserAuthenticator(Authenticator):
     async def _authenticate_without_db(
         self,
         *args,
-        user_manager: BaseUserManager[UP, ID],
         optional: bool = False,
         **kwargs,
-    ) -> Optional[ID]:
+    ) -> Optional[str]:
         """Attempts to authenticate the given user without hitting the database"""
         user_id: Optional[ID] = None
         enabled_backends: Sequence[AuthenticationBackend] = kwargs.get(
@@ -84,7 +83,7 @@ class UserAuthenticator(Authenticator):
                 ]
                 if token is not None:
                     try:
-                        user_id = strategy.get_user_id(token, user_manager)
+                        user_id = strategy.get_user_id(token)
                         if user_id:
                             break
 

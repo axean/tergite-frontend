@@ -131,3 +131,6 @@ config.ini
 nohup.out
 
 .idea/
+
+# starter for debugger
+start_mss.py

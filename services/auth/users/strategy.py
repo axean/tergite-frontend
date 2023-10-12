@@ -26,9 +26,7 @@ class CustomJWTStrategy(
 ):
     """An extension of the basic JWT strategy"""
 
-    def get_user_id(
-        self, token: Optional[str], user_manager: BaseUserManager[UP, ID]
-    ) -> Optional[ID]:
+    def get_user_id(self, token: Optional[str]) -> Optional[str]:
         """Returns the user id without hitting the database"""
         try:
             data = decode_jwt(
@@ -40,4 +38,4 @@ class CustomJWTStrategy(
         except jwt.PyJWTError:
             return None
 
-        return user_manager.parse_id(user_id)
+        return user_id

@@ -84,4 +84,4 @@ class User(Document):
 
 CurrentUserDependency = DependencyCallable[User]
 CurrentSuperUserDependency = DependencyCallable[User]
-CurrentUserIdDependency = DependencyCallable[PydanticObjectId]
+CurrentUserIdDependency = DependencyCallable[str]

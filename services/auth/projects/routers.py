@@ -32,10 +32,10 @@ from ..users.dtos import (
 )
 from . import exc
 from .dtos import (
-    PaginatedResponse,
     Project,
     ProjectAdminView,
     ProjectCreate,
+    ProjectListResponse,
     ProjectRead,
     ProjectUpdate,
 )
@@ -202,7 +202,7 @@ def get_projects_router(
 
     @router.get(
         "/",
-        response_model=PaginatedResponse[project_schema],
+        response_model=ProjectListResponse[project_schema],
         dependencies=[Depends(get_current_superuser)],
         name="projects:many_projects",
         responses={
@@ -219,7 +219,7 @@ def get_projects_router(
         skip: int = Query(0),
         limit: Optional[int] = Query(None),
         ids: Optional[List[PydanticObjectId]] = Query(None, alias="id"),
-        user_ids: Optional[List[PydanticObjectId]] = Query(None),
+        user_ids: Optional[List[str]] = Query(None),
         ext_id: Optional[List[str]] = Query(None),
         is_active: Optional[bool] = Query(None),
         min_qpu_seconds: Optional[int] = Query(None),
@@ -268,7 +268,7 @@ def get_projects_router(
             filter_obj=filter_obj, skip=skip, limit=limit
         )
         data = [schemas.model_validate(project_schema, project) for project in projects]
-        return PaginatedResponse[project_schema](data=data, skip=skip, limit=limit)
+        return ProjectListResponse(data=data, skip=skip, limit=limit)
 
     @router.patch(
         "/{id}",
@@ -359,7 +359,7 @@ def get_my_projects_router(
 
     @router.get(
         "/",
-        response_model=PaginatedResponse[project_schema],
+        response_model=ProjectListResponse[project_schema],
         name="projects:my_many_projects",
         responses={
             status.HTTP_401_UNAUTHORIZED: {
@@ -368,7 +368,7 @@ def get_my_projects_router(
         },
     )
     async def get_projects(
-        user_id: PydanticObjectId = Depends(get_current_user_id),
+        user_id: str = Depends(get_current_user_id),
         project_manager: ProjectManager = Depends(get_project_manager),
         skip: int = Query(0),
         limit: Optional[int] = Query(None),
@@ -378,7 +378,7 @@ def get_my_projects_router(
         )
 
         data = [schemas.model_validate(project_schema, project) for project in projects]
-        return PaginatedResponse[project_schema](data=data, skip=skip, limit=limit)
+        return ProjectListResponse(data=data, skip=skip, limit=limit)
 
     @router.get(
         "/{id}",
@@ -395,7 +395,7 @@ def get_my_projects_router(
     )
     async def get_project(
         id: str,
-        user_id: PydanticObjectId = Depends(get_current_user_id),
+        user_id: str = Depends(get_current_user_id),
         project_manager: ProjectManager = Depends(get_project_manager),
     ):
         try:
