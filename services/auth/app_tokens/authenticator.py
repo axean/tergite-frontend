@@ -129,13 +129,19 @@ class AppTokenAuthenticator:
                         break
 
         status_code = status.HTTP_401_UNAUTHORIZED
+        error_msg: Optional[str] = None
         if project:
             status_code = status.HTTP_403_FORBIDDEN
             if active and not project.is_active:
                 status_code = status.HTTP_401_UNAUTHORIZED
                 project = None
+            elif project.qpu_seconds <= 0:
+                # tokens for projects with no qpu allocation
+                # are not allowed except if optional is True
+                error_msg = f"{project.qpu_seconds} QPU seconds left on project {project.ext_id}"
+                project = None
         if not project and not optional:
-            raise HTTPException(status_code=status_code)
+            raise HTTPException(status_code=status_code, detail=error_msg)
         return project, token
 
     def _get_dependency_signature(self) -> Signature:
