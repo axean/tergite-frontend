@@ -25,6 +25,7 @@ from makefun import with_signature
 
 from ..projects.dtos import Project
 from ..projects.manager import ProjectAppTokenManager, ProjectManagerDependency
+from .auth_backend import AppTokenAuthenticationBackend
 
 
 class AppTokenAuthenticator:
@@ -40,11 +41,11 @@ class AppTokenAuthenticator:
         get_project_manager: Project manager dependency callable.
     """
 
-    backends: Sequence[AuthenticationBackend]
+    backends: Sequence[AppTokenAuthenticationBackend]
 
     def __init__(
         self,
-        backends: Sequence[AuthenticationBackend],
+        backends: Sequence[AppTokenAuthenticationBackend],
         get_project_manager_dep: ProjectManagerDependency,
     ):
         self.backends = backends

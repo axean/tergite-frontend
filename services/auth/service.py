@@ -15,10 +15,9 @@
 import motor.motor_asyncio
 from beanie import PydanticObjectId, init_beanie
 
-import services.auth.app_tokens.dtos
 import settings
 
-from . import projects, users
+from . import app_tokens, projects, users
 
 # JWT-based authentication
 JWT_BACKEND = users.get_jwt_backend(
@@ -74,7 +73,7 @@ async def on_startup(db: motor.motor_asyncio.AsyncIOMotorDatabase):
         database=db,
         document_models=[
             users.dtos.User,
-            services.auth.app_tokens.dtos.AppToken,
+            app_tokens.dtos.AppToken,
             projects.dtos.Project,
         ],
     )

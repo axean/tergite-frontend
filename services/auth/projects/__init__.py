@@ -72,7 +72,7 @@ class ProjectBasedAuth:
         get_current_user_dep: CurrentUserDependency,
         get_current_user_id_dep: CurrentUserIdDependency,
         get_current_superuser_dep: CurrentSuperUserDependency,
-        auth_backends: Sequence[AuthenticationBackend],
+        auth_backends: Sequence[AppTokenAuthenticationBackend],
     ):
         self.authenticator = AppTokenAuthenticator(
             backends=auth_backends, get_project_manager_dep=get_project_manager_dep
