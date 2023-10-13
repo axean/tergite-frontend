@@ -1,6 +1,12 @@
 """Integration tests for the auth router"""
 import re
 
+import pytest
+
+from tests._utils.fixtures import load_json_fixture
+
+_PROJECT_CREATE_LIST = load_json_fixture("project_create_list.json")
+
 
 def test_admin_authorize(client):
     """Admin users can authorize at /auth/github/authorize"""
@@ -27,6 +33,7 @@ def test_chalmers_authorize(client):
 
 def test_puhuri_authorize(client):
     """Puhuri users can authorize at /auth/puhuri/authorize"""
+    """Any random partner users can authorize at /auth/{partner}/authorize"""
     with client as client:
         response = client.get("/auth/puhuri/authorize")
         auth_url_pattern = "^https:\/\/proxy.acc.puhuri.eduteams.org\/OIDC\/authorization\?response_type\=code\&client_id\=test-puhuri-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fpuhuri\%2Fcallback\&state=.*\&scope\=openid\+email$"
@@ -36,19 +43,29 @@ def test_puhuri_authorize(client):
         assert re.match(auth_url_pattern, got["authorization_url"]) is not None
 
 
-def test_partner_authorize():
-    """Any random partner users can authorize at /auth/{partner}/authorize"""
-    pass
-
-
-def test_admin_create_project():
+@pytest.mark.parametrize("project", _PROJECT_CREATE_LIST)
+def test_admin_create_project(project, client, admin_jwt_header):
     """Admins can create projects at /auth/projects/"""
-    pass
+    with client as client:
+        response = client.post("/auth/projects", json=project, headers=admin_jwt_header)
+
+        got = response.json()
+        assert response.status_code == 201
+        got.pop("id")
+        expected = {**project, "is_active": True}
+        assert got == expected
 
 
-def test_non_admin_cannot_create_project():
+@pytest.mark.parametrize("project", _PROJECT_CREATE_LIST)
+def test_non_admin_cannot_create_project(project, client, user_jwt_header):
     """Non-admins cannot create projects at /auth/projects/"""
-    pass
+    with client as client:
+        response = client.post("/auth/projects", json=project, headers=user_jwt_header)
+
+        got = response.json()
+        assert response.status_code == 403
+        expected = {"detail": "Forbidden"}
+        assert got == expected
 
 
 def test_admin_update_project():

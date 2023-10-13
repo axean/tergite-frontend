@@ -1,5 +1,3 @@
-from typing import Dict
-
 from tests._utils.env import (
     TEST_DB_NAME,
     TEST_MONGODB_URL,
@@ -10,6 +8,8 @@ from tests._utils.env import (
 # Set up the test environment before any other imports are made
 setup_test_env()
 
+from typing import Dict
+
 import httpx
 import pymongo.database
 import pytest
@@ -17,8 +17,9 @@ from fastapi.testclient import TestClient
 
 from tests._utils.auth import (
     TEST_APP_TOKEN_STRING,
-    TEST_SUPERUSER_JWT,
-    TEST_USER_JWT,
+    TEST_SUPERUSER_ID,
+    TEST_USER_ID,
+    get_jwt_token,
     init_test_auth,
 )
 from tests._utils.fixtures import load_json_fixture
@@ -54,13 +55,15 @@ def app_token_header() -> Dict[str, str]:
 @pytest.fixture
 def user_jwt_header() -> Dict[str, str]:
     """the auth header for the client when JWT of user is used"""
-    yield {"Authorization": f"Bearer {TEST_USER_JWT}"}
+    token = get_jwt_token(TEST_USER_ID)
+    yield {"Authorization": f"Bearer {token}"}
 
 
 @pytest.fixture
 def admin_jwt_header() -> Dict[str, str]:
     """the auth header for the client when JWT of an admin is used"""
-    yield {"Authorization": f"Bearer {TEST_SUPERUSER_JWT}"}
+    token = get_jwt_token(TEST_SUPERUSER_ID)
+    yield {"Authorization": f"Bearer {token}"}
 
 
 @pytest.fixture
