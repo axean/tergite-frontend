@@ -8,11 +8,12 @@ from tests._utils.env import (
 # Set up the test environment before any other imports are made
 setup_test_env()
 
-from typing import Dict
+from typing import Dict, List
 
 import httpx
 import pymongo.database
 import pytest
+from beanie import PydanticObjectId
 from fastapi.testclient import TestClient
 
 from tests._utils.auth import (
@@ -21,10 +22,12 @@ from tests._utils.auth import (
     TEST_USER_ID,
     get_jwt_token,
     init_test_auth,
+    insert_if_not_exist,
 )
 from tests._utils.fixtures import load_json_fixture
 
 _PUHURI_OPENID_CONFIG = load_json_fixture("puhuri_openid_config.json")
+_PROJECT_LIST = load_json_fixture("project_list.json")
 
 
 @pytest.fixture
@@ -73,3 +76,17 @@ def client(db) -> TestClient:
 
     init_test_auth(db)
     yield TestClient(app)
+
+
+@pytest.fixture
+def inserted_project_ids(db) -> List[str]:
+    """A list of inserted project ids"""
+    from services.auth import Project
+
+    ids = []
+    for item in _PROJECT_LIST:
+        ids.append(item["_id"])
+        item["_id"] = PydanticObjectId(item["_id"])
+        insert_if_not_exist(db, Project, item)
+
+    yield ids

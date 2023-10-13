@@ -1,0 +1,34 @@
+[
+  {
+    "ext_id": "normal",
+    "user_ids": ["8154077d9cb952b92453d575"],
+    "qpu_seconds": 54000,
+    "is_verified": true,
+    "is_active": true,
+    "_id": "7c445123e77284cef9397c5b"
+  },
+  {
+    "ext_id": "negative-qpu",
+    "user_ids": ["8154077d9cb952b92453d575", "de7ddbd2500951be940356a2"],
+    "qpu_seconds": -189,
+    "is_verified": true,
+    "is_active": true,
+    "_id": "b1df91c4b796a1d6ddaaa875"
+  },
+  {
+    "ext_id": "zero-qpu",
+    "user_ids": ["8154077d9cb952b92453d575"],
+    "qpu_seconds": 0,
+    "is_verified": true,
+    "is_active": true,
+    "_id": "bc5120553373ac88f9fee961"
+  },
+  {
+    "ext_id": "some-project",
+    "user_ids": ["8154077d9cb952b92453d575", "de7ddbd2500951be940356a2"],
+    "qpu_seconds": 5400,
+    "is_verified": true,
+    "is_active": true,
+    "_id": "377c83700965c99b370adfb8"
+  }
+]

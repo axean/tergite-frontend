@@ -2,7 +2,6 @@
 import re
 
 import pytest
-
 from tests._utils.auth import TEST_PROJECT_DICT, TEST_PROJECT_ID
 from tests._utils.fixtures import load_json_fixture
 
@@ -102,14 +101,25 @@ def test_non_admin_cannot_update_project(payload, client, user_jwt_header):
         assert got == expected
 
 
-def test_admin_delete_project():
+def test_admin_delete_project(client, inserted_project_ids, admin_jwt_header):
     """Admins can delete projects at /auth/projects/{id}"""
-    pass
+    with client as client:
+        for _id in inserted_project_ids:
+            url = f"/auth/projects/{_id}"
+            response = client.delete(url, headers=admin_jwt_header)
+            assert response.status_code == 204
 
 
-def test_non_admin_cannot_delete_project():
+def test_non_admin_cannot_delete_project(client, user_jwt_header):
     """Non-admins cannot delete projects at /auth/projects/{id}"""
-    pass
+    with client as client:
+        url = f"/auth/projects/{TEST_PROJECT_ID}"
+        response = client.delete(url, headers=user_jwt_header)
+
+        got = response.json()
+        assert response.status_code == 403
+        expected = {"detail": "Forbidden"}
+        assert got == expected
 
 
 def test_admin_view_all_projects_in_detail():

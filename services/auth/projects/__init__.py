@@ -12,7 +12,7 @@
 from typing import Sequence
 
 from fastapi import APIRouter, Depends
-from fastapi_users.authentication import AuthenticationBackend, BearerTransport
+from fastapi_users.authentication import BearerTransport
 
 from ..app_tokens.auth_backend import AppTokenAuthenticationBackend
 from ..app_tokens.authenticator import AppTokenAuthenticator
