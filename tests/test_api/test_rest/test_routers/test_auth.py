@@ -3,9 +3,11 @@ import re
 
 import pytest
 
+from tests._utils.auth import TEST_PROJECT_DICT, TEST_PROJECT_ID
 from tests._utils.fixtures import load_json_fixture
 
 _PROJECT_CREATE_LIST = load_json_fixture("project_create_list.json")
+_PROJECT_UPDATE_LIST = load_json_fixture("project_update_list.json")
 
 
 def test_admin_authorize(client):
@@ -68,14 +70,36 @@ def test_non_admin_cannot_create_project(project, client, user_jwt_header):
         assert got == expected
 
 
-def test_admin_update_project():
+@pytest.mark.parametrize("payload", _PROJECT_UPDATE_LIST)
+def test_admin_update_project(payload, client, admin_jwt_header):
     """Admins can create projects at /auth/projects/{id}"""
-    pass
+    with client as client:
+        url = f"/auth/projects/{TEST_PROJECT_ID}"
+        response = client.patch(url, json=payload, headers=admin_jwt_header)
+        expected = {
+            "id": TEST_PROJECT_ID,
+            "ext_id": TEST_PROJECT_DICT["ext_id"],
+            "is_active": True,
+            "qpu_seconds": payload.get("qpu_seconds", TEST_PROJECT_DICT["qpu_seconds"]),
+            "user_ids": payload.get("user_ids", TEST_PROJECT_DICT["user_ids"]),
+        }
+
+        got = response.json()
+        assert response.status_code == 200
+        assert got == expected
 
 
-def test_non_admin_cannot_update_project():
+@pytest.mark.parametrize("payload", _PROJECT_UPDATE_LIST)
+def test_non_admin_cannot_update_project(payload, client, user_jwt_header):
     """Non-admins cannot create projects at /auth/projects/{id}"""
-    pass
+    with client as client:
+        url = f"/auth/projects/{TEST_PROJECT_ID}"
+        response = client.patch(url, json=payload, headers=user_jwt_header)
+
+        got = response.json()
+        assert response.status_code == 403
+        expected = {"detail": "Forbidden"}
+        assert got == expected
 
 
 def test_admin_delete_project():
