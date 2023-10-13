@@ -1,3 +1,4 @@
+# core-dependencies
 fastapi>=0.65.1,<0.100.0
 motor>=2.4.0
 python-multipart>=0.0.5
@@ -9,10 +10,12 @@ aiohttp>=3.8.1
 websockets>=10.3
 tomli>=2.0.1
 fastapi-users[beanie,oauth]>=12.1.2
+httpx
+# dev-dependencies
 isort
 black
 pytest
 pytest-lazy-fixture
 pytest-asyncio
-httpx
 pytest-mock
+respx>=0.20.2

@@ -42,7 +42,10 @@ class Validator(Protocol):
 class EmailRegexValidator(Validator):
     """A helper for validating emails using regex"""
 
-    def __init__(self, config: Dict[str, Tuple[str, re.RegexFlag]]):
+    def __init__(self, config: Dict[str, Tuple[str, re.RegexFlag]] = None):
+        if config is None:
+            config = {}
+
         self.__config = {
             k: re.compile(text, flag) for k, (text, flag) in config.items()
         }

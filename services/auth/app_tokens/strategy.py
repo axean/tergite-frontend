@@ -11,10 +11,14 @@
 # that they have been altered from the originals.
 """FastAPIUsers-specific definition of AppTokens Strategy"""
 import secrets
+from typing import Optional
 
 from beanie import PydanticObjectId
 from fastapi_users.authentication.strategy import DatabaseStrategy
 
+from ..projects.dtos import Project
+from ..projects.exc import ProjectNotExists
+from ..projects.manager import ProjectAppTokenManager
 from . import exc
 from .database import AppTokenDatabase
 from .dtos import AppTokenCreate
@@ -57,3 +61,25 @@ class AppTokenStrategy(DatabaseStrategy):
             raise exc.AppTokenNotFound()
 
         await self.database.delete(access_token)
+
+    async def read_token(
+        self, token: Optional[str], project_manager: ProjectAppTokenManager
+    ) -> Optional[Project]:
+        if token is None:
+            return None
+
+        access_token = await self.database.get_by_token(
+            token,
+        )
+        if access_token is None:
+            return None
+
+        try:
+            user_id = str(access_token.user_id)
+            ext_id = access_token.project_ext_id
+            project = await project_manager.get_by_ext_and_user_id(
+                ext_id=ext_id, user_id=user_id
+            )
+            return project
+        except ProjectNotExists:
+            return None

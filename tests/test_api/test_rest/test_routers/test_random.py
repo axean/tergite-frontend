@@ -13,37 +13,38 @@ _COLLECTION = "rng"
 _EXCLUDED_FIELDS = ["_id"]
 
 
-def test_create_many_rng(db, client):
+def test_create_many_rng(db, client, app_token_header):
     """POST list of rng to /random/ should create them in the service"""
     original_data_in_db = find_in_collection(
         db, collection_name=_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
     )
 
-    response = client.post(
-        "/random/",
-        json=_RNG_LIST,
-    )
-    final_data_in_db = find_in_collection(
-        db, collection_name=_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
-    )
-    timelogs = pop_field(final_data_in_db, field="timelog")
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.post("/random/", json=_RNG_LIST, headers=app_token_header)
+        final_data_in_db = find_in_collection(
+            db, collection_name=_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+        )
+        timelogs = pop_field(final_data_in_db, field="timelog")
 
-    assert response.status_code == 200
-    assert response.json() == "OK"
+        assert response.status_code == 200
+        assert response.json() == "OK"
 
-    assert original_data_in_db == []
-    assert final_data_in_db == _RNG_LIST
-    assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+        assert original_data_in_db == []
+        assert final_data_in_db == _RNG_LIST
+        assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
 
 
 @pytest.mark.parametrize("job_id", _JOB_IDS)
-def test_read_rng(client, db, job_id):
+def test_read_rng(client, db, job_id, app_token_header):
     """GET from /rng/{job_id} should return rng for given job"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_RNG_LIST)
 
-    response = client.get(f"/rng/{job_id}")
-    got = response.json()
-    expected = list(filter(lambda x: x["job_id"] == job_id, _RNG_LIST))[0]
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.get(f"/rng/{job_id}", headers=app_token_header)
+        got = response.json()
+        expected = list(filter(lambda x: x["job_id"] == job_id, _RNG_LIST))[0]
 
-    assert response.status_code == 200
-    assert expected == got
+        assert response.status_code == 200
+        assert expected == got

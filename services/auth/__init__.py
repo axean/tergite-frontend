@@ -9,22 +9,27 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-from .projects.dtos import Project, ProjectCreate, ProjectUpdate
-from .service import (
-    APP_TOKEN_AUTH,
-    APP_TOKEN_BACKEND,
-    CHALMERS_OAUTH_CLIENT,
-    GET_CURRENT_PROJECT,
-    GET_CURRENT_SUPERUSER,
-    GET_CURRENT_USER,
-    JWT_AUTH,
-    JWT_BACKEND,
-    PUHURI_OAUTH_CLIENT,
-    TERGITE_OAUTH_CLIENT,
-    on_startup,
+from .app_tokens.dtos import (
+    AppToken,
+    AppTokenCreate,
+    AppTokenListResponse,
+    AppTokenRead,
 )
-from .users import get_current_user_of_any
-from .users.dtos import User, UserCreate, UserRead, UserUpdate
+from .projects.dtos import (
+    Project,
+    ProjectAdminView,
+    ProjectCreate,
+    ProjectListResponse,
+    ProjectRead,
+    ProjectUpdate,
+)
+from .users import (
+    get_current_user_of_any,
+    get_github_client,
+    get_microsoft_client,
+    get_openid_client,
+)
+from .users.dtos import User, UserCreate, UserRead, UserRole, UserUpdate
 
 __all__ = [
     # DTOs
@@ -32,20 +37,21 @@ __all__ = [
     UserCreate,
     UserUpdate,
     User,
+    UserRole,
     Project,
     ProjectCreate,
     ProjectUpdate,
+    ProjectRead,
+    ProjectAdminView,
+    ProjectListResponse,
+    AppToken,
+    AppTokenRead,
+    AppTokenCreate,
+    AppTokenListResponse,
     # service
-    JWT_BACKEND,
-    JWT_AUTH,
-    APP_TOKEN_BACKEND,
-    GET_CURRENT_USER,
-    GET_CURRENT_SUPERUSER,
-    APP_TOKEN_AUTH,
-    GET_CURRENT_PROJECT,
-    TERGITE_OAUTH_CLIENT,
-    CHALMERS_OAUTH_CLIENT,
-    PUHURI_OAUTH_CLIENT,
-    on_startup,
+    "service",
     get_current_user_of_any,
+    get_openid_client,
+    get_microsoft_client,
+    get_github_client,
 ]

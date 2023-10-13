@@ -27,7 +27,7 @@ class AppTokenDatabase(BeanieAccessTokenDatabase):
     def __init__(self):
         super().__init__(AppToken)
 
-    async def get_by_token(self, token: str, **filters) -> Optional[AppToken]:
+    async def get_by_token(self, token: str, *args, **filters) -> Optional[AppToken]:
         filters["token"] = token
         response: Optional[AppToken] = await self.access_token_model.find_one(filters)
         if response:

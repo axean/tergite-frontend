@@ -5,7 +5,11 @@ from typing_extensions import Annotated
 
 import settings
 from api.database import get_mongodb
-from services.auth import GET_CURRENT_PROJECT, GET_CURRENT_SUPERUSER, GET_CURRENT_USER
+from services.auth.service import (
+    GET_CURRENT_PROJECT,
+    GET_CURRENT_SUPERUSER,
+    GET_CURRENT_USER,
+)
 
 
 async def get_default_mongodb():

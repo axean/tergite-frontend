@@ -14,8 +14,7 @@ from inspect import Parameter, Signature
 from typing import Callable, List, Optional, Sequence, Tuple, cast
 
 from fastapi import Depends, HTTPException, status
-from fastapi_users import models
-from fastapi_users.authentication import AuthenticationBackend, Strategy
+from fastapi_users.authentication import AuthenticationBackend
 from fastapi_users.authentication.authenticator import (
     DuplicateBackendNamesError,
     name_to_strategy_variable_name,
@@ -26,6 +25,7 @@ from makefun import with_signature
 from ..projects.dtos import Project
 from ..projects.manager import ProjectAppTokenManager, ProjectManagerDependency
 from .auth_backend import AppTokenAuthenticationBackend
+from .strategy import AppTokenStrategy
 
 
 class AppTokenAuthenticator:
@@ -95,13 +95,13 @@ class AppTokenAuthenticator:
 
         @with_signature(signature)
         async def current_project_dependency(*args, **options):
-            user, _ = await self._authenticate(
+            project, _ = await self._authenticate(
                 *args,
                 optional=optional,
                 active=active,
                 **options,
             )
-            return user
+            return project
 
         return current_project_dependency
 
@@ -121,7 +121,7 @@ class AppTokenAuthenticator:
         for backend in self.backends:
             if backend in enabled_backends:
                 token = kwargs[name_to_variable_name(backend.name)]
-                strategy: Strategy[models.UP, models.ID] = kwargs[
+                strategy: AppTokenStrategy = kwargs[
                     name_to_strategy_variable_name(backend.name)
                 ]
                 if token is not None:
