@@ -15,7 +15,12 @@ import pymongo.database
 import pytest
 from fastapi.testclient import TestClient
 
-from tests._utils.auth import TEST_APP_TOKEN_STRING, init_test_auth
+from tests._utils.auth import (
+    TEST_APP_TOKEN_STRING,
+    TEST_SUPERUSER_JWT,
+    TEST_USER_JWT,
+    init_test_auth,
+)
 from tests._utils.fixtures import load_json_fixture
 
 _PUHURI_OPENID_CONFIG = load_json_fixture("puhuri_openid_config.json")
@@ -42,8 +47,20 @@ def db(mock_puhuri) -> pymongo.database.Database:
 
 @pytest.fixture
 def app_token_header() -> Dict[str, str]:
-    """the auth header for the client"""
+    """the auth header for the client when app tokens are used"""
     yield {"Authorization": f"Bearer {TEST_APP_TOKEN_STRING}"}
+
+
+@pytest.fixture
+def user_jwt_header() -> Dict[str, str]:
+    """the auth header for the client when JWT of user is used"""
+    yield {"Authorization": f"Bearer {TEST_USER_JWT}"}
+
+
+@pytest.fixture
+def admin_jwt_header() -> Dict[str, str]:
+    """the auth header for the client when JWT of an admin is used"""
+    yield {"Authorization": f"Bearer {TEST_SUPERUSER_JWT}"}
 
 
 @pytest.fixture

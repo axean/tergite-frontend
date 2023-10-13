@@ -1,19 +1,39 @@
 """Integration tests for the auth router"""
+import re
 
 
-def test_admin_authorize():
+def test_admin_authorize(client):
     """Admin users can authorize at /auth/github/authorize"""
-    pass
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.get("/auth/github/authorize")
+        auth_url_pattern = "^https\:\/\/github\.com\/login\/oauth\/authorize\?response_type\=code\&client_id\=test-tergite-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fgithub\%2Fcallback\&state=.*&scope=user\+user\%3Aemail$"
+
+        got = response.json()
+        assert response.status_code == 200
+        assert re.match(auth_url_pattern, got["authorization_url"]) is not None
 
 
-def test_chalmers_authorize():
+def test_chalmers_authorize(client):
     """Chalmers users can authorize at /auth/chalmers/authorize"""
-    pass
+    with client as client:
+        response = client.get("/auth/chalmers/authorize")
+        auth_url_pattern = "^https\:\/\/login\.microsoftonline\.com\/common\/oauth2\/v.*\/authorize\?response_type\=code\&client_id\=test-chalmers-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fchalmers\%2Fcallback\&state=.*\&scope\=User\.Read\&response_mode\=query$"
+
+        got = response.json()
+        assert response.status_code == 200
+        assert re.match(auth_url_pattern, got["authorization_url"]) is not None
 
 
-def test_puhuri_authorize():
+def test_puhuri_authorize(client):
     """Puhuri users can authorize at /auth/puhuri/authorize"""
-    pass
+    with client as client:
+        response = client.get("/auth/puhuri/authorize")
+        auth_url_pattern = "^https:\/\/proxy.acc.puhuri.eduteams.org\/OIDC\/authorization\?response_type\=code\&client_id\=test-puhuri-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fpuhuri\%2Fcallback\&state=.*\&scope\=openid\+email$"
+
+        got = response.json()
+        assert response.status_code == 200
+        assert re.match(auth_url_pattern, got["authorization_url"]) is not None
 
 
 def test_partner_authorize():
