@@ -1,5 +1,5 @@
 """Utilities specific to auth when testing"""
-from typing import Any, Dict, Type
+from typing import Any, Dict, Optional, Type, TypeVar
 
 from beanie import Document, PydanticObjectId
 from fastapi_users.jwt import generate_jwt
@@ -58,15 +58,22 @@ def init_test_auth(db: database.Database):
     insert_if_not_exist(db, AppToken, TEST_APP_TOKEN_DICT)
 
 
-def insert_if_not_exist(
-    db: database.Database, schema: Type[Document], data: Dict[str, Any]
-):
+T = TypeVar("T", bound=Document)
+
+
+def insert_if_not_exist(db: database.Database, schema: Type[T], data: Dict[str, Any]):
     """Inserts a given auth document into the database if it does not exist"""
     try:
         col: collection.Collection = db[schema.Settings.name]
         col.insert_one(data)
     except errors.DuplicateKeyError:
         pass
+
+
+def get_db_record(db: database.Database, schema: Type[T], _id: str) -> Optional[T]:
+    """Gets a given auth document from the database or None if it does not exist"""
+    col: collection.Collection = db[schema.Settings.name]
+    return col.find_one({"_id": PydanticObjectId(_id)})
 
 
 def get_jwt_token(user_id: str, ttl: int = 3600, secret: str = TEST_JWT_SECRET) -> str:

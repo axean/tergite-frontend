@@ -2,7 +2,9 @@
 import re
 
 import pytest
-from tests._utils.auth import TEST_PROJECT_DICT, TEST_PROJECT_ID
+
+from services.auth import Project
+from tests._utils.auth import TEST_PROJECT_DICT, TEST_PROJECT_ID, get_db_record
 from tests._utils.fixtures import load_json_fixture
 
 _PROJECT_CREATE_LIST = load_json_fixture("project_create_list.json")
@@ -101,13 +103,17 @@ def test_non_admin_cannot_update_project(payload, client, user_jwt_header):
         assert got == expected
 
 
-def test_admin_delete_project(client, inserted_project_ids, admin_jwt_header):
+def test_admin_delete_project(db, client, inserted_project_ids, admin_jwt_header):
     """Admins can delete projects at /auth/projects/{id}"""
     with client as client:
         for _id in inserted_project_ids:
+            assert get_db_record(db, Project, _id) is not None
+
             url = f"/auth/projects/{_id}"
             response = client.delete(url, headers=admin_jwt_header)
+
             assert response.status_code == 204
+            assert get_db_record(db, Project, _id) is None
 
 
 def test_non_admin_cannot_delete_project(client, user_jwt_header):
