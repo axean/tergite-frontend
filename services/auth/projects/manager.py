@@ -245,9 +245,12 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
         Returns:
             the project of the given project_ext_id in details, and id in current_user
         """
-        return await self.get_by_ext_and_user_id(
-            details.project_ext_id, user_id=user_id
-        )
+        try:
+            return await self.get_by_ext_and_user_id(
+                details.project_ext_id, user_id=user_id
+            )
+        except exc.ProjectNotExists:
+            return None
 
 
 ProjectManagerDependency = DependencyCallable[ProjectAppTokenManager]

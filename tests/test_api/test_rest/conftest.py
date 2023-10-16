@@ -41,6 +41,7 @@ from tests._utils.fixtures import load_json_fixture
 
 _PUHURI_OPENID_CONFIG = load_json_fixture("puhuri_openid_config.json")
 PROJECT_LIST = load_json_fixture("project_list.json")
+APP_TOKEN_LIST = load_json_fixture("app_token_list.json")
 
 USER_ID_HEADERS_FIXTURE = [
     (TEST_USER_ID, lazy_fixture("user_jwt_header")),
@@ -77,15 +78,13 @@ def app_token_header() -> Dict[str, str]:
 @pytest.fixture
 def user_jwt_header() -> Dict[str, str]:
     """the auth header for the client when JWT of user is used"""
-    token = get_jwt_token(TEST_USER_ID)
-    yield {"Authorization": f"Bearer {token}"}
+    yield get_auth_header(TEST_USER_ID)
 
 
 @pytest.fixture
 def admin_jwt_header() -> Dict[str, str]:
     """the auth header for the client when JWT of an admin is used"""
-    token = get_jwt_token(TEST_SUPERUSER_ID)
-    yield {"Authorization": f"Bearer {token}"}
+    yield get_auth_header(TEST_SUPERUSER_ID)
 
 
 @pytest.fixture
@@ -206,3 +205,41 @@ def invalid_chalmers_user(respx_mock):
     )
 
     yield respx_mock
+
+
+def get_auth_header(user_id: str) -> Dict[str, Any]:
+    """Retrieves the authorization header for the given user_id"""
+    return {"Authorization": f"Bearer {get_jwt_token(user_id)}"}
+
+
+def get_unauthorized_app_token_post():
+    """Returns the body and headers for unauthorized app token generation POST
+
+    The auth header provided is for a user who does not have access
+    to the given project
+    """
+    admin_only_projects = [
+        project["ext_id"]
+        for project in PROJECT_LIST
+        if project["user_ids"] == [TEST_SUPERUSER_ID]
+    ]
+
+    user_only_projects = [
+        project["ext_id"]
+        for project in PROJECT_LIST
+        if project["user_ids"] == [TEST_USER_ID]
+    ]
+
+    admin_only_post_data = [
+        (body, get_auth_header(TEST_USER_ID))
+        for body in APP_TOKEN_LIST
+        if body["project_ext_id"] in admin_only_projects
+    ]
+
+    user_only_post_data = [
+        (body, get_auth_header(TEST_SUPERUSER_ID))
+        for body in APP_TOKEN_LIST
+        if body["project_ext_id"] in user_only_projects
+    ]
+
+    return admin_only_post_data + user_only_post_data

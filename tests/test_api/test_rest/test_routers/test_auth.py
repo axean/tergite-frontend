@@ -7,13 +7,17 @@ from services.auth import Project
 from tests._utils.auth import (
     TEST_PROJECT_DICT,
     TEST_PROJECT_ID,
-    TEST_SUPERUSER_ID,
-    TEST_USER_ID,
     get_db_record,
     is_valid_jwt,
 )
 from tests._utils.fixtures import load_json_fixture
-from tests.test_api.test_rest.conftest import PROJECT_LIST, USER_ID_HEADERS_FIXTURE
+from tests.test_api.test_rest.conftest import (
+    APP_TOKEN_LIST,
+    PROJECT_LIST,
+    USER_ID_HEADERS_FIXTURE,
+    get_auth_header,
+    get_unauthorized_app_token_post,
+)
 
 _PROJECT_CREATE_LIST = load_json_fixture("project_create_list.json")
 _PROJECT_UPDATE_LIST = load_json_fixture("project_update_list.json")
@@ -311,14 +315,57 @@ def test_view_own_project_in_less_detail(user_id, headers, client, inserted_proj
             assert got == expected
 
 
-def test_generate_app_token():
+@pytest.mark.parametrize("payload", APP_TOKEN_LIST)
+def test_generate_app_token(payload, inserted_projects, client):
     """At /auth/me/app-tokens/, user can generate app token for project they are attached to"""
+    headers = get_auth_header(payload["user_id"])
+
     # using context manager to ensure on_startup runs
-    pass
+    with client as client:
+        response = client.post("/auth/me/app-tokens/", headers=headers, json=payload)
+
+        got = response.json()
+
+        assert response.status_code == 200
+        assert isinstance(got["access_token"], str)
+        assert len(got["access_token"]) > 12
+
+
+@pytest.mark.parametrize("payload", APP_TOKEN_LIST)
+def test_unauthenticated_app_token_generation(payload, inserted_projects, client):
+    """401 error raised at /auth/me/app-tokens/ when no user jwt is sent"""
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.post("/auth/me/app-tokens/", json=payload)
+
+        got = response.json()
+        expected = {"detail": "Unauthorized"}
+        assert response.status_code == 401
+        assert got == expected
+
+
+@pytest.mark.parametrize("body, headers", get_unauthorized_app_token_post())
+def test_unauthorized_app_token_generation(body, headers, inserted_projects, client):
+    """403 error raised at /auth/me/app-tokens/, for a project to which a user is not attached"""
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.post("/auth/me/app-tokens/", headers=headers, json=body)
+
+        got = response.json()
+        expected = {"detail": "Forbidden"}
+        assert response.status_code == 403
+        assert got == expected
 
 
 def test_destroy_app_token():
     """At /auth/me/app-tokens/{token}, user can destroy their own app token"""
+    # using context manager to ensure on_startup runs
+    pass
+
+
+def test_unauthorized_app_token_deletion():
+    """403 error raised at /auth/me/app-tokens/{token}, for a project to which a user is not attached"""
     # using context manager to ensure on_startup runs
     pass
 

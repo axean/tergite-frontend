@@ -142,10 +142,7 @@ def get_app_tokens_router(
         project = await project_manager.authenticate(details=payload, user_id=user_id)
 
         if project is None or not project.is_active:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
-            )
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
         parsed_user_id = user_manager.parse_id(user_id)
         response = await backend.generate_token(
