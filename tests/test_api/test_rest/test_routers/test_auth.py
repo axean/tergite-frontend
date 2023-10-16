@@ -7,6 +7,8 @@ from services.auth import AppToken, Project
 from tests._utils.auth import (
     TEST_PROJECT_DICT,
     TEST_PROJECT_ID,
+    TEST_SUPERUSER_ID,
+    TEST_USER_ID,
     get_db_record,
     is_valid_jwt,
 )
@@ -21,6 +23,17 @@ from tests.test_api.test_rest.conftest import (
 
 _PROJECT_CREATE_LIST = load_json_fixture("project_create_list.json")
 _PROJECT_UPDATE_LIST = load_json_fixture("project_update_list.json")
+_MY_PROJECT_REQUESTS = [
+    (user_id, get_auth_header(user_id), project)
+    for project in PROJECT_LIST
+    for user_id in project["user_ids"]
+]
+_OTHERS_PROJECT_REQUESTS = [
+    (user_id, get_auth_header(user_id), project)
+    for project in PROJECT_LIST
+    for user_id in [TEST_USER_ID, TEST_SUPERUSER_ID]
+    if user_id not in project["user_ids"]
+]
 
 
 def test_admin_authorize(client):
@@ -288,31 +301,46 @@ def test_admin_view_single_project_in_detail(
             assert got == expected
 
 
-@pytest.mark.parametrize("user_id, headers", USER_ID_HEADERS_FIXTURE)
-def test_view_own_project_in_less_detail(user_id, headers, client, inserted_projects):
+@pytest.mark.parametrize("user_id, headers, project", _MY_PROJECT_REQUESTS)
+def test_view_my_project_in_less_detail(
+    user_id, headers, project, client, inserted_projects
+):
     """Any user can view only their own single project at /auth/me/projects/{id}
     without user_ids"""
     # using context manager to ensure on_startup runs
     with client as client:
-        for _id, project in inserted_projects.items():
-            url = f"/auth/me/projects/{_id}"
-            response = client.get(url, headers=headers)
+        project_id = project["_id"]
+        url = f"/auth/me/projects/{project_id}"
+        response = client.get(url, headers=headers)
 
-            got = response.json()
-            if user_id in project["user_ids"]:
-                expected_status = 200
-                expected = {
-                    "id": _id,
-                    "ext_id": project["ext_id"],
-                    "qpu_seconds": project["qpu_seconds"],
-                    "is_active": project["is_active"],
-                }
-            else:
-                expected_status = 404
-                expected = {"detail": "the project does not exist."}
+        got = response.json()
+        expected = {
+            "id": project_id,
+            "ext_id": project["ext_id"],
+            "qpu_seconds": project["qpu_seconds"],
+            "is_active": project["is_active"],
+        }
 
-            assert response.status_code == expected_status
-            assert got == expected
+        assert response.status_code == 200
+        assert got == expected
+
+
+@pytest.mark.parametrize("user_id, headers, project", _OTHERS_PROJECT_REQUESTS)
+def test_view_others_project_in_not_allowed(
+    user_id, headers, project, client, inserted_projects
+):
+    """No user can view only other's projects at /auth/me/projects/{id}"""
+    # using context manager to ensure on_startup runs
+    with client as client:
+        project_id = project["_id"]
+        url = f"/auth/me/projects/{project_id}"
+        response = client.get(url, headers=headers)
+
+        got = response.json()
+        expected = {"detail": "the project does not exist."}
+
+        assert response.status_code == 404
+        assert got == expected
 
 
 @pytest.mark.parametrize("payload", APP_TOKEN_LIST)
