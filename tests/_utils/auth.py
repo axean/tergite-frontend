@@ -1,8 +1,9 @@
 """Utilities specific to auth when testing"""
 from typing import Any, Dict, Optional, Type, TypeVar
 
+import jwt
 from beanie import Document, PydanticObjectId
-from fastapi_users.jwt import generate_jwt
+from fastapi_users.jwt import decode_jwt, generate_jwt
 from fastapi_users.password import PasswordHelper
 from pymongo import collection, database, errors
 
@@ -18,6 +19,37 @@ TEST_SUPERUSER_ID = "de7ddbd2500951be940356a2"
 TEST_APP_TOKEN_STRING = "46-0Jhgb1_thq8MqIF0SlVHoS8rFPiLBFL33XO_eJ7I"
 
 _password_helper = PasswordHelper()
+
+TEST_GITHUB_PROFILE = dict(id="test-github-user", email="paul.doe@example.com")
+INVALID_GITHUB_PROFILE = dict(id="invalid-github-user", email="julie.doe@example.com")
+
+TEST_PUHURI_PROFILE = dict(sub="test-puhuri-user", email="paul.doe@example.se")
+INVALID_PUHURI_PROFILE = dict(sub="invalid-puhuri-user", email="ruth.doe@example.com")
+
+TEST_CHALMERS_PROFILE = dict(
+    id="test-chalmers-user", userPrincipalName="paul.doe@chalmers.com"
+)
+INVALID_CHALMERS_PROFILE = dict(
+    id="invalid-chalmers-user", userPrincipalName="paul.doe@chalmers.org"
+)
+
+TEST_GITHUB_TOKEN_RESP = {
+    "access_token": "gho_16C7e42F292c6912E7710c838347Ae178B4a",
+    "scope": "user,user:email",
+    "token_type": "bearer",
+}
+
+TEST_CHALMERS_TOKEN_RESP = {
+    "access_token": "gho_16C7e42F292c6912E7710c838347Ae178B4a",
+    "scope": "User.Read",
+    "token_type": "bearer",
+}
+
+TEST_PUHURI_TOKEN_RESP = {
+    "access_token": "gho_16C7e42F292c6912E7710c838347Ae178B4a",
+    "scope": "openid,email",
+    "token_type": "bearer",
+}
 
 
 TEST_SUPERUSER_DICT = dict(
@@ -83,3 +115,22 @@ def get_jwt_token(user_id: str, ttl: int = 3600, secret: str = TEST_JWT_SECRET) 
     return generate_jwt(
         data=data, secret=secret, lifetime_seconds=ttl, algorithm="HS256"
     )
+
+
+def is_valid_jwt(token: str, secret: str = TEST_JWT_SECRET) -> bool:
+    """Checks that the given JWT is a valid JWT
+
+    Args:
+        token: the JWT token to be checked
+        secret: the JWT secret used to encode the JWT
+    """
+    audience = ["fastapi-users:auth"]
+    algorithms = ["HS256"]
+
+    try:
+        data = decode_jwt(
+            token, secret=secret, audience=audience, algorithms=algorithms
+        )
+        return "sub" in data
+    except jwt.PyJWTError:
+        return False

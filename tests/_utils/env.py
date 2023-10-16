@@ -16,7 +16,7 @@ TEST_TERGITE_ROLES = "admin,user"
 
 TEST_CHALMERS_CLIENT_ID = "test-chalmers-client-id"
 TEST_CHALMERS_CLIENT_SECRET = "test-chalmers-client-secret"
-TEST_CHALMERS_EMAIL_REGEX = ".*"
+TEST_CHALMERS_EMAIL_REGEX = "^.*@chalmers\.com$"
 TEST_CHALMERS_ROLES = "user"
 
 TEST_PUHURI_CLIENT_ID = "test-puhuri-client-id"
@@ -24,7 +24,7 @@ TEST_PUHURI_CLIENT_SECRET = "test-puhuri-client-secret"
 TEST_PUHURI_CONFIG_ENDPOINT = (
     "http://puhuri.example.org/.well-known/openid-configuration"
 )
-TEST_PUHURI_EMAIL_REGEX = ".*"
+TEST_PUHURI_EMAIL_REGEX = "^.*@example\.se$"
 TEST_PUHURI_ROLES = "user"
 
 
