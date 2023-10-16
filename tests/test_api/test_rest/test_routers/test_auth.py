@@ -7,10 +7,13 @@ from services.auth import Project
 from tests._utils.auth import (
     TEST_PROJECT_DICT,
     TEST_PROJECT_ID,
+    TEST_SUPERUSER_ID,
+    TEST_USER_ID,
     get_db_record,
     is_valid_jwt,
 )
 from tests._utils.fixtures import load_json_fixture
+from tests.test_api.test_rest.conftest import PROJECT_LIST, USER_ID_HEADERS_FIXTURE
 
 _PROJECT_CREATE_LIST = load_json_fixture("project_create_list.json")
 _PROJECT_UPDATE_LIST = load_json_fixture("project_update_list.json")
@@ -208,30 +211,104 @@ def test_non_admin_cannot_delete_project(client, user_jwt_header):
         assert got == expected
 
 
-def test_admin_view_all_projects_in_detail():
+def test_admin_view_all_projects_in_detail(
+    client, inserted_project_ids, admin_jwt_header
+):
     """Admins can view projects at /auth/projects/ in full detail"""
     # using context manager to ensure on_startup runs
-    pass
+    with client as client:
+        response = client.get("/auth/projects", headers=admin_jwt_header)
+
+        got = response.json()
+        project_list = [
+            {
+                "id": str(item["_id"]),
+                "ext_id": item["ext_id"],
+                "qpu_seconds": item["qpu_seconds"],
+                "is_active": item.get("is_active", True),
+                "user_ids": item["user_ids"],
+            }
+            for item in [TEST_PROJECT_DICT] + PROJECT_LIST
+        ]
+
+        assert response.status_code == 200
+        assert got == {"skip": 0, "limit": None, "data": project_list}
 
 
-def test_non_admin_view_own_projects_in_less_detail():
-    """Non admins can view only their own projects at /auth/me/projects/
+@pytest.mark.parametrize("user_id, headers", USER_ID_HEADERS_FIXTURE)
+def test_view_own_projects_in_less_detail(
+    user_id, headers, client, inserted_project_ids
+):
+    """Any user can view only their own projects at /auth/me/projects/
     without user_ids"""
     # using context manager to ensure on_startup runs
-    pass
+    with client as client:
+        response = client.get("/auth/me/projects", headers=headers)
+
+        got = response.json()
+        project_list = [
+            {
+                "id": str(item["_id"]),
+                "ext_id": item["ext_id"],
+                "qpu_seconds": item["qpu_seconds"],
+                "is_active": item.get("is_active", True),
+            }
+            for item in [TEST_PROJECT_DICT] + PROJECT_LIST
+            if user_id in item["user_ids"]
+        ]
+
+        assert response.status_code == 200
+        assert got == {"skip": 0, "limit": None, "data": project_list}
 
 
-def test_admin_view_single_project_in_detail():
+def test_admin_view_single_project_in_detail(
+    client, inserted_projects, admin_jwt_header
+):
     """Admins can view single project at /auth/projects/{id} in full detail"""
     # using context manager to ensure on_startup runs
-    pass
+    with client as client:
+        for _id, project in inserted_projects.items():
+            url = f"/auth/projects/{_id}"
+            response = client.get(url, headers=admin_jwt_header)
+
+            got = response.json()
+            expected = {
+                "id": _id,
+                "ext_id": project["ext_id"],
+                "qpu_seconds": project["qpu_seconds"],
+                "is_active": project["is_active"],
+                "user_ids": project["user_ids"],
+            }
+
+            assert response.status_code == 200
+            assert got == expected
 
 
-def test_non_admin_view_own_project_in_less_detail():
-    """Non admins can view only their own single project at /auth/me/projects/{id}
+@pytest.mark.parametrize("user_id, headers", USER_ID_HEADERS_FIXTURE)
+def test_view_own_project_in_less_detail(user_id, headers, client, inserted_projects):
+    """Any user can view only their own single project at /auth/me/projects/{id}
     without user_ids"""
     # using context manager to ensure on_startup runs
-    pass
+    with client as client:
+        for _id, project in inserted_projects.items():
+            url = f"/auth/me/projects/{_id}"
+            response = client.get(url, headers=headers)
+
+            got = response.json()
+            if user_id in project["user_ids"]:
+                expected_status = 200
+                expected = {
+                    "id": _id,
+                    "ext_id": project["ext_id"],
+                    "qpu_seconds": project["qpu_seconds"],
+                    "is_active": project["is_active"],
+                }
+            else:
+                expected_status = 404
+                expected = {"detail": "the project does not exist."}
+
+            assert response.status_code == expected_status
+            assert got == expected
 
 
 def test_generate_app_token():

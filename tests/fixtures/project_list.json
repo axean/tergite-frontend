@@ -25,7 +25,7 @@
   },
   {
     "ext_id": "some-project",
-    "user_ids": ["8154077d9cb952b92453d575", "de7ddbd2500951be940356a2"],
+    "user_ids": ["de7ddbd2500951be940356a2"],
     "qpu_seconds": 5400,
     "is_verified": true,
     "is_active": true,

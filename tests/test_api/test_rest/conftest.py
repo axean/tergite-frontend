@@ -9,7 +9,7 @@ from tests._utils.env import (
 # Set up the test environment before any other imports are made
 setup_test_env()
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 import httpx
 import pymongo.database
@@ -18,6 +18,7 @@ from beanie import PydanticObjectId
 from fastapi.testclient import TestClient
 from fastapi_users.router.oauth import generate_state_token
 from httpx_oauth.clients import github, microsoft
+from pytest_lazyfixture import lazy_fixture
 
 from tests._utils.auth import (
     INVALID_CHALMERS_PROFILE,
@@ -39,7 +40,12 @@ from tests._utils.auth import (
 from tests._utils.fixtures import load_json_fixture
 
 _PUHURI_OPENID_CONFIG = load_json_fixture("puhuri_openid_config.json")
-_PROJECT_LIST = load_json_fixture("project_list.json")
+PROJECT_LIST = load_json_fixture("project_list.json")
+
+USER_ID_HEADERS_FIXTURE = [
+    (TEST_USER_ID, lazy_fixture("user_jwt_header")),
+    (TEST_SUPERUSER_ID, lazy_fixture("admin_jwt_header")),
+]
 
 
 @pytest.fixture
@@ -92,17 +98,22 @@ def client(db) -> TestClient:
 
 
 @pytest.fixture
-def inserted_project_ids(db) -> List[str]:
+def inserted_projects(db) -> Dict[str, Dict[str, Any]]:
     """A list of inserted project ids"""
     from services.auth import Project
 
-    ids = []
-    for item in _PROJECT_LIST:
-        ids.append(item["_id"])
-        item["_id"] = PydanticObjectId(item["_id"])
-        insert_if_not_exist(db, Project, item)
+    projects = {}
+    for item in PROJECT_LIST:
+        projects[item["_id"]] = {**item}
+        insert_if_not_exist(db, Project, {**item, "_id": PydanticObjectId(item["_id"])})
 
-    yield ids
+    yield projects
+
+
+@pytest.fixture
+def inserted_project_ids(inserted_projects) -> List[str]:
+    """A list of inserted project ids"""
+    yield list(inserted_projects.keys())
 
 
 @pytest.fixture
