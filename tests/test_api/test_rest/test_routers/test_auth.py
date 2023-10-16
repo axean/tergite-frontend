@@ -2,6 +2,7 @@
 import re
 
 import pytest
+from pytest_lazyfixture import lazy_fixture
 
 from services.auth import AppToken, Project
 from tests._utils.auth import (
@@ -16,7 +17,6 @@ from tests._utils.fixtures import load_json_fixture
 from tests.test_api.test_rest.conftest import (
     APP_TOKEN_LIST,
     PROJECT_LIST,
-    USER_ID_HEADERS_FIXTURE,
     get_auth_header,
     get_unauthorized_app_token_post,
 )
@@ -33,6 +33,10 @@ _OTHERS_PROJECT_REQUESTS = [
     for project in PROJECT_LIST
     for user_id in [TEST_USER_ID, TEST_SUPERUSER_ID]
     if user_id not in project["user_ids"]
+]
+_USER_ID_HEADERS_FIXTURE = [
+    (TEST_USER_ID, lazy_fixture("user_jwt_header")),
+    (TEST_SUPERUSER_ID, lazy_fixture("admin_jwt_header")),
 ]
 
 
@@ -201,31 +205,41 @@ def test_non_admin_cannot_update_project(payload, client, user_jwt_header):
         assert got == expected
 
 
-def test_admin_delete_project(db, client, inserted_project_ids, admin_jwt_header):
+@pytest.mark.parametrize("project", PROJECT_LIST)
+def test_admin_delete_project(
+    project, db, client, inserted_project_ids, admin_jwt_header
+):
     """Admins can delete projects at /auth/projects/{id}"""
     # using context manager to ensure on_startup runs
     with client as client:
-        for _id in inserted_project_ids:
-            assert get_db_record(db, Project, _id) is not None
+        _id = project["_id"]
+        assert get_db_record(db, Project, _id) is not None
 
-            url = f"/auth/projects/{_id}"
-            response = client.delete(url, headers=admin_jwt_header)
+        url = f"/auth/projects/{_id}"
+        response = client.delete(url, headers=admin_jwt_header)
 
-            assert response.status_code == 204
-            assert get_db_record(db, Project, _id) is None
+        assert response.status_code == 204
+        assert get_db_record(db, Project, _id) is None
 
 
-def test_non_admin_cannot_delete_project(client, user_jwt_header):
+@pytest.mark.parametrize("project", PROJECT_LIST)
+def test_non_admin_cannot_delete_project(
+    project, db, client, inserted_project_ids, user_jwt_header
+):
     """Non-admins cannot delete projects at /auth/projects/{id}"""
     # using context manager to ensure on_startup runs
     with client as client:
-        url = f"/auth/projects/{TEST_PROJECT_ID}"
+        _id = project["_id"]
+        assert get_db_record(db, Project, _id) is not None
+
+        url = f"/auth/projects/{_id}"
         response = client.delete(url, headers=user_jwt_header)
 
         got = response.json()
-        assert response.status_code == 403
         expected = {"detail": "Forbidden"}
+        assert response.status_code == 403
         assert got == expected
+        assert get_db_record(db, Project, _id) is not None
 
 
 def test_admin_view_all_projects_in_detail(
@@ -252,7 +266,7 @@ def test_admin_view_all_projects_in_detail(
         assert got == {"skip": 0, "limit": None, "data": project_list}
 
 
-@pytest.mark.parametrize("user_id, headers", USER_ID_HEADERS_FIXTURE)
+@pytest.mark.parametrize("user_id, headers", _USER_ID_HEADERS_FIXTURE)
 def test_view_own_projects_in_less_detail(
     user_id, headers, client, inserted_project_ids
 ):
@@ -278,27 +292,28 @@ def test_view_own_projects_in_less_detail(
         assert got == {"skip": 0, "limit": None, "data": project_list}
 
 
+@pytest.mark.parametrize("project", PROJECT_LIST)
 def test_admin_view_single_project_in_detail(
-    client, inserted_projects, admin_jwt_header
+    project, client, inserted_projects, admin_jwt_header
 ):
     """Admins can view single project at /auth/projects/{id} in full detail"""
     # using context manager to ensure on_startup runs
     with client as client:
-        for _id, project in inserted_projects.items():
-            url = f"/auth/projects/{_id}"
-            response = client.get(url, headers=admin_jwt_header)
+        _id = project["_id"]
+        url = f"/auth/projects/{_id}"
+        response = client.get(url, headers=admin_jwt_header)
 
-            got = response.json()
-            expected = {
-                "id": _id,
-                "ext_id": project["ext_id"],
-                "qpu_seconds": project["qpu_seconds"],
-                "is_active": project["is_active"],
-                "user_ids": project["user_ids"],
-            }
+        got = response.json()
+        expected = {
+            "id": _id,
+            "ext_id": project["ext_id"],
+            "qpu_seconds": project["qpu_seconds"],
+            "is_active": project["is_active"],
+            "user_ids": project["user_ids"],
+        }
 
-            assert response.status_code == 200
-            assert got == expected
+        assert response.status_code == 200
+        assert got == expected
 
 
 @pytest.mark.parametrize("user_id, headers, project", _MY_PROJECT_REQUESTS)

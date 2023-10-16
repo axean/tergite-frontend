@@ -18,7 +18,6 @@ from beanie import PydanticObjectId
 from fastapi.testclient import TestClient
 from fastapi_users.router.oauth import generate_state_token
 from httpx_oauth.clients import github, microsoft
-from pytest_lazyfixture import lazy_fixture
 
 from tests._utils.auth import (
     INVALID_CHALMERS_PROFILE,
@@ -42,11 +41,6 @@ from tests._utils.fixtures import load_json_fixture
 _PUHURI_OPENID_CONFIG = load_json_fixture("puhuri_openid_config.json")
 PROJECT_LIST = load_json_fixture("project_list.json")
 APP_TOKEN_LIST = load_json_fixture("app_token_list.json")
-
-USER_ID_HEADERS_FIXTURE = [
-    (TEST_USER_ID, lazy_fixture("user_jwt_header")),
-    (TEST_SUPERUSER_ID, lazy_fixture("admin_jwt_header")),
-]
 
 
 @pytest.fixture
