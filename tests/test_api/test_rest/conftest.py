@@ -98,7 +98,7 @@ def client(db) -> TestClient:
 
 @pytest.fixture
 def inserted_projects(db) -> Dict[str, Dict[str, Any]]:
-    """A list of inserted project ids"""
+    """A dictionary of inserted project"""
     from services.auth import Project
 
     projects = {}
@@ -113,6 +113,24 @@ def inserted_projects(db) -> Dict[str, Dict[str, Any]]:
 def inserted_project_ids(inserted_projects) -> List[str]:
     """A list of inserted project ids"""
     yield list(inserted_projects.keys())
+
+
+@pytest.fixture
+def inserted_app_tokens(db) -> List[Dict[str, Any]]:
+    """A list of inserted app tokens"""
+    from services.auth import AppToken
+
+    tokens = []
+    for item in APP_TOKEN_LIST:
+        tokens.append({**item})
+        db_item = {
+            **item,
+            "_id": PydanticObjectId(item["_id"]),
+            "user_id": PydanticObjectId(item["user_id"]),
+        }
+        insert_if_not_exist(db, AppToken, db_item)
+
+    yield tokens
 
 
 @pytest.fixture

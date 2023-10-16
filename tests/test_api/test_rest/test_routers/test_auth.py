@@ -3,7 +3,7 @@ import re
 
 import pytest
 
-from services.auth import Project
+from services.auth import AppToken, Project
 from tests._utils.auth import (
     TEST_PROJECT_DICT,
     TEST_PROJECT_ID,
@@ -358,16 +358,60 @@ def test_unauthorized_app_token_generation(body, headers, inserted_projects, cli
         assert got == expected
 
 
-def test_destroy_app_token():
+@pytest.mark.parametrize("payload", APP_TOKEN_LIST)
+def test_destroy_app_token(payload, db, client, inserted_projects, inserted_app_tokens):
     """At /auth/me/app-tokens/{token}, user can destroy their own app token"""
     # using context manager to ensure on_startup runs
-    pass
+    with client as client:
+        _id = payload["_id"]
+        user_id = payload["user_id"]
+        token = payload["token"]
+        assert get_db_record(db, AppToken, _id) is not None
+
+        url = f"/auth/me/app-tokens/{token}"
+        headers = get_auth_header(user_id)
+        response = client.delete(url, headers=headers)
+
+        assert response.status_code == 204
+        assert get_db_record(db, AppToken, _id) is None
 
 
-def test_unauthorized_app_token_deletion():
+@pytest.mark.parametrize("payload", APP_TOKEN_LIST)
+def test_unauthenticated_app_token_deletion(
+    payload, db, client, inserted_projects, inserted_app_tokens
+):
+    """401 error raised at /auth/me/app-tokens/{token} if no JWT token is passed"""
+    # using context manager to ensure on_startup runs
+    with client as client:
+        _id = payload["_id"]
+        token = payload["token"]
+        assert get_db_record(db, AppToken, _id) is not None
+
+        url = f"/auth/me/app-tokens/{token}"
+        response = client.delete(url)
+        got = response.json()
+        expected = {"detail": "Unauthorized"}
+
+        assert response.status_code == 401
+        assert got == expected
+        assert get_db_record(db, AppToken, _id) is not None
+
+
+@pytest.mark.parametrize("payload, headers", get_unauthorized_app_token_post())
+def test_unauthorized_app_token_deletion(
+    payload, headers, db, client, inserted_projects, inserted_app_tokens
+):
     """403 error raised at /auth/me/app-tokens/{token}, for a project to which a user is not attached"""
     # using context manager to ensure on_startup runs
-    pass
+    with client as client:
+        token = payload["token"]
+        url = f"/auth/me/app-tokens/{token}"
+        response = client.delete(url, headers=headers)
+
+        got = response.json()
+        expected = {"detail": "app token does not exist or is expired."}
+        assert response.status_code == 403
+        assert got == expected
 
 
 def test_view_own_app_token_in_less_detail():
