@@ -36,7 +36,7 @@ services:
 
   loki-promtail:
     restart: always
-    image: grafana/promtail:2.8.3
+    image: grafana/promtail:${PROMTAIL_VERSION:-2.8.3}
     logging:
       driver: ${LOGGING_DRIVER}
     volumes:
