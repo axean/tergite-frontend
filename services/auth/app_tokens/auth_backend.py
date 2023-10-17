@@ -70,7 +70,7 @@ class AppTokenAuthenticationBackend:
     async def destroy_token(
         self,
         strategy: AppTokenStrategy,
-        token: str,
+        _id: PydanticObjectId,
         user_id: PydanticObjectId,
         **kwargs
     ) -> Response:
@@ -78,7 +78,7 @@ class AppTokenAuthenticationBackend:
 
         Args:
             strategy: the FastAPIUsers strategy to use
-            token: the token to destroy
+            _id: the ID of the token to destroy
             user_id: the id of the user this token should belong to
 
         Raises:
@@ -88,7 +88,7 @@ class AppTokenAuthenticationBackend:
             FastAPI response of the deleted token
         """
         try:
-            await strategy.destroy_token(token=token, user_id=user_id)
+            await strategy.destroy_token(_id=_id, user_id=user_id)
         except StrategyDestroyNotSupportedError:
             pass
 

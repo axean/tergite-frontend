@@ -14,6 +14,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Mapping, Optional
 
+from beanie import PydanticObjectId
 from fastapi_users_db_beanie.access_token import BeanieAccessTokenDatabase
 
 from .dtos import AppToken
@@ -28,8 +29,41 @@ class AppTokenDatabase(BeanieAccessTokenDatabase):
         super().__init__(AppToken)
 
     async def get_by_token(self, token: str, *args, **filters) -> Optional[AppToken]:
+        """Gets an AppToken by the token
+
+        Args:
+            token: the token of the AppToken to get
+            filters: any extra filters to match against apart from the token
+
+        Returns:
+            the matched AppToken or None if no document was matched
+        """
         filters["token"] = token
-        response: Optional[AppToken] = await self.access_token_model.find_one(filters)
+        return await self._find_one(filters)
+
+    async def get(self, _id: PydanticObjectId, *args, **filters) -> Optional[AppToken]:
+        """Gets an AppToken by _id
+
+        Args:
+            _id: the ID of the AppToken to get
+            filters: any extra filters to match against apart from the _id
+
+        Returns:
+            the matched AppToken or None if no document was matched
+        """
+        filters["_id"] = _id
+        return await self._find_one(filters)
+
+    async def _find_one(self, _filter) -> Optional[AppToken]:
+        """Finds the given token by the given filter.
+
+        Args:
+            _filter: the filter object to match against
+
+        Returns:
+            the matched AppToken or None if no document was matched
+        """
+        response: Optional[AppToken] = await self.access_token_model.find_one(_filter)
         if response:
             # return None for tokens that are past their age
             lifespan = response.created_at - datetime.now(timezone.utc)

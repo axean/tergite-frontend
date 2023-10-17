@@ -152,7 +152,7 @@ def get_app_tokens_router(
 
     # route to destroy tokens
     @router.delete(
-        "/{token}",
+        "/{_id}",
         name=f"app_tokens:{backend.name}.destroy_token",
         responses={
             **{
@@ -167,14 +167,14 @@ def get_app_tokens_router(
         },
     )
     async def destroy(
-        token: str,
+        _id: PydanticObjectId,
         user_id: str = Depends(get_current_user_id),
         user_manager: UserManager = Depends(get_user_manager),
         strategy: AppTokenStrategy = Depends(backend.get_strategy),
     ):
         parsed_user_id = user_manager.parse_id(user_id)
         return await backend.destroy_token(
-            strategy=strategy, token=token, user_id=parsed_user_id
+            strategy=strategy, _id=_id, user_id=parsed_user_id
         )
 
     return router

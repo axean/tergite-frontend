@@ -42,12 +42,12 @@ class AppTokenStrategy(DatabaseStrategy):
         return access_token.token
 
     async def destroy_token(
-        self, token: str, user_id: PydanticObjectId, **filters
+        self, _id: PydanticObjectId, user_id: PydanticObjectId, **filters
     ) -> None:
-        """Destroys a given token.
+        """Destroys the token of the given ID
 
         Args:
-            token: the token to destroy
+            _id: the ID of the token to destroy
             user_id: the id of the user this token should belong to
             filters: other key-value filters to identify the token
 
@@ -56,7 +56,7 @@ class AppTokenStrategy(DatabaseStrategy):
                 or token does not exist or is expired already
         """
         filters["user_id"] = user_id
-        access_token = await self.database.get_by_token(token, **filters)
+        access_token = await self.database.get(_id, **filters)
         if access_token is None:
             raise exc.AppTokenNotFound()
 

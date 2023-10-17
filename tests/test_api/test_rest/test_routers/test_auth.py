@@ -408,10 +408,9 @@ def test_destroy_app_token(payload, db, client, inserted_projects, inserted_app_
     with client as client:
         _id = payload["_id"]
         user_id = payload["user_id"]
-        token = payload["token"]
         assert get_db_record(db, AppToken, _id) is not None
 
-        url = f"/auth/me/app-tokens/{token}"
+        url = f"/auth/me/app-tokens/{_id}"
         headers = get_auth_header(user_id)
         response = client.delete(url, headers=headers)
 
@@ -427,10 +426,9 @@ def test_unauthenticated_app_token_deletion(
     # using context manager to ensure on_startup runs
     with client as client:
         _id = payload["_id"]
-        token = payload["token"]
         assert get_db_record(db, AppToken, _id) is not None
 
-        url = f"/auth/me/app-tokens/{token}"
+        url = f"/auth/me/app-tokens/{_id}"
         response = client.delete(url)
         got = response.json()
         expected = {"detail": "Unauthorized"}
@@ -444,11 +442,11 @@ def test_unauthenticated_app_token_deletion(
 def test_unauthorized_app_token_deletion(
     payload, headers, db, client, inserted_projects, inserted_app_tokens
 ):
-    """403 error raised at /auth/me/app-tokens/{token}, for a project to which a user is not attached"""
+    """403 error raised at /auth/me/app-tokens/{)id}, for a project to which a user is not attached"""
     # using context manager to ensure on_startup runs
     with client as client:
-        token = payload["token"]
-        url = f"/auth/me/app-tokens/{token}"
+        _id = payload["_id"]
+        url = f"/auth/me/app-tokens/{_id}"
         response = client.delete(url, headers=headers)
 
         got = response.json()
