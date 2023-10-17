@@ -1,3 +1,5 @@
+import random
+
 from tests._utils.env import (
     TEST_DB_NAME,
     TEST_JWT_SECRET,
@@ -9,6 +11,7 @@ from tests._utils.env import (
 # Set up the test environment before any other imports are made
 setup_test_env()
 
+from datetime import datetime, timezone
 from typing import Any, Dict, List
 
 import httpx
@@ -110,12 +113,53 @@ def inserted_project_ids(inserted_projects) -> List[str]:
 
 
 @pytest.fixture
+def unallocated_projects(db) -> Dict[str, Dict[str, Any]]:
+    """A dictionary of project with qpu_seconds less or equal to zero"""
+    from services.auth import Project
+
+    projects = {}
+    for item in PROJECT_LIST:
+        qpu_seconds = int(random.uniform(-54000, 0))
+        projects[item["ext_id"]] = {**item, "qpu_seconds": qpu_seconds}
+        insert_if_not_exist(
+            db,
+            Project,
+            {**item, "_id": PydanticObjectId(item["_id"]), "qpu_seconds": qpu_seconds},
+        )
+
+    yield projects
+
+
+@pytest.fixture
+def app_tokens_with_timestamps(db) -> List[Dict[str, Any]]:
+    """A list of inserted app tokens"""
+    from services.auth import AppToken
+
+    tokens = []
+    for item in APP_TOKEN_LIST:
+        created_at = datetime.now(timezone.utc)
+
+        # ensure you don't mutate the original item in APP_TOKEN_LIST
+        tokens.append({**item, "created_at": created_at})
+        db_item = {
+            **item,
+            "_id": PydanticObjectId(item["_id"]),
+            "user_id": PydanticObjectId(item["user_id"]),
+            "created_at": created_at,
+        }
+        insert_if_not_exist(db, AppToken, db_item)
+
+    yield tokens
+
+
+@pytest.fixture
 def inserted_app_tokens(db) -> List[Dict[str, Any]]:
     """A list of inserted app tokens"""
     from services.auth import AppToken
 
     tokens = []
     for item in APP_TOKEN_LIST:
+        # ensure you don't mutate the original item in APP_TOKEN_LIST
         tokens.append({**item})
         db_item = {
             **item,

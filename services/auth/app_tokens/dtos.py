@@ -35,6 +35,7 @@ class AppTokenRead(AppTokenCreate):
     It also doesn't show the user id
     """
 
+    id: PydanticObjectId
     created_at: datetime
 
     class Config:

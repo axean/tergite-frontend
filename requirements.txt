@@ -16,6 +16,7 @@ isort
 black
 pytest
 pytest-lazy-fixture
+pytest-freezegun
 pytest-asyncio
 pytest-mock
 respx>=0.20.2

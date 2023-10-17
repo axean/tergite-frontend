@@ -66,7 +66,7 @@ class AppTokenDatabase(BeanieAccessTokenDatabase):
         response: Optional[AppToken] = await self.access_token_model.find_one(_filter)
         if response:
             # return None for tokens that are past their age
-            lifespan = response.created_at - datetime.now(timezone.utc)
+            lifespan = datetime.now(timezone.utc) - response.created_at
             if lifespan >= timedelta(seconds=response.lifespan_seconds):
                 # delete expired tokens automatically
                 await response.delete()

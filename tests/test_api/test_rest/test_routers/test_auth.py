@@ -1,11 +1,13 @@
 """Integration tests for the auth router"""
 import re
+from datetime import datetime, timedelta, timezone
 
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
 from services.auth import AppToken, Project
 from tests._utils.auth import (
+    TEST_APP_TOKEN_DICT,
     TEST_PROJECT_DICT,
     TEST_PROJECT_ID,
     TEST_SUPERUSER_ID,
@@ -45,7 +47,7 @@ def test_admin_authorize(client):
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get("/auth/github/authorize")
-        auth_url_pattern = "^https\:\/\/github\.com\/login\/oauth\/authorize\?response_type\=code\&client_id\=test-tergite-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fgithub\%2Fcallback\&state=.*&scope=user\+user\%3Aemail$"
+        auth_url_pattern = r"^https\:\/\/github\.com\/login\/oauth\/authorize\?response_type\=code\&client_id\=test-tergite-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fgithub\%2Fcallback\&state=.*&scope=user\+user\%3Aemail$"
 
         got = response.json()
         assert response.status_code == 200
@@ -57,7 +59,7 @@ def test_chalmers_authorize(client):
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get("/auth/chalmers/authorize")
-        auth_url_pattern = "^https\:\/\/login\.microsoftonline\.com\/common\/oauth2\/v.*\/authorize\?response_type\=code\&client_id\=test-chalmers-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fchalmers\%2Fcallback\&state=.*\&scope\=User\.Read\&response_mode\=query$"
+        auth_url_pattern = r"^https\:\/\/login\.microsoftonline\.com\/common\/oauth2\/v.*\/authorize\?response_type\=code\&client_id\=test-chalmers-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fchalmers\%2Fcallback\&state=.*\&scope\=User\.Read\&response_mode\=query$"
 
         got = response.json()
         assert response.status_code == 200
@@ -70,7 +72,7 @@ def test_puhuri_authorize(client):
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get("/auth/puhuri/authorize")
-        auth_url_pattern = "^https:\/\/proxy.acc.puhuri.eduteams.org\/OIDC\/authorization\?response_type\=code\&client_id\=test-puhuri-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fpuhuri\%2Fcallback\&state=.*\&scope\=openid\+email$"
+        auth_url_pattern = r"^https:\/\/proxy.acc.puhuri.eduteams.org\/OIDC\/authorization\?response_type\=code\&client_id\=test-puhuri-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fpuhuri\%2Fcallback\&state=.*\&scope\=openid\+email$"
 
         got = response.json()
         assert response.status_code == 200
@@ -455,20 +457,73 @@ def test_unauthorized_app_token_deletion(
         assert got == expected
 
 
-def test_view_own_app_token_in_less_detail():
+@pytest.mark.parametrize("user_id, headers", _USER_ID_HEADERS_FIXTURE)
+def test_view_own_app_tokens_in_less_detail(
+    user_id, headers, client, inserted_projects, inserted_app_tokens, freezer
+):
     """At /auth/me/app-tokens/, user can view their own app tokens
     without the token itself displayed"""
     # using context manager to ensure on_startup runs
-    pass
+    with client as client:
+        headers = get_auth_header(user_id)
+        response = client.get("/auth/me/app-tokens/", headers=headers)
+
+        got = response.json()
+        expected_data = [
+            {
+                "id": str(v["_id"]),
+                "lifespan_seconds": v["lifespan_seconds"],
+                "project_ext_id": v["project_ext_id"],
+                "title": v["title"],
+                "created_at": datetime.now(timezone.utc).isoformat("T"),
+            }
+            for v in [TEST_APP_TOKEN_DICT] + inserted_app_tokens
+            if str(v["user_id"]) == user_id
+        ]
+
+        assert response.status_code == 200
+        assert got == {"skip": 0, "limit": None, "data": expected_data}
 
 
-def test_expired_app_token_fails():
+@pytest.mark.parametrize("app_token", APP_TOKEN_LIST)
+def test_expired_app_token_fails(
+    app_token, client, inserted_projects, app_tokens_with_timestamps, freezer
+):
     """Expired app tokens raise 401 HTTP error"""
+    app_token_ttl = app_token["lifespan_seconds"]
+    headers = {"Authorization": f"Bearer {app_token['token']}"}
+    time_in_future = datetime.now(timezone.utc) + timedelta(seconds=app_token_ttl + 1)
+
     # using context manager to ensure on_startup runs
-    pass
+    with client as client:
+        # shift time to the future after startup has run
+        freezer.move_to(time_in_future.isoformat())
+
+        response = client.get("/", headers=headers)
+
+        got = response.json()
+        expected = {"detail": "Unauthorized"}
+
+        assert response.status_code == 401
+        assert got == expected
 
 
-def test_app_token_of_unallocated_projects_fails():
+@pytest.mark.parametrize("app_token", APP_TOKEN_LIST)
+def test_app_token_of_unallocated_projects_fails(
+    app_token, client, unallocated_projects, inserted_app_tokens
+):
     """App tokens for projects with qpu_seconds <= 0 raise 403 HTTP error"""
+    headers = {"Authorization": f"Bearer {app_token['token']}"}
+    project = unallocated_projects[app_token["project_ext_id"]]
+
     # using context manager to ensure on_startup runs
-    pass
+    with client as client:
+        response = client.get("/", headers=headers)
+
+        got = response.json()
+        expected = {
+            "detail": f"{project['qpu_seconds']} QPU seconds left on project {project['ext_id']}"
+        }
+
+        assert response.status_code == 403
+        assert got == expected

@@ -94,7 +94,13 @@ T = TypeVar("T", bound=Document)
 
 
 def insert_if_not_exist(db: database.Database, schema: Type[T], data: Dict[str, Any]):
-    """Inserts a given auth document into the database if it does not exist"""
+    """Inserts a given auth document into the database if it does not exist
+
+    Args:
+        db: The pymongo.database.Database instance to insert into
+        schema: the beanie.Document schema corresponding to the collection to which to insert into
+        data: the document to insert
+    """
     try:
         col: collection.Collection = db[schema.Settings.name]
         col.insert_one(data)
