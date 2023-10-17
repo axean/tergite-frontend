@@ -6,6 +6,8 @@ WORKDIR /code
 # for the pip install step
 COPY ./requirements.txt /code/requirements.txt
 
+RUN apk update
+RUN apk add python3-dev gcc libc-dev libffi-dev
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY . /code/
