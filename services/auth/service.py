@@ -20,14 +20,21 @@ import settings
 from . import app_tokens, projects, users
 
 # JWT-based authentication
-JWT_BACKEND = users.get_jwt_backend(
+JWT_HEADER_BACKEND = users.get_jwt_header_backend(
     login_url="/auth/jwt/login",
     jwt_secret=settings.JWT_SECRET,
     lifetime_seconds=settings.JWT_TTL,
 )
 
+JWT_COOKIE_BACKEND = users.get_jwt_cookie_backend(
+    jwt_secret=settings.JWT_SECRET,
+    cookie_max_age=settings.JWT_TTL,
+    cookie_name=settings.COOKIE_NAME,
+    cookie_domain=settings.COOKIE_DOMAIN,
+)
+
 JWT_AUTH = users.UserBasedAuth[users.dtos.User, PydanticObjectId](
-    users.get_user_manager, [JWT_BACKEND]
+    users.get_user_manager, [JWT_HEADER_BACKEND, JWT_COOKIE_BACKEND]
 )
 
 GET_CURRENT_USER = JWT_AUTH.current_user(active=True)

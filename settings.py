@@ -57,6 +57,8 @@ PUHURI_CONFIG_ENDPOINT = config("PUHURI_CONFIG_ENDPOINT", cast=str, default=None
 
 JWT_SECRET = config("JWT_SECRET", cast=str, default=None)
 JWT_TTL = config("JWT_TTL", cast=int, default=3600)
+COOKIE_DOMAIN = config("COOKIE_DOMAIN", cast=str, default=None)
+COOKIE_NAME = config("COOKIE_NAME", cast=str, default="tergiteauth")
 
 AUTH_EMAIL_REGEX_MAP: Dict[str, Tuple[str, re.RegexFlag]] = {
     TERGITE_CLIENT_NAME: (config("TERGITE_EMAIL_REGEX", cast=str, default=".*"), 0),

@@ -11,11 +11,15 @@
 # that they have been altered from the originals.
 """Entry point for the users submodule of the auth module"""
 from functools import lru_cache
-from typing import Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
 from fastapi import Depends, HTTPException, status
 from fastapi_users import FastAPIUsers, models
-from fastapi_users.authentication import AuthenticationBackend, BearerTransport
+from fastapi_users.authentication import (
+    AuthenticationBackend,
+    BearerTransport,
+    CookieTransport,
+)
 from fastapi_users.manager import UserManagerDependency
 from fastapi_users_db_beanie import BeanieUserDatabase
 from httpx_oauth.clients.github import GitHubOAuth2
@@ -33,12 +37,12 @@ from .strategy import CustomJWTStrategy
 from .validators import EmailRegexValidator, Validator
 
 
-def get_jwt_backend(
+def get_jwt_header_backend(
     login_url: str,
     jwt_secret: str,
     lifetime_seconds: int = 3600,
 ) -> AuthenticationBackend:
-    """Creates an auth backend that uses JWT to handle auth."""
+    """Creates an auth backend that uses JWT in bearer header to handle auth."""
     bearer_transport = BearerTransport(tokenUrl=login_url)
 
     def get_jwt_strategy() -> CustomJWTStrategy:
@@ -47,6 +51,30 @@ def get_jwt_backend(
     return AuthenticationBackend(
         name="jwt",
         transport=bearer_transport,
+        get_strategy=get_jwt_strategy,
+    )
+
+
+def get_jwt_cookie_backend(
+    jwt_secret: str,
+    cookie_name: str,
+    cookie_domain: Optional[str] = None,
+    cookie_max_age: Optional[int] = None,
+) -> AuthenticationBackend:
+    """Creates an auth backend that uses JWT in cookie to handle auth."""
+    transport = CookieTransport(
+        cookie_name=cookie_name,
+        cookie_domain=cookie_domain,
+        cookie_max_age=cookie_max_age,
+    )
+
+    def get_jwt_strategy() -> CustomJWTStrategy:
+        lifetime_seconds = cookie_max_age if cookie_max_age is not None else 3600
+        return CustomJWTStrategy(secret=jwt_secret, lifetime_seconds=lifetime_seconds)
+
+    return AuthenticationBackend(
+        name="jwt-cookie",
+        transport=transport,
         get_strategy=get_jwt_strategy,
     )
 

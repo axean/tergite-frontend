@@ -19,7 +19,8 @@ from services.auth.service import (
     APP_TOKEN_AUTH,
     APP_TOKEN_BACKEND,
     JWT_AUTH,
-    JWT_BACKEND,
+    JWT_COOKIE_BACKEND,
+    JWT_HEADER_BACKEND,
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -47,7 +48,7 @@ _PUHURI_OAUTH_CLIENT = get_openid_client(
 router.include_router(
     JWT_AUTH.get_oauth_router(
         oauth_client=_TERGITE_OAUTH_CLIENT,
-        backend=JWT_BACKEND,
+        backend=JWT_HEADER_BACKEND,
         state_secret=settings.JWT_SECRET,
         is_verified_by_default=True,
     ),
@@ -58,7 +59,7 @@ router.include_router(
 router.include_router(
     JWT_AUTH.get_oauth_router(
         oauth_client=_CHALMERS_OAUTH_CLIENT,
-        backend=JWT_BACKEND,
+        backend=JWT_HEADER_BACKEND,
         state_secret=settings.JWT_SECRET,
         is_verified_by_default=True,
     ),
@@ -69,11 +70,47 @@ router.include_router(
 router.include_router(
     JWT_AUTH.get_oauth_router(
         oauth_client=_PUHURI_OAUTH_CLIENT,
-        backend=JWT_BACKEND,
+        backend=JWT_HEADER_BACKEND,
         state_secret=settings.JWT_SECRET,
         is_verified_by_default=True,
     ),
     prefix=f"/{_PUHURI_OAUTH_CLIENT.name}",
+    tags=["auth"],
+)
+
+# For browser based auth
+router.include_router(
+    JWT_AUTH.get_oauth_router(
+        oauth_client=_TERGITE_OAUTH_CLIENT,
+        backend=JWT_COOKIE_BACKEND,
+        state_secret=settings.JWT_SECRET,
+        is_verified_by_default=True,
+    ),
+    prefix=f"/app/{_TERGITE_OAUTH_CLIENT.name}",
+    tags=["auth"],
+)
+
+# For browser based auth
+router.include_router(
+    JWT_AUTH.get_oauth_router(
+        oauth_client=_CHALMERS_OAUTH_CLIENT,
+        backend=JWT_COOKIE_BACKEND,
+        state_secret=settings.JWT_SECRET,
+        is_verified_by_default=True,
+    ),
+    prefix=f"/app/{_CHALMERS_OAUTH_CLIENT.name}",
+    tags=["auth"],
+)
+
+# For browser based auth
+router.include_router(
+    JWT_AUTH.get_oauth_router(
+        oauth_client=_PUHURI_OAUTH_CLIENT,
+        backend=JWT_COOKIE_BACKEND,
+        state_secret=settings.JWT_SECRET,
+        is_verified_by_default=True,
+    ),
+    prefix=f"/app/{_PUHURI_OAUTH_CLIENT.name}",
     tags=["auth"],
 )
 

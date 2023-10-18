@@ -87,3 +87,8 @@ PUHURI_ROLES="user"
 JWT_SECRET=<some-jwt-secret>
 # JWT token lifespan in seconds. default = 3600
 JWT_TTL=3600
+# optional cookie settings
+# default: None
+COOKIE_DOMAIN=<the domain to share cookie across subdomains>
+# default: tergiteauth
+COOKIE_NAME=<the name of the cookie>
