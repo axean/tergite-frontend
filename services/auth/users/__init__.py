@@ -13,22 +13,24 @@
 from functools import lru_cache
 from typing import Optional, Sequence, Tuple
 
-from fastapi import Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_users import FastAPIUsers, models
 from fastapi_users.authentication import (
     AuthenticationBackend,
     BearerTransport,
     CookieTransport,
 )
+from fastapi_users.jwt import SecretType
 from fastapi_users.manager import UserManagerDependency
 from fastapi_users_db_beanie import BeanieUserDatabase
 from httpx_oauth.clients.github import GitHubOAuth2
 from httpx_oauth.clients.microsoft import MicrosoftGraphOAuth2
 from httpx_oauth.clients.openid import OpenID
+from httpx_oauth.oauth2 import BaseOAuth2
 
 import settings
 
-from . import exc
+from . import exc, routers
 from .authenticator import UserAuthenticator
 from .database import UserDatabase
 from .dtos import ID, UP, CurrentUserDependency, OAuthAccount, User, UserRole
@@ -208,3 +210,22 @@ class UserBasedAuth(FastAPIUsers[models.UP, models.ID]):
         self.get_user_manager = get_user_manager_dep
         self.current_user = self.authenticator.current_user
         self.current_user_id = self.authenticator.current_user_id
+
+    def get_oauth_router(
+        self,
+        oauth_client: BaseOAuth2,
+        backend: AuthenticationBackend,
+        state_secret: SecretType,
+        redirect_url: Optional[str] = None,
+        associate_by_email: bool = False,
+        is_verified_by_default: bool = False,
+    ) -> APIRouter:
+        return routers.get_oauth_router(
+            oauth_client,
+            backend,
+            self.get_user_manager,
+            state_secret,
+            redirect_url,
+            associate_by_email,
+            is_verified_by_default,
+        )
