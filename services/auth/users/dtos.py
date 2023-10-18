@@ -23,9 +23,6 @@ from pydantic import Field
 from pymongo import IndexModel
 from pymongo.collation import Collation
 
-UP = TypeVar("UP", bound=UserProtocol)
-ID = TypeVar("ID")
-
 
 class UserRole(str, enum.Enum):
     USER = "user"
@@ -86,3 +83,5 @@ class User(Document):
 CurrentUserDependency = DependencyCallable[User]
 CurrentSuperUserDependency = DependencyCallable[User]
 CurrentUserIdDependency = DependencyCallable[str]
+UP = TypeVar("UP", bound=User)
+ID = TypeVar("ID")

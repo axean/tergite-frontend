@@ -14,7 +14,7 @@ from typing import Generic, Optional
 
 import jwt
 from fastapi_users.authentication import JWTStrategy
-from fastapi_users.jwt import decode_jwt
+from fastapi_users.jwt import decode_jwt, generate_jwt
 
 from .dtos import ID, UP
 
@@ -38,3 +38,13 @@ class CustomJWTStrategy(
             return None
 
         return user_id
+
+    async def write_token(self, user: UP) -> str:
+        data = {
+            "sub": str(user.id),
+            "aud": self.token_audience,
+            "roles": list(user.roles),
+        }
+        return generate_jwt(
+            data, self.encode_key, self.lifetime_seconds, algorithm=self.algorithm
+        )

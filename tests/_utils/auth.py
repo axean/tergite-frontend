@@ -114,9 +114,11 @@ def get_db_record(db: database.Database, schema: Type[T], _id: str) -> Optional[
     return col.find_one({"_id": PydanticObjectId(_id)})
 
 
-def get_jwt_token(user_id: str, ttl: int = 3600, secret: str = TEST_JWT_SECRET) -> str:
+def get_jwt_token(
+    user_id: str, ttl: int = 3600, secret: str = TEST_JWT_SECRET, **kwargs
+) -> str:
     """Generates a valid JWT token for the given user_id"""
-    data = {"sub": user_id, "aud": ["fastapi-users:auth"]}
+    data = {**kwargs, "sub": user_id, "aud": ["fastapi-users:auth"]}
 
     return generate_jwt(
         data=data, secret=secret, lifetime_seconds=ttl, algorithm="HS256"
