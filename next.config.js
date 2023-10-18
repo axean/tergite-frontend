@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-	// Make this a static app
-	output: 'export',
+	output: 'standalone',
 
 	// comment this out if we change from output: "export"
 	images: { unoptimized: true },
@@ -13,7 +12,11 @@ const nextConfig = {
 	// skipTrailingSlashRedirect: true,
 
 	// Optional: Change the output directory `out` -> `dist`
-	distDir: 'dist'
+	distDir: 'dist',
+	pageExtensions: ['page.tsx', 'page.ts', 'page.jsx', 'page.js'],
+	experimental: {
+		serverActions: true,
+	  },
 };
 
 module.exports = nextConfig;
