@@ -15,9 +15,10 @@ import enum
 from typing import List, Set, TypeVar
 
 from beanie import Document, PydanticObjectId
-from fastapi_users import db, schemas
+from fastapi_users import schemas
 from fastapi_users.models import UserProtocol
 from fastapi_users.types import DependencyCallable
+from fastapi_users_db_beanie import BaseOAuthAccount
 from pydantic import Field
 from pymongo import IndexModel
 from pymongo.collation import Collation
@@ -45,7 +46,7 @@ class UserUpdate(schemas.BaseUserUpdate):
     pass
 
 
-class OAuthAccount(db.BaseOAuthAccount):
+class OAuthAccount(BaseOAuthAccount):
     pass
 
 
