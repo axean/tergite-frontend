@@ -8,7 +8,7 @@
 		"start": "next start",
 		"lint": "next lint",
 		"format": "prettier --write \"{src,cypress}/**/*.{js,jsx,ts,tsx}\"",
-		"start-test": "NODE_ENV=test npx serve dist",
+		"start-test": "NODE_ENV=test next start",
 		"build-and-start-test-server": "NODE_ENV=test npm run build && start-server-and-test start-test http://0.0.0.0:3000",
 		"e2e": "npm run build-and-start-test-server -- \"cypress run\"",
 		"visual-e2e": "npm run build-and-start-test-server -- \"cypress open\""
@@ -23,6 +23,7 @@
 		"postcss": "8.4.28",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
+		"swr": "^2.2.4",
 		"tailwindcss": "3.3.3",
 		"typescript": "5.1.6"
 	},

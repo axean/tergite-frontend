@@ -1,7 +1,7 @@
-import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 import { promisify } from 'util';
-import { getAccessToken } from '@/app/service';
+import { getAccessToken } from '@/service/server';
+import { NextResponse } from 'next/server';
 
 const jwtVerify = promisify<string, jwt.Secret, jwt.VerifyOptions, jwt.JwtPayload>(jwt.verify);
 
@@ -14,12 +14,12 @@ export async function GET(request: Request) {
 
 	try {
 		const payload = token && (await jwtVerify(token, jwtSecret, { audience, algorithms }));
-        const resp = payload && ({ id: payload.sub, roles: payload.roles } as API.User)
-		return Response.json(resp);
+		const resp = payload && ({ id: payload.sub, roles: payload.roles } as API.User);
+		return NextResponse.json(resp);
 	} catch (error) {
 		const detail = 'invalid access token';
 		console.error(detail, error);
-		return Response.json({ detail }, { status: 403 });
+		return NextResponse.json({ detail }, { status: 403 });
 	}
 }
 

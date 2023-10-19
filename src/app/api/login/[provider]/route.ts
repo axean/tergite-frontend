@@ -1,3 +1,5 @@
+import { NextResponse } from 'next/server';
+
 export async function GET(request: Request, { params }: { params: { provider: string } }) {
 	const provider = params.provider;
 	const redirectUrl = encodeURI(`https://${process.env.HOST}/`);
@@ -7,11 +9,12 @@ export async function GET(request: Request, { params }: { params: { provider: st
 		const response = await fetch(authorizeUrl);
 		if (response.ok) {
 			const body: API.Response.Authorize = await response.json();
-			return Response.redirect(body.authorization_url);
+			return NextResponse.redirect(body.authorization_url);
 		}
 		return response;
 	} catch (error) {
-        console.error(error);
-        return Response.json({detail: "unexpected error"})
-    }
+		console.error(error);
+		return NextResponse.json({ detail: 'unexpected error' });
+	}
 }
+

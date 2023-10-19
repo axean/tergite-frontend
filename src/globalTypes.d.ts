@@ -19,3 +19,11 @@ namespace API {
 		};
 	}
 }
+
+namespace Tergite {
+	interface ServiceLinkInfo {
+		href: string;
+		text: string;
+	}
+}
+
