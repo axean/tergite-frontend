@@ -31,8 +31,7 @@ const Navbar = ({}: Props) => {
 			>
 				<Logo src='/img/chalmers.26fdad12.svg' />
 				<ul className='flex'>
-					{isLoading && <Loading />}
-
+					{<NavItem text='Home' link='/' />}
 					{isAdmin && <NavItem text='Projects' link='/projects' />}
 					{user && <NavItem text='App tokens' link='/app-tokens' />}
 					{user && <NavItem text='Logout' link='/logout' />}
