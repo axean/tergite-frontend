@@ -13,3 +13,9 @@ export const serviceLinks: Tergite.ServiceLinkInfo[] = [
 	{ href: '/mss', text: 'API' }
 ];
 
+export const oauth2Providers: Tergite.Oauth2ProviderInfo[] = [
+	{ name: 'github', logo: 'img/Github_Logo.png' },
+	{ name: 'puhuri' },
+	{ name: 'chalmers', logo: '/img/chalmers.26fdad12.svg' }
+];
+

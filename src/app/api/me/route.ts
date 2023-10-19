@@ -18,7 +18,6 @@ export async function GET(request: Request) {
 		return NextResponse.json(resp);
 	} catch (error) {
 		const detail = 'invalid access token';
-		console.error(detail, error);
 		return NextResponse.json({ detail }, { status: 403 });
 	}
 }

@@ -1,14 +1,21 @@
-import React, { useMemo } from 'react';
-import { NavItem } from './components/NavItem';
-import { Logo } from './components/Logo';
+'use client';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import NavItem from './components/NavItem';
+import Logo from './components/Logo';
 import useSWR from 'swr';
 import { fetcher } from '@/service/browser';
-import ErrorText from '../ErrorText';
 import Loading from '../Loading';
+import { useRouter } from 'next/router';
 
 const Navbar = ({}: Props) => {
 	const { data: user, error, isLoading } = useSWR('/api/me', fetcher<API.User>);
 	const isAdmin = useMemo(() => user?.roles.includes(API.UserRole.ADMIN), [user]);
+
+	useEffect(() => {
+		if (error) {
+			console.error(error);
+		}
+	}, [error]);
 
 	return (
 		<header className='sticky top-0 z-50 flex max-h-full w-full flex-col bg-white shadow-md print:hidden lg:relative'>
@@ -24,7 +31,6 @@ const Navbar = ({}: Props) => {
 			>
 				<Logo src='/img/chalmers.26fdad12.svg' />
 				<ul className='flex'>
-					{!!error && <ErrorText text={`${error}`} />}
 					{isLoading && <Loading />}
 
 					{isAdmin && <NavItem text='Projects' link='/projects' />}

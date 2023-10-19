@@ -25,5 +25,10 @@ namespace Tergite {
 		href: string;
 		text: string;
 	}
+
+	interface Oauth2ProviderInfo {
+		name: string;
+		logo?: string;
+	}
 }
 

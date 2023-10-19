@@ -2,7 +2,7 @@ import React from 'react';
 import NextLink from 'next/link';
 import Image from 'next/image';
 
-export function Logo({ src }: Props) {
+export default function Logo({ src }: Props) {
 	return (
 		<NextLink
 			aria-label='To frontpage'
