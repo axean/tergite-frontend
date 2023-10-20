@@ -47,6 +47,9 @@ TERGITE_EMAIL_REGEX=".*"
 # Roles are comma-separated.
 # roles can be: "admin", "user", "researcher", "partner". Default is "user".
 TERGITE_ROLES="admin"
+# the redirect uri after authentication if we are using cookies. default: None
+# useful when testing out the oauthentication on 127.0.0.1 i.e. local
+TERGITE_COOKIE_REDIRECT_URI=https://api.qal9000.se/auth/app/github/callback
 
 # Authentication with Chalmers
 # See https://learn.microsoft.com/en-us/azure/active-directory/develop/quickstart-web-app-python-sign-in?tabs=windows
@@ -57,6 +60,8 @@ CHALMERS_EMAIL_REGEX=".*"
 # Roles are comma-separated.
 # roles can be: "admin", "user", "researcher", "partner". Default is "user".
 CHALMERS_ROLES="researcher"
+# the redirect uri after authentication if we are using cookies. default: None
+CHALMERS_COOKIE_REDIRECT_URI=https://api.qal9000.se/auth/app/chalmers/callback
 
 # # Authentication with WACQT Partners; each partner has own set of credentials
 # # e.g. assuming Erikson uses OpenID connect
@@ -69,6 +74,8 @@ CHALMERS_ROLES="researcher"
 # # roles can be: "admin", "user", "researcher", "partner". Default is "user".
 # ERIKSON_ROLES="partner"
 # # to use the above configs, however, the settings file as well as the auth service have to updated
+# # the redirect uri after authentication if we are using cookies. default: None
+# ERIKSON_COOKIE_REDIRECT_URI=https://api.qal9000.se/auth/app/erikson/callback
 
 # Authentication with Puhuri
 # Register an application at https://webapp.prod.puhuri.eduteams.org/sp_request
@@ -81,6 +88,8 @@ PUHURI_EMAIL_REGEX=".*"
 # Roles are comma-separated.
 # roles can be: "admin", "user", "researcher", "partner". Default is "user".
 PUHURI_ROLES="user"
+# the redirect uri after authentication if we are using cookies. default: None
+PUHURI_COOKIE_REDIRECT_URI=https://api.qal9000.se/auth/app/puhuri/callback
 
 # Secret for regenerating JWT.
 # It can be generated using `openssl rand -base64 45`
@@ -92,3 +101,7 @@ JWT_TTL=3600
 COOKIE_DOMAIN=<the domain to share cookie across subdomains>
 # default: tergiteauth
 COOKIE_NAME=<the name of the cookie>
+
+# the host the uvicorn runs on.
+# During testing auth on 127.0.0.1, set this to "127.0.0.1". default: "0.0.0.0"
+MSS_HOST="0.0.0.0"

@@ -45,15 +45,24 @@ root_logger.setLevel(_logger_level)
 TERGITE_CLIENT_NAME = "github"
 TERGITE_CLIENT_ID = config("TERGITE_CLIENT_ID", cast=str, default=None)
 TERGITE_CLIENT_SECRET = config("TERGITE_CLIENT_SECRET", cast=str, default=None)
+TERGITE_COOKIE_REDIRECT_URI = config(
+    "TERGITE_COOKIE_REDIRECT_URI", cast=str, default=None
+)
 
 CHALMERS_CLIENT_NAME = "chalmers"
 CHALMERS_CLIENT_ID = config("CHALMERS_CLIENT_ID", cast=str, default=None)
 CHALMERS_CLIENT_SECRET = config("CHALMERS_CLIENT_SECRET", cast=str, default=None)
+CHALMERS_COOKIE_REDIRECT_URI = config(
+    "CHALMERS_COOKIE_REDIRECT_URI", cast=str, default=None
+)
 
 PUHURI_CLIENT_NAME = "puhuri"
 PUHURI_CLIENT_ID = config("PUHURI_CLIENT_ID", cast=str, default=None)
 PUHURI_CLIENT_SECRET = config("PUHURI_CLIENT_SECRET", cast=str, default=None)
 PUHURI_CONFIG_ENDPOINT = config("PUHURI_CONFIG_ENDPOINT", cast=str, default=None)
+PUHURI_COOKIE_REDIRECT_URI = config(
+    "PUHURI_COOKIE_REDIRECT_URI", cast=str, default=None
+)
 
 JWT_SECRET = config("JWT_SECRET", cast=str, default=None)
 JWT_TTL = config("JWT_TTL", cast=int, default=3600)
