@@ -8,7 +8,7 @@ export async function GET(request: Request, { params }: { params: { provider: st
 	const authorizeUrl = `${process.env.API_BASE_URL}/auth/app/${provider}/authorize?next=${nextUrl}`;
 
 	try {
-		const response = await fetch(authorizeUrl);
+		const response = await fetch(authorizeUrl, { cache: 'no-store' });
 		if (response.ok) {
 			const body: API.Response.Authorize = await response.json();
 			return NextResponse.redirect(body.authorization_url);
