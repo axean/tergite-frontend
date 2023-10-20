@@ -29,4 +29,3 @@ interface Props {
 	text: string;
 	services: Tergite.ServiceLinkInfo[];
 }
-

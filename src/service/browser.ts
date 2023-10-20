@@ -40,4 +40,3 @@ export async function fetcher<T>(
 
 	return await resp.json();
 }
-

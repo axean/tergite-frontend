@@ -49,4 +49,3 @@ describe('home page', () => {
 		cy.get('[data-cy-footer]').find('img').should('have.attr', 'src', '/img/logo.81582248.svg');
 	});
 });
-

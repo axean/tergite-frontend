@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { promisify } from 'util';
 import { getAccessToken } from '@/service/server';
 import { NextResponse } from 'next/server';
+import { API } from '@/types';
 
 const jwtVerify = promisify<string, jwt.Secret, jwt.VerifyOptions, jwt.JwtPayload>(jwt.verify);
 
@@ -21,4 +22,3 @@ export async function GET(request: Request) {
 		return NextResponse.json({ detail }, { status: 403 });
 	}
 }
-

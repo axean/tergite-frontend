@@ -25,4 +25,3 @@ export function logout() {
 function getAuthCookieName() {
 	return process.env.COOKIE_NAME || 'auth';
 }
-

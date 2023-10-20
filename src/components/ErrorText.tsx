@@ -5,4 +5,3 @@ export default function ErrorText({ text }: Props) {
 interface Props {
 	text: string;
 }
-

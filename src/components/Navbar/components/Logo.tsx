@@ -27,4 +27,3 @@ export default function Logo({ src }: Props) {
 interface Props {
 	src: string;
 }
-

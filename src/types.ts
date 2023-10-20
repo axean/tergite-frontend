@@ -31,4 +31,3 @@ export namespace Tergite {
 		logo?: string;
 	}
 }
-

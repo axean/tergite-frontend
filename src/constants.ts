@@ -20,4 +20,3 @@ export const oauth2Providers: Tergite.Oauth2ProviderInfo[] = [
 	{ name: 'puhuri' },
 	{ name: 'chalmers', logo: '/img/chalmers.26fdad12.svg' }
 ];
-

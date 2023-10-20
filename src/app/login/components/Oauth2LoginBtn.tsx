@@ -32,4 +32,3 @@ interface Props {
 	logo?: string;
 	provider: string;
 }
-

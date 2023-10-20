@@ -9,4 +9,3 @@ export default function ServiceLink({ href, text }: Tergite.ServiceLinkInfo) {
 		</a>
 	);
 }
-

@@ -9,4 +9,3 @@ export default function SWRProvider({ children, fallback }: PropsWithChildren<Pr
 interface Props {
 	fallback: { [key: string]: any };
 }
-

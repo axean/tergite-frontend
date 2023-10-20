@@ -47,4 +47,3 @@ interface Props {
 	imgSrc: string;
 	imgAlt: string;
 }
-

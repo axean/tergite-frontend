@@ -19,4 +19,3 @@ export async function GET(request: Request, { params }: { params: { provider: st
 		return NextResponse.json({ detail: 'unexpected error' });
 	}
 }
-
