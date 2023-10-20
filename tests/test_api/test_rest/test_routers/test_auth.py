@@ -58,8 +58,9 @@ def test_admin_cookie_authorize(client):
     """Admin users can authorize at /auth/app/github/authorize using cookies"""
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.get("/auth/app/github/authorize")
-        auth_url_pattern = r"^https\:\/\/github\.com\/login\/oauth\/authorize\?response_type\=code\&client_id\=test-tergite-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fgithub\%2Fcallback\&state=.*&scope=user\+user\%3Aemail$"
+        next_url = "http://example.com"
+        response = client.get(f"/auth/app/github/authorize?next={next_url}")
+        auth_url_pattern = r"^https\:\/\/github\.com\/login\/oauth\/authorize\?response_type\=code\&client_id\=test-tergite-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fapp\%2Fgithub\%2Fcallback\&state=.*&scope=user\+user\%3Aemail$"
 
         got = response.json()
         assert response.status_code == 200
@@ -82,8 +83,9 @@ def test_chalmers_cookie_authorize(client):
     """Chalmers' users can authorize at /auth/app/chalmers/authorize using cookies"""
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.get("/auth/app/chalmers/authorize")
-        auth_url_pattern = r"^https\:\/\/login\.microsoftonline\.com\/common\/oauth2\/v.*\/authorize\?response_type\=code\&client_id\=test-chalmers-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fchalmers\%2Fcallback\&state=.*\&scope\=User\.Read\&response_mode\=query$"
+        next_url = "http://example.com"
+        response = client.get(f"/auth/app/chalmers/authorize?next={next_url}")
+        auth_url_pattern = r"^https\:\/\/login\.microsoftonline\.com\/common\/oauth2\/v.*\/authorize\?response_type\=code\&client_id\=test-chalmers-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fapp\%2Fchalmers\%2Fcallback\&state=.*\&scope\=User\.Read\&response_mode\=query$"
 
         got = response.json()
         assert response.status_code == 200
@@ -108,8 +110,9 @@ def test_puhuri_cookie_authorize(client):
     """Any random partner users can authorize at /auth/{partner}/authorize"""
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.get("/auth/app/puhuri/authorize")
-        auth_url_pattern = r"^https:\/\/proxy.acc.puhuri.eduteams.org\/OIDC\/authorization\?response_type\=code\&client_id\=test-puhuri-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fpuhuri\%2Fcallback\&state=.*\&scope\=openid\+email$"
+        next_url = "http://example.com"
+        response = client.get(f"/auth/app/puhuri/authorize?next={next_url}")
+        auth_url_pattern = r"^https:\/\/proxy.acc.puhuri.eduteams.org\/OIDC\/authorization\?response_type\=code\&client_id\=test-puhuri-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fapp\%2Fpuhuri\%2Fcallback\&state=.*\&scope\=openid\+email$"
 
         got = response.json()
         assert response.status_code == 200

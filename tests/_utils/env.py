@@ -13,11 +13,13 @@ TEST_TERGITE_CLIENT_ID = "test-tergite-client-id"
 TEST_TERGITE_CLIENT_SECRET = "test-client-secret"
 TEST_TERGITE_EMAIL_REGEX = "^(john\.doe|paul\.doe)@example\.com$"
 TEST_TERGITE_ROLES = "admin,user"
+TEST_TERGITE_COOKIE_REDIRECT_URI = "http://testserver/auth/app/github/callback"
 
 TEST_CHALMERS_CLIENT_ID = "test-chalmers-client-id"
 TEST_CHALMERS_CLIENT_SECRET = "test-chalmers-client-secret"
 TEST_CHALMERS_EMAIL_REGEX = "^.*@chalmers\.com$"
 TEST_CHALMERS_ROLES = "user"
+TEST_CHALMERS_COOKIE_REDIRECT_URI = "http://testserver/auth/app/chalmers/callback"
 
 TEST_PUHURI_CLIENT_ID = "test-puhuri-client-id"
 TEST_PUHURI_CLIENT_SECRET = "test-puhuri-client-secret"
@@ -26,6 +28,10 @@ TEST_PUHURI_CONFIG_ENDPOINT = (
 )
 TEST_PUHURI_EMAIL_REGEX = "^.*@example\.se$"
 TEST_PUHURI_ROLES = "user"
+TEST_PUHURI_COOKIE_REDIRECT_URI = "http://testserver/auth/app/puhuri/callback"
+
+TEST_COOKIE_DOMAIN = "example.com"
+TEST_COOKIE_NAME = "some-cookie"
 
 
 def setup_test_env():
@@ -47,14 +53,20 @@ def setup_test_env():
     environ["TERGITE_CLIENT_SECRET"] = TEST_TERGITE_CLIENT_SECRET
     environ["TERGITE_EMAIL_REGEX"] = TEST_TERGITE_EMAIL_REGEX
     environ["TERGITE_ROLES"] = TEST_TERGITE_ROLES
+    environ["TERGITE_COOKIE_REDIRECT_URI"] = TEST_TERGITE_COOKIE_REDIRECT_URI
 
     environ["CHALMERS_CLIENT_ID"] = TEST_CHALMERS_CLIENT_ID
     environ["CHALMERS_CLIENT_SECRET"] = TEST_CHALMERS_CLIENT_SECRET
     environ["CHALMERS_EMAIL_REGEX"] = TEST_CHALMERS_EMAIL_REGEX
     environ["CHALMERS_ROLES"] = TEST_CHALMERS_ROLES
+    environ["CHALMERS_COOKIE_REDIRECT_URI"] = TEST_CHALMERS_COOKIE_REDIRECT_URI
 
     environ["PUHURI_CLIENT_ID"] = TEST_PUHURI_CLIENT_ID
     environ["PUHURI_CLIENT_SECRET"] = TEST_PUHURI_CLIENT_SECRET
     environ["PUHURI_CONFIG_ENDPOINT"] = TEST_PUHURI_CONFIG_ENDPOINT
     environ["PUHURI_EMAIL_REGEX"] = TEST_PUHURI_EMAIL_REGEX
     environ["PUHURI_ROLES"] = TEST_PUHURI_ROLES
+    environ["PUHURI_COOKIE_REDIRECT_URI"] = TEST_PUHURI_COOKIE_REDIRECT_URI
+
+    environ["COOKIE_DOMAIN"] = TEST_COOKIE_DOMAIN
+    environ["COOKIE_NAME"] = TEST_COOKIE_NAME
