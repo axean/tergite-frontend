@@ -1,9 +1,11 @@
+import { API } from '@/types';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: { provider: string } }) {
 	const provider = params.provider;
-	const redirectUrl = encodeURI(`https://${process.env.HOST}/`);
-	const authorizeUrl = `${process.env.API_BASE_URL}/auth/app/${provider}/authorize?next=${redirectUrl}`;
+	const redirectUrl = process.env.OAUTH_REDIRECT_URI || '/';
+	const nextUrl = encodeURI(redirectUrl);
+	const authorizeUrl = `${process.env.API_BASE_URL}/auth/app/${provider}/authorize?next=${nextUrl}`;
 
 	try {
 		const response = await fetch(authorizeUrl);

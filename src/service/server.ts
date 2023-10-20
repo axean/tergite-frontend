@@ -1,19 +1,28 @@
 /**Service functions focussing on the server side */
 
 import { cookies } from 'next/headers';
-const jwtCookieKey = 'access-token';
 
 /** Retrieves the access token from the cookies
  * @returns - the access token if available in the cookie
  */
 export function getAccessToken() {
-	return cookies().get(jwtCookieKey)?.value;
+	const cookieName = getAuthCookieName();
+	return cookies().get(cookieName)?.value;
 }
 
 /**
  * Attempt to logout the user
  */
 export function logout() {
-	return cookies().delete(jwtCookieKey);
+	const cookieName = getAuthCookieName();
+	return cookies().delete(cookieName);
+}
+
+/**
+ * Gets the name of the cookie for auth
+ * @returns the name of the cookie
+ */
+function getAuthCookieName() {
+	return process.env.COOKIE_NAME || 'auth';
 }
 

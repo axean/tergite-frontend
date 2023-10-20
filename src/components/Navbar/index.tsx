@@ -1,14 +1,13 @@
 'use client';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import NavItem from './components/NavItem';
 import Logo from './components/Logo';
 import useSWR from 'swr';
 import { fetcher } from '@/service/browser';
-import Loading from '../Loading';
-import { useRouter } from 'next/router';
+import { API } from '@/types';
 
 const Navbar = ({}: Props) => {
-	const { data: user, error, isLoading } = useSWR('/api/me', fetcher<API.User>);
+	const { data: user, error } = useSWR('/api/me', fetcher<API.User>);
 	const isAdmin = useMemo(() => user?.roles.includes(API.UserRole.ADMIN), [user]);
 
 	useEffect(() => {
