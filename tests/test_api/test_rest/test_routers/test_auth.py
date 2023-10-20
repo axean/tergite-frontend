@@ -1,7 +1,9 @@
 """Integration tests for the auth router"""
 import re
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 
+import httpx
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
@@ -15,10 +17,12 @@ from tests._utils.auth import (
     get_db_record,
     is_valid_jwt,
 )
+from tests._utils.env import TEST_COOKIE_NAME
 from tests._utils.fixtures import load_json_fixture
 from tests.test_api.test_rest.conftest import (
     APP_TOKEN_LIST,
     PROJECT_LIST,
+    TEST_NEXT_COOKIE_URL,
     get_auth_header,
     get_unauthorized_app_token_post,
 )
@@ -41,6 +45,10 @@ _USER_ID_HEADERS_FIXTURE = [
     (TEST_SUPERUSER_ID, lazy_fixture("admin_jwt_header")),
 ]
 
+_AUTH_COOKIE_REGEX = re.compile(
+    r"some-cookie=(.*); Domain=testserver; HttpOnly; Max-Age=3600; Path=/; SameSite=lax; Secure"
+)
+
 
 def test_admin_authorize(client):
     """Admin users can authorize at /auth/github/authorize"""
@@ -58,8 +66,7 @@ def test_admin_cookie_authorize(client):
     """Admin users can authorize at /auth/app/github/authorize using cookies"""
     # using context manager to ensure on_startup runs
     with client as client:
-        next_url = "http://example.com"
-        response = client.get(f"/auth/app/github/authorize?next={next_url}")
+        response = client.get(f"/auth/app/github/authorize?next={TEST_NEXT_COOKIE_URL}")
         auth_url_pattern = r"^https\:\/\/github\.com\/login\/oauth\/authorize\?response_type\=code\&client_id\=test-tergite-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fapp\%2Fgithub\%2Fcallback\&state=.*&scope=user\+user\%3Aemail$"
 
         got = response.json()
@@ -83,8 +90,9 @@ def test_chalmers_cookie_authorize(client):
     """Chalmers' users can authorize at /auth/app/chalmers/authorize using cookies"""
     # using context manager to ensure on_startup runs
     with client as client:
-        next_url = "http://example.com"
-        response = client.get(f"/auth/app/chalmers/authorize?next={next_url}")
+        response = client.get(
+            f"/auth/app/chalmers/authorize?next={TEST_NEXT_COOKIE_URL}"
+        )
         auth_url_pattern = r"^https\:\/\/login\.microsoftonline\.com\/common\/oauth2\/v.*\/authorize\?response_type\=code\&client_id\=test-chalmers-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fapp\%2Fchalmers\%2Fcallback\&state=.*\&scope\=User\.Read\&response_mode\=query$"
 
         got = response.json()
@@ -110,8 +118,7 @@ def test_puhuri_cookie_authorize(client):
     """Any random partner users can authorize at /auth/{partner}/authorize"""
     # using context manager to ensure on_startup runs
     with client as client:
-        next_url = "http://example.com"
-        response = client.get(f"/auth/app/puhuri/authorize?next={next_url}")
+        response = client.get(f"/auth/app/puhuri/authorize?next={TEST_NEXT_COOKIE_URL}")
         auth_url_pattern = r"^https:\/\/proxy.acc.puhuri.eduteams.org\/OIDC\/authorization\?response_type\=code\&client_id\=test-puhuri-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fauth\%2Fapp\%2Fpuhuri\%2Fcallback\&state=.*\&scope\=openid\+email$"
 
         got = response.json()
@@ -130,17 +137,19 @@ def test_admin_callback(client, github_user, oauth_state):
         assert is_valid_jwt(got["access_token"])
 
 
-def test_admin_cookie_callback(client, github_user, oauth_state):
+def test_admin_cookie_callback(client, github_user, cookie_oauth_state):
     """Admin users can be redirected to /auth/app/github/callback to get their JWT cookies"""
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get(
-            f"/auth/app/github/callback?code=test&state={oauth_state}"
+            f"/auth/app/github/callback?code=test&state={cookie_oauth_state}",
+            allow_redirects=False,
         )
 
-        got = response.json()
-        assert response.status_code == 200
-        assert is_valid_jwt(got["access_token"])
+        assert response.headers["location"] == TEST_NEXT_COOKIE_URL
+        assert response.status_code == 307
+        access_token = _get_token_from_cookie(response)
+        assert is_valid_jwt(access_token)
 
 
 def test_admin_callback_disallowed_email(client, invalid_github_user, oauth_state):
@@ -155,13 +164,14 @@ def test_admin_callback_disallowed_email(client, invalid_github_user, oauth_stat
 
 
 def test_admin_cookie_callback_disallowed_email(
-    client, invalid_github_user, oauth_state
+    client, invalid_github_user, cookie_oauth_state
 ):
     """Forbidden error raised when user email returned does not match Admin email regex even with cookies"""
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get(
-            f"/auth/app/github/callback?code=test&state={oauth_state}"
+            f"/auth/app/github/callback?code=test&state={cookie_oauth_state}",
+            allow_redirects=False,
         )
 
         got = response.json()
@@ -180,17 +190,19 @@ def test_chalmers_callback(client, chalmers_user, oauth_state):
         assert is_valid_jwt(got["access_token"])
 
 
-def test_chalmers_cookie_callback(client, chalmers_user, oauth_state):
+def test_chalmers_cookie_callback(client, chalmers_user, cookie_oauth_state):
     """Chalmers' users can be redirected to /auth/app/chalmers/callback to get their cookies"""
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get(
-            f"/auth/app/chalmers/callback?code=test&state={oauth_state}"
+            f"/auth/app/chalmers/callback?code=test&state={cookie_oauth_state}",
+            allow_redirects=False,
         )
 
-        got = response.json()
-        assert response.status_code == 200
-        assert is_valid_jwt(got["access_token"])
+        assert response.headers["location"] == TEST_NEXT_COOKIE_URL
+        assert response.status_code == 307
+        access_token = _get_token_from_cookie(response)
+        assert is_valid_jwt(access_token)
 
 
 def test_chalmers_callback_disallowed_email(client, invalid_chalmers_user, oauth_state):
@@ -205,13 +217,14 @@ def test_chalmers_callback_disallowed_email(client, invalid_chalmers_user, oauth
 
 
 def test_chalmers_cookie_callback_disallowed_email(
-    client, invalid_chalmers_user, oauth_state
+    client, invalid_chalmers_user, cookie_oauth_state
 ):
     """Forbidden error raised when user email returned does not match Chalmers email regex even with cookies"""
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get(
-            f"/auth/app/chalmers/callback?code=test&state={oauth_state}"
+            f"/auth/app/chalmers/callback?code=test&state={cookie_oauth_state}",
+            allow_redirects=False,
         )
 
         got = response.json()
@@ -231,18 +244,20 @@ def test_puhuri_callback(client, puhuri_user, oauth_state):
         assert is_valid_jwt(got["access_token"])
 
 
-def test_puhuri_cookie_callback(client, puhuri_user, oauth_state):
+def test_puhuri_cookie_callback(client, puhuri_user, cookie_oauth_state):
     """Puhuri users can be redirected to /auth/app/puhuri/callback to get their cookies"""
     """Any random partner users can authorize at /auth/{partner}/authorize"""
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get(
-            f"/auth/app/puhuri/callback?code=test&state={oauth_state}"
+            f"/auth/app/puhuri/callback?code=test&state={cookie_oauth_state}",
+            allow_redirects=False,
         )
 
-        got = response.json()
-        assert response.status_code == 200
-        assert is_valid_jwt(got["access_token"])
+        assert response.headers["location"] == TEST_NEXT_COOKIE_URL
+        assert response.status_code == 307
+        access_token = _get_token_from_cookie(response)
+        assert is_valid_jwt(access_token)
 
 
 def test_puhuri_callback_disallowed_email(client, invalid_puhuri_user, oauth_state):
@@ -257,13 +272,14 @@ def test_puhuri_callback_disallowed_email(client, invalid_puhuri_user, oauth_sta
 
 
 def test_puhuri_cookie_callback_disallowed_email(
-    client, invalid_puhuri_user, oauth_state
+    client, invalid_puhuri_user, cookie_oauth_state
 ):
     """Forbidden error raised when user email returned does not match Puhuri email regex even with cookies"""
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get(
-            f"/auth/app/puhuri/callback?code=test&state={oauth_state}"
+            f"/auth/app/puhuri/callback?code=test&state={cookie_oauth_state}",
+            allow_redirects=False,
         )
 
         got = response.json()
@@ -652,3 +668,8 @@ def test_app_token_of_unallocated_projects_fails(
 
         assert response.status_code == 403
         assert got == expected
+
+
+def _get_token_from_cookie(resp: httpx.Response) -> Optional[str]:
+    """Extracts the acces token from the cookie"""
+    return _AUTH_COOKIE_REGEX.match(resp.headers["set-cookie"]).group(1)

@@ -44,6 +44,7 @@ from tests._utils.fixtures import load_json_fixture
 _PUHURI_OPENID_CONFIG = load_json_fixture("puhuri_openid_config.json")
 PROJECT_LIST = load_json_fixture("project_list.json")
 APP_TOKEN_LIST = load_json_fixture("app_token_list.json")
+TEST_NEXT_COOKIE_URL = "https://testserver/"
 
 
 @pytest.fixture
@@ -175,6 +176,12 @@ def inserted_app_tokens(db) -> List[Dict[str, Any]]:
 def oauth_state() -> str:
     """The state to use to make oauth2 requests"""
     yield generate_state_token({}, secret=TEST_JWT_SECRET)
+
+
+@pytest.fixture
+def cookie_oauth_state() -> str:
+    """The state to use to make oauth2 requests when using cookies"""
+    yield generate_state_token({"next": TEST_NEXT_COOKIE_URL}, secret=TEST_JWT_SECRET)
 
 
 @pytest.fixture

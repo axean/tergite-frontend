@@ -30,7 +30,7 @@ TEST_PUHURI_EMAIL_REGEX = "^.*@example\.se$"
 TEST_PUHURI_ROLES = "user"
 TEST_PUHURI_COOKIE_REDIRECT_URI = "http://testserver/auth/app/puhuri/callback"
 
-TEST_COOKIE_DOMAIN = "example.com"
+TEST_COOKIE_DOMAIN = "testserver"
 TEST_COOKIE_NAME = "some-cookie"
 
 
