@@ -13,6 +13,8 @@ export namespace API {
 
 	export type ErrorMessage = { detail: string };
 
+	export type StatusMessage = { message: string };
+
 	export namespace Response {
 		export type Authorize = {
 			authorization_url: string;

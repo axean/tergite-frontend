@@ -1,17 +1,34 @@
 'use client';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import NavItem from './components/NavItem';
 import Logo from './components/Logo';
 import useSWR from 'swr';
-import { fetcher } from '@/service/browser';
+import { fetcher, post } from '@/service/browser';
 import { API } from '@/types';
+import NavBtn from './components/NavBtn';
+import { redirect } from 'next/navigation';
+import { errors } from '@/constants';
 
 const Navbar = ({}: Props) => {
-	const { data: user, error } = useSWR('/api/me', fetcher<API.User>);
+	const { data: user, error, mutate } = useSWR('/api/me', fetcher<API.User>);
 	const isAdmin = useMemo(() => user?.roles.includes(API.UserRole.ADMIN), [user]);
 
+	const handleLogout = useCallback(
+		async (ev: Event) => {
+			ev.preventDefault();
+			try {
+				await post('/api/logout');
+				await mutate(undefined, { revalidate: false });
+				return redirect('/');
+			} catch (error) {
+				console.error(error);
+			}
+		},
+		[mutate]
+	);
+
 	useEffect(() => {
-		if (error) {
+		if (error && error.message !== errors.UNAUTHENTICATED) {
 			console.error(error);
 		}
 	}, [error]);
@@ -33,7 +50,7 @@ const Navbar = ({}: Props) => {
 					{<NavItem text='Home' link='/' />}
 					{isAdmin && <NavItem text='Projects' link='/projects' />}
 					{user && <NavItem text='App tokens' link='/app-tokens' />}
-					{user && <NavItem text='Logout' link='/logout' />}
+					{user && <NavBtn text='Logout' onClick={handleLogout} />}
 					{!user && <NavItem text='Login' link='/login' />}
 				</ul>
 			</nav>
