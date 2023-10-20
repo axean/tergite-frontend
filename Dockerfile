@@ -31,6 +31,12 @@ FROM nginx:alpine
 # Copy the local nginx configuration folder
 ENV WEBGUI_ENDPOINT="http://$host$request_uri"
 ENV MSS_ENDPOINT="http://$host$request_uri"
+ENV API_BASE_URL=https://example.com
+ENV JWT_SECRET="some-secret"
+ENV COOKIE_NAME=tergiteauth
+ENV OAUTH_REDIRECT_URI=""
+ENV JWT_AUDIENCE="fastapi-users:auth"
+ENV JWT_ALGORITHM="HS256"
 
 COPY nginx /etc/nginx
 # Set the working directory to the default nginx html directory

@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: { provider: string } }) {
 	const provider = params.provider;
-	const redirectUrl = process.env.OAUTH_REDIRECT_URI || '/';
+	const host = request.headers.get('host');
+	const redirectUrl = process.env.OAUTH_REDIRECT_URI || `http://${host}`;
 	const nextUrl = encodeURI(redirectUrl);
 	const authorizeUrl = `${process.env.API_BASE_URL}/auth/app/${provider}/authorize?next=${nextUrl}`;
 
