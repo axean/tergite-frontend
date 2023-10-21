@@ -7,20 +7,14 @@ const defaultClassName =
 
 export default function NavItem({ text, link }: Props) {
 	const pathname = usePathname();
-	const isActive = useMemo(() => pathname == link, [pathname]);
+	const isActive = useMemo(() => pathname == link, [pathname, link]);
 	const className = useMemo(
 		() => `${defaultClassName} ${isActive ? 'text-white bg-west-coast' : ''}`,
 		[isActive]
 	);
 	return (
 		<li className='flex items-center mx-2'>
-			<NextLink
-				href={link}
-				passHref
-				legacyBehavior
-				aria-disabled={isActive}
-				aria-active={isActive}
-			>
+			<NextLink href={link} passHref legacyBehavior aria-disabled={isActive}>
 				<div className={className}>{text}</div>
 			</NextLink>
 		</li>

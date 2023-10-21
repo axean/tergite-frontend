@@ -1,3 +1,4 @@
+import { Tergite } from '@/types';
 import ServiceLink from './components/ServiceLink';
 
 export default function MainSection({ text, services }: Props) {

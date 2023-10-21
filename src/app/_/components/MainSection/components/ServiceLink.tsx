@@ -1,3 +1,5 @@
+import { Tergite } from '@/types';
+
 export default function ServiceLink({ href, text }: Tergite.ServiceLinkInfo) {
 	return (
 		<a
