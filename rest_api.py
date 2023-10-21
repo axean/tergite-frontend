@@ -34,13 +34,21 @@ BCC_MACHINE_ROOT_URL = settings.BCC_MACHINE_ROOT_URL
 DB_MACHINE_ROOT_URL = settings.DB_MACHINE_ROOT_URL
 DB_NAME = settings.DB_NAME
 
-
-# application
-app = FastAPI(
+# fastapi settings
+app_kwargs = dict(
     title="Main Service Server",
     description="A frontend to all our quantum backends",
-    version="0.0.1",
+    version="0.1.3",
 )
+if settings.APP_SETTINGS.lower() != "development":
+    app_kwargs["docs_url"] = None
+    app_kwargs["redoc_url"] = None
+    app_kwargs["openapi_url"] = None
+
+
+# application
+app = FastAPI(**app_kwargs)
+
 
 root_router = APIRouter(tags=["root"])
 
