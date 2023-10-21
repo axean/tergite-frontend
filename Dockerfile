@@ -40,6 +40,13 @@ ENV PUHURI_ROLES="user"
 ENV JWT_SECRET=""
 ENV JWT_TTL=3600
 
+# Some other optional variables can be set e.g.
+# ENV COOKIE_DOMAIN
+# ENV COOKIE_NAME
+# ENV TERGITE_COOKIE_REDIRECT_URI
+# ENV CHALMERS_COOKIE_REDIRECT_URI
+# ENV PUHURI_COOKIE_REDIRECT_URI
+
 EXPOSE 80
 
 CMD uvicorn --host 0.0.0.0 --port $MSS_PORT rest_api:app --proxy-headers
