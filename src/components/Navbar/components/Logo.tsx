@@ -10,6 +10,7 @@ export default function Logo({ src }: Props) {
 			href='/'
 		>
 			<Image
+				data-cy-logo-img
 				alt='Chalmers logo'
 				loading='lazy'
 				width='135'

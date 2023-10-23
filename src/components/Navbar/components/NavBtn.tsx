@@ -4,7 +4,7 @@ const className =
 export default function NavBtn({ text, onClick }: Props) {
 	return (
 		<li className='flex items-center mx-2'>
-			<button className={className} onClick={onClick}>
+			<button data-cy-nav-btn className={className} onClick={onClick}>
 				{text}
 			</button>
 		</li>
