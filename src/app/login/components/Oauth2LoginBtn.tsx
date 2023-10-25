@@ -7,7 +7,10 @@ export default function Oauth2LoginBtn({ provider, logo }: Props) {
 	const label = useMemo(() => `Login with ${provider}`, [provider]);
 	return (
 		<NextLink href={href} passHref legacyBehavior className='block'>
-			<div className='grid grid-cols-3 h-20 w-96 cursor-pointer bg-white hover:bg-west-coast font-semibold hover:text-white py-2 px-7 border border-west-coast-300 hover:border-transparent rounded gap-2'>
+			<div
+				data-cy-login-with={provider}
+				className='grid grid-cols-3 h-20 w-96 cursor-pointer bg-white hover:bg-west-coast font-semibold hover:text-white py-2 px-7 border border-west-coast-300 hover:border-transparent rounded gap-2'
+			>
 				<span className='h-full col-span-2 capitalize flex items-center border-r border-west-coast-300'>
 					{label}
 				</span>

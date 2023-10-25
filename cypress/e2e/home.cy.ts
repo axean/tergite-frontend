@@ -1,9 +1,8 @@
 import meResponses from '../fixtures/meResponses.json';
 import { API } from '../../src/types';
-import utils from './utils';
+import utils from '../../utils';
 
 meResponses.forEach((resp) => {
-	utils.loadEnv();
 	const isNoAuth = resp.statusCode == 403;
 	const user = resp.body as API.User;
 	const id = user.id ?? 'anonymous';
@@ -11,6 +10,10 @@ meResponses.forEach((resp) => {
 	const isNormalUser = isAdmin === false;
 
 	describe(`home page for user '${id}'`, () => {
+		before(() => {
+			cy.readFile('./.env.test', 'utf-8').then((str) => utils.loadEnvFromString(str));
+		});
+
 		beforeEach(() => {
 			if (user.id) {
 				cy.wrap(utils.generateJwt(user)).then((jwtToken) => {

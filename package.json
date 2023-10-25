@@ -8,8 +8,11 @@
 		"start": "next start",
 		"lint": "next lint",
 		"format": "prettier --write \"{src,cypress}/**/*.{js,jsx,ts,tsx}\"",
+		"mocks": "mocks-server",
+		"mocks:no-cli": "mocks-server --no-plugins.inquirerCli.enabled",
 		"start-test": "NODE_ENV=test next start",
-		"build-and-start-test-server": "NODE_ENV=test npm run build && start-server-and-test start-test http://0.0.0.0:3000",
+		"mocks:no-cli_and_start:app": "start-server-and-test mocks:no-cli http://0.0.0.0:8002 -- \"start-test\"",
+		"build-and-start-test-server": "NODE_ENV=test npm run build && start-server-and-test mocks:no-cli_and_start:app http://0.0.0.0:3000",
 		"e2e": "npm run build-and-start-test-server -- \"cypress run\"",
 		"visual-e2e": "npm run build-and-start-test-server -- \"cypress open\""
 	},
@@ -28,8 +31,10 @@
 		"typescript": "5.1.6"
 	},
 	"devDependencies": {
+		"@mocks-server/cypress-commands": "^6.1.1",
+		"@mocks-server/main": "^4.1.0",
 		"@types/jsonwebtoken": "^9.0.4",
-		"cypress": "^12.17.4",
+		"cypress": "^13.3.2",
 		"eslint": "8.47.0",
 		"eslint-config-next": "13.4.19",
 		"eslint-config-prettier": "^9.0.0",
@@ -39,3 +44,4 @@
 		"start-server-and-test": "^2.0.0"
 	}
 }
+
