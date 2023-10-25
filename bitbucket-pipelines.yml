@@ -33,7 +33,7 @@ pipelines:
             - step:
                   name: Build nextjs app
                   image: node:18-alpine
-                caches:
+                  caches:
                       - node
                   script:
                       - apk add --no-cache libc6-compat
