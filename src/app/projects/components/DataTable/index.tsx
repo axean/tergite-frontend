@@ -10,10 +10,7 @@ export default function DataTable({ titles, data, actions, getKey }: Props) {
 	const fields = useMemo(() => titles.map((v) => v.field), [titles]);
 
 	return (
-		<section
-			id='data-table'
-			className='bg-slate-50 w-full border border-west-coast-300 rounded '
-		>
+		<section className='bg-slate-50 w-full border border-west-coast-300 rounded'>
 			<table className='table-fixed w-full border-collapse text-sm'>
 				<TableHeader data={headerData} />
 				<TableBody getKey={getKey} fields={fields} data={data} actions={actions} />

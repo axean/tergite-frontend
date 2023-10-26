@@ -12,11 +12,11 @@ import Loading from '@/components/Loading';
 const titles = [{ field: 'ext_id', className: 'w-4/5', label: 'ExternalID' }];
 
 const actions = [
-	{ getLabel: () => 'Edit', getLink: ({ ext_id }: API.Project) => `/projects/${ext_id}/edit` },
-	{ getLabel: () => 'Delete', getLink: ({ ext_id }: API.Project) => `/projects/${ext_id}/del` }
+	{ getLabel: () => 'Edit', getLink: ({ id }: API.Project) => `/projects/${id}/edit` },
+	{ getLabel: () => 'Delete', getLink: ({ id }: API.Project) => `/projects/${id}/del` }
 ];
 
-const getItemKey = ({ ext_id }: API.Project) => ext_id;
+const getItemKey = ({ id }: API.Project) => id;
 
 export default function Projects() {
 	const { data, error, isLoading } = useSWR(
@@ -36,7 +36,7 @@ export default function Projects() {
 				<DataTable titles={titles} actions={actions} data={data.data} getKey={getItemKey} />
 			)}
 
-			{error && <ErrorText text={error} />}
+			{error && <ErrorText text={error.message} />}
 		</div>
 	);
 }

@@ -16,6 +16,7 @@ export namespace API {
 	export type StatusMessage = { message: string };
 
 	export interface Project {
+		id: string;
 		ext_id: string;
 		user_ids?: string[];
 		qpu_seconds: number;

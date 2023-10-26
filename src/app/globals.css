@@ -36,6 +36,11 @@ body {
 	border-color: rgb(179 193 203 / var(--tw-border-opacity));
 }
 
+.border-west-coast-200 {
+	--tw-border-opacity: 0.5;
+	border-color: rgb(179 193 203 / var(--tw-border-opacity));
+}
+
 .hover\:bg-west-coast:hover {
 	--tw-bg-opacity: 0.7;
 	background-color: rgb(0 48 80 / var(--tw-bg-opacity));

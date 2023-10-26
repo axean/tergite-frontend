@@ -46,3 +46,26 @@ export async function post<T>(input: RequestInfo | URL, { arg }: { arg?: T } = {
 
 	return await resp.json();
 }
+
+/**
+ * Deletes data via an HTTP request
+ *
+ * @param input - the same as fetch
+ * @param init - the value sent by the useSWRMutation
+ * @returns the item got from the request
+ */
+export async function destroyer(input: RequestInfo | URL, { arg }: { arg?: any } = {}) {
+	const resp = await fetch(input, { method: 'DELETE', cache: 'no-store' });
+
+	if (!resp.ok) {
+		try {
+			const data = await resp.json();
+			const { detail = 'unexpected server error' } = data;
+			throw new Error(detail);
+		} catch (error) {
+			throw new Error('unexpected server error');
+		}
+	}
+
+	return await resp.json();
+}
