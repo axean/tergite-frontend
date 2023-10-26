@@ -36,4 +36,3 @@ export interface ActionProps {
 export interface DataRecord {
 	[key: string]: any;
 }
-

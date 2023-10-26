@@ -10,4 +10,3 @@ export default function DataCell({ children, className = '' }: PropsWithChildren
 interface Props {
 	className?: string;
 }
-

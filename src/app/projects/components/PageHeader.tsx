@@ -12,4 +12,3 @@ export default function PageHeader({ heading, children }: PropsWithChildren<Prop
 interface Props {
 	heading: string;
 }
-

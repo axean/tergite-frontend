@@ -22,4 +22,3 @@ interface Record {
 	label: string;
 	className?: string;
 }
-
