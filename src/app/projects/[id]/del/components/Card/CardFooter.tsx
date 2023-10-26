@@ -8,4 +8,3 @@ export function CardFooter({ children, className = '' }: PropsWithChildren<Props
 interface Props {
 	className?: string;
 }
-

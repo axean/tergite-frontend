@@ -14,4 +14,3 @@ export default function Card({ children, className = '' }: PropsWithChildren<Pro
 interface Props {
 	className?: string;
 }
-

@@ -33,4 +33,3 @@ interface Props {
 	labelClassName?: string;
 	inputClassName?: string;
 }
-
