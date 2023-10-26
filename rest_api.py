@@ -91,6 +91,8 @@ def create_new_documents(collection: str, *, unique_key: str = None) -> callable
                     if not await col.count_documents({unique_key: doc[unique_key]}):
                         # then insert that document
                         filtered_documents.append(doc)
+                    else:
+                        print(f"document with '{unique_key}':'{doc[unique_key]}' is already present in the '{collection}' collection")
                 else:
                     filtered_documents.append(doc)
 
@@ -136,7 +138,7 @@ def update_documents(collection: str) -> callable:
                 and (result_up.matched_count == result_lu.matched_count)
             ):
                 print(
-                    f"Updated {result_up.modified_count} document(s) in the '{collection}' collection."
+                    f"Updated {result_lu.modified_count} document(s) in the '{collection}' collection."
                 )
                 return response_content
             else:
@@ -244,7 +246,7 @@ def create_job_document(db: MongoDbDep, backend: str = "pingu"):
 
 
 @app.put("/backends")
-@create_new_documents(collection="backends", unique_key="name")
+@create_new_documents(collection="backend_test", unique_key="name")
 def create_backend_document(db: MongoDbDep, backend_dict: dict):
     if "name" not in backend_dict.keys():
         return [], "Backend needs to have a name"
@@ -276,6 +278,12 @@ def create_rng_documents(db: MongoDbDep, documents: list):
 
 
 # ------------ UPDATE OPERATIONS ------------ #
+
+
+@app.put("/backend/update/{backend_name}")
+@update_documents(collection="backend_test")
+def update_backend_document(db: MongoDbDep, backend_name, items_to_update: dict):
+    return {"name": str(backend_name)}, {"$set":items_to_update}, "OK"
 
 
 @app.put("/jobs/{job_id}/result")
