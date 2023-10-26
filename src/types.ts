@@ -15,10 +15,22 @@ export namespace API {
 
 	export type StatusMessage = { message: string };
 
+	export interface Project {
+		ext_id: string;
+		user_ids?: string[];
+		qpu_seconds: number;
+	}
+
 	export namespace Response {
 		export type Authorize = {
 			authorization_url: string;
 		};
+
+		export interface Paginated<T> {
+			skip: number;
+			limit: number | null;
+			data: T[];
+		}
 	}
 }
 
