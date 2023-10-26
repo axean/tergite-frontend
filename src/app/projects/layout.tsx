@@ -7,7 +7,7 @@ const swrFallback = {
 	'/api/me': undefined
 };
 
-export default function LoginLayout({ children }: { children: React.ReactNode }) {
+export default function ProjectsLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<SWRProvider fallback={swrFallback}>
 			<div className='h-full w-full min-h-screen flex flex-col'>
