@@ -12,7 +12,7 @@ export default function LoginLayout({ children }: { children: React.ReactNode })
 		<SWRProvider fallback={swrFallback}>
 			<div className='h-full w-full min-h-screen flex flex-col'>
 				<Navbar />
-				<div className='flex flex-1 w-4/5 mx-auto max-w-screen-2xl my-4 py-5 sm:my-28 sm:py-7 lg:py-10'>
+				<div className='flex flex-1 w-4/5 mx-auto max-w-screen-2xl my-4 py-5 sm:my-10 sm:py-7 lg:py-10'>
 					{children}
 				</div>
 				<MiniFooter />

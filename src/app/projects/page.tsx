@@ -10,7 +10,7 @@ import ErrorText from '@/components/ErrorText';
 import Loading from '@/components/Loading';
 import useSWRImmutable from 'swr/immutable';
 
-const titles = [{ field: 'ext_id', className: 'w-4/5', label: 'ExternalID' }];
+const titles = [{ field: 'ext_id', className: 'w-auto md:w-4/5', label: 'ExternalID' }];
 
 const actions = [
 	{ getLabel: () => 'Edit', getLink: ({ id }: API.Project) => `/projects/${id}/edit` },
