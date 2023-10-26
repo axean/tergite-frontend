@@ -5,7 +5,7 @@ import { destroyer, fetcher } from '@/service/browser';
 import { API } from '@/types';
 import { useParams, useRouter } from 'next/navigation';
 import { ChangeEvent, MouseEvent, useCallback, useMemo, useState } from 'react';
-import useSWR, { useSWRConfig } from 'swr';
+import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import useSWRImmutable from 'swr/immutable';
 
@@ -13,7 +13,6 @@ export default function DelProject() {
 	const { id } = useParams();
 	const router = useRouter();
 	const [isBtnEnabled, setIsBtnEnabled] = useState<boolean>(false);
-	const { mutate } = useSWRConfig();
 
 	const { data: config, error: configError } = useSWRImmutable<API.Config>(
 		`/api/config`,
@@ -42,16 +41,13 @@ export default function DelProject() {
 		async (ev: MouseEvent<HTMLButtonElement>) => {
 			ev.preventDefault();
 			try {
-				await trigger(config);
-				// await mutate(
-				// 	(key) => typeof key === 'string' && /\/(api|auth)(\/me)?\/projects/.test(key)
-				// );
+				await trigger();
 				router.back();
 			} catch (error) {
 				console.error(error);
 			}
 		},
-		[mutate, router, config]
+		[router]
 	);
 
 	return (
