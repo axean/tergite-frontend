@@ -22,6 +22,10 @@ export namespace API {
 		qpu_seconds: number;
 	}
 
+	export interface Config {
+		baseUrl: string;
+	}
+
 	export namespace Response {
 		export type Authorize = {
 			authorization_url: string;

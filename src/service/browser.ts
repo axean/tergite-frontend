@@ -11,7 +11,7 @@ export async function fetcher<T>(
 	input: RequestInfo | URL,
 	init?: RequestInit | undefined
 ): Promise<T> {
-	const resp = await fetch(input, init);
+	const resp = await fetch(input, { ...init, credentials: 'include' });
 
 	if (!resp.ok) {
 		const data = await resp.json();
@@ -32,7 +32,12 @@ export async function fetcher<T>(
 export async function post<T>(input: RequestInfo | URL, { arg }: { arg?: T } = {}) {
 	const body = JSON.stringify(arg ?? {});
 
-	const resp = await fetch(input, { method: 'POST', body, cache: 'no-store' });
+	const resp = await fetch(input, {
+		method: 'POST',
+		body,
+		cache: 'no-store',
+		credentials: 'include'
+	});
 
 	if (!resp.ok) {
 		try {
@@ -52,10 +57,14 @@ export async function post<T>(input: RequestInfo | URL, { arg }: { arg?: T } = {
  *
  * @param input - the same as fetch
  * @param init - the value sent by the useSWRMutation
- * @returns the item got from the request
+ * @returns the url that was used to make the request
  */
 export async function destroyer(input: RequestInfo | URL, { arg }: { arg?: any } = {}) {
-	const resp = await fetch(input, { method: 'DELETE', cache: 'no-store' });
+	const resp = await fetch(input, {
+		method: 'DELETE',
+		cache: 'no-store',
+		credentials: 'include'
+	});
 
 	if (!resp.ok) {
 		try {
@@ -67,5 +76,5 @@ export async function destroyer(input: RequestInfo | URL, { arg }: { arg?: any }
 		}
 	}
 
-	return await resp.json();
+	return { url: input };
 }

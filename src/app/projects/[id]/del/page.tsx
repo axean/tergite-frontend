@@ -7,6 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { ChangeEvent, MouseEvent, useCallback, useMemo, useState } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import useSWRMutation from 'swr/mutation';
+import useSWRImmutable from 'swr/immutable';
 
 export default function DelProject() {
 	const { id } = useParams();
@@ -14,21 +15,20 @@ export default function DelProject() {
 	const [isBtnEnabled, setIsBtnEnabled] = useState<boolean>(false);
 	const { mutate } = useSWRConfig();
 
-	const handleNotFound = useCallback(
-		(err: Error) => {
-			if (err?.message?.toLowerCase() === 'not found') {
-				router.back();
-			}
-		},
-		[router]
+	const { data: config, error: configError } = useSWRImmutable<API.Config>(
+		`/api/config`,
+		fetcher
 	);
-	const { trigger, isMutating, error } = useSWRMutation(`/api/projects/${id}`, destroyer);
+	const { trigger, isMutating, error } = useSWRMutation(
+		config ? `${config.baseUrl}/auth/projects/${id}` : null,
+		destroyer,
+		{ populateCache: false, revalidate: false }
+	);
 	const btnText = useMemo(() => (isMutating ? 'Deleting...' : 'Delete'), [isMutating]);
-	const {
-		data: project,
-		error: projectError,
-		mutate: mutateProject
-	} = useSWR<API.Project>(`/api/projects/${id}`, fetcher, { onError: handleNotFound });
+	const { data: project, error: projectError } = useSWR<API.Project>(
+		config ? `${config.baseUrl}/auth/projects/${id}` : null,
+		fetcher
+	);
 
 	const handleTextInput = useCallback(
 		(ev: ChangeEvent<HTMLInputElement>) => {
@@ -42,17 +42,16 @@ export default function DelProject() {
 		async (ev: MouseEvent<HTMLButtonElement>) => {
 			ev.preventDefault();
 			try {
-				await trigger();
-				await mutateProject(undefined, { revalidate: false });
-				await mutate(
-					(key) => typeof key === 'string' && /^\/api(\/me)?\/projects/.test(key)
-				);
+				await trigger(config);
+				// await mutate(
+				// 	(key) => typeof key === 'string' && /\/(api|auth)(\/me)?\/projects/.test(key)
+				// );
 				router.back();
 			} catch (error) {
 				console.error(error);
 			}
 		},
-		[mutate, router]
+		[mutate, router, config]
 	);
 
 	return (
@@ -69,6 +68,10 @@ export default function DelProject() {
 						onChange={handleTextInput}
 					/>
 				</label>
+
+				{configError && (
+					<ErrorText className='mb-5 py-5 px-10' text={configError.message} />
+				)}
 
 				{projectError && (
 					<ErrorText className='mb-5 py-5 px-10' text={projectError.message} />

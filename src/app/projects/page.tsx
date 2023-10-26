@@ -8,6 +8,7 @@ import { fetcher } from '@/service/browser';
 import useSWR from 'swr';
 import ErrorText from '@/components/ErrorText';
 import Loading from '@/components/Loading';
+import useSWRImmutable from 'swr/immutable';
 
 const titles = [{ field: 'ext_id', className: 'w-4/5', label: 'ExternalID' }];
 
@@ -19,8 +20,12 @@ const actions = [
 const getItemKey = ({ id }: API.Project) => id;
 
 export default function Projects() {
+	const { data: config, error: configError } = useSWRImmutable<API.Config>(
+		`/api/config`,
+		fetcher
+	);
 	const { data, error, isLoading } = useSWR(
-		'/api/projects',
+		config ? `${config.baseUrl}/auth/projects` : null,
 		fetcher<API.Response.Paginated<API.Project>>
 	);
 
@@ -36,6 +41,7 @@ export default function Projects() {
 				<DataTable titles={titles} actions={actions} data={data.data} getKey={getItemKey} />
 			)}
 
+			{configError && <ErrorText text={configError.message} />}
 			{error && <ErrorText text={error.message} />}
 		</div>
 	);
