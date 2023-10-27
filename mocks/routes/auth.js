@@ -145,7 +145,6 @@ module.exports = [
 						const data = projects
 							.filter(({ id }) => !deletedProjects[id])
 							.slice(skip, limit || undefined);
-						console.log({ projects, deletedProjects, data });
 						res.status(200);
 						res.json({ skip, limit, data });
 					}
