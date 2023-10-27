@@ -1,4 +1,4 @@
-const { SignJWT } = require('jose');
+const { SignJWT, jwtVerify } = require('jose');
 const path = require('path');
 const { readFileSync } = require('fs');
 
@@ -43,7 +43,7 @@ function loadEnvFromString(data) {
  * @returns {Promise<string>} the JSON web token
  */
 async function generateJwt(user) {
-	const payload = { sud: user.id, roles: [...user.roles] };
+	const payload = { sub: user.id, roles: [...user.roles] };
 	const jwtSecret = process.env.JWT_SECRET;
 	const secret = new TextEncoder().encode(jwtSecret);
 
@@ -58,9 +58,25 @@ async function generateJwt(user) {
 		.sign(secret);
 }
 
+/**
+ * Verified a given JWT token
+ * @param token - the token to be verified
+ * @returns - the verifiration result including the claims stored  in the payload
+ */
+async function verifyJwtToken(token) {
+	const jwtSecret = process.env.JWT_SECRET || '';
+	const audience = process.env.JWT_AUDIENCE || 'fastapi-users:auth';
+	const jwtAlgorithm = process.env.JWT_ALGORITHM || 'HS256';
+	const algorithms = [jwtAlgorithm];
+	const secret = new TextEncoder().encode(jwtSecret);
+
+	return await jwtVerify(token, secret, { audience, algorithms });
+}
+
 module.exports = {
 	loadEnvFromFile,
 	loadEnvFromString,
-	generateJwt
+	generateJwt,
+	verifyJwtToken
 };
 

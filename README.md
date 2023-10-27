@@ -79,7 +79,6 @@ docker run -p 3000:3000 --name landing-page \
 
 ## TODO
 
--   [ ] Tests for project list
 -   [ ] Tests for project deletion
 -   [ ] Implementation and tests for project creation
 -   [ ] Implementation and tests for project update

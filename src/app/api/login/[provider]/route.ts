@@ -6,7 +6,10 @@ export async function GET(request: Request, { params }: { params: { provider: st
 	const host = request.headers.get('host');
 	const redirectUrl = process.env.OAUTH_REDIRECT_URI || `http://${host}`;
 	const nextUrl = encodeURI(redirectUrl);
-	const authorizeUrl = `${process.env.API_BASE_URL}/auth/app/${provider}/authorize?next=${nextUrl}`;
+	// issue with fetch and localhost:
+	// https://github.com/vercel/next.js/issues/45315#issuecomment-1406579321
+	const baseUrl = process.env.API_BASE_URL?.replace('localhost', '127.0.0.1');
+	const authorizeUrl = `${baseUrl}/auth/app/${provider}/authorize?next=${nextUrl}`;
 
 	try {
 		const response = await fetch(authorizeUrl, { cache: 'no-store' });

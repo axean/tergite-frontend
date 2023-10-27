@@ -4,7 +4,7 @@ import { API } from '@/types';
 import DataTable from './components/DataTable';
 import HeaderBtn from './components/HeaderBtn';
 import PageHeader from './components/PageHeader';
-import { fetcher } from '@/service/browser';
+import { fetcher, raise } from '@/service/browser';
 import useSWR from 'swr';
 import ErrorText from '@/components/ErrorText';
 import Loading from '@/components/Loading';
@@ -20,14 +20,14 @@ const actions = [
 const getItemKey = ({ id }: API.Project) => id;
 
 export default function Projects() {
-	const { data: config, error: configError } = useSWRImmutable<API.Config>(
-		`/api/config`,
-		fetcher
-	);
-	const { data, error, isLoading } = useSWR(
+	const { data: config, error: configErr } = useSWRImmutable<API.Config>(`/api/config`, fetcher);
+	configErr && raise(configErr);
+
+	const { data, isLoading, error } = useSWR(
 		config ? `${config.baseUrl}/auth/projects` : null,
 		fetcher<API.Response.Paginated<API.Project>>
 	);
+	error && raise(error);
 
 	return (
 		<div className='h-full w-full'>
@@ -40,9 +40,6 @@ export default function Projects() {
 			{data && (
 				<DataTable titles={titles} actions={actions} data={data.data} getKey={getItemKey} />
 			)}
-
-			{configError && <ErrorText text={configError.message} />}
-			{error && <ErrorText text={error.message} />}
 		</div>
 	);
 }

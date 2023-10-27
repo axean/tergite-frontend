@@ -9,7 +9,7 @@ import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import useSWRImmutable from 'swr/immutable';
 import TextInput from './components/TextInput';
-import Card, { CardBtn, CardFooter, CardHeader } from './components/Card';
+import Card, { CardBtn, CardFooter, CardHeader } from '../../../../components/Card';
 
 export default function DelProject() {
 	const { id } = useParams();
@@ -39,7 +39,7 @@ export default function DelProject() {
 			await mutator.trigger();
 			router && router.back();
 		},
-		[router, mutator.trigger]
+		[router, mutator]
 	);
 
 	return (

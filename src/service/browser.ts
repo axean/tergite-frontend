@@ -1,5 +1,7 @@
 /**Service functions focussing on the browser side */
 
+import { API } from '@/types';
+
 /**
  * Fetches data via an HTTP request
  *
@@ -14,9 +16,16 @@ export async function fetcher<T>(
 	const resp = await fetch(input, { ...init, credentials: 'include' });
 
 	if (!resp.ok) {
-		const data = await resp.json();
-		const { detail = 'unexpected server error' } = data;
-		throw new Error(detail);
+		const error: API.EnhancedError = new Error('unexpected server error');
+		error.status = resp.status;
+
+		try {
+			const data = await resp.json();
+			const { detail = 'unexpected server error' } = data;
+			error.message = detail;
+		} finally {
+			throw error;
+		}
 	}
 
 	return await resp.json();
@@ -40,12 +49,15 @@ export async function post<T>(input: RequestInfo | URL, { arg }: { arg?: T } = {
 	});
 
 	if (!resp.ok) {
+		const error: API.EnhancedError = new Error('unexpected server error');
+		error.status = resp.status;
+
 		try {
 			const data = await resp.json();
 			const { detail = 'unexpected server error' } = data;
-			throw new Error(detail);
-		} catch (error) {
-			throw new Error('unexpected server error');
+			error.message = detail;
+		} finally {
+			throw error;
 		}
 	}
 
@@ -67,14 +79,27 @@ export async function destroyer(input: RequestInfo | URL, { arg }: { arg?: any }
 	});
 
 	if (!resp.ok) {
+		const error: API.EnhancedError = new Error('unexpected server error');
+		error.status = resp.status;
+
 		try {
 			const data = await resp.json();
 			const { detail = 'unexpected server error' } = data;
-			throw new Error(detail);
-		} catch (error) {
-			throw new Error('unexpected server error');
+			error.message = detail;
+		} finally {
+			throw error;
 		}
 	}
 
 	return { url: input };
+}
+
+/**
+ * Raises or throws error
+ *
+ * This is a useful utility to reraise errors to be caught by error handlers
+ * @param err - the error to raise
+ */
+export function raise(err: API.EnhancedError) {
+	throw err;
 }

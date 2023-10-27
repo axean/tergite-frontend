@@ -7,10 +7,12 @@ export default function TableBody({ fields, actions, getKey, data }: Props) {
 			{data.map((item) => (
 				<tr key={getKey(item)}>
 					{fields.map((field) => (
-						<DataCell key={field}>{item[field]}</DataCell>
+						<DataCell key={field} dataCyDataCell={`${getKey(item)}-${field}`}>
+							{item[field]}
+						</DataCell>
 					))}
 
-					<DataCell>
+					<DataCell dataCyDataCell={`${getKey(item)}--action`}>
 						{actions.map(({ getLabel, getLink }, index) => (
 							<ActionBtn key={index} text={getLabel(item)} link={getLink(item)} />
 						))}

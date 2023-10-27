@@ -26,6 +26,8 @@ export namespace API {
 		baseUrl: string;
 	}
 
+	export type EnhancedError = Error & { status?: number };
+
 	export namespace Response {
 		export type Authorize = {
 			authorization_url: string;

@@ -6,12 +6,13 @@ import useSWR from 'swr';
 import { fetcher, post } from '@/service/browser';
 import { API } from '@/types';
 import NavBtn from './components/NavBtn';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { errors } from '@/constants';
 
 const Navbar = ({}: Props) => {
 	const { data: user, error, mutate } = useSWR('/api/me', fetcher<API.User>);
 	const isAdmin = useMemo(() => user?.roles.includes(API.UserRole.ADMIN), [user]);
+	const { push } = useRouter();
 
 	const handleLogout = useCallback(
 		async (ev: Event) => {
@@ -19,12 +20,12 @@ const Navbar = ({}: Props) => {
 			try {
 				await post('/api/logout');
 				await mutate(undefined, { revalidate: false });
-				return redirect('/');
+				push('/');
 			} catch (error) {
 				console.error(error);
 			}
 		},
-		[mutate]
+		[mutate, push]
 	);
 
 	useEffect(() => {
