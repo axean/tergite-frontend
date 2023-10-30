@@ -20,7 +20,6 @@ export default function DelProject() {
 
 	const swrKey = configGetter.data ? `${configGetter.data.baseUrl}/auth/projects/${id}` : null;
 	const mutator = useSWRMutation(swrKey, destroyer, { populateCache: false, revalidate: false });
-	mutator.error && console.error({ err: mutator.error });
 	mutator.error && raise(mutator.error);
 
 	const getter = useSWR<API.Project>(swrKey, fetcher);
@@ -42,33 +41,39 @@ export default function DelProject() {
 		async (ev: MouseEvent<HTMLButtonElement>) => {
 			ev.preventDefault();
 			await mutator.trigger();
-			router && router.back();
+			if (window?.history?.state?.idx > 0) {
+				router && router.back();
+			} else {
+				router && router.push('/projects');
+			}
 		},
 		[router, mutator]
 	);
 
 	return (
 		<div className='flex flex-1 justify-center items-center'>
-			<Card>
-				<CardHeader title={`Delete Project '${getter.data?.ext_id}'?`} />
+			{getter.data && (
+				<Card>
+					<CardHeader title={`Delete Project '${getter.data.ext_id}'?`} />
 
-				<TextInput
-					label={`Confirm project's external ID '${getter.data?.ext_id}'`}
-					onChange={handleTextInput}
-					labelClassName='after:text-red-500'
-					inputClassName='focus:border-sky-500 focus:ring-sky-500'
-					required
-				/>
-
-				<CardFooter className='flex justify-end'>
-					<CardBtn
-						label={btnText}
-						disabled={!isBtnEnabled || mutator.isMutating}
-						onClick={handleBtnClick}
-						className='bg-red-500 text-white hover:bg-red-300 border-red-900 disabled:bg-red-300'
+					<TextInput
+						label={`Confirm project's external ID '${getter.data.ext_id}'`}
+						onChange={handleTextInput}
+						labelClassName='after:text-red-500'
+						inputClassName='focus:border-sky-500 focus:ring-sky-500'
+						required
 					/>
-				</CardFooter>
-			</Card>
+
+					<CardFooter className='flex justify-end'>
+						<CardBtn
+							label={btnText}
+							disabled={!isBtnEnabled || mutator.isMutating}
+							onClick={handleBtnClick}
+							className='bg-red-500 text-white hover:bg-red-300 border-red-900 disabled:bg-red-300'
+						/>
+					</CardFooter>
+				</Card>
+			)}
 		</div>
 	);
 }

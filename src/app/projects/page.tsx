@@ -6,7 +6,6 @@ import HeaderBtn from './components/HeaderBtn';
 import PageHeader from './components/PageHeader';
 import { fetcher, raise } from '@/service/browser';
 import useSWR from 'swr';
-import ErrorText from '@/components/ErrorText';
 import Loading from '@/components/Loading';
 import useSWRImmutable from 'swr/immutable';
 

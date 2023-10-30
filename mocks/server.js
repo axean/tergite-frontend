@@ -22,13 +22,16 @@ app.use(audit());
 app.use(
 	cors({
 		origin: true,
-		methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH', 'OPTIONS'],
-		credentials: true,
-		preflightContinue: true
+		methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH', 'HEAD'],
+		credentials: true
 	})
 );
 
 app.use('/auth/projects*', (req, res, next) => {
+	if (req.method === 'OPTIONS') {
+		next();
+	}
+
 	const cookieName = process.env.COOKIE_NAME;
 	const accessToken = req.cookies[cookieName];
 
@@ -89,10 +92,19 @@ app.delete('/auth/projects/:id', (req, res) => {
 		res.status(404);
 		res.json({ detail: 'Not Found' });
 	} else {
-		mockDb.deleteProject(id);
-		res.status(204);
-		res.send();
+		// delay response to allow loader to be shown
+		setTimeout(() => {
+			mockDb.deleteProject(id);
+			res.status(204);
+			res.send();
+		}, 50);
 	}
+});
+
+// NOTE: this mutates the database. I am GET to avoid CORS issues
+app.get('/refreshed-db', (req, res) => {
+	mockDb.refresh();
+	res.json(mockDb);
 });
 
 app.get('/auth/projects', (req, res) => {

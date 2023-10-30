@@ -21,10 +21,8 @@ class MockDb {
 	 * Refreshes the mock database
 	 */
 	refresh() {
-		this.deletedProjects = {};
-		this.deletedUsers = {};
-		this.projects = projects;
-		this.users = users;
+		clearObj(this.deletedProjects);
+		clearObj(this.deletedUsers);
 	}
 
 	/**
@@ -56,6 +54,7 @@ class MockDb {
 	 * @returns {{id: string, ext_id: string, user_ids?: string[], qpu_seconds: number}} - the project to return
 	 */
 	getOneProject(id) {
+		console.log({ deletedProjects: this.deletedProjects });
 		return this.projects.filter(({ id: _id }) => id === _id && !this.deletedProjects[_id])[0];
 	}
 
@@ -69,6 +68,14 @@ class MockDb {
 	getOneUser(id) {
 		return this.users.filter(({ id: _id }) => id === _id && !this.deletedUsers[_id])[0];
 	}
+}
+
+/**
+ * Clears a given object
+ * @param {{[key: string]: any}} obj - the object to clear
+ */
+function clearObj(obj) {
+	for (var member in obj) delete obj[member];
 }
 
 /**
