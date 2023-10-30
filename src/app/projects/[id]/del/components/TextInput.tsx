@@ -12,11 +12,13 @@ export default function TextInput({
 	return (
 		<label className='block mb-5 px-10 py-5'>
 			<span
+				data-cy-label
 				className={`block text-lg font-medium text-slate-700 ${classForRequired} ${labelClassName}`}
 			>
 				{text}
 			</span>
 			<input
+				data-cy-text-input
 				type='text'
 				className={`mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none block w-full rounded-md sm:text-md focus:ring-1 ${inputClassName}`}
 				placeholder={placeholder}

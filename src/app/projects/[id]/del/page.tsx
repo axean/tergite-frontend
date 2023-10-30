@@ -1,7 +1,6 @@
 'use client';
 
-import ErrorText from '@/components/ErrorText';
-import { destroyer, fetcher } from '@/service/browser';
+import { destroyer, fetcher, raise } from '@/service/browser';
 import { API } from '@/types';
 import { useParams, useRouter } from 'next/navigation';
 import { ChangeEvent, MouseEvent, useCallback, useMemo, useState } from 'react';
@@ -17,9 +16,15 @@ export default function DelProject() {
 	const [isBtnEnabled, setIsBtnEnabled] = useState<boolean>(false);
 
 	const configGetter = useSWRImmutable<API.Config>(`/api/config`, fetcher);
+	configGetter.error && raise(configGetter.error);
+
 	const swrKey = configGetter.data ? `${configGetter.data.baseUrl}/auth/projects/${id}` : null;
 	const mutator = useSWRMutation(swrKey, destroyer, { populateCache: false, revalidate: false });
+	mutator.error && console.error({ err: mutator.error });
+	mutator.error && raise(mutator.error);
+
 	const getter = useSWR<API.Project>(swrKey, fetcher);
+	getter.error && raise(getter.error);
 
 	const { isMutating } = mutator;
 	const btnText = useMemo(() => (isMutating ? 'Deleting...' : 'Delete'), [isMutating]);
@@ -54,18 +59,6 @@ export default function DelProject() {
 					inputClassName='focus:border-sky-500 focus:ring-sky-500'
 					required
 				/>
-
-				{configGetter.error && (
-					<ErrorText className='mb-5 py-5 px-10' text={configGetter.error.message} />
-				)}
-
-				{getter.error && (
-					<ErrorText className='mb-5 py-5 px-10' text={getter.error.message} />
-				)}
-
-				{mutator.error && (
-					<ErrorText className='mb-5 py-5 px-10' text={mutator.error.message} />
-				)}
 
 				<CardFooter className='flex justify-end'>
 					<CardBtn

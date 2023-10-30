@@ -11,7 +11,17 @@ users.forEach((user) => {
 
 		providers.forEach((provider) => {
 			beforeEach(() => {
-				cy.mocksSetCollection(user.id);
+				if (user.id) {
+					const cookieName = process.env.USER_ID_COOKIE_NAME as string;
+					const domain = process.env.COOKIE_DOMAIN as string;
+
+					cy.setCookie(cookieName, user.id, {
+						domain,
+						httpOnly: true,
+						secure: false,
+						sameSite: 'lax'
+					});
+				}
 				cy.visit('http://localhost:3000/login');
 			});
 
