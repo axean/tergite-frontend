@@ -4,7 +4,7 @@
 # (C) Copyright Simon Genne, Arvid Holmqvist, Bashar Oumari, Jakob Ristner,
 #               Björn Rosengren, and Jakob Wik 2022 (BSc project)
 # (C) Copyright Fabian Forslund, Niklas Botö 2022
-# (C) Copyright Abdullah-Al Amin 2022
+# (C) Copyright Abdullah-Al Amin 2022, 2023
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -95,8 +95,9 @@ def create_new_documents(collection: str, *, unique_key: str = None) -> callable
                         print(f"document with '{unique_key}':'{doc[unique_key]}' is already present in the '{collection}' collection")
                 else:
                     filtered_documents.append(doc)
-
-                doc.update({"timelog": {"REGISTERED": new_timestamp()}})
+                
+                timestamp = new_timestamp()
+                doc.update({"timelog": {"REGISTERED": timestamp, "LAST_UPDATED":timestamp}})
 
             if len(filtered_documents):
                 result = await col.insert_many(filtered_documents)
@@ -254,6 +255,49 @@ def create_backend_document(db: MongoDbDep, backend_dict: dict):
     return [backend_dict], "OK"
 
 
+@app.put("/backends/{collection}")
+async def create_update_backend(db: MongoDbDep, collection: str, backend_dict: dict):
+    backend_col = db[collection]
+    backened_log = db["backend_log"]
+    doc = backend_dict
+    timestamp = new_timestamp()
+    doc.update({"timelog": {"REGISTERED": timestamp, "LAST_UPDATED":timestamp}}) 
+    #there is no document in collection with that key
+    if not await backend_col.find_one({}, {'name': doc['name']}):
+        # then insert that document
+        result = await backend_col.insert_one(doc)
+        if result.acknowledged: 
+            print(
+                f"Inserted '{doc['name']}' document into the '{collection}' collection."
+            )
+        else:
+            print(
+                f" Could not insert '{doc['name']}' document into the '{collection}' collection."
+            )
+    else:
+        print(f"document is already present in the '{collection}' collection")
+        # update the document anyway
+        result = await backend_col.update_one({"name": str(doc["name"])}, {"$set":doc})
+        if result.acknowledged: 
+            print(
+                f"Updated the '{doc['name']}' backend in '{collection}' collection"
+            )
+    # read the backend after any modification
+    current_backend =  await backend_col.find_one({'name':doc['name']})
+    del current_backend['_id']
+    # write for log
+    result = await backened_log.insert_one(current_backend)
+    if result.acknowledged: 
+            print(
+                f"Log created for the '{doc['name']}' backend in 'backend_log' collection"
+            )
+    else:
+        print(
+                f" Could not insert document into the 'backend_log' collection."
+            )
+    return "OK" 
+
+
 @app.post("/calibrations")
 @create_new_documents(collection="calibrations")
 def create_calibration_documents(db: MongoDbDep, documents: list):
@@ -280,7 +324,7 @@ def create_rng_documents(db: MongoDbDep, documents: list):
 # ------------ UPDATE OPERATIONS ------------ #
 
 
-@app.put("/backend/update/{backend_name}")
+@app.put("/backends/update/{backend_name}")
 @update_documents(collection="backend_test")
 def update_backend_document(db: MongoDbDep, backend_name, items_to_update: dict):
     return {"name": str(backend_name)}, {"$set":items_to_update}, "OK"
