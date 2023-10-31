@@ -4,7 +4,14 @@ import { API } from '../../src/types';
 import utils from '../../utils';
 import { testNavigation } from './navigation';
 
-testNavigation('http://localhost:3000/projects');
+testNavigation('http://localhost:3000/projects', {
+	init: () => {
+		cy.intercept('GET', `${process.env.API_BASE_URL}/auth/projects`).as('initialRequest');
+	},
+	postInit: () => {
+		cy.wait('@initialRequest');
+	}
+});
 
 meResponses.forEach((resp) => {
 	const isNoAuth = resp.statusCode == 403;
