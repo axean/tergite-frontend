@@ -7,8 +7,8 @@ import { ChangeEvent, MouseEvent, useCallback, useMemo, useState } from 'react';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import useSWRImmutable from 'swr/immutable';
-import TextInput from './components/TextInput';
-import Card, { CardBtn, CardFooter, CardHeader } from '../../../../components/Card';
+import { TextInput } from '@/components/Form';
+import Card, { CardBtn, CardFooter, CardHeader } from '@/components/Card';
 import Page from '@/components/Page';
 
 export default function DelProject() {

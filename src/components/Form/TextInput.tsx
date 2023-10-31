@@ -1,6 +1,7 @@
 import { ChangeEventHandler } from 'react';
 
-export default function TextInput({
+export function TextInput({
+	name = '',
 	label: text,
 	placeholder = '',
 	onChange,
@@ -18,6 +19,8 @@ export default function TextInput({
 				{text}
 			</span>
 			<input
+				required={required}
+				name={name}
 				data-cy-text-input
 				type='text'
 				className={`mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none block w-full rounded-md sm:text-md focus:ring-1 ${inputClassName}`}
@@ -28,6 +31,7 @@ export default function TextInput({
 	);
 }
 interface Props {
+	name?: string;
 	label: string;
 	placeholder?: string;
 	onChange: ChangeEventHandler<HTMLInputElement>;

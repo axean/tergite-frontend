@@ -2,7 +2,7 @@
 
 import { API } from '@/types';
 import DataTable from './components/DataTable';
-import HeaderBtn from './components/HeaderBtn';
+import HeaderLinkBtn from './components/HeaderLinkBtn';
 import PageHeader from './components/PageHeader';
 import { fetcher, raise } from '@/service/browser';
 import useSWR from 'swr';
@@ -32,7 +32,7 @@ export default function Projects() {
 	return (
 		<Page className='h-full w-full'>
 			<PageHeader heading='Projects'>
-				<HeaderBtn text='Create' link='/projects/create' />
+				<HeaderLinkBtn text='Create' link='/projects/create' />
 			</PageHeader>
 
 			{isLoading && <Loading />}
