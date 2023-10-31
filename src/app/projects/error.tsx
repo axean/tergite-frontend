@@ -2,6 +2,7 @@
 
 import Card, { CardBtn, CardFooter, CardHeader } from '@/components/Card';
 import ErrorText from '@/components/ErrorText';
+import Page from '@/components/Page';
 import type { API } from '@/types';
 import { useEffect } from 'react';
 
@@ -20,7 +21,7 @@ export default function Error({
 	const message = isUnauthorized ? 'Not Found' : error.message;
 
 	return (
-		<div data-cy-content className='h-full w-full flex flex-1 justify-center items-center'>
+		<Page className='h-full w-full flex flex-1 justify-center items-center'>
 			<Card>
 				<CardHeader title='Oops!' />
 				<ErrorText text={message} className='text-center font-semibold py-10 px-5' />
@@ -35,6 +36,6 @@ export default function Error({
 					</CardFooter>
 				)}
 			</Card>
-		</div>
+		</Page>
 	);
 }

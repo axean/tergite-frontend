@@ -1,3 +1,5 @@
+import Page from '@/components/Page';
+
 export default function AppTokens() {
-	return <div>App tokens</div>;
+	return <Page>App tokens</Page>;
 }

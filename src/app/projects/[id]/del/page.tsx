@@ -9,6 +9,7 @@ import useSWRMutation from 'swr/mutation';
 import useSWRImmutable from 'swr/immutable';
 import TextInput from './components/TextInput';
 import Card, { CardBtn, CardFooter, CardHeader } from '../../../../components/Card';
+import Page from '@/components/Page';
 
 export default function DelProject() {
 	const { id } = useParams();
@@ -51,7 +52,7 @@ export default function DelProject() {
 	);
 
 	return (
-		<div className='flex flex-1 justify-center items-center'>
+		<Page className='flex flex-1 justify-center items-center'>
 			{getter.data && (
 				<Card>
 					<CardHeader title={`Delete Project '${getter.data.ext_id}'?`} />
@@ -74,6 +75,6 @@ export default function DelProject() {
 					</CardFooter>
 				</Card>
 			)}
-		</div>
+		</Page>
 	);
 }

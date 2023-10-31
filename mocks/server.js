@@ -9,7 +9,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const { verifyJwtToken, loadEnvFromFile } = require('../utils');
 const { mockDb, createCookieHeader } = require('./utils');
-const audit = require('express-requests-logger');
+// const audit = require('express-requests-logger');
 
 // Load environment before everything else
 loadEnvFromFile('./.env.test');
@@ -18,7 +18,7 @@ const OAUTH_PROVIDER_URL = 'http://localhost:8002/oauth/callback';
 const app = express();
 
 app.use(cookieParser());
-app.use(audit());
+// app.use(audit());
 app.use(
 	cors({
 		origin: true,

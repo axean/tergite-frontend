@@ -5,8 +5,12 @@ import utils from '../../utils';
 /**
  * Utility to test the navigation of any path
  * @param path the path to visit
+ * @param options the options when running the function
  */
-export const testNavigation = (path: string) => {
+export const testNavigation = (
+	path: string,
+	{ init = () => {}, postInit = () => {} }: TestNavOptions = {}
+) => {
 	meResponses.forEach((resp) => {
 		const isNoAuth = resp.statusCode == 403;
 		const user = resp.body as API.User;
@@ -20,6 +24,8 @@ export const testNavigation = (path: string) => {
 			});
 
 			beforeEach(() => {
+				init();
+
 				if (user.id) {
 					cy.wrap(utils.generateJwt(user)).then((jwtToken) => {
 						const cookieName = process.env.COOKIE_NAME as string;
@@ -36,8 +42,12 @@ export const testNavigation = (path: string) => {
 
 				cy.visit(path);
 
+				cy.get('[data-cy-content]').as('page');
+
 				cy.get('[data-cy-nav-item]').as('navItems');
 				!isNoAuth && cy.get('[data-cy-nav-btn]').as('logoutBtn');
+
+				postInit();
 			});
 
 			isNoAuth &&
@@ -177,3 +187,14 @@ export const testNavigation = (path: string) => {
 		});
 	});
 };
+
+interface TestNavOptions {
+	/**
+	 * Function to run at the start of every beforeEach
+	 */
+	init?: () => void;
+	/**
+	 * Function to run at the end of every beforeEach
+	 */
+	postInit?: () => void;
+}

@@ -1,3 +1,5 @@
+import Page from '@/components/Page';
+
 export default function CreateProject() {
-	return <div>CreateProject</div>;
+	return <Page>CreateProject</Page>;
 }

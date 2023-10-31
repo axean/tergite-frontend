@@ -5,12 +5,13 @@ import Navbar from '@/components/Navbar';
 import { homeHeroText, homeMainContent, serviceLinks } from '../../constants';
 import Hero from './components/Hero';
 import MainSection from './components/MainSection';
+import Page from '@/components/Page';
 
 export default function Home() {
 	return (
 		<>
 			<Navbar />
-			<main className='w-full'>
+			<Page className='w-full'>
 				<Hero
 					title='Wallenberg Center for Quantum Technology'
 					subtitle='WACQT'
@@ -19,7 +20,7 @@ export default function Home() {
 					imgAlt='Quatum computer.'
 				/>
 				<MainSection text={homeMainContent} services={serviceLinks} />
-			</main>
+			</Page>
 			<Footer />
 		</>
 	);

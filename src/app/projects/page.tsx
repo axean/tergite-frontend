@@ -8,6 +8,7 @@ import { fetcher, raise } from '@/service/browser';
 import useSWR from 'swr';
 import Loading from '@/components/Loading';
 import useSWRImmutable from 'swr/immutable';
+import Page from '@/components/Page';
 
 const titles = [{ field: 'ext_id', className: 'w-auto md:w-4/5', label: 'ExternalID' }];
 
@@ -29,7 +30,7 @@ export default function Projects() {
 	error && raise(error);
 
 	return (
-		<div className='h-full w-full'>
+		<Page className='h-full w-full'>
 			<PageHeader heading='Projects'>
 				<HeaderBtn text='Create' link='/projects/create' />
 			</PageHeader>
@@ -39,6 +40,6 @@ export default function Projects() {
 			{data && (
 				<DataTable titles={titles} actions={actions} data={data.data} getKey={getItemKey} />
 			)}
-		</div>
+		</Page>
 	);
 }
