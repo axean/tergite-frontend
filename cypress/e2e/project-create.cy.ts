@@ -4,7 +4,7 @@ import { API } from '../../src/types';
 import utils from '../../utils';
 import { testNavigation } from './navigation';
 
-// testNavigation(`http://localhost:3000/projects/create`);
+testNavigation(`http://localhost:3000/projects/create`);
 
 meResponses.forEach((resp) => {
 	const isNoAuth = resp.statusCode == 403;
