@@ -85,7 +85,7 @@ meResponses.forEach((resp) => {
 							cy.get('[data-cy-action-btn]')
 								.eq(1)
 								.should('contain.text', 'Edit')
-								.should('have.attr', 'href', `/projects/${project.id}/del`);
+								.should('have.attr', 'href', `/projects/${project.id}/edit`);
 
 							cy.get('[data-cy-action-btn]')
 								.eq(2)
