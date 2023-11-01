@@ -199,21 +199,6 @@ def get_projects_router(
             status.HTTP_404_NOT_FOUND: {
                 "description": "The project does not exist.",
             },
-            status.HTTP_400_BAD_REQUEST: {
-                "model": ErrorModel,
-                "content": {
-                    "application/json": {
-                        "examples": {
-                            exc.ExtendedErrorCode.UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS: {
-                                "summary": "A project with this ext_id already exists.",
-                                "value": {
-                                    "detail": exc.ExtendedErrorCode.UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS
-                                },
-                            },
-                        }
-                    }
-                },
-            },
         },
     )
     async def update_project(
@@ -222,16 +207,10 @@ def get_projects_router(
         project=Depends(get_project_or_404),
         project_manager: ProjectAppTokenManager = Depends(get_project_manager),
     ):
-        try:
-            project = await project_manager.update(
-                project_update, project, safe=False, request=request
-            )
-            return schemas.model_validate(project_schema, project)
-        except exc.ProjectNotExists:
-            raise HTTPException(
-                status.HTTP_400_BAD_REQUEST,
-                detail=exc.ExtendedErrorCode.UPDATE_PROJECT_EXT_ID_ALREADY_EXISTS,
-            )
+        project = await project_manager.update(
+            project_update, project, safe=False, request=request
+        )
+        return schemas.model_validate(project_schema, project)
 
     @router.delete(
         "/{id}",
