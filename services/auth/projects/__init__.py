@@ -114,6 +114,7 @@ class ProjectBasedAuth:
         """Return a router for viewing current user's projects."""
         return routers.get_my_projects_router(
             get_project_manager=self.get_project_manager,
+            get_user_manager=self.get_user_manager,
             get_current_user_id=self.get_current_user_id,
             project_schema=ProjectRead,
         )
