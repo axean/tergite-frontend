@@ -6,6 +6,7 @@
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const { verifyJwtToken, loadEnvFromFile } = require('../utils');
 const { mockDb, createCookieHeader } = require('./utils');
@@ -18,6 +19,7 @@ const OAUTH_PROVIDER_URL = 'http://localhost:8002/oauth/callback';
 const app = express();
 
 app.use(cookieParser());
+app.use(bodyParser.json());
 // app.use(audit());
 app.use(
 	cors({
@@ -82,6 +84,20 @@ app.get('/auth/projects/:id', (req, res) => {
 		res.status(200);
 		res.json(data);
 	}
+});
+
+app.post('/auth/projects', (req, res) => {
+	// delay response to allow loader to be shown
+	setTimeout(() => {
+		try {
+			const data = mockDb.createProject(req.body);
+			res.status(201);
+			res.json(data);
+		} catch (error) {
+			res.status(error.status || 500);
+			res.json({ detail: error.message });
+		}
+	}, 50);
 });
 
 app.delete('/auth/projects/:id', (req, res) => {

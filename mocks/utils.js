@@ -3,8 +3,8 @@ const projects = require('../cypress/fixtures/projects.json');
 const users = require('../cypress/fixtures/users.json');
 
 class MockDb {
-	projects = projects;
-	users = users;
+	projects = [...projects];
+	users = [...users];
 	deletedProjects = {};
 	deletedUsers = {};
 
@@ -23,6 +23,8 @@ class MockDb {
 	refresh() {
 		clearObj(this.deletedProjects);
 		clearObj(this.deletedUsers);
+		this.projects = [...projects];
+		this.users = [...users];
 	}
 
 	/**
@@ -54,8 +56,36 @@ class MockDb {
 	 * @returns {{id: string, ext_id: string, user_emails?: string[], qpu_seconds: number}} - the project to return
 	 */
 	getOneProject(id) {
-		console.log({ deletedProjects: this.deletedProjects });
 		return this.projects.filter(({ id: _id }) => id === _id && !this.deletedProjects[_id])[0];
+	}
+
+	/**
+	 * Retrieves the project of the given external ID or undefined
+	 * if it doesnot exist
+	 *
+	 * @param {string} extId - the extId of the project to return
+	 * @returns {{id: string, ext_id: string, user_emails?: string[], qpu_seconds: number}} - the project to return
+	 */
+	getByExtId(extId) {
+		return this.getAllProjects().filter(({ ext_id }) => extId === ext_id)[0];
+	}
+
+	/**
+	 * Creates the project, returning it on completion. It fails if a project the same ext_id already exists
+	 *
+	 * @param {{ext_id: string, user_emails: string[], qpu_seconds: number}} payload - the project to create
+	 */
+	createProject(payload) {
+		const preExistingProject = this.getByExtId(payload.ext_id);
+		if (preExistingProject) {
+			const error = new Error('PROJECT_ALREADY_EXISTS');
+			error.status = 400;
+			throw error;
+		}
+
+		const newProject = { ...payload, id: `${Math.floor(Math.random() * 10000000)}` };
+		this.projects.push(newProject);
+		return newProject;
 	}
 
 	/**

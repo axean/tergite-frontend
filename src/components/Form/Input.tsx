@@ -14,7 +14,7 @@ export function Input({
 }: Props) {
 	const classForRequired = required ? "after:content-['*'] after:ml-0.5" : '';
 	return (
-		<label className='block mb-5 px-10 py-5'>
+		<label data-cy-input={text} className='block mb-5 px-10 py-5'>
 			<span
 				data-cy-label
 				className={`block text-lg font-medium text-slate-700 ${classForRequired} ${labelClassName}`}
@@ -27,7 +27,7 @@ export function Input({
 				disabled={disabled}
 				required={required}
 				name={name}
-				data-cy-text-input
+				data-cy-inner-input
 				className={`mt-1 px-3 py-2 bg-white disabled:bg-slate-100 disabled:text-slate-500 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none block w-full rounded-md sm:text-md focus:ring-1 ${inputClassName}`}
 				placeholder={placeholder}
 				onChange={onChange}

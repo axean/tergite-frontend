@@ -35,7 +35,7 @@ export default function EditProject() {
 				})
 				.catch(console.error);
 		},
-		[mutator, id, router]
+		[mutator, id, router, project]
 	);
 
 	const handleInputChange = useCallback(
