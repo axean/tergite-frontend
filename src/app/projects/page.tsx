@@ -11,6 +11,7 @@ import Page, { HeaderLinkBtn, PageHeader } from '@/components/Page';
 const titles = [{ field: 'ext_id', className: 'w-auto md:w-4/5', label: 'ExternalID' }];
 
 const actions = [
+	{ getLabel: () => 'View', getLink: ({ id }: API.Project) => `/projects/${id}` },
 	{ getLabel: () => 'Edit', getLink: ({ id }: API.Project) => `/projects/${id}/edit` },
 	{ getLabel: () => 'Delete', getLink: ({ id }: API.Project) => `/projects/${id}/del` }
 ];

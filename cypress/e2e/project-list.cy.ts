@@ -75,15 +75,20 @@ meResponses.forEach((resp) => {
 						);
 
 						cy.get(`[data-cy-data-cell=${project.id}--action]`).within(() => {
-							cy.get('[data-cy-action-btn]').should('have.length', 2);
+							cy.get('[data-cy-action-btn]').should('have.length', 3);
 
 							cy.get('[data-cy-action-btn]')
 								.eq(0)
-								.should('contain.text', 'Edit')
-								.should('have.attr', 'href', `/projects/${project.id}/edit`);
+								.should('contain.text', 'View')
+								.should('have.attr', 'href', `/projects/${project.id}`);
 
 							cy.get('[data-cy-action-btn]')
 								.eq(1)
+								.should('contain.text', 'Edit')
+								.should('have.attr', 'href', `/projects/${project.id}/del`);
+
+							cy.get('[data-cy-action-btn]')
+								.eq(2)
 								.should('contain.text', 'Delete')
 								.should('have.attr', 'href', `/projects/${project.id}/del`);
 						});
@@ -99,9 +104,19 @@ meResponses.forEach((resp) => {
 
 		isAdmin &&
 			projects.forEach((project) => {
-				it(`Project ${project.ext_id} 'Edit' buttons redirect to /projects/${project.id}/edit`, () => {
+				it(`Project ${project.ext_id} 'View' buttons redirect to /projects/${project.id}`, () => {
 					cy.get(`[data-cy-data-cell=${project.id}--action]`).within(() => {
 						cy.get('[data-cy-action-btn]').eq(0).click();
+						cy.url().should('eq', `http://localhost:3000/projects/${project.id}`);
+					});
+				});
+			});
+
+		isAdmin &&
+			projects.forEach((project) => {
+				it(`Project ${project.ext_id} 'Edit' buttons redirect to /projects/${project.id}/edit`, () => {
+					cy.get(`[data-cy-data-cell=${project.id}--action]`).within(() => {
+						cy.get('[data-cy-action-btn]').eq(1).click();
 						cy.url().should('eq', `http://localhost:3000/projects/${project.id}/edit`);
 					});
 				});
@@ -111,7 +126,7 @@ meResponses.forEach((resp) => {
 			projects.forEach((project) => {
 				it(`Project ${project.ext_id} 'Delete' buttons redirect to /projects/${project.id}/del`, () => {
 					cy.get(`[data-cy-data-cell=${project.id}--action]`).within(() => {
-						cy.get('[data-cy-action-btn]').eq(1).click();
+						cy.get('[data-cy-action-btn]').eq(2).click();
 						cy.url().should('eq', `http://localhost:3000/projects/${project.id}/del`);
 					});
 				});
