@@ -4,9 +4,9 @@ import Page, { HeaderLinkBtn, PageHeader } from '@/components/Page';
 import { fetcher, raise } from '@/service/browser';
 import { API } from '@/types';
 import useSWRImmutable from 'swr/immutable';
-import { PropsWithChildren } from 'react';
 import { useParams } from 'next/navigation';
 import useSWR from 'swr';
+import ContentSection from './ContentSection';
 
 export default function ProjectDetail() {
 	const { id } = useParams();
@@ -55,13 +55,3 @@ export default function ProjectDetail() {
 		</Page>
 	);
 }
-
-export function ContentSection({ children }: PropsWithChildren<ContentSectionProps>) {
-	return (
-		<div className='grid grid-cols-2 gap-2 text-md py-5 px-7 border-b border-west-coast-300'>
-			{children}
-		</div>
-	);
-}
-
-interface ContentSectionProps {}
