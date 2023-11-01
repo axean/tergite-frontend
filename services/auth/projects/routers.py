@@ -285,7 +285,7 @@ def get_my_projects_router(
     async def get_projects(
         user_id: str = Depends(get_current_user_id),
         project_manager: ProjectAppTokenManager = Depends(get_project_manager),
-        user_manager: UserManager[User, PydanticObjectId] = Depends(get_user_manager),
+        user_manager: UserManager = Depends(get_user_manager),
         skip: int = Query(0),
         limit: Optional[int] = Query(None),
     ):
