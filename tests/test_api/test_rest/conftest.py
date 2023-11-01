@@ -33,7 +33,9 @@ from tests._utils.auth import (
     TEST_GITHUB_TOKEN_RESP,
     TEST_PUHURI_PROFILE,
     TEST_PUHURI_TOKEN_RESP,
+    TEST_SUPERUSER_EMAIL,
     TEST_SUPERUSER_ID,
+    TEST_USER_EMAIL,
     TEST_USER_ID,
     get_jwt_token,
     init_test_auth,
@@ -284,13 +286,13 @@ def get_unauthorized_app_token_post():
     admin_only_projects = [
         project["ext_id"]
         for project in PROJECT_LIST
-        if project["user_ids"] == [TEST_SUPERUSER_ID]
+        if project["user_emails"] == [TEST_SUPERUSER_EMAIL]
     ]
 
     user_only_projects = [
         project["ext_id"]
         for project in PROJECT_LIST
-        if project["user_ids"] == [TEST_USER_ID]
+        if project["user_emails"] == [TEST_USER_EMAIL]
     ]
 
     admin_only_post_data = [

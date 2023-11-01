@@ -1,7 +1,7 @@
 [
   {
     "ext_id": "normal",
-    "user_ids": ["8154077d9cb952b92453d575"],
+    "user_emails": ["john.doe@example.com"],
     "qpu_seconds": 54000,
     "is_verified": true,
     "is_active": true,
@@ -9,7 +9,7 @@
   },
   {
     "ext_id": "negative-qpu",
-    "user_ids": ["8154077d9cb952b92453d575", "de7ddbd2500951be940356a2"],
+    "user_emails": ["john.doe@example.com", "jane.doe@example.com"],
     "qpu_seconds": -189,
     "is_verified": true,
     "is_active": true,
@@ -17,7 +17,7 @@
   },
   {
     "ext_id": "zero-qpu",
-    "user_ids": ["8154077d9cb952b92453d575"],
+    "user_emails": ["john.doe@example.com"],
     "qpu_seconds": 0,
     "is_verified": true,
     "is_active": true,
@@ -25,7 +25,7 @@
   },
   {
     "ext_id": "some-project",
-    "user_ids": ["de7ddbd2500951be940356a2"],
+    "user_emails": ["jane.doe@example.com"],
     "qpu_seconds": 5400,
     "is_verified": true,
     "is_active": true,

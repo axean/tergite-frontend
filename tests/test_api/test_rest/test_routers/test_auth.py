@@ -12,12 +12,13 @@ from tests._utils.auth import (
     TEST_APP_TOKEN_DICT,
     TEST_PROJECT_DICT,
     TEST_PROJECT_ID,
+    TEST_SUPERUSER_EMAIL,
     TEST_SUPERUSER_ID,
+    TEST_USER_EMAIL,
     TEST_USER_ID,
     get_db_record,
     is_valid_jwt,
 )
-from tests._utils.env import TEST_COOKIE_NAME
 from tests._utils.fixtures import load_json_fixture
 from tests.test_api.test_rest.conftest import (
     APP_TOKEN_LIST,
@@ -29,20 +30,24 @@ from tests.test_api.test_rest.conftest import (
 
 _PROJECT_CREATE_LIST = load_json_fixture("project_create_list.json")
 _PROJECT_UPDATE_LIST = load_json_fixture("project_update_list.json")
+_USER_EMAIL_INDEX = {
+    TEST_SUPERUSER_EMAIL: TEST_SUPERUSER_ID,
+    TEST_USER_EMAIL: TEST_USER_ID,
+}
 _MY_PROJECT_REQUESTS = [
-    (user_id, get_auth_header(user_id), project)
+    (email, get_auth_header(_USER_EMAIL_INDEX[email]), project)
     for project in PROJECT_LIST
-    for user_id in project["user_ids"]
+    for email in project["user_emails"]
 ]
 _OTHERS_PROJECT_REQUESTS = [
-    (user_id, get_auth_header(user_id), project)
+    (email, get_auth_header(_USER_EMAIL_INDEX[email]), project)
     for project in PROJECT_LIST
-    for user_id in [TEST_USER_ID, TEST_SUPERUSER_ID]
-    if user_id not in project["user_ids"]
+    for email in [TEST_USER_EMAIL, TEST_SUPERUSER_EMAIL]
+    if email not in project["user_emails"]
 ]
-_USER_ID_HEADERS_FIXTURE = [
-    (TEST_USER_ID, lazy_fixture("user_jwt_header")),
-    (TEST_SUPERUSER_ID, lazy_fixture("admin_jwt_header")),
+_USER_EMAIL_HEADERS_FIXTURE = [
+    (TEST_USER_EMAIL, lazy_fixture("user_jwt_header")),
+    (TEST_SUPERUSER_EMAIL, lazy_fixture("admin_jwt_header")),
 ]
 
 _AUTH_COOKIE_REGEX = re.compile(
@@ -143,7 +148,7 @@ def test_admin_cookie_callback(client, github_user, cookie_oauth_state):
     with client as client:
         response = client.get(
             f"/auth/app/github/callback?code=test&state={cookie_oauth_state}",
-            allow_redirects=False,
+            follow_redirects=False,
         )
 
         assert response.headers["location"] == TEST_NEXT_COOKIE_URL
@@ -171,7 +176,7 @@ def test_admin_cookie_callback_disallowed_email(
     with client as client:
         response = client.get(
             f"/auth/app/github/callback?code=test&state={cookie_oauth_state}",
-            allow_redirects=False,
+            follow_redirects=False,
         )
 
         got = response.json()
@@ -196,7 +201,7 @@ def test_chalmers_cookie_callback(client, chalmers_user, cookie_oauth_state):
     with client as client:
         response = client.get(
             f"/auth/app/chalmers/callback?code=test&state={cookie_oauth_state}",
-            allow_redirects=False,
+            follow_redirects=False,
         )
 
         assert response.headers["location"] == TEST_NEXT_COOKIE_URL
@@ -224,7 +229,7 @@ def test_chalmers_cookie_callback_disallowed_email(
     with client as client:
         response = client.get(
             f"/auth/app/chalmers/callback?code=test&state={cookie_oauth_state}",
-            allow_redirects=False,
+            follow_redirects=False,
         )
 
         got = response.json()
@@ -251,7 +256,7 @@ def test_puhuri_cookie_callback(client, puhuri_user, cookie_oauth_state):
     with client as client:
         response = client.get(
             f"/auth/app/puhuri/callback?code=test&state={cookie_oauth_state}",
-            allow_redirects=False,
+            follow_redirects=False,
         )
 
         assert response.headers["location"] == TEST_NEXT_COOKIE_URL
@@ -279,7 +284,7 @@ def test_puhuri_cookie_callback_disallowed_email(
     with client as client:
         response = client.get(
             f"/auth/app/puhuri/callback?code=test&state={cookie_oauth_state}",
-            allow_redirects=False,
+            follow_redirects=False,
         )
 
         got = response.json()
@@ -326,7 +331,7 @@ def test_admin_update_project(payload, client, admin_jwt_header):
             "ext_id": TEST_PROJECT_DICT["ext_id"],
             "is_active": True,
             "qpu_seconds": payload.get("qpu_seconds", TEST_PROJECT_DICT["qpu_seconds"]),
-            "user_ids": payload.get("user_ids", TEST_PROJECT_DICT["user_ids"]),
+            "user_emails": payload.get("user_emails", TEST_PROJECT_DICT["user_emails"]),
         }
 
         got = response.json()
@@ -400,7 +405,7 @@ def test_admin_view_all_projects_in_detail(
                 "ext_id": item["ext_id"],
                 "qpu_seconds": item["qpu_seconds"],
                 "is_active": item.get("is_active", True),
-                "user_ids": item["user_ids"],
+                "user_emails": item["user_emails"],
             }
             for item in [TEST_PROJECT_DICT] + PROJECT_LIST
         ]
@@ -409,12 +414,12 @@ def test_admin_view_all_projects_in_detail(
         assert got == {"skip": 0, "limit": None, "data": project_list}
 
 
-@pytest.mark.parametrize("user_id, headers", _USER_ID_HEADERS_FIXTURE)
+@pytest.mark.parametrize("user_email, headers", _USER_EMAIL_HEADERS_FIXTURE)
 def test_view_own_projects_in_less_detail(
-    user_id, headers, client, inserted_project_ids
+    user_email, headers, client, inserted_project_ids
 ):
     """Any user can view only their own projects at /auth/me/projects/
-    without user_ids"""
+    without user_emails"""
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get("/auth/me/projects", headers=headers)
@@ -428,7 +433,7 @@ def test_view_own_projects_in_less_detail(
                 "is_active": item.get("is_active", True),
             }
             for item in [TEST_PROJECT_DICT] + PROJECT_LIST
-            if user_id in item["user_ids"]
+            if user_email in item["user_emails"]
         ]
 
         assert response.status_code == 200
@@ -452,19 +457,19 @@ def test_admin_view_single_project_in_detail(
             "ext_id": project["ext_id"],
             "qpu_seconds": project["qpu_seconds"],
             "is_active": project["is_active"],
-            "user_ids": project["user_ids"],
+            "user_emails": project["user_emails"],
         }
 
         assert response.status_code == 200
         assert got == expected
 
 
-@pytest.mark.parametrize("user_id, headers, project", _MY_PROJECT_REQUESTS)
+@pytest.mark.parametrize("user_email, headers, project", _MY_PROJECT_REQUESTS)
 def test_view_my_project_in_less_detail(
-    user_id, headers, project, client, inserted_projects
+    user_email, headers, project, client, inserted_projects
 ):
     """Any user can view only their own single project at /auth/me/projects/{id}
-    without user_ids"""
+    without user_emails"""
     # using context manager to ensure on_startup runs
     with client as client:
         project_id = project["_id"]
@@ -483,9 +488,9 @@ def test_view_my_project_in_less_detail(
         assert got == expected
 
 
-@pytest.mark.parametrize("user_id, headers, project", _OTHERS_PROJECT_REQUESTS)
+@pytest.mark.parametrize("user_email, headers, project", _OTHERS_PROJECT_REQUESTS)
 def test_view_others_project_in_not_allowed(
-    user_id, headers, project, client, inserted_projects
+    user_email, headers, project, client, inserted_projects
 ):
     """No user can view only other's projects at /auth/me/projects/{id}"""
     # using context manager to ensure on_startup runs
@@ -598,14 +603,15 @@ def test_unauthorized_app_token_deletion(
         assert got == expected
 
 
-@pytest.mark.parametrize("user_id, headers", _USER_ID_HEADERS_FIXTURE)
+@pytest.mark.parametrize("user_email, headers", _USER_EMAIL_HEADERS_FIXTURE)
 def test_view_own_app_tokens_in_less_detail(
-    user_id, headers, client, inserted_projects, inserted_app_tokens, freezer
+    user_email, headers, client, inserted_projects, inserted_app_tokens, freezer
 ):
     """At /auth/me/app-tokens/, user can view their own app tokens
     without the token itself displayed"""
     # using context manager to ensure on_startup runs
     with client as client:
+        user_id = _USER_EMAIL_INDEX[user_email]
         headers = get_auth_header(user_id)
         response = client.get("/auth/me/app-tokens/", headers=headers)
 

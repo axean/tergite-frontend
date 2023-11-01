@@ -314,6 +314,7 @@ def get_my_projects_router(
         id: str,
         user_id: str = Depends(get_current_user_id),
         project_manager: ProjectAppTokenManager = Depends(get_project_manager),
+        user_manager: UserManager = Depends(get_user_manager),
     ):
         try:
             parsed_id = project_manager.parse_id(id)
@@ -321,7 +322,9 @@ def get_my_projects_router(
         except (exc.ProjectNotExists, exceptions.InvalidID) as e:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from e
 
-        if user_id not in project.user_ids:
+        user = await user_manager.get(PydanticObjectId(user_id))
+
+        if user is None or user.email not in project.user_emails:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="the project does not exist.",

@@ -16,6 +16,8 @@ TEST_PROJECT_ID = "bf4876d01e60f05ebc9fac9e"
 TEST_PROJECT_EXT_ID = "test-project-1"
 TEST_USER_ID = "8154077d9cb952b92453d575"
 TEST_SUPERUSER_ID = "de7ddbd2500951be940356a2"
+TEST_USER_EMAIL = "john.doe@example.com"
+TEST_SUPERUSER_EMAIL = "jane.doe@example.com"
 TEST_APP_TOKEN_STRING = "46-0Jhgb1_thq8MqIF0SlVHoS8rFPiLBFL33XO_eJ7I"
 
 _password_helper = PasswordHelper()
@@ -54,14 +56,14 @@ TEST_PUHURI_TOKEN_RESP = {
 
 TEST_SUPERUSER_DICT = dict(
     _id=PydanticObjectId(TEST_SUPERUSER_ID),
-    email="jane.doe@example.com",
+    email=TEST_SUPERUSER_EMAIL,
     roles=[UserRole.USER, UserRole.ADMIN],
     hashed_password=_password_helper.hash(_password_helper.generate()),
     is_verified=True,
 )
 TEST_USER_DICT = dict(
     _id=PydanticObjectId(TEST_USER_ID),
-    email="john.doe@example.com",
+    email=TEST_USER_EMAIL,
     roles=[UserRole.USER],
     hashed_password=_password_helper.hash(_password_helper.generate()),
     is_verified=True,
@@ -69,7 +71,7 @@ TEST_USER_DICT = dict(
 TEST_PROJECT_DICT = dict(
     _id=PydanticObjectId(TEST_PROJECT_ID),
     ext_id=TEST_PROJECT_EXT_ID,
-    user_ids=[TEST_USER_ID],
+    user_emails=["john.doe@example.com"],
     qpu_seconds=108000,
 )
 

@@ -216,8 +216,8 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
     ) -> None:
         """Perform logic before the project is updated.
 
-        Here, any AppTokens for this project that have user_ids that have been removed,
-        are deleted.
+        Here, any AppTokens for this project that have user_ids,
+        whose associated user emails have been removed, are deleted.
 
         Args:
             original: the project to be updated
