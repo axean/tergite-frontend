@@ -24,9 +24,10 @@ export namespace API {
 	}
 
 	export interface ProjectPartial {
-		ext_id: string;
+		id?: string;
+		ext_id?: string;
 		user_emails?: string[];
-		qpu_seconds: number;
+		qpu_seconds?: number;
 	}
 
 	export interface Config {

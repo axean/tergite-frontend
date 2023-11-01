@@ -7,7 +7,7 @@ import { ChangeEvent, MouseEvent, useCallback, useMemo, useState } from 'react';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import useSWRImmutable from 'swr/immutable';
-import { TextInput } from '@/components/Form';
+import { Input } from '@/components/Form';
 import Card, { CardBtn, CardFooter, CardHeader } from '@/components/Card';
 import Page from '@/components/Page';
 
@@ -57,7 +57,8 @@ export default function DelProject() {
 				<Card>
 					<CardHeader title={`Delete Project '${getter.data.ext_id}'?`} />
 
-					<TextInput
+					<Input
+						type='text'
 						label={`Confirm project's external ID '${getter.data.ext_id}'`}
 						onChange={handleTextInput}
 						labelClassName='after:text-red-500'

@@ -1,6 +1,6 @@
 import { MouseEventHandler } from 'react';
 
-export default function HeaderBtn({ text, onClick, disabled = false, type = 'button' }: Props) {
+export function HeaderBtn({ text, onClick, disabled = false, type = 'button' }: Props) {
 	return (
 		<button
 			type={type}

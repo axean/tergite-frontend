@@ -1,14 +1,12 @@
 'use client';
 
 import { API } from '@/types';
-import DataTable from './components/DataTable';
-import HeaderLinkBtn from './components/HeaderLinkBtn';
-import PageHeader from './components/PageHeader';
+import DataTable from '@/components/DataTable';
 import { fetcher, raise } from '@/service/browser';
 import useSWR from 'swr';
 import Loading from '@/components/Loading';
 import useSWRImmutable from 'swr/immutable';
-import Page from '@/components/Page';
+import Page, { HeaderLinkBtn, PageHeader } from '@/components/Page';
 
 const titles = [{ field: 'ext_id', className: 'w-auto md:w-4/5', label: 'ExternalID' }];
 

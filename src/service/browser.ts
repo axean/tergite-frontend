@@ -38,11 +38,44 @@ export async function fetcher<T>(
  * @param init - the value sent by the useSWRMutation
  * @returns the item got from the request
  */
-export async function post<T>(input: RequestInfo | URL, { arg }: { arg?: T } = {}) {
+export async function post<T>(input: RequestInfo | URL, { arg }: { arg?: T } = {}): Promise<T> {
 	const body = JSON.stringify(arg ?? {});
 
 	const resp = await fetch(input, {
 		method: 'POST',
+		body,
+		cache: 'no-store',
+		credentials: 'include'
+	});
+
+	if (!resp.ok) {
+		const error: API.EnhancedError = new Error('unexpected server error');
+		error.status = resp.status;
+
+		try {
+			const data = await resp.json();
+			const { detail = 'unexpected server error' } = data;
+			error.message = detail;
+		} finally {
+			throw error;
+		}
+	}
+
+	return await resp.json();
+}
+
+/**
+ * updates data of type T via an HTTP request
+ *
+ * @param input - the same as fetch
+ * @param init - the value sent by the useSWRMutation
+ * @returns the item got from the request
+ */
+export async function updater<T>(input: RequestInfo | URL, { arg }: { arg?: T } = {}): Promise<T> {
+	const body = JSON.stringify(arg ?? {});
+
+	const resp = await fetch(input, {
+		method: 'PATCH',
 		body,
 		cache: 'no-store',
 		credentials: 'include'

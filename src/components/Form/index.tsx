@@ -1,7 +1,6 @@
 import { PropsWithChildren } from 'react';
-export { MultiTextInput, type CustomInputEvent } from './MultiTextInput';
-export { TextInput } from './TextInput';
-export { NumberInput } from './NumberInput';
+export { MultiInput, type MultipleInputEvent as CustomInputEvent } from './MultiInput';
+export { Input } from './Input';
 
 export default function Form({
 	children,
@@ -21,4 +20,3 @@ interface Props {
 	action?: string;
 	method?: string;
 }
-

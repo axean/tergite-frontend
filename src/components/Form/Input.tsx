@@ -1,7 +1,9 @@
-import { ChangeEventHandler } from 'react';
+import { ChangeEventHandler, HTMLInputTypeAttribute } from 'react';
 
-export function TextInput({
+export function Input({
 	name = '',
+	type = 'text',
+	value,
 	label: text,
 	placeholder = '',
 	onChange,
@@ -18,11 +20,13 @@ export function TextInput({
 			>
 				{text}
 			</span>
+			<input type='' />
 			<input
+				type={type}
+				value={value}
 				required={required}
 				name={name}
 				data-cy-text-input
-				type='text'
 				className={`mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none block w-full rounded-md sm:text-md focus:ring-1 ${inputClassName}`}
 				placeholder={placeholder}
 				onChange={onChange}
@@ -32,6 +36,8 @@ export function TextInput({
 }
 interface Props {
 	name?: string;
+	type?: HTMLInputTypeAttribute;
+	value?: string | number;
 	label: string;
 	placeholder?: string;
 	onChange: ChangeEventHandler<HTMLInputElement>;

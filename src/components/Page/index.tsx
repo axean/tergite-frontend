@@ -1,4 +1,7 @@
 import { PropsWithChildren } from 'react';
+export { HeaderBtn } from './HeaderBtn';
+export { HeaderLinkBtn } from './HeaderLinkBtn';
+export { PageHeader } from './PageHeader';
 
 export default function Page({ className = '', children }: PropsWithChildren<Props>) {
 	return (

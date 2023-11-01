@@ -1,8 +1,18 @@
-import { ChangeEvent, MouseEvent, useCallback, useState } from 'react';
+import {
+	ChangeEvent,
+	HTMLInputTypeAttribute,
+	MouseEvent,
+	useCallback,
+	useMemo,
+	useState
+} from 'react';
+import ErrorText from '../ErrorText';
 
-export function MultiTextInput({
+export function MultiInput<T>({
 	name = '',
+	value,
 	label: text,
+	type = 'text',
 	placeholder = '',
 	onChange,
 	required = false,
@@ -10,20 +20,31 @@ export function MultiTextInput({
 	inputClassName = ''
 }: Props) {
 	const classForRequired = required ? "after:content-['*'] after:ml-0.5" : '';
-	const [target, setTarget] = useState<Target<string[]>>({ name, value: [''] });
+	const defaultValue = useMemo(() => (type == 'number' ? [0] : ['']), [type]);
+	const [target, setTarget] = useState<Target<(string | number)[]>>({
+		name,
+		value: defaultValue
+	});
+	const [error, setError] = useState<string>();
 
 	const handleAddBtnClick = useCallback(
 		(ev: MouseEvent<HTMLButtonElement>) => {
-			setTarget((prev) => ({ ...prev, value: [...prev.value, ''] }));
+			ev.preventDefault();
+			setError(undefined);
+			setTarget((prev) => ({ ...prev, value: [...prev.value, defaultValue[0]] }));
 			onChange({ target, preventDefault: () => {} });
 		},
-		[setTarget, target, onChange]
+		[setTarget, target, onChange, defaultValue]
 	);
 
 	const handleCloseBtnClick = useCallback(
 		(index: number) => {
-			setTarget((prev) => ({ ...prev, value: prev.value.filter((v, i) => index !== i) }));
-			onChange({ target, preventDefault: () => {} });
+			if (required && target.value.length <= 1) {
+				setError('At least one input is needed');
+			} else {
+				setTarget((prev) => ({ ...prev, value: prev.value.filter((v, i) => index !== i) }));
+				onChange({ target, preventDefault: () => {} });
+			}
 		},
 		[setTarget, target, onChange]
 	);
@@ -31,6 +52,7 @@ export function MultiTextInput({
 	const handleInputChange = useCallback(
 		(ev: ChangeEvent<HTMLInputElement>) => {
 			ev.preventDefault();
+			setError(undefined);
 			const indexStr = ev.target.dataset.index as string;
 			const index = parseInt(indexStr);
 			const newValue = ev.target.value;
@@ -55,17 +77,18 @@ export function MultiTextInput({
 			<span className='inline-block p-5' onClick={handleAddBtnClick}>
 				+
 			</span>
-			{target.value.map((value, index) => (
+			{error && <ErrorText text={error} />}
+			{target.value.map((item, index) => (
 				<div key={index} className='grid grid-cols-2'>
 					<input
 						required={required}
 						data-cy-multi-text-input
 						data-index={index}
-						type='text'
+						type={type}
 						className={`mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none block w-full rounded-md sm:text-md focus:ring-1 ${inputClassName}`}
 						placeholder={placeholder}
 						onChange={handleInputChange}
-						value={value}
+						value={item}
 					/>
 					<span className='inline-block p-5' onClick={() => handleCloseBtnClick(index)}>
 						x
@@ -78,15 +101,17 @@ export function MultiTextInput({
 
 interface Props {
 	name?: string;
+	value?: (string | number)[];
 	label: string;
+	type?: HTMLInputTypeAttribute;
 	placeholder?: string;
-	onChange: (ev: CustomInputEvent<string[]>) => void;
+	onChange: (ev: MultipleInputEvent<(string | number)[]>) => void;
 	required?: boolean;
 	labelClassName?: string;
 	inputClassName?: string;
 }
 
-export interface CustomInputEvent<T> {
+export interface MultipleInputEvent<T> {
 	target: Target<T>;
 	preventDefault: () => void;
 }

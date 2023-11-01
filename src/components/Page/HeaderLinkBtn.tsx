@@ -1,6 +1,6 @@
 import NextLink from 'next/link';
 
-export default function HeaderLinkBtn({ text, link }: Props) {
+export function HeaderLinkBtn({ text, link }: Props) {
 	return (
 		<NextLink href={link} passHref legacyBehavior>
 			<button
