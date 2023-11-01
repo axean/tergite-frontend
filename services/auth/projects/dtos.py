@@ -10,15 +10,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Data Transfer Objects for the projects submodule in the auth service"""
-from functools import cached_property
 from typing import Generic, List, Optional, TypeVar
 
 from beanie import Document, PydanticObjectId
-from beanie.odm.operators.find.comparison import In
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from pymongo import IndexModel
-
-from ..users.dtos import User
 
 
 class ProjectCreate(BaseModel):
@@ -66,16 +62,6 @@ class Project(ProjectCreate, Document):
         indexes = [
             IndexModel("ext_id", unique=True),
         ]
-
-    @cached_property
-    async def user_ids(self):
-        """The list of user_ids for this Project"""
-        records = (
-            await User.find(In(User.email, self.user_emails))
-            .project(_IdOnlyDocument)
-            .to_list()
-        )
-        return [record.id for record in records]
 
 
 ITEM = TypeVar("ITEM")
