@@ -13,7 +13,6 @@
 """FastAPIUsers-inspired logic for managing users"""
 from typing import Optional
 
-from beanie import PydanticObjectId
 from fastapi.requests import Request
 from fastapi_users import BaseUserManager, models
 from fastapi_users.db import BaseUserDatabase
@@ -21,11 +20,10 @@ from fastapi_users.password import PasswordHelperProtocol
 from fastapi_users.types import DependencyCallable
 from fastapi_users_db_beanie import ObjectIDIDMixin
 
-from .dtos import User
 from .validators import EmailRegexValidator, Validator
 
 
-class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
+class UserManager(ObjectIDIDMixin, BaseUserManager):
     def __init__(
         self,
         user_db: BaseUserDatabase[models.UP, models.ID],

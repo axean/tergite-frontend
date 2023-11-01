@@ -10,11 +10,15 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Data Transfer Objects for the projects submodule in the auth service"""
+from functools import cached_property
 from typing import Generic, List, Optional, TypeVar
 
 from beanie import Document, PydanticObjectId
-from pydantic import BaseModel
+from beanie.odm.operators.find.comparison import In
+from pydantic import BaseModel, EmailStr
 from pymongo import IndexModel
+
+from ..users.dtos import User
 
 
 class ProjectCreate(BaseModel):
@@ -22,7 +26,7 @@ class ProjectCreate(BaseModel):
 
     # external_id is the id in an external project allocation service
     ext_id: str
-    user_ids: List[str] = []
+    user_emails: List[str] = []
     qpu_seconds: int = 0
 
 
@@ -41,7 +45,7 @@ class ProjectRead(BaseModel):
 class ProjectAdminView(ProjectRead):
     """The schema for viewing a project as an admin"""
 
-    user_ids: List[str] = []
+    user_emails: List[str] = []
 
     class Config:
         orm_mode = True
@@ -50,7 +54,7 @@ class ProjectAdminView(ProjectRead):
 class ProjectUpdate(BaseModel):
     """The schema for updating a project"""
 
-    user_ids: Optional[List[str]]
+    user_emails: Optional[List[str]]
     qpu_seconds: Optional[int]
 
 
@@ -63,6 +67,16 @@ class Project(ProjectCreate, Document):
             IndexModel("ext_id", unique=True),
         ]
 
+    @cached_property
+    async def user_ids(self):
+        """The list of user_ids for this Project"""
+        records = (
+            await User.find(In(User.email, self.user_emails))
+            .project(_IdOnlyDocument)
+            .to_list()
+        )
+        return [record.id for record in records]
+
 
 ITEM = TypeVar("ITEM")
 
@@ -73,3 +87,7 @@ class ProjectListResponse(BaseModel, Generic[ITEM]):
     skip: int = 0
     limit: Optional[int] = None
     data: List[ITEM] = []
+
+
+class _IdOnlyDocument(BaseModel):
+    id: PydanticObjectId

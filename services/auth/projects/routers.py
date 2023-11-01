@@ -18,8 +18,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import Response
 from fastapi_users import exceptions, schemas
 from fastapi_users.router.common import ErrorModel
+from pydantic import EmailStr
 
-from ..users.dtos import CurrentSuperUserDependency, CurrentUserIdDependency
+from ..users.dtos import CurrentSuperUserDependency, CurrentUserIdDependency, User
+from ..users.manager import UserManager, UserManagerDependency
 from ..utils import MAX_LIST_QUERY_LEN, TooManyListQueryParams
 from . import exc
 from .dtos import (
@@ -133,7 +135,7 @@ def get_projects_router(
         skip: int = Query(0),
         limit: Optional[int] = Query(None),
         ids: Optional[List[PydanticObjectId]] = Query(None, alias="id"),
-        user_ids: Optional[List[str]] = Query(None),
+        user_emails: Optional[List[EmailStr]] = Query(None),
         ext_id: Optional[List[str]] = Query(None),
         is_active: Optional[bool] = Query(None),
         min_qpu_seconds: Optional[int] = Query(None),
@@ -148,13 +150,13 @@ def get_projects_router(
 
             filter_obj["_id"] = {"$in": ids}
 
-        if user_ids is not None:
-            if len(user_ids) > MAX_LIST_QUERY_LEN:
+        if user_emails is not None:
+            if len(user_emails) > MAX_LIST_QUERY_LEN:
                 raise TooManyListQueryParams(
-                    "user_ids", expected=MAX_LIST_QUERY_LEN, got=len(user_ids)
+                    "user_emails", expected=MAX_LIST_QUERY_LEN, got=len(user_emails)
                 )
 
-            filter_obj["user_ids"] = {"$in": user_ids}
+            filter_obj["user_emails"] = {"$in": user_emails}
 
         if ext_id is not None:
             if len(ext_id) > MAX_LIST_QUERY_LEN:
@@ -262,6 +264,7 @@ def get_projects_router(
 
 def get_my_projects_router(
     get_project_manager: ProjectManagerDependency,
+    get_user_manager: UserManagerDependency,
     get_current_user_id: CurrentUserIdDependency,
     project_schema: Type[ProjectRead],
     **kwargs,
@@ -282,11 +285,13 @@ def get_my_projects_router(
     async def get_projects(
         user_id: str = Depends(get_current_user_id),
         project_manager: ProjectAppTokenManager = Depends(get_project_manager),
+        user_manager: UserManager[User, PydanticObjectId] = Depends(get_user_manager),
         skip: int = Query(0),
         limit: Optional[int] = Query(None),
     ):
+        user = await user_manager.get(PydanticObjectId(user_id))
         projects = await project_manager.get_many(
-            filter_obj={"user_ids": user_id}, skip=skip, limit=limit
+            filter_obj={"user_emails": user.email}, skip=skip, limit=limit
         )
 
         data = [schemas.model_validate(project_schema, project) for project in projects]

@@ -12,13 +12,16 @@
 """FastAPIUsers-inspired logic for managing projects"""
 from typing import Any, Dict, List, Mapping, Optional
 
+from beanie import PydanticObjectId
 from fastapi.requests import Request
+from fastapi_users.exceptions import UserNotExists
 from fastapi_users.models import ID
 from fastapi_users.types import DependencyCallable
 from fastapi_users_db_beanie import ObjectIDIDMixin
 
 from ..app_tokens.database import AppTokenDatabase
-from ..app_tokens.dtos import AppTokenCreate
+from ..app_tokens.dtos import AppToken, AppTokenCreate
+from ..users.database import UserDatabase
 from . import exc
 from .database import ProjectDatabase
 from .dtos import Project, ProjectCreate, ProjectUpdate
@@ -34,10 +37,17 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
 
     project_db: ProjectDatabase
     app_token_db: AppTokenDatabase
+    user_db: UserDatabase
 
-    def __init__(self, project_db: ProjectDatabase, app_token_db: AppTokenDatabase):
+    def __init__(
+        self,
+        project_db: ProjectDatabase,
+        app_token_db: AppTokenDatabase,
+        user_db: UserDatabase,
+    ):
         self.project_db = project_db
         self.app_token_db = app_token_db
+        self.user_db = user_db
 
     async def get(self, id: ID) -> Project:
         """
@@ -71,12 +81,18 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
 
         Raises:
             ProjectNotExists: The project does not exist or user_id is not attached to it.
+            UserNotExists: the user does not exist
 
         Returns:
             the project
         """
-        project = await self.project_db.get_by_ext_and_user_id(
-            ext_id=ext_id, user_id=user_id
+        user = await self.user_db.get(PydanticObjectId(user_id))
+
+        if user is None:
+            raise UserNotExists()
+
+        project = await self.project_db.get_by_ext_and_user_email(
+            ext_id=ext_id, user_email=user.email
         )
 
         if project is None:
@@ -91,7 +107,7 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
         Get a list of projects to basing on filter.
 
         Args:
-            filter_obj: the PyMongo-like filter object e.g. `{"user_id": "uidufiud"}`.
+            filter_obj: the PyMongo-like filter object e.g. `{"user_emails": "john@example.com"}`.
             skip: the number of matched records to skip
             limit: the maximum number of records to return.
                 If None, all possible records are returned.
@@ -107,7 +123,7 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
 
     async def get_many_app_tokens(
         self, filter_obj: Mapping[str, Any], skip: int = 0, limit: Optional[int] = None
-    ) -> List[Project]:
+    ) -> List[AppToken]:
         """
         Get a list of app tokens to basing on filter.
 
@@ -207,9 +223,13 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
             original: the project to be updated
             update_dict: the new updates
         """
-        if "user_ids" in update_dict:
+        if "user_emails" in update_dict:
+            user_ids = await self.user_db.get_many(
+                {"email": {"$in": update_dict["user_emails"]}}
+            )
+
             filter_obj = {
-                "user_id": {"$nin": update_dict["user_ids"]},
+                "user_id": {"$nin": user_ids},
                 "project_ext_id": original.ext_id,
             }
             await self.app_token_db.delete_many(filter_obj)

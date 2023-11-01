@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """Definition of the FastAPIUsers-specific Database adapter for users"""
-from typing import Any, Dict, Optional, Sequence
+from typing import Any, Dict, List, Mapping, Optional, Sequence
 
 from fastapi_users_db_beanie import BeanieUserDatabase
 
@@ -35,3 +35,25 @@ class UserDatabase(BeanieUserDatabase):
             pass
 
         return await super().add_oauth_account(user, create_dict)
+
+    @staticmethod
+    async def get_many(
+        filter_obj: Mapping[str, Any], skip: int = 0, limit: Optional[int] = None
+    ) -> List[User]:
+        """
+        Get a list of users basing on filter.
+
+        Args:
+            filter_obj: the PyMongo-like filter object e.g. `{"email": "john@example.com"}`.
+            skip: the number of matched records to skip
+            limit: the maximum number of records to return.
+                If None, all possible records are returned.
+
+        Returns:
+            the list of matched users
+        """
+        return await User.find(
+            filter_obj,
+            skip=skip,
+            limit=limit,
+        ).to_list()

@@ -13,8 +13,10 @@
 """Definition of the FastAPIUsers-inspired Database adapter for projects"""
 from typing import Any, Dict, List, Mapping, Optional
 
+from beanie import PydanticObjectId
 from fastapi_users.models import ID
 
+from ..users.dtos import User
 from .dtos import Project
 
 
@@ -31,13 +33,15 @@ class ProjectDatabase:
         return await Project.find_one(Project.ext_id == ext_id)
 
     @staticmethod
-    async def get_by_ext_and_user_id(ext_id: str, user_id: str) -> Optional[Project]:
-        """Get a single project by ext_id and user_id.
+    async def get_by_ext_and_user_email(
+        ext_id: str, user_email: str
+    ) -> Optional[Project]:
+        """Get a single project by ext_id and user_email.
 
-        The user_id must be among the Project's user ids
+        The user_email must be among the Project's user emails
         """
         return await Project.find_one(
-            Project.ext_id == ext_id, Project.user_ids == user_id
+            Project.ext_id == ext_id, Project.user_emails == user_email
         )
 
     @staticmethod
@@ -48,7 +52,7 @@ class ProjectDatabase:
         Get a list of projects to basing on filter.
 
         Args:
-            filter_obj: the PyMongo-like filter object e.g. `{"user_id": "uidufiud"}`.
+            filter_obj: the PyMongo-like filter object e.g. `{"user_emails": "john@example.com"}`.
             skip: the number of matched records to skip
             limit: the maximum number of records to return.
                 If None, all possible records are returned.
