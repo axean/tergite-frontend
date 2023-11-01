@@ -38,7 +38,7 @@ class MockDb {
 	 *
 	 * @param {number} skip - the number of matched items to skip
 	 * @param {number | null} limit - the maximum number of items to return
-	 * @returns {{id: string, ext_id: string, user_ids?: string[], qpu_seconds: number}[]} - the list of all undeleted projects
+	 * @returns {{id: string, ext_id: string, user_emails?: string[], qpu_seconds: number}[]} - the list of all undeleted projects
 	 */
 	getAllProjects(skip, limit) {
 		return this.projects
@@ -51,7 +51,7 @@ class MockDb {
 	 * if it doesnot exist
 	 *
 	 * @param {string} id - the id of the project to return
-	 * @returns {{id: string, ext_id: string, user_ids?: string[], qpu_seconds: number}} - the project to return
+	 * @returns {{id: string, ext_id: string, user_emails?: string[], qpu_seconds: number}} - the project to return
 	 */
 	getOneProject(id) {
 		console.log({ deletedProjects: this.deletedProjects });

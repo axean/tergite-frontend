@@ -18,7 +18,6 @@ export namespace API {
 	export interface Project {
 		id: string;
 		ext_id: string;
-		user_ids?: string[];
 		user_emails?: string[];
 		qpu_seconds: number;
 	}

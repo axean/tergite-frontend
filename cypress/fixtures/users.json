@@ -1,27 +1,33 @@
 [
 	{
 		"id": "5ddc8d9fb69602723cd3c38f",
-		"roles": ["admin", "user"]
+		"roles": ["admin", "user"],
+		"email": "jane.doe@example.com"
 	},
 	{
 		"id": "40fbb5de7422a04fabd8d22a",
-		"roles": ["partner", "user"]
+		"roles": ["partner", "user"],
+		"email": "paul.doe@example.com"
 	},
 	{
 		"id": "858877267fe722a38619fa2e",
-		"roles": ["researcher", "user"]
+		"roles": ["researcher", "user"],
+		"email": "david.doe@example.com"
 	},
 	{
 		"id": "4939a0b9a7742e2cc52289e0",
-		"roles": ["user"]
+		"roles": ["user"],
+		"email": "john.doe@example.com"
 	},
 	{
 		"id": "0558648bbf51b16948e818d3",
-		"roles": ["user"]
+		"roles": ["user"],
+		"email": "julie.doe@example.com"
 	},
 	{
 		"id": "1fdce4933169db9c76ba0a98",
-		"roles": ["user"]
+		"roles": ["user"],
+		"email": "olick.doe@example.com"
 	}
 ]
 
