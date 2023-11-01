@@ -173,7 +173,7 @@ async def read_jobs(nlast: int = 10):
 
 @app.get("/backends/{backend_name}")
 async def read_backend(backend_name: str):
-    return await retrieve_using_tag({"backend_name": backend_name}, backend_col)
+    return await retrieve_using_tag({"name": backend_name}, backend_col)
 
 
 @app.get("/rng/{job_id}")
@@ -212,6 +212,11 @@ async def read_job_download_url(job_id: UUID):
     document = await retrieve_using_tag({"job_id": str(job_id)}, jobs_col)
     print(document["download_url"])
     return document["download_url"]
+
+@app.get("/backends/{backend_name}/properties/lda_parameters")
+async def read_lda_parameters(backend_name: str):
+    document = await read_backend(backend_name=backend_name)
+    return document["properties"]["lda_parameters"]
 
 
 # ------------ CREATE OPERATIONS ------------ #
@@ -287,6 +292,10 @@ def update_timelog_entry(job_id: UUID, event_name: str = Body(..., max_legth=10)
     timestamp = new_timestamp()
     return {"job_id": str(job_id)}, {"$set": {"timelog." + event_name: timestamp}}, "OK"
 
+@app.put("/backends/{backend_name}/properties/lda_parameters")
+@update_documents(collection="backends")
+def update_lda_parameters(backend_name: str, lda_parameters: dict):
+    return {"name": backend_name}, {"$set": {"properties": {"lda_parameters": lda_parameters}}}, "OK"
 
 # Webgui Public services
 
