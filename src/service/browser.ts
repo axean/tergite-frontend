@@ -18,14 +18,12 @@ export async function fetcher<T>(
 	if (!resp.ok) {
 		const error: API.EnhancedError = new Error('unexpected server error');
 		error.status = resp.status;
+		error.message =
+			(await getJsonErrorResponse(resp)) ||
+			(await getTextErrorResponse(resp)) ||
+			'unexpected server error';
 
-		try {
-			const data = await resp.json();
-			const { detail = 'unexpected server error' } = data;
-			error.message = detail;
-		} finally {
-			throw error;
-		}
+		throw error;
 	}
 
 	return await resp.json();
@@ -45,20 +43,19 @@ export async function post<T>(input: RequestInfo | URL, { arg }: { arg?: T } = {
 		method: 'POST',
 		body,
 		cache: 'no-store',
-		credentials: 'include'
+		credentials: 'include',
+		headers: { 'Content-Type': 'application/json' }
 	});
 
 	if (!resp.ok) {
 		const error: API.EnhancedError = new Error('unexpected server error');
 		error.status = resp.status;
+		error.message =
+			(await getJsonErrorResponse(resp)) ||
+			(await getTextErrorResponse(resp)) ||
+			'unexpected server error';
 
-		try {
-			const data = await resp.json();
-			const { detail = 'unexpected server error' } = data;
-			error.message = detail;
-		} finally {
-			throw error;
-		}
+		throw error;
 	}
 
 	return await resp.json();
@@ -78,20 +75,19 @@ export async function updater<T>(input: RequestInfo | URL, { arg }: { arg?: T } 
 		method: 'PATCH',
 		body,
 		cache: 'no-store',
-		credentials: 'include'
+		credentials: 'include',
+		headers: { 'Content-Type': 'application/json' }
 	});
 
 	if (!resp.ok) {
-		const error: API.EnhancedError = new Error('unexpected server error');
+		const error: API.EnhancedError = new Error();
 		error.status = resp.status;
+		error.message =
+			(await getJsonErrorResponse(resp)) ||
+			(await getTextErrorResponse(resp)) ||
+			'unexpected server error';
 
-		try {
-			const data = await resp.json();
-			const { detail = 'unexpected server error' } = data;
-			error.message = detail;
-		} finally {
-			throw error;
-		}
+		throw error;
 	}
 
 	return await resp.json();
@@ -114,14 +110,12 @@ export async function destroyer(input: RequestInfo | URL, { arg }: { arg?: any }
 	if (!resp.ok) {
 		const error: API.EnhancedError = new Error('unexpected server error');
 		error.status = resp.status;
+		error.message =
+			(await getJsonErrorResponse(resp)) ||
+			(await getTextErrorResponse(resp)) ||
+			'unexpected server error';
 
-		try {
-			const data = await resp.json();
-			const { detail = 'unexpected server error' } = data;
-			error.message = detail;
-		} finally {
-			throw error;
-		}
+		throw error;
 	}
 
 	return { url: input };
@@ -135,4 +129,41 @@ export async function destroyer(input: RequestInfo | URL, { arg }: { arg?: any }
  */
 export function raise(err: API.EnhancedError) {
 	throw err;
+}
+
+/**
+ * Retrieves the error message from the JSON HTTP response
+ *
+ * @param resp - the response from the HTTP request
+ * @returns - the error message or undefined if the response is not a JSON
+ */
+async function getJsonErrorResponse(resp: Response): Promise<string | undefined> {
+	let msg: string | undefined = undefined;
+
+	try {
+		const data = await resp.json();
+		msg = data.detail || JSON.stringify(data);
+	} catch (e) {
+		console.error('error extracting JSON error response: ', e);
+	}
+
+	return msg;
+}
+
+/**
+ * Retrieves the error message from the text HTTP response
+ *
+ * @param resp - the response from the HTTP request
+ * @returns - the error message or undefined if the response is not a text
+ */
+async function getTextErrorResponse(resp: Response): Promise<string | undefined> {
+	let msg: string | undefined = undefined;
+
+	try {
+		msg = await resp.text();
+	} catch (e) {
+		console.error('error extracting text error response: ', e);
+	}
+
+	return msg;
 }

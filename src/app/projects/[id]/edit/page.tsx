@@ -26,10 +26,14 @@ export default function EditProject() {
 	const btnText = useMemo(() => (isMutating ? 'Saving...' : 'Save'), [isMutating]);
 
 	const handleSubmit = useCallback(
-		async (ev: MouseEvent<HTMLButtonElement>) => {
+		(ev: MouseEvent<HTMLButtonElement>) => {
 			ev.preventDefault();
-			await mutator.trigger(project);
-			router.push(`/projects/${id}`);
+			mutator
+				.trigger(project)
+				.then(() => {
+					router.push(`/projects/${id}`);
+				})
+				.catch(console.error);
 		},
 		[project, mutator]
 	);

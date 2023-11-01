@@ -37,7 +37,7 @@ export default function CreateProject() {
 		async (ev: MouseEvent<HTMLButtonElement>) => {
 			ev.preventDefault();
 			const response = await submit(newProject);
-			router.push(`projects/${response.id}`);
+			router.push(`/projects/${response.id}`);
 		},
 		[newProject, submit]
 	);
@@ -52,7 +52,7 @@ export default function CreateProject() {
 	);
 
 	return (
-		<Page>
+		<Page className='w-full h-full'>
 			<Form className='w-full h-full'>
 				<PageHeader heading='Projects'>
 					<HeaderBtn

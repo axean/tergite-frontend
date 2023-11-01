@@ -1,11 +1,15 @@
 import NextLink from 'next/link';
 
-export function HeaderLinkBtn({ text, link }: Props) {
+export function HeaderLinkBtn({
+	text,
+	link,
+	className = 'bg-west-coast hover:bg-west-coast text-white border-west-coast-300 hover:text-white'
+}: Props) {
 	return (
 		<NextLink href={link} passHref legacyBehavior>
 			<button
 				data-cy-header-btn
-				className='rounded bg-west-coast text-white py-2 px-7 hover:bg-west-coast font-semibold hover:text-white  border border-west-coast-300 hover:border-transparent'
+				className={`rounded py-2 px-7 font-semibold border hover:border-transparent ${className}`}
 			>
 				{text}
 			</button>
@@ -16,4 +20,5 @@ export function HeaderLinkBtn({ text, link }: Props) {
 interface Props {
 	text: string;
 	link: string;
+	className?: string;
 }

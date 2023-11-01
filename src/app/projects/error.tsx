@@ -18,7 +18,11 @@ export default function Error({
 	}, [error]);
 
 	const isUnauthorized = [401, 403].includes(error.status as number);
-	const message = isUnauthorized ? 'Not Found' : error.message;
+	console.log({ error });
+	const errorMessage =
+		typeof error.message === 'object' ? JSON.stringify(error.message) : error.message;
+
+	const message = isUnauthorized ? 'Not Found' : `${errorMessage}`;
 
 	return (
 		<Page className='h-full w-full flex flex-1 justify-center items-center'>

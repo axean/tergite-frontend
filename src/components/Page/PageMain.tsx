@@ -11,4 +11,3 @@ export default function PageMain({ children, className = '' }: PropsWithChildren
 interface Props {
 	className?: string;
 }
-

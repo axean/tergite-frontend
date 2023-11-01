@@ -102,7 +102,7 @@ export function MultiInput<T>({
 				</div>
 			))}
 			<button
-				className='rounded border-slate-300 p-2 mt-1 hover:bg-west-coast hover:text-white  border border-west-coast-300 hover:border-transparent'
+				className='rounded bg-white border-slate-300 p-2 mt-1 hover:bg-west-coast hover:text-white  border border-west-coast-300 hover:border-transparent'
 				onClick={handleAddBtnClick}
 			>
 				+

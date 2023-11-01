@@ -10,9 +10,7 @@ import PageMain from '@/components/Page/PageMain';
 import { PropsWithChildren } from 'react';
 
 const Section = ({ children }: PropsWithChildren<{}>) => (
-	<div className='grid grid-cols-2 gap-2 text-md py-5 px-7 border-b border-west-coast-300'>
-		{children}
-	</div>
+	<div className='text-md py-5 px-7'>{children}</div>
 );
 
 export default function ProjectDetail() {
@@ -31,7 +29,11 @@ export default function ProjectDetail() {
 			<PageHeader heading='Projects'>
 				<div className='flex justify-between h-full'>
 					<HeaderLinkBtn text='Edit' link={`/projects/${id}/edit`} />
-					<HeaderLinkBtn text='Delete' link={`/projects/${id}/del`} />
+					<HeaderLinkBtn
+						text='Delete'
+						className='bg-red-500 hover:bg-red-400 text-white border-red-500 hover:text-white'
+						link={`/projects/${id}/del`}
+					/>
 				</div>
 			</PageHeader>
 
@@ -39,7 +41,7 @@ export default function ProjectDetail() {
 				{project && (
 					<>
 						<Section>
-							<p className='font-semibold'>ExternalID</p>
+							<p className='font-semibold'>External ID</p>
 							<p>{project.ext_id}</p>
 						</Section>
 
@@ -50,7 +52,7 @@ export default function ProjectDetail() {
 
 						<Section>
 							<p className='font-semibold'>Users</p>
-							<div className=''>
+							<div>
 								{project.user_emails?.map((email, index) => (
 									<p key={index} className='py-2'>
 										{email}
