@@ -3,6 +3,7 @@ import { ChangeEventHandler, HTMLInputTypeAttribute } from 'react';
 export function Input({
 	name = '',
 	type = 'text',
+	disabled,
 	value,
 	label: text,
 	placeholder = '',
@@ -20,14 +21,14 @@ export function Input({
 			>
 				{text}
 			</span>
-			<input type='' />
 			<input
 				type={type}
 				value={value}
+				disabled={disabled}
 				required={required}
 				name={name}
 				data-cy-text-input
-				className={`mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none block w-full rounded-md sm:text-md focus:ring-1 ${inputClassName}`}
+				className={`mt-1 px-3 py-2 bg-white disabled:bg-slate-100 disabled:text-slate-500 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none block w-full rounded-md sm:text-md focus:ring-1 ${inputClassName}`}
 				placeholder={placeholder}
 				onChange={onChange}
 			/>
@@ -37,6 +38,7 @@ export function Input({
 interface Props {
 	name?: string;
 	type?: HTMLInputTypeAttribute;
+	disabled?: boolean;
 	value?: string | number;
 	label: string;
 	placeholder?: string;

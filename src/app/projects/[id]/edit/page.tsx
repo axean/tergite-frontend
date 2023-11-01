@@ -8,6 +8,7 @@ import useSWRMutation from 'swr/mutation';
 import { MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import Form, { CustomInputEvent, MultiInput, Input } from '@/components/Form';
 import { useParams, useRouter } from 'next/navigation';
+import PageMain from '@/components/Page/PageMain';
 
 export default function EditProject() {
 	const { id } = useParams();
@@ -52,7 +53,7 @@ export default function EditProject() {
 	}, [id, configGetter, setProject, project]);
 
 	return (
-		<Page>
+		<Page className='h-full w-full'>
 			<Form className='w-full h-full'>
 				<PageHeader heading='Projects'>
 					<HeaderBtn
@@ -63,36 +64,39 @@ export default function EditProject() {
 					/>
 				</PageHeader>
 
-				{project && (
-					<>
-						<Input
-							type='text'
-							value={project.ext_id}
-							label='ExternalID'
-							name='ext_id'
-							required
-							onChange={handleInputChange}
-						/>
+				<PageMain className='py-10 px-5'>
+					{project && (
+						<>
+							<Input
+								type='text'
+								value={project.ext_id}
+								label='External ID'
+								name='ext_id'
+								disabled
+								required
+								onChange={handleInputChange}
+							/>
 
-						<Input
-							label='QPU Seconds'
-							value={project.qpu_seconds}
-							type='number'
-							name='qpu_seconds'
-							required
-							onChange={handleInputChange}
-						/>
+							<Input
+								label='QPU Seconds'
+								value={project.qpu_seconds}
+								type='number'
+								name='qpu_seconds'
+								required
+								onChange={handleInputChange}
+							/>
 
-						<MultiInput
-							label="Users' Emails"
-							value={project.user_emails}
-							name='user_emails'
-							type='email'
-							required
-							onChange={handleInputChange}
-						/>
-					</>
-				)}
+							<MultiInput
+								label='User Emails'
+								value={project.user_emails}
+								name='user_emails'
+								type='email'
+								required
+								onChange={handleInputChange}
+							/>
+						</>
+					)}
+				</PageMain>
 			</Form>
 		</Page>
 	);

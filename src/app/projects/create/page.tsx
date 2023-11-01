@@ -66,7 +66,7 @@ export default function CreateProject() {
 				<Input
 					type='text'
 					value={newProject.ext_id}
-					label='ExternalID'
+					label='External ID'
 					name='ext_id'
 					required
 					onChange={handleInputChange}
@@ -82,7 +82,7 @@ export default function CreateProject() {
 				/>
 
 				<MultiInput
-					label="Users' Emails"
+					label='User Emails'
 					value={newProject.user_emails}
 					name='user_emails'
 					type='email'

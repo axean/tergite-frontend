@@ -6,7 +6,14 @@ import { API } from '@/types';
 import useSWRImmutable from 'swr/immutable';
 import { useParams } from 'next/navigation';
 import useSWR from 'swr';
-import ContentSection from './ContentSection';
+import PageMain from '@/components/Page/PageMain';
+import { PropsWithChildren } from 'react';
+
+const Section = ({ children }: PropsWithChildren<{}>) => (
+	<div className='grid grid-cols-2 gap-2 text-md py-5 px-7 border-b border-west-coast-300'>
+		{children}
+	</div>
+);
 
 export default function ProjectDetail() {
 	const { id } = useParams();
@@ -20,7 +27,7 @@ export default function ProjectDetail() {
 	error && raise(error);
 
 	return (
-		<Page>
+		<Page className='h-full w-full'>
 			<PageHeader heading='Projects'>
 				<div className='flex justify-between h-full'>
 					<HeaderLinkBtn text='Edit' link={`/projects/${id}/edit`} />
@@ -28,30 +35,32 @@ export default function ProjectDetail() {
 				</div>
 			</PageHeader>
 
-			{project && (
-				<>
-					<ContentSection>
-						<p className='font-bold'>ExternalID</p>
-						<p className='font-semibold'>{project.ext_id}</p>
-					</ContentSection>
+			<PageMain>
+				{project && (
+					<>
+						<Section>
+							<p className='font-semibold'>ExternalID</p>
+							<p>{project.ext_id}</p>
+						</Section>
 
-					<ContentSection>
-						<p className='font-bold'>QPU Seconds</p>
-						<p className='font-semibold'>{project.qpu_seconds}</p>
-					</ContentSection>
+						<Section>
+							<p className='font-semibold'>QPU Seconds</p>
+							<p>{project.qpu_seconds}</p>
+						</Section>
 
-					<ContentSection>
-						<p className='font-bold'>Users</p>
-						<div className='font-semibold'>
-							{project.user_emails?.map((email, index) => (
-								<p key={index} className='py-2'>
-									{email}
-								</p>
-							))}
-						</div>
-					</ContentSection>
-				</>
-			)}
+						<Section>
+							<p className='font-semibold'>Users</p>
+							<div className=''>
+								{project.user_emails?.map((email, index) => (
+									<p key={index} className='py-2'>
+										{email}
+									</p>
+								))}
+							</div>
+						</Section>
+					</>
+				)}
+			</PageMain>
 		</Page>
 	);
 }

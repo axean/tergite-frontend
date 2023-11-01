@@ -7,8 +7,9 @@ import useSWR from 'swr';
 import Loading from '@/components/Loading';
 import useSWRImmutable from 'swr/immutable';
 import Page, { HeaderLinkBtn, PageHeader } from '@/components/Page';
+import PageMain from '@/components/Page/PageMain';
 
-const titles = [{ field: 'ext_id', className: 'w-auto md:w-4/5', label: 'ExternalID' }];
+const titles = [{ field: 'ext_id', className: 'w-auto md:w-4/5', label: 'External ID' }];
 
 const actions = [
 	{ getLabel: () => 'View', getLink: ({ id }: API.Project) => `/projects/${id}` },
@@ -34,11 +35,18 @@ export default function Projects() {
 				<HeaderLinkBtn text='Create' link='/projects/create' />
 			</PageHeader>
 
-			{isLoading && <Loading />}
+			<PageMain>
+				{isLoading && <Loading />}
 
-			{data && (
-				<DataTable titles={titles} actions={actions} data={data.data} getKey={getItemKey} />
-			)}
+				{data && (
+					<DataTable
+						titles={titles}
+						actions={actions}
+						data={data.data}
+						getKey={getItemKey}
+					/>
+				)}
+			</PageMain>
 		</Page>
 	);
 }
