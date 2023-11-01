@@ -39,7 +39,7 @@ export default function CreateProject() {
 			const response = await submit(newProject);
 			router.push(`/projects/${response.id}`);
 		},
-		[newProject, submit]
+		[router, submit]
 	);
 
 	const handleInputChange = useCallback(

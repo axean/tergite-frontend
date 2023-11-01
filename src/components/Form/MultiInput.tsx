@@ -47,7 +47,7 @@ export function MultiInput<T>({
 				onChange({ target, preventDefault: () => {} });
 			}
 		},
-		[setTarget, target, onChange]
+		[setTarget, target, onChange, required]
 	);
 
 	const handleInputChange = useCallback(

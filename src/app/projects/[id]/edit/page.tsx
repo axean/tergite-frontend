@@ -35,7 +35,7 @@ export default function EditProject() {
 				})
 				.catch(console.error);
 		},
-		[project, mutator]
+		[mutator, id, router]
 	);
 
 	const handleInputChange = useCallback(
@@ -44,7 +44,7 @@ export default function EditProject() {
 			const { name, value } = ev.target;
 			setProject((prevObj) => ({ ...(prevObj || {}), [name]: value }));
 		},
-		[project, setProject]
+		[setProject]
 	);
 
 	useEffect(() => {

@@ -9,8 +9,11 @@ import useSWR from 'swr';
 import PageMain from '@/components/Page/PageMain';
 import { PropsWithChildren } from 'react';
 
-const Section = ({ children }: PropsWithChildren<{}>) => (
-	<div className='text-md py-5 px-7'>{children}</div>
+const Section = ({ children, title }: PropsWithChildren<{ title: string }>) => (
+	<div data-cy-project-section={title} className='text-md py-5 px-7'>
+		<p className='font-semibold'>{title}</p>
+		{children}
+	</div>
 );
 
 export default function ProjectDetail() {
@@ -40,18 +43,15 @@ export default function ProjectDetail() {
 			<PageMain>
 				{project && (
 					<>
-						<Section>
-							<p className='font-semibold'>External ID</p>
+						<Section title='External ID'>
 							<p>{project.ext_id}</p>
 						</Section>
 
-						<Section>
-							<p className='font-semibold'>QPU Seconds</p>
+						<Section title='QPU Seconds'>
 							<p>{project.qpu_seconds}</p>
 						</Section>
 
-						<Section>
-							<p className='font-semibold'>Users</p>
+						<Section title='Users'>
 							<div>
 								{project.user_emails?.map((email, index) => (
 									<p key={index} className='py-2'>
