@@ -19,6 +19,8 @@ from ..app_tokens.authenticator import AppTokenAuthenticator
 from ..app_tokens.database import AppTokenDatabase
 from ..app_tokens.routers import get_app_tokens_router
 from ..app_tokens.strategy import AppTokenStrategy
+from ..users import get_user_db
+from ..users.database import UserDatabase
 from ..users.dtos import CurrentUserDependency
 from ..users.manager import UserManagerDependency
 from . import routers
@@ -59,9 +61,10 @@ async def get_app_token_db():
 async def get_project_manager(
     project_db: ProjectDatabase = Depends(get_project_db),
     app_token_db: AppTokenDatabase = Depends(get_app_token_db),
+    user_db: UserDatabase = Depends(get_user_db),
 ):
     """Dependency injector for ProjectAppTokenManager"""
-    yield ProjectAppTokenManager(project_db, app_token_db=app_token_db)
+    yield ProjectAppTokenManager(project_db, app_token_db=app_token_db, user_db=user_db)
 
 
 class ProjectBasedAuth:
