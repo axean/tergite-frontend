@@ -156,7 +156,7 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
             request: Optional FastAPI request that triggered the operation, defaults to None.
 
         Raises:
-            ProjectNotExists: A project already exists with the same ext_id.
+            ProjectExists: A project already exists with the same ext_id.
 
         Returns:
             a new project.
@@ -164,7 +164,7 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
 
         existing_project = await self.project_db.get_by_ext_id(project_create.ext_id)
         if existing_project is not None:
-            raise exc.ProjectNotExists()
+            raise exc.ProjectExists()
 
         created_project = await self.project_db.create(project_create.dict())
         return created_project

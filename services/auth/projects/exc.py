@@ -25,3 +25,7 @@ class ExtendedErrorCode(str, Enum):
 
 class ProjectNotExists(UserNotExists):
     pass
+
+
+class ProjectExists(UserNotExists):
+    pass
