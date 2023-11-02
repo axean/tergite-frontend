@@ -38,6 +38,11 @@ export namespace API {
 		created_at: string;
 	}
 
+	export interface CreatedAppToken {
+		access_token: string;
+		token_type: string;
+	}
+
 	/**
 	 * Payload for app token generation
 	 */

@@ -6,7 +6,7 @@ import Overlay from './Overlay';
 export default function Modal({
 	children,
 	onClose,
-	className = 'w-1/3 xl:w-1/5 p-7',
+	className = '',
 	overlayClassName = ''
 }: PropsWithChildren<Props>) {
 	return (
@@ -15,7 +15,7 @@ export default function Modal({
 				<div className='w-full flex justify-end'>
 					<button
 						data-cy-close-btn
-						className='p-2 rounded-r-md text-sm hover:bg-west-coast hover:text-white border border-slate-500'
+						className='px-2 py-[0.15rem] text-sm hover:bg-west-coast hover:text-white font-semibold rounded-sm'
 						onClick={onClose}
 					>
 						x

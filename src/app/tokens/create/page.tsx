@@ -29,7 +29,7 @@ export default function CreateToken() {
 		trigger: submit,
 		isMutating,
 		error
-	} = useSWRMutation(swrKey, post<API.AppTokenPartial, API.AppToken>, {
+	} = useSWRMutation(swrKey, post<API.AppTokenPartial, API.CreatedAppToken>, {
 		populateCache: false,
 		revalidate: false
 	});
@@ -37,7 +37,7 @@ export default function CreateToken() {
 
 	const [newToken, setNewToken] = useState<API.AppTokenPartial>(defaultTokenData);
 
-	const [createdToken, setCreatedToken] = useState<API.AppToken>();
+	const [createdToken, setCreatedToken] = useState<API.CreatedAppToken>();
 	const [isModalVisible, setisModalVisible] = useState(false);
 
 	const btnText = useMemo(() => (isMutating ? 'Generating...' : 'Generate'), [isMutating]);
@@ -49,7 +49,7 @@ export default function CreateToken() {
 			setCreatedToken(response);
 			setisModalVisible(true);
 		},
-		[submit, newToken]
+		[submit, newToken, setCreatedToken, setisModalVisible]
 	);
 
 	const handleInputChange = useCallback(
@@ -61,12 +61,15 @@ export default function CreateToken() {
 		[setNewToken]
 	);
 
-	const handleModalCloseBtnClick = useCallback((ev: MouseEvent<HTMLButtonElement>) => {
-		ev.preventDefault();
-		setisModalVisible(false);
-		setCreatedToken(undefined);
-		setNewToken(defaultTokenData);
-	}, []);
+	const handleModalCloseBtnClick = useCallback(
+		(ev: MouseEvent<HTMLButtonElement>) => {
+			ev.preventDefault();
+			setisModalVisible(false);
+			setCreatedToken(undefined);
+			setNewToken(defaultTokenData);
+		},
+		[setisModalVisible, setCreatedToken, setNewToken]
+	);
 
 	return (
 		<Page className='w-full h-full'>
@@ -109,13 +112,22 @@ export default function CreateToken() {
 						onChange={handleInputChange}
 					/>
 
-					{createdToken?.token && isModalVisible && (
-						<Modal onClose={handleModalCloseBtnClick}>
-							<p data-token-alert className='text-sm text-slate-800 w-full'>
+					{createdToken?.access_token && isModalVisible && (
+						<Modal
+							onClose={handleModalCloseBtnClick}
+							className='w-fit !border-slate-500'
+						>
+							<p
+								data-token-alert
+								className='text-sm font-semibold text-slate-800 my-4 mx-7'
+							>
 								Here is your new token. Copy it and keep it securely. It will not be
 								shown to you again.
 							</p>
-							<PreformatedText text={createdToken.token} />
+							<PreformatedText
+								text={createdToken.access_token}
+								className='mb-7 mx-7'
+							/>
 						</Modal>
 					)}
 				</PageMain>
