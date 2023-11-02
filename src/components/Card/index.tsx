@@ -5,7 +5,7 @@ export { CardHeader } from './CardHeader';
 
 export default function Card({ children, className = '' }: PropsWithChildren<Props>) {
 	return (
-		<div className={`bg-white  border border-west-coast-300 rounded ${className}`}>
+		<div data-cy-card className={`bg-white  border border-west-coast-300 rounded ${className}`}>
 			{children}
 		</div>
 	);

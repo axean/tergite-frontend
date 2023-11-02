@@ -7,14 +7,20 @@ import useSWRImmutable from 'swr/immutable';
 import useSWRMutation from 'swr/mutation';
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import Form, { CustomInputEvent, Input } from '@/components/Form';
-import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
+import Modal from '@/components/Modal';
+import PreformatedText from '@/components/PreformatedText';
+
+const defaultTokenData: API.AppTokenPartial = {
+	title: '',
+	project_ext_id: '',
+	lifespan_seconds: 0
+};
 
 export default function CreateToken() {
 	const { error: authError } = useSWR('/api/me', fetcher<API.User>);
 	authError && raise(authError);
 
-	const router = useRouter();
 	const { data: config, error: configErr } = useSWRImmutable<API.Config>(`/api/config`, fetcher);
 	configErr && raise(configErr);
 
@@ -29,21 +35,19 @@ export default function CreateToken() {
 	});
 	error && raise(error);
 
-	const [newToken, setNewToken] = useState<API.AppTokenPartial>({
-		title: '',
-		project_ext_id: '',
-		lifespan_seconds: 0
-	});
+	const [newToken, setNewToken] = useState<API.AppTokenPartial>(defaultTokenData);
 
 	const [createdToken, setCreatedToken] = useState<API.AppToken>();
+	const [isModalVisible, setisModalVisible] = useState(false);
 
-	const btnText = useMemo(() => (isMutating ? 'Saving...' : 'Save'), [isMutating]);
+	const btnText = useMemo(() => (isMutating ? 'Generating...' : 'Generate'), [isMutating]);
 
 	const handleSubmit = useCallback(
 		async (ev: MouseEvent<HTMLButtonElement>) => {
 			ev.preventDefault();
 			const response = await submit(newToken);
 			setCreatedToken(response);
+			setisModalVisible(true);
 		},
 		[submit, newToken]
 	);
@@ -56,6 +60,13 @@ export default function CreateToken() {
 		},
 		[setNewToken]
 	);
+
+	const handleModalCloseBtnClick = useCallback((ev: MouseEvent<HTMLButtonElement>) => {
+		ev.preventDefault();
+		setisModalVisible(false);
+		setCreatedToken(undefined);
+		setNewToken(defaultTokenData);
+	}, []);
 
 	return (
 		<Page className='w-full h-full'>
@@ -98,14 +109,14 @@ export default function CreateToken() {
 						onChange={handleInputChange}
 					/>
 
-					{createdToken && (
-						<div className='absolute p-5 w-1/2 z-30'>
-							<p className='text-sm'>
+					{createdToken?.token && isModalVisible && (
+						<Modal onClose={handleModalCloseBtnClick}>
+							<p data-token-alert className='text-sm text-slate-800 w-full'>
 								Here is your new token. Copy it and keep it securely. It will not be
-								shown to you again
+								shown to you again.
 							</p>
-							<p className='code text-lg py-5'>{createdToken.token}</p>
-						</div>
+							<PreformatedText text={createdToken.token} />
+						</Modal>
 					)}
 				</PageMain>
 			</Form>
