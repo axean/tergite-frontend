@@ -4,19 +4,19 @@ import { API } from '../../src/types';
 import utils from '../../utils';
 import { testNavigation } from './navigation';
 
-// testNavigation('http://localhost:3000/tokens', {
-// 	init: () => {
-// 		cy.intercept('GET', `${process.env.API_BASE_URL}/auth/me/app-tokens`).as('initialRequest');
-// 	},
-// 	postInit: () => {
-// 		cy.wait('@initialRequest');
-// 	}
-// });
+testNavigation('http://localhost:3000/tokens', {
+	init: () => {
+		cy.intercept('GET', `${process.env.API_BASE_URL}/auth/me/app-tokens`).as('initialRequest');
+	},
+	postInit: () => {
+		cy.wait('@initialRequest');
+	}
+});
 
 meResponses.forEach((resp) => {
-	const isNoAuth = resp.statusCode == 403;
 	const user = resp.body as API.User;
 	const id = user.id ?? 'anonymous';
+	const isAuthenticated = !!user.id;
 	const myTokens = tokens.filter(({ user_id }) => id === user_id);
 
 	describe(`token list page for user '${id}'`, () => {
@@ -41,24 +41,24 @@ meResponses.forEach((resp) => {
 
 			cy.visit('http://localhost:3000/tokens');
 
-			user && cy.get('[data-cy-data-table]').as('dataTable');
+			isAuthenticated && cy.get('[data-cy-data-table]').as('dataTable');
 		});
 
-		isNoAuth &&
-			it('renders Not Found for non-admins', () => {
+		!isAuthenticated &&
+			it('renders Not Found the unauthenticated', () => {
 				cy.get('[data-cy-content]').within(() => {
 					cy.get('[data-cy-error]').should('contain', 'Not Found');
 				});
 			});
 
-		user &&
+		isAuthenticated &&
 			it("renders 'generate' button", () => {
 				cy.get('[data-cy-header-btn]')
 					.should('contain.text', 'Generate')
 					.should('have.attr', 'href', '/tokens/create');
 			});
 
-		user &&
+		isAuthenticated &&
 			it('renders data table', () => {
 				cy.get('@dataTable').within(() => {
 					cy.get('[data-cy-header-cell]').should('have.length', 5);
@@ -104,13 +104,13 @@ meResponses.forEach((resp) => {
 				});
 			});
 
-		user &&
+		isAuthenticated &&
 			it('Token Generation button redirects to /tokens/create', () => {
 				cy.get('[data-cy-header-btn]').click();
 				cy.url().should('eq', 'http://localhost:3000/tokens/create');
 			});
 
-		user &&
+		isAuthenticated &&
 			myTokens.forEach((token) => {
 				it(`'View' button of token ${token.title} of ${token.project_ext_id} redirects to /tokens/${token.id}`, () => {
 					cy.get(`[data-cy-data-cell=${token.id}--action] [data-cy-action-btn]`)
@@ -120,7 +120,7 @@ meResponses.forEach((resp) => {
 				});
 			});
 
-		user &&
+		isAuthenticated &&
 			myTokens.forEach((token) => {
 				it(`'Delete' button of token ${token.title} of ${token.project_ext_id} redirects to /projects/${token.id}/del`, () => {
 					cy.get(`[data-cy-data-cell=${token.id}--action] [data-cy-action-btn]`)

@@ -12,4 +12,3 @@ export function PageSection({ children, title }: PropsWithChildren<Props>) {
 interface Props {
 	title: string;
 }
-
