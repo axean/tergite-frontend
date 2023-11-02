@@ -29,7 +29,7 @@ export default function ProjectDetail() {
 
 	return (
 		<Page className='h-full w-full'>
-			<PageHeader heading='Projects'>
+			<PageHeader heading={`Project '${project?.ext_id}'`}>
 				<div className='flex justify-between h-full'>
 					<HeaderLinkBtn text='Edit' link={`/projects/${id}/edit`} />
 					<HeaderLinkBtn

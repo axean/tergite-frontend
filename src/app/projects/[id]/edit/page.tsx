@@ -60,7 +60,7 @@ export default function EditProject() {
 	return (
 		<Page className='h-full w-full'>
 			<Form className='w-full h-full'>
-				<PageHeader heading='Projects'>
+				<PageHeader heading={`Editing Project '${project?.ext_id}'`}>
 					<HeaderBtn
 						type='button'
 						text={btnText}
