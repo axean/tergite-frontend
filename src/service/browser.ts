@@ -176,12 +176,12 @@ async function getTextErrorResponse(resp: Response): Promise<string | undefined>
  * @returns - the human friendly version of the app token record
  */
 export function getTokenInfo(record: API.AppToken): API.TokenInfo {
-	const { title: name, project_ext_id: project, id, token } = record;
+	const { title: name, project_ext_id: project, id } = record;
 	const expirationDate = moment(record.created_at).add(record.lifespan_seconds, 'seconds');
 
 	const expiration = expirationDate.calendar();
 	const isExpired = expirationDate.isBefore(moment.now());
 	const status = isExpired ? API.TokenStatus.EXPIRED : API.TokenStatus.LIVE;
 
-	return { id, name, token, project, expiration, status };
+	return { id, name, project, expiration, status };
 }

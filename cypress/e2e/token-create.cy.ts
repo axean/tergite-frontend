@@ -155,7 +155,7 @@ meResponses.slice(undefined, 1).forEach((resp) => {
 							);
 
 							// close the overlay
-							cy.get('[data-cy-close-btn]').realClick();
+							cy.get('[data-cy-close-btn]').click();
 						})
 						.then(() => {
 							cy.get('[data-cy-overlay]').should('not.exist');

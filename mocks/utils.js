@@ -188,7 +188,7 @@ class MockDb {
 	 *
 	 * @param {string} userId - the id of the user for the token
 	 * @param {{title: string; project_ext_id: string; lifespan_seconds: number;}} payload - the token to create
-	 * @returns {{id: string; title: string; token: string; project_ext_id: string; lifespan_seconds: number; created_at: string;}} - the token to return
+	 * @returns {{access_token: string; token_type: string}} - the created token
 	 */
 	createToken(userId, payload) {
 		const project = this.getProjectByExtIdAndUserId(userId, payload.project_ext_id);
@@ -205,7 +205,7 @@ class MockDb {
 			created_at: new Date().toISOString()
 		};
 		this.tokens.push(newToken);
-		return newToken;
+		return { access_token: newToken.token, token_type: 'bearer' };
 	}
 }
 

@@ -32,7 +32,6 @@ export namespace API {
 	export interface AppToken {
 		id: string;
 		title: string;
-		token?: string;
 		project_ext_id: string;
 		lifespan_seconds: number;
 		created_at: string;
@@ -65,7 +64,6 @@ export namespace API {
 	 */
 	export interface TokenInfo {
 		id: string;
-		token?: string;
 		name: string;
 		project: string;
 		expiration: string;
