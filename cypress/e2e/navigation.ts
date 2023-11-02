@@ -96,8 +96,8 @@ export const testNavigation = (
 
 						cy.get('@navItems')
 							.eq(2)
-							.should('contain.text', 'App tokens')
-							.should('have.attr', 'href', '/app-tokens');
+							.should('contain.text', 'Tokens')
+							.should('have.attr', 'href', '/tokens');
 
 						cy.get('@logoutBtn').should('contain.text', 'Logout');
 					});
@@ -121,8 +121,8 @@ export const testNavigation = (
 
 						cy.get('@navItems')
 							.eq(1)
-							.should('contain.text', 'App tokens')
-							.should('have.attr', 'href', '/app-tokens');
+							.should('contain.text', 'Tokens')
+							.should('have.attr', 'href', '/tokens');
 
 						cy.get('@logoutBtn').should('contain.text', 'Logout');
 					});
@@ -152,10 +152,10 @@ export const testNavigation = (
 				});
 
 			!isNoAuth &&
-				it('App-tokens nav-item directs to app-tokens page', () => {
+				it('App-tokens nav-item directs to tokens page', () => {
 					cy.get('[data-cy-site-actions-navbar]').within(() => {
 						cy.get('@navItems').eq(-1).click();
-						cy.url().should('eq', 'http://localhost:3000/app-tokens');
+						cy.url().should('eq', 'http://localhost:3000/tokens');
 					});
 				});
 

@@ -29,10 +29,54 @@ export namespace API {
 		qpu_seconds?: number;
 	}
 
+	export interface AppToken {
+		id: string;
+		title: string;
+		token?: string;
+		project_ext_id: string;
+		lifespan_seconds: number;
+		created_at: string;
+	}
+
+	/**
+	 * Payload for app token generation
+	 */
+	export interface AppTokenPartial {
+		title: string;
+		project_ext_id: string;
+		lifespan_seconds: number;
+	}
+
+	/**
+	 * Status of a token
+	 */
+	export enum TokenStatus {
+		EXPIRED = 'expired',
+		LIVE = 'live'
+	}
+
+	/**
+	 * User friendly info about a token
+	 */
+	export interface TokenInfo {
+		id: string;
+		token?: string;
+		name: string;
+		project: string;
+		expiration: string;
+		status: TokenStatus;
+	}
+
+	/**
+	 * Config variables about this application
+	 */
 	export interface Config {
 		baseUrl: string;
 	}
 
+	/**
+	 * An error object that has some extra information useful in handling it
+	 */
 	export type EnhancedError = Error & { status?: number };
 
 	export namespace Response {

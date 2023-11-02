@@ -1,56 +1,58 @@
 'use client';
 
 import Page, { HeaderLinkBtn, PageHeader } from '@/components/Page';
-import { fetcher, raise } from '@/service/browser';
+import { fetcher, getTokenInfo, raise } from '@/service/browser';
 import { API } from '@/types';
 import useSWRImmutable from 'swr/immutable';
 import { useParams } from 'next/navigation';
 import useSWR from 'swr';
 import { PageMain, PageSection } from '@/components/Page';
+import { useMemo } from 'react';
 
-export default function ProjectDetail() {
+export default function TokenDetail() {
 	const { id } = useParams();
 
 	const configGetter = useSWRImmutable<API.Config>(`/api/config`, fetcher);
 	configGetter.error && raise(configGetter.error);
 
-	const swrKey = configGetter.data ? `${configGetter.data.baseUrl}/auth/projects/${id}` : null;
+	const swrKey = configGetter.data
+		? `${configGetter.data.baseUrl}/auth/me/app-tokens/${id}`
+		: null;
 
-	const { data: project, error } = useSWR(swrKey, fetcher<API.Project>);
+	const { data: token, error } = useSWR(swrKey, fetcher<API.AppToken>);
 	error && raise(error);
+
+	const tokenInfo = useMemo(() => token && getTokenInfo(token), [token]);
 
 	return (
 		<Page className='h-full w-full'>
-			<PageHeader heading={`Project '${project?.ext_id}'`}>
+			<PageHeader heading={`Token '${tokenInfo?.name}' for Project '${tokenInfo?.project}'`}>
 				<div className='flex justify-between h-full'>
-					<HeaderLinkBtn text='Edit' link={`/projects/${id}/edit`} />
 					<HeaderLinkBtn
 						text='Delete'
 						className='bg-red-500 hover:bg-red-400 text-white border-red-500 hover:text-white'
-						link={`/projects/${id}/del`}
+						link={`/tokens/${id}/del`}
 					/>
 				</div>
 			</PageHeader>
 
 			<PageMain>
-				{project && (
+				{tokenInfo && (
 					<>
-						<PageSection title='External ID'>
-							<p>{project.ext_id}</p>
+						<PageSection title='Name'>
+							<p>{tokenInfo.name}</p>
 						</PageSection>
 
-						<PageSection title='QPU Seconds'>
-							<p>{project.qpu_seconds}</p>
+						<PageSection title='Project'>
+							<p>{tokenInfo.project}</p>
 						</PageSection>
 
-						<PageSection title='Users'>
-							<div>
-								{project.user_emails?.map((email, index) => (
-									<p key={index} className='py-2'>
-										{email}
-									</p>
-								))}
-							</div>
+						<PageSection title='Expires'>
+							<p>{tokenInfo.expiration}</p>
+						</PageSection>
+
+						<PageSection title='Status'>
+							<p>{tokenInfo.status}</p>
 						</PageSection>
 					</>
 				)}

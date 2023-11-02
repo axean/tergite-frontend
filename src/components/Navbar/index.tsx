@@ -50,7 +50,7 @@ const Navbar = ({}: Props) => {
 				<ul className='flex'>
 					{<NavItem text='Home' link='/' />}
 					{isAdmin && <NavItem text='Projects' link='/projects' />}
-					{user && <NavItem text='App tokens' link='/app-tokens' />}
+					{user && <NavItem text='Tokens' link='/tokens' />}
 					{user && <NavBtn text='Logout' onClick={handleLogout} />}
 					{!user && <NavItem text='Login' link='/login' />}
 				</ul>
