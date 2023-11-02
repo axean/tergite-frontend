@@ -73,10 +73,20 @@ async function verifyJwtToken(token) {
 	return await jwtVerify(token, secret, { audience, algorithms });
 }
 
+/**
+ * A random integer capped to the given max value
+ *
+ * @param {number} max - the maximum possible random number
+ * @returns {number} - a random integer
+ */
+function randInt(max) {
+	return Math.floor(Math.random() * max);
+}
 module.exports = {
 	loadEnvFromFile,
 	loadEnvFromString,
 	generateJwt,
-	verifyJwtToken
+	verifyJwtToken,
+	randInt
 };
 

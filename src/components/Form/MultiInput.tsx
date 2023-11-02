@@ -99,6 +99,7 @@ export function MultiInput<T>({
 						value={item}
 					/>
 					<button
+						type='button'
 						data-cy-multi-input-close-btn={index}
 						className='p-2 rounded-r-md sm:text-md hover:bg-west-coast hover:text-white'
 						onClick={() => handleCloseBtnClick(index)}
@@ -108,6 +109,7 @@ export function MultiInput<T>({
 				</div>
 			))}
 			<button
+				type='button'
 				data-cy-multi-input-add-btn
 				className='rounded bg-white border-slate-300 p-2 mt-1 hover:bg-west-coast hover:text-white  border border-west-coast-300 hover:border-transparent'
 				onClick={handleAddBtnClick}

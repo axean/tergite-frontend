@@ -1,4 +1,4 @@
-const { generateJwt } = require('../utils');
+const { generateJwt, randInt } = require('../utils');
 const projects = require('../cypress/fixtures/projects.json');
 const users = require('../cypress/fixtures/users.json');
 
@@ -83,8 +83,26 @@ class MockDb {
 			throw error;
 		}
 
-		const newProject = { ...payload, id: `${Math.floor(Math.random() * 10000000)}` };
+		const newProject = { ...payload, id: `${randInt(10000000)}` };
 		this.projects.push(newProject);
+		return newProject;
+	}
+
+	/**
+	 * Updates the project, returning it on completion. It fails if a project does not exist
+	 * @param {string} id - the id of the project
+	 * @param {{ user_emails?: string[], qpu_seconds?: number}} payload - the updates to add
+	 */
+	updateProject(id, payload) {
+		const preExistingProject = this.getOneProject(id);
+		if (!preExistingProject) {
+			const error = new Error('Not Found');
+			error.status = 404;
+			throw error;
+		}
+
+		const newProject = { ...preExistingProject, ...payload };
+		this.projects = this.projects.map((item) => (item.id === id ? newProject : item));
 		return newProject;
 	}
 

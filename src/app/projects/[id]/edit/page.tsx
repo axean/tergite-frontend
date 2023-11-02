@@ -9,6 +9,7 @@ import { MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import Form, { CustomInputEvent, MultiInput, Input } from '@/components/Form';
 import { useParams, useRouter } from 'next/navigation';
 import PageMain from '@/components/Page/PageMain';
+import useSWR from 'swr';
 
 export default function EditProject() {
 	const { id } = useParams();
@@ -21,6 +22,9 @@ export default function EditProject() {
 	const swrKey = configGetter.data ? `${configGetter.data.baseUrl}/auth/projects/${id}` : null;
 	const mutator = useSWRMutation(swrKey, updater<API.ProjectPartial>);
 	mutator.error && raise(mutator.error);
+
+	const getter = useSWR<API.Project>(swrKey, fetcher);
+	getter.error && raise(getter.error);
 
 	const { isMutating } = mutator;
 	const btnText = useMemo(() => (isMutating ? 'Saving...' : 'Save'), [isMutating]);
@@ -48,20 +52,17 @@ export default function EditProject() {
 	);
 
 	useEffect(() => {
-		if (configGetter.data && project === undefined) {
-			const url = `${configGetter.data.baseUrl}/auth/projects/${id}`;
-			fetcher<API.Project>(url).then((resp) => {
-				setProject({ ...resp });
-			});
+		if (getter.data && project === undefined) {
+			setProject({ ...getter.data });
 		}
-	}, [id, configGetter, setProject, project]);
+	}, [setProject, project, getter.data]);
 
 	return (
 		<Page className='h-full w-full'>
 			<Form className='w-full h-full'>
 				<PageHeader heading='Projects'>
 					<HeaderBtn
-						type='submit'
+						type='button'
 						text={btnText}
 						onClick={handleSubmit}
 						disabled={isMutating}

@@ -86,6 +86,22 @@ app.get('/auth/projects/:id', (req, res) => {
 	}
 });
 
+app.patch('/auth/projects/:id', (req, res) => {
+	const { id } = req.params;
+
+	// delay response to allow loader to be shown
+	setTimeout(() => {
+		try {
+			const data = mockDb.updateProject(id, req.body);
+			res.status(200);
+			res.json(data);
+		} catch (error) {
+			res.status(error.status || 500);
+			res.json({ detail: error.message });
+		}
+	}, 50);
+});
+
 app.post('/auth/projects', (req, res) => {
 	// delay response to allow loader to be shown
 	setTimeout(() => {
