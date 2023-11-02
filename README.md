@@ -79,9 +79,6 @@ docker run -p 3000:3000 --name landing-page \
 
 ## TODO
 
--   [ ] Tests for project deletion
--   [ ] Implementation and tests for project creation
--   [ ] Implementation and tests for project update
 -   [ ] Implementation and tests for app token generation
 -   [ ] Implementation and tests for app token view
 -   [ ] Implementation and tests for app token deletion
