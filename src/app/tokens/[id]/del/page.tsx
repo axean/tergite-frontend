@@ -22,11 +22,12 @@ export default function DeleteToken() {
 	const swrKey = configGetter.data
 		? `${configGetter.data.baseUrl}/auth/me/app-tokens/${id}`
 		: null;
-	const mutator = useSWRMutation(swrKey, destroyer, { populateCache: false, revalidate: false });
-	mutator.error && raise(mutator.error);
 
 	const getter = useSWR<API.AppToken>(swrKey, fetcher);
 	getter.error && raise(getter.error);
+
+	const mutator = useSWRMutation(swrKey, destroyer, { populateCache: false, revalidate: false });
+	mutator.error && raise(mutator.error);
 
 	const { isMutating } = mutator;
 	const btnText = useMemo(() => (isMutating ? 'Deleting...' : 'Delete'), [isMutating]);
