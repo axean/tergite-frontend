@@ -63,7 +63,7 @@ meResponses.forEach((resp) => {
 			it('renders data table', () => {
 				cy.get('@dataTable').within(() => {
 					cy.get('[data-cy-header-cell]').should('have.length', 2);
-					cy.get('[data-cy-header-cell]').eq(0).should('contain.text', 'ExternalID');
+					cy.get('[data-cy-header-cell]').eq(0).should('contain.text', 'External ID');
 					cy.get('[data-cy-header-cell]').eq(1).should('contain.text', 'Actions');
 
 					cy.get('[data-cy-data-cell]').should('have.length', projects.length * 2);
