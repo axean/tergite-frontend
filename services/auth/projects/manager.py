@@ -54,7 +54,7 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
         Get a project by id.
 
         Args:
-            id: Id. of the project to retrieve.
+            id: ID of the project to retrieve.
 
         Raises:
             ProjectNotExists: The project does not exist.

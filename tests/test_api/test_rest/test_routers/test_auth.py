@@ -49,6 +49,16 @@ _USER_EMAIL_HEADERS_FIXTURE = [
     (TEST_USER_EMAIL, lazy_fixture("user_jwt_header")),
     (TEST_SUPERUSER_EMAIL, lazy_fixture("admin_jwt_header")),
 ]
+_MY_TOKENS_REQUESTS = [
+    (token["user_id"], get_auth_header(token["user_id"]), token)
+    for token in APP_TOKEN_LIST
+]
+_OTHERS_TOKENS_REQUESTS = [
+    (user_id, get_auth_header(user_id), token)
+    for token in APP_TOKEN_LIST
+    for user_id in [TEST_USER_ID, TEST_SUPERUSER_ID]
+    if user_id != token["user_id"]
+]
 
 _AUTH_COOKIE_REGEX = re.compile(
     r"some-cookie=(.*); Domain=testserver; HttpOnly; Max-Age=3600; Path=/; SameSite=lax; Secure"
@@ -630,6 +640,50 @@ def test_view_own_app_tokens_in_less_detail(
 
         assert response.status_code == 200
         assert got == {"skip": 0, "limit": None, "data": expected_data}
+
+
+@pytest.mark.parametrize("user_id, headers, token", _MY_TOKENS_REQUESTS)
+def test_view_my_app_token_in_less_detail(
+    user_id, headers, token, client, inserted_projects, inserted_app_tokens, freezer
+):
+    """Any user can view only their own single app token at /auth/me/app-tokens/{id}
+    without token itself displayed"""
+    # using context manager to ensure on_startup runs
+    with client as client:
+        token_id = token["_id"]
+        url = f"/auth/me/app-tokens/{token_id}"
+        response = client.get(url, headers=headers)
+
+        got = response.json()
+
+        expected = {
+            "id": token_id,
+            "project_ext_id": token["project_ext_id"],
+            "title": token["title"],
+            "lifespan_seconds": token["lifespan_seconds"],
+            "created_at": datetime.now(timezone.utc).isoformat("T"),
+        }
+
+        assert response.status_code == 200
+        assert got == expected
+
+
+@pytest.mark.parametrize("user_id, headers, token", _OTHERS_TOKENS_REQUESTS)
+def test_view_others_tokens_in_not_allowed(
+    user_id, headers, token, client, inserted_projects, inserted_app_tokens, freezer
+):
+    """No user can view only other's app tokens at /auth/me/app-tokens/{id}"""
+    # using context manager to ensure on_startup runs
+    with client as client:
+        token_id = token["_id"]
+        url = f"/auth/me/app-tokens/{token_id}"
+        response = client.get(url, headers=headers)
+
+        got = response.json()
+        expected = {"detail": "the token does not exist."}
+
+        assert response.status_code == 404
+        assert got == expected
 
 
 @pytest.mark.parametrize("app_token", APP_TOKEN_LIST)

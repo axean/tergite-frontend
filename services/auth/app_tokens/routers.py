@@ -17,7 +17,6 @@ from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.requests import Request
 from fastapi_users import schemas
-from fastapi_users.router import ErrorCode
 from fastapi_users.router.common import ErrorModel
 
 from ..projects.manager import ProjectAppTokenManager, ProjectManagerDependency
@@ -39,6 +38,40 @@ def get_app_tokens_router(
 ) -> APIRouter:
     """Generate a router with login/logout routes for an authentication backend."""
     router = APIRouter()
+
+    @router.get(
+        "/{id}",
+        response_model=AppTokenRead,
+        name="app_tokens:my_app_token",
+        responses={
+            status.HTTP_401_UNAUTHORIZED: {
+                "description": "Missing JWT token or inactive user.",
+            },
+            status.HTTP_404_NOT_FOUND: {
+                "description": "Not found.",
+            },
+        },
+    )
+    async def get_my_app_token(
+        id: PydanticObjectId,
+        user_id: str = Depends(get_current_user_id),
+        project_manager: ProjectAppTokenManager = Depends(get_project_manager),
+        user_manager: UserManager = Depends(get_user_manager),
+    ):
+        parsed_user_id = user_manager.parse_id(user_id)
+        filter_obj = {"user_id": parsed_user_id, "_id": id}
+
+        app_tokens = await project_manager.get_many_app_tokens(
+            filter_obj=filter_obj,
+        )
+
+        try:
+            return schemas.model_validate(AppTokenRead, app_tokens[0])
+        except IndexError:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="the token does not exist.",
+            )
 
     # route to view list of app tokens
     @router.get(
