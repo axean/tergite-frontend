@@ -43,9 +43,9 @@ export default function CreateToken() {
 		async (ev: MouseEvent<HTMLButtonElement>) => {
 			ev.preventDefault();
 			const response = await submit(newToken);
-			// router.push(`/tokens/${response.id}`);
+			setCreatedToken(response);
 		},
-		[router, submit, newToken]
+		[submit, newToken]
 	);
 
 	const handleInputChange = useCallback(
