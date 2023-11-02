@@ -9,6 +9,7 @@ import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import Form, { CustomInputEvent, MultiInput, Input } from '@/components/Form';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
+import PageMain from '@/components/Page/PageMain';
 
 export default function CreateProject() {
 	const { data: user, error: authError } = useSWR('/api/me', fetcher<API.User>);
@@ -75,32 +76,34 @@ export default function CreateProject() {
 					/>
 				</PageHeader>
 
-				<Input
-					type='text'
-					value={newProject.ext_id}
-					label='External ID'
-					name='ext_id'
-					required
-					onChange={handleInputChange}
-				/>
+				<PageMain className='py-10 px-5'>
+					<Input
+						type='text'
+						value={newProject.ext_id}
+						label='External ID'
+						name='ext_id'
+						required
+						onChange={handleInputChange}
+					/>
 
-				<Input
-					label='QPU Seconds'
-					value={newProject.qpu_seconds}
-					type='number'
-					name='qpu_seconds'
-					required
-					onChange={handleInputChange}
-				/>
+					<Input
+						label='QPU Seconds'
+						value={newProject.qpu_seconds}
+						type='number'
+						name='qpu_seconds'
+						required
+						onChange={handleInputChange}
+					/>
 
-				<MultiInput
-					label='User Emails'
-					value={newProject.user_emails}
-					name='user_emails'
-					type='email'
-					required
-					onChange={handleInputChange}
-				/>
+					<MultiInput
+						label='User Emails'
+						value={newProject.user_emails}
+						name='user_emails'
+						type='email'
+						required
+						onChange={handleInputChange}
+					/>
+				</PageMain>
 			</Form>
 		</Page>
 	);
