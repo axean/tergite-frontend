@@ -38,6 +38,8 @@
 
 export {};
 
+import 'cypress-real-events';
+
 Cypress.Commands.add('clearClipboard', () => {
 	cy.window().then((win) => win.navigator.clipboard.writeText(''));
 });

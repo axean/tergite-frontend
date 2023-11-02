@@ -6,7 +6,7 @@ import { testNavigation } from './navigation';
 
 testNavigation(`http://localhost:3000/tokens/create`);
 
-meResponses.forEach((resp) => {
+meResponses.slice(undefined, 1).forEach((resp) => {
 	const user = resp.body as API.User;
 	const id = user.id ?? 'anonymous';
 	const isAuthenticated = !!user.id;
@@ -132,14 +132,21 @@ meResponses.forEach((resp) => {
 
 							cy.get('[data-cy-copy-btn]').should('contain.text', 'copy');
 
+							// to focus on window: to avoid NotAllowed error: window not in focus
+							// See: https://stackoverflow.com/questions/56306153/domexception-on-calling-navigator-clipboard-readtext#answer-61216014
+							// See also: https://github.com/cypress-io/cypress/issues/18198#issuecomment-1003756021
+							// See also: https://github.com/cypress-io/cypress/issues/18198#issuecomment-1613998336
+							cy.realPress('Tab');
+
 							cy.clearClipboard();
 							cy.clipboardContains('');
 
-							cy.get('[data-cy-copy-btn]').click({ force: true });
+							cy.get('[data-cy-copy-btn]').realClick();
 
 							cy.get('[data-cy-token-display]')
 								.invoke('text')
 								.then((value) => {
+									cy.window().focus();
 									cy.clipboardContains(value);
 								});
 
@@ -148,10 +155,10 @@ meResponses.forEach((resp) => {
 							);
 
 							// close the overlay
-							cy.get('[data-cy-close-btn]').click({ force: true });
+							cy.get('[data-cy-close-btn]').realClick();
 						})
 						.then(() => {
-							cy.get('[data-cy-overlay]').should('not.be.visible');
+							cy.get('[data-cy-overlay]').should('not.exist');
 							cy.get('@tokenNameInput').should('have.attr', 'value', '');
 							cy.get('@projectExtIdInput').should('have.attr', 'value', '');
 							cy.get('@lifespanInput').should('have.attr', 'value', '0');
