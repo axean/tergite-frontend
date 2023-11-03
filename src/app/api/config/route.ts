@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { API } from '@/types';
+import type { API } from '@/types';
 
 /**
  * Returns the basic configuration of the application for the client to use
@@ -8,5 +8,10 @@ import { API } from '@/types';
  */
 export async function GET(request: Request) {
 	const baseUrl = process.env.API_BASE_URL || '';
-	return NextResponse.json({ baseUrl } as API.Config);
+	const serviceLinks: API.ServiceLinkInfo[] = [
+		{ href: process.env.WEBGUI_ENDPOINT || '/webgui', text: 'GUI' },
+		{ href: process.env.MSS_ENDPOINT || '/mss', text: 'API' }
+	];
+
+	return NextResponse.json({ baseUrl, serviceLinks } as API.Config);
 }

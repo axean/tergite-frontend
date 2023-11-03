@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-	output: 'standalone',
-
 	// comment this out if we change from output: "export"
 	images: { unoptimized: true },
 

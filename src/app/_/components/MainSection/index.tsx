@@ -1,4 +1,4 @@
-import { Tergite } from '@/types';
+import type { API } from '@/types';
 import ServiceLink from './components/ServiceLink';
 
 export default function MainSection({ text, services }: Props) {
@@ -28,5 +28,5 @@ export default function MainSection({ text, services }: Props) {
 
 interface Props {
 	text: string;
-	services: Tergite.ServiceLinkInfo[];
+	services: API.ServiceLinkInfo[];
 }
