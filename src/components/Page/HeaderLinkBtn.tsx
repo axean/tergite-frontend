@@ -8,7 +8,7 @@ export function HeaderLinkBtn({
 	return (
 		<NextLink href={link} passHref legacyBehavior>
 			<button
-				data-cy-header-btn
+				data-cy-header-btn={text}
 				className={`rounded py-2 px-7 font-semibold border hover:border-transparent ${className}`}
 			>
 				{text}

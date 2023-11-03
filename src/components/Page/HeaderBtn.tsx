@@ -6,7 +6,7 @@ export function HeaderBtn({ text, onClick, disabled = false, type = 'button' }: 
 			type={type}
 			onClick={onClick}
 			disabled={disabled}
-			data-cy-header-btn
+			data-cy-header-btn={text}
 			className='rounded bg-west-coast text-white py-2 px-7 hover:bg-west-coast font-semibold hover:text-white  border border-west-coast-300 hover:border-transparent'
 		>
 			{text}

@@ -75,6 +75,7 @@ export namespace API {
 	 */
 	export interface Config {
 		baseUrl: string;
+		serviceLinks: ServiceLinkInfo[];
 	}
 
 	/**
@@ -93,9 +94,7 @@ export namespace API {
 			data: T[];
 		}
 	}
-}
 
-export namespace Tergite {
 	export interface ServiceLinkInfo {
 		href: string;
 		text: string;

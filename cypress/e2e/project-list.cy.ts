@@ -106,7 +106,7 @@ meResponses.forEach((resp) => {
 			projects.forEach((project) => {
 				it(`Project ${project.ext_id} 'View' buttons redirect to /projects/${project.id}`, () => {
 					cy.get(`[data-cy-data-cell=${project.id}--action]`).within(() => {
-						cy.get('[data-cy-action-btn]').eq(0).click();
+						cy.get('[data-cy-action-btn="View"]').click();
 						cy.url().should('eq', `http://localhost:3000/projects/${project.id}`);
 					});
 				});
@@ -116,7 +116,7 @@ meResponses.forEach((resp) => {
 			projects.forEach((project) => {
 				it(`Project ${project.ext_id} 'Edit' buttons redirect to /projects/${project.id}/edit`, () => {
 					cy.get(`[data-cy-data-cell=${project.id}--action]`).within(() => {
-						cy.get('[data-cy-action-btn]').eq(1).click();
+						cy.get('[data-cy-action-btn="Edit"]').click();
 						cy.url().should('eq', `http://localhost:3000/projects/${project.id}/edit`);
 					});
 				});
@@ -126,7 +126,7 @@ meResponses.forEach((resp) => {
 			projects.forEach((project) => {
 				it(`Project ${project.ext_id} 'Delete' buttons redirect to /projects/${project.id}/del`, () => {
 					cy.get(`[data-cy-data-cell=${project.id}--action]`).within(() => {
-						cy.get('[data-cy-action-btn]').eq(2).click();
+						cy.get('[data-cy-action-btn="Delete"]').click();
 						cy.url().should('eq', `http://localhost:3000/projects/${project.id}/del`);
 					});
 				});
