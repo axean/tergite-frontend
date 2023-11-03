@@ -2,12 +2,18 @@
 
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
-import { homeHeroText, homeMainContent, serviceLinks } from '../../constants';
+import { homeHeroText, homeMainContent } from '../../constants';
 import Hero from './components/Hero';
 import MainSection from './components/MainSection';
 import Page from '@/components/Page';
+import { fetcher, raise } from '@/service/browser';
+import { API } from '@/types';
+import useSWRImmutable from 'swr/immutable';
 
 export default function Home() {
+	const { data: config, error } = useSWRImmutable<API.Config>(`/api/config`, fetcher);
+	error && raise(error);
+
 	return (
 		<>
 			<Navbar />
@@ -19,7 +25,7 @@ export default function Home() {
 					imgSrc='/img/hero.webp'
 					imgAlt='Quatum computer.'
 				/>
-				<MainSection text={homeMainContent} services={serviceLinks} />
+				{config && <MainSection text={homeMainContent} services={config.serviceLinks} />}
 			</Page>
 			<Footer />
 		</>

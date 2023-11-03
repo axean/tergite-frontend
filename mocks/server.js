@@ -217,6 +217,14 @@ app.get('/auth/projects', (req, res) => {
 	res.json({ skip, limit, data });
 });
 
+app.get('/webgui', (req, res) => {
+	res.send('Hello webgui');
+});
+
+app.get('/mss', (req, res) => {
+	res.send('hello mss');
+});
+
 app.get('/', (req, res) => {
 	res.json({ message: 'hello world' });
 });
