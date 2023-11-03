@@ -24,9 +24,9 @@ COPY ./public ./public
 COPY --chown=nextjs:nodejs package*.json ./
 COPY --chown=nextjs:nodejs dist ./.next
 
-USER nextjs
-
 RUN npm ci --omit=dev
+
+USER nextjs
 
 EXPOSE 80
 
