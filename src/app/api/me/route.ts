@@ -4,6 +4,10 @@ import { API } from '@/types';
 import { errors } from '@/constants';
 import { verifyJwtToken } from '../../../../utils';
 
+// ensure this is not reduced to compile-time variables
+// https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
 	const token = getAccessToken();
 

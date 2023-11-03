@@ -8,8 +8,6 @@
 # testing
 /coverage
 
-# next.js
-/.next/
 
 # production
 /build
@@ -43,6 +41,5 @@ cypress/screenshots/**/*
 Dockerfile
 .dockerignore
 README.md
-.next
 .git
 .vscode/

@@ -40,7 +40,7 @@ pipelines:
                       - npm ci
                       - NEXT_TELEMETRY_DISABLED=1 npm run build
                   artifacts:
-                      - dist/**
+                      - .next/**
             - step:
                   name: Build docker image
                   image: ubuntu:latest
@@ -50,7 +50,6 @@ pipelines:
                       # using the self-hosted container registry provided by https://github.com/tergite/tergite-registry
                       # its domain is saved in CONTAINER_REGISTRY workspace secret variable in format domain.com:port
                       # $DOCKER_USERNAME and $DOCKER_PASSWORD are also workspace secret variables
-                      - npm ci --omit=dev
                       - docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
                       - docker build -t ${CONTAINER_REGISTRY}/tergite-landing-page:$BITBUCKET_TAG .
                       - docker push ${CONTAINER_REGISTRY}/tergite-landing-page:$BITBUCKET_TAG
