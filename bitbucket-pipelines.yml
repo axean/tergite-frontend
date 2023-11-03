@@ -40,7 +40,7 @@ pipelines:
                       - npm ci
                       - NEXT_TELEMETRY_DISABLED=1 npm run build
                   artifacts:
-                      - dist/**
+                      - .next/**
             - step:
                   name: Build docker image
                   image: ubuntu:latest

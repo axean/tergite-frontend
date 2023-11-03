@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+	output: 'standalone'
+
 	// comment this out if we change from output: "export"
-	images: { unoptimized: true },
+	// images: { unoptimized: true }
 
 	// Optional: Change links `/me` -> `/me/` and emit `/me.html` -> `/me/index.html`
 	// trailingSlash: true,
@@ -10,7 +12,7 @@ const nextConfig = {
 	// skipTrailingSlashRedirect: true,
 
 	// Optional: Change the output directory `out` -> `dist`
-	distDir: 'dist'
+	// distDir: 'dist'
 };
 
 module.exports = nextConfig;
