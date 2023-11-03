@@ -37,7 +37,7 @@ pipelines:
                       - node
                   script:
                       - apk add --no-cache libc6-compat
-                      - npm ci --omit=dev
+                      - npm ci
                       - NEXT_TELEMETRY_DISABLED=1 npm run build
                   artifacts:
                       - .next/**
