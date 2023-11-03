@@ -26,6 +26,8 @@ export const testNavigation = (
 			beforeEach(() => {
 				init();
 
+				cy.intercept('GET', '/api/me').as('currentUserRequest');
+
 				if (user.id) {
 					cy.wrap(utils.generateJwt(user)).then((jwtToken) => {
 						const cookieName = process.env.COOKIE_NAME as string;
@@ -46,6 +48,8 @@ export const testNavigation = (
 
 				cy.get('[data-cy-nav-item]').as('navItems');
 				!isNoAuth && cy.get('[data-cy-nav-btn]').as('logoutBtn');
+
+				cy.wait('@currentUserRequest');
 
 				postInit();
 			});
