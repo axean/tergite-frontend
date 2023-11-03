@@ -43,7 +43,7 @@ pipelines:
                       - dist/**
             - step:
                   name: Build docker image
-                  image: ubuntu:latest
+                  image: node:18
                   services:
                       - docker
                   script:
