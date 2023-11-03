@@ -3,7 +3,7 @@ import { API } from '../../src/types';
 import utils from '../../utils';
 import { testNavigation } from './navigation';
 
-// testNavigation('http://localhost:3000');
+testNavigation('http://localhost:3000');
 
 meResponses.forEach((resp) => {
 	const user = resp.body as API.User;

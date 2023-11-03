@@ -134,7 +134,7 @@ export const testNavigation = (
 
 			it('Home nav-item redirects to home page', () => {
 				cy.get('[data-cy-site-actions-navbar]').within(() => {
-					cy.get('@navItems').eq(0).click();
+					cy.get('[data-cy-nav-item="Home"]').click();
 					cy.url().should('eq', 'http://localhost:3000/');
 				});
 			});
@@ -142,7 +142,7 @@ export const testNavigation = (
 			isNoAuth &&
 				it('Login nav-item directs to login page', () => {
 					cy.get('[data-cy-site-actions-navbar]').within(() => {
-						cy.get('@navItems').eq(1).click();
+						cy.get('[data-cy-nav-item="Login"]').click();
 						cy.url().should('eq', 'http://localhost:3000/login');
 					});
 				});
@@ -150,7 +150,7 @@ export const testNavigation = (
 			isAdmin &&
 				it('Projects nav-item directs to projects page', () => {
 					cy.get('[data-cy-site-actions-navbar]').within(() => {
-						cy.get('@navItems').eq(1).click();
+						cy.get('[data-cy-nav-item="Projects"]').click();
 						cy.url().should('eq', 'http://localhost:3000/projects');
 					});
 				});
@@ -158,7 +158,7 @@ export const testNavigation = (
 			!isNoAuth &&
 				it('App-tokens nav-item directs to tokens page', () => {
 					cy.get('[data-cy-site-actions-navbar]').within(() => {
-						cy.get('@navItems').eq(-1).click();
+						cy.get('[data-cy-nav-item="Tokens"]').click();
 						cy.url().should('eq', 'http://localhost:3000/tokens');
 					});
 				});
