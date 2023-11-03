@@ -35,3 +35,51 @@
 //     }
 //   }
 // }
+
+export {};
+
+import 'cypress-real-events';
+
+Cypress.Commands.add('clearClipboard', () => {
+	cy.window().then((win) => win.navigator.clipboard.writeText(''));
+});
+
+Cypress.Commands.add('clipboardContains', (value: string) => {
+	cy.window().then((win) =>
+		win.navigator.clipboard.readText().then((text) => {
+			expect(text).to.eq(value);
+		})
+	);
+});
+
+Cypress.Commands.add('clipboardMatches', (value: RegExp) => {
+	cy.window().then((win) =>
+		win.navigator.clipboard.readText().then((text) => {
+			expect(text).to.match(value);
+		})
+	);
+});
+
+declare global {
+	namespace Cypress {
+		interface Chainable {
+			/**
+			 * Custom command to compare text on clipboard with the value
+			 * @example cy.clipboardContains('Hello World')
+			 */
+			clipboardContains(value: string): Chainable<void>;
+
+			/**
+			 * Custom command to match text on clipboard with a regular expression
+			 * @example cy.clipboardMatches(/^Hello\s+World$/)
+			 */
+			clipboardMatches(value: RegExp): Chainable<void>;
+
+			/**
+			 * Custom command to clear the clipboard
+			 * @example cy.clearClipboard()
+			 */
+			clearClipboard(): Chainable<void>;
+		}
+	}
+}

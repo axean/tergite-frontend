@@ -77,6 +77,17 @@ docker run -p 3000:3000 --name landing-page \
     ${CONTAINER_REGISTRY}/tergite-landing-page:local
 ```
 
+## TODO
+
+-   [ ] Implementation and tests for app token generation
+-   [ ] Implementation and tests for app token view
+-   [ ] Implementation and tests for app token deletion
+-   [ ] Add autocomplete for projects when generating tokens
+-   [ ] Implementation and tests for search capability on project list page
+-   [ ] Implementation and tests for search capability on tokens list page
+-   [ ] Implementation and tests for pagination on project list page
+-   [ ] Implementation and tests for pagination on tokens list page
+
 ## License
 
 Licensed under the [Apache 2.0 License](./LICENSE)

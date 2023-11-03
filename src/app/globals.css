@@ -8,13 +8,13 @@
 	--background-end-rgb: 255, 255, 255;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
 	:root {
 		--foreground-rgb: 255, 255, 255;
 		--background-start-rgb: 0, 0, 0;
 		--background-end-rgb: 0, 0, 0;
 	}
-}
+} */
 
 body {
 	color: rgb(var(--foreground-rgb));
@@ -27,7 +27,22 @@ body {
 	background-color: rgb(0 48 80 / var(--tw-bg-opacity));
 }
 
+.text-west-coast {
+	color: rgb(0 48 80 / 1);
+}
+
 .border-west-coast-300 {
 	--tw-border-opacity: 1;
 	border-color: rgb(179 193 203 / var(--tw-border-opacity));
 }
+
+.border-west-coast-200 {
+	--tw-border-opacity: 0.5;
+	border-color: rgb(179 193 203 / var(--tw-border-opacity));
+}
+
+.hover\:bg-west-coast:hover {
+	--tw-bg-opacity: 0.7;
+	background-color: rgb(0 48 80 / var(--tw-bg-opacity));
+}
+

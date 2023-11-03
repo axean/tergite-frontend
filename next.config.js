@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-	// Make this a static app
-	output: 'export',
+	output: 'standalone',
 
 	// comment this out if we change from output: "export"
 	images: { unoptimized: true },
