@@ -22,8 +22,7 @@ ENV JWT_ALGORITHM="HS256"
 COPY ./public ./public
 COPY package*.json ./
 COPY dist ./.next
-
-RUN npm ci --omit=dev
+COPY node_modules ./node_modules
 
 EXPOSE 80
 
