@@ -15,7 +15,7 @@ export default function NavItem({ text, link }: Props) {
 	return (
 		<li className='flex items-center mx-2'>
 			<NextLink href={link} passHref legacyBehavior aria-disabled={isActive}>
-				<div data-cy-nav-item className={className}>
+				<div data-cy-nav-item={text} className={className}>
 					{text}
 				</div>
 			</NextLink>

@@ -104,13 +104,13 @@ meResponses.forEach((resp) => {
 
 			isAdmin &&
 				it(`Edit button redirects to /projects/${project.id}/edit`, () => {
-					cy.get('[data-cy-header-btn]').eq(0).click();
+					cy.get('[data-cy-header-btn="Edit"]').click();
 					cy.url().should('eq', `http://localhost:3000/projects/${project.id}/edit`);
 				});
 
 			isAdmin &&
 				it(`Delete button redirects to /projects/${project.id}/del`, () => {
-					cy.get('[data-cy-header-btn]').eq(1).click();
+					cy.get('[data-cy-header-btn="Delete"]').click();
 					cy.url().should('eq', `http://localhost:3000/projects/${project.id}/del`);
 				});
 		});

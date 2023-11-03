@@ -113,9 +113,9 @@ meResponses.forEach((resp) => {
 		isAuthenticated &&
 			myTokens.forEach((token) => {
 				it(`'View' button of token ${token.title} of ${token.project_ext_id} redirects to /tokens/${token.id}`, () => {
-					cy.get(`[data-cy-data-cell=${token.id}--action] [data-cy-action-btn]`)
-						.eq(0)
-						.click();
+					cy.get(
+						`[data-cy-data-cell=${token.id}--action] [data-cy-action-btn="View"]`
+					).click();
 					cy.url().should('eq', `http://localhost:3000/tokens/${token.id}`);
 				});
 			});
@@ -123,9 +123,9 @@ meResponses.forEach((resp) => {
 		isAuthenticated &&
 			myTokens.forEach((token) => {
 				it(`'Delete' button of token ${token.title} of ${token.project_ext_id} redirects to /projects/${token.id}/del`, () => {
-					cy.get(`[data-cy-data-cell=${token.id}--action] [data-cy-action-btn]`)
-						.eq(1)
-						.click();
+					cy.get(
+						`[data-cy-data-cell=${token.id}--action] [data-cy-action-btn="Delete"]`
+					).click();
 					cy.url().should('eq', `http://localhost:3000/tokens/${token.id}/del`);
 				});
 			});
