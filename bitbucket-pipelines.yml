@@ -43,14 +43,13 @@ pipelines:
                       - dist/**
             - step:
                   name: Build docker image
-                  image: node:18
+                  image: ubuntu:latest
                   services:
                       - docker
                   script:
                       # using the self-hosted container registry provided by https://github.com/tergite/tergite-registry
                       # its domain is saved in CONTAINER_REGISTRY workspace secret variable in format domain.com:port
                       # $DOCKER_USERNAME and $DOCKER_PASSWORD are also workspace secret variables
-                      - npm ci --omit=dev
                       - docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
                       - docker build -t ${CONTAINER_REGISTRY}/tergite-landing-page:$BITBUCKET_TAG .
                       - docker push ${CONTAINER_REGISTRY}/tergite-landing-page:$BITBUCKET_TAG

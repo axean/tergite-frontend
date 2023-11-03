@@ -1,7 +1,8 @@
 # As adapted from https://github.com/vercel/next.js/tree/canary/examples/with-docker
 FROM node:18-alpine 
 
-USER node
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
 WORKDIR /app
 
@@ -20,9 +21,12 @@ ENV JWT_AUDIENCE="fastapi-users:auth"
 ENV JWT_ALGORITHM="HS256"
 
 COPY ./public ./public
-COPY package*.json ./
-COPY dist ./.next
-COPY node_modules ./node_modules
+COPY --chown=nextjs:nodejs package*.json ./
+COPY --chown=nextjs:nodejs dist ./.next
+
+USER nextjs
+
+RUN npm ci --omit=dev
 
 EXPOSE 80
 
