@@ -71,17 +71,18 @@ docker pull ${CONTAINER_REGISTRY}/tergite-landing-page:local
 -   To run a container based on that image, do
 
 ```shell
-docker run -p 3000:3000 --name landing-page \
+docker run -p 3000:80 --name landing-page \
     -e WEBGUI_ENDPOINT="https://gui.example.com" \
     -e MSS_ENDPOINT="https://api.example.com" \
+    -e API_BASE_URL="http://127.0.0.1:8002" \
+    -e JWT_SECRET="some-secret" \
+    -e OAUTH_REDIRECT_URI="http://127.0.0.1:3000" \
+    -e COOKIE_NAME="tergiteauth"
     ${CONTAINER_REGISTRY}/tergite-landing-page:local
 ```
 
 ## TODO
 
--   [ ] Implementation and tests for app token generation
--   [ ] Implementation and tests for app token view
--   [ ] Implementation and tests for app token deletion
 -   [ ] Add autocomplete for projects when generating tokens
 -   [ ] Implementation and tests for search capability on project list page
 -   [ ] Implementation and tests for search capability on tokens list page
