@@ -57,11 +57,9 @@ export const testNavigation = (
 			isNoAuth &&
 				it('renders no-auth navbar', () => {
 					cy.get('[data-cy-site-actions-navbar]').within(() => {
-						cy.get('[data-cy-logo-img]').should(
-							'have.attr',
-							'src',
-							'/img/chalmers.26fdad12.svg'
-						);
+						cy.get('[data-cy-logo-img]')
+							.should('have.attr', 'src')
+							.and('match', /\/chalmers-logo\..*\.svg/);
 
 						cy.get('@navItems').should('have.length', 2);
 
@@ -80,11 +78,9 @@ export const testNavigation = (
 			isAdmin &&
 				it('renders admin navbar for admins', () => {
 					cy.get('[data-cy-site-actions-navbar]').within(() => {
-						cy.get('[data-cy-logo-img]').should(
-							'have.attr',
-							'src',
-							'/img/chalmers.26fdad12.svg'
-						);
+						cy.get('[data-cy-logo-img]')
+							.should('have.attr', 'src')
+							.and('match', /\/chalmers-logo\..*\.svg/);
 
 						cy.get('@navItems').should('have.length', 3);
 
@@ -110,11 +106,9 @@ export const testNavigation = (
 			isNormalUser &&
 				it('renders non-admin navbar for non-admins', () => {
 					cy.get('[data-cy-site-actions-navbar]').within(() => {
-						cy.get('[data-cy-logo-img]').should(
-							'have.attr',
-							'src',
-							'/img/chalmers.26fdad12.svg'
-						);
+						cy.get('[data-cy-logo-img]')
+							.should('have.attr', 'src')
+							.and('match', /\/chalmers-logo\..*\.svg/);
 
 						cy.get('@navItems').should('have.length', 2);
 
@@ -156,7 +150,7 @@ export const testNavigation = (
 				});
 
 			!isNoAuth &&
-				it('App-tokens nav-item directs to tokens page', () => {
+				it('Tokens nav-item directs to tokens page', () => {
 					cy.get('[data-cy-site-actions-navbar]').within(() => {
 						cy.get('[data-cy-nav-item="Tokens"]').click();
 						cy.url().should('eq', 'http://localhost:3000/tokens');
@@ -186,7 +180,8 @@ export const testNavigation = (
 			it('renders footer', () => {
 				cy.get('[data-cy-footer]')
 					.find('img')
-					.should('have.attr', 'src', '/img/logo.81582248.svg');
+					.should('have.attr', 'src')
+					.and('match', /\/chalmers-emblem\..*\.svg/);
 			});
 		});
 	});

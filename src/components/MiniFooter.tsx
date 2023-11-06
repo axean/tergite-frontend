@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import chalmersEmblem from '@/images/chalmers-emblem.svg';
 
 export default function MiniFooter({}: Props) {
 	return (
@@ -29,7 +30,7 @@ export default function MiniFooter({}: Props) {
 							decoding='async'
 							data-nimg='1'
 							style={{ color: 'transparent' }}
-							src='/img/logo.81582248.svg'
+							src={chalmersEmblem}
 						/>
 					</a>
 				</div>

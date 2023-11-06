@@ -1,6 +1,7 @@
 import NextLink from 'next/link';
 import { useMemo } from 'react';
 import Image from 'next/image';
+import { API } from '@/types';
 
 export default function Oauth2LoginBtn({ provider, logo }: Props) {
 	const href = useMemo(() => `/api/login/${provider}`, [provider]);
@@ -22,7 +23,7 @@ export default function Oauth2LoginBtn({ provider, logo }: Props) {
 							layout='fill'
 							objectFit='contain'
 							style={{ color: 'transparent' }}
-							src={logo}
+							{...logo}
 						/>
 					</div>
 				)}
@@ -32,6 +33,6 @@ export default function Oauth2LoginBtn({ provider, logo }: Props) {
 }
 
 interface Props {
-	logo?: string;
+	logo?: API.ImageInfo;
 	provider: string;
 }

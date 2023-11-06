@@ -1,8 +1,9 @@
 import React from 'react';
 import NextLink from 'next/link';
 import Image from 'next/image';
+import chalmersLogo from '@/images/chalmers-logo.svg';
 
-export default function Logo({ src }: Props) {
+export default function Logo({}: Props) {
 	return (
 		<NextLink
 			aria-label='To frontpage'
@@ -19,12 +20,10 @@ export default function Logo({ src }: Props) {
 				data-nimg='1'
 				className='group-focus:invert'
 				style={{ color: 'transparent' }}
-				src={src}
+				src={chalmersLogo}
 			/>
 		</NextLink>
 	);
 }
 
-interface Props {
-	src: string;
-}
+interface Props {}

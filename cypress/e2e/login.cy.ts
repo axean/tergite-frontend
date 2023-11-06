@@ -1,5 +1,15 @@
 import utils from '../../utils';
 import users from '../fixtures/users.json';
+import { testNavigation } from './navigation';
+
+testNavigation('http://localhost:3000/login', {
+	init: () => {
+		cy.intercept('GET', `/api/config`).as('initialRequest');
+	},
+	postInit: () => {
+		cy.wait('@initialRequest');
+	}
+});
 
 const providers = ['github', 'puhuri', 'chalmers'];
 

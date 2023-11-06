@@ -12,10 +12,25 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: Request) {
 	const baseUrl = process.env.API_BASE_URL || '';
+	const appBaseUrl = process.env.LANDING_ENDPOINT;
+
+	// FIXME: In future, these configurations could be even got from a redis instance
+	// or MSS or whatever
 	const serviceLinks: API.ServiceLinkInfo[] = [
 		{ href: process.env.WEBGUI_ENDPOINT || '/webgui', text: 'GUI' },
 		{ href: process.env.MSS_ENDPOINT || '/mss', text: 'API' }
 	];
+	const oauth2Providers: API.Oauth2ProviderInfo[] = [
+		{
+			name: 'github',
+			logo: { src: `${appBaseUrl}/img/github-black.png`, height: 410, width: 1000 }
+		},
+		{ name: 'puhuri' },
+		{
+			name: 'chalmers',
+			logo: { src: `${appBaseUrl}/img/chalmers-logo.svg`, height: 410, width: 1000 }
+		}
+	];
 
-	return NextResponse.json({ baseUrl, serviceLinks } as API.Config);
+	return NextResponse.json({ baseUrl, serviceLinks, oauth2Providers } as API.Config);
 }

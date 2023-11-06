@@ -22,7 +22,6 @@ export default function Home() {
 					title='Wallenberg Center for Quantum Technology'
 					subtitle='WACQT'
 					text={homeHeroText}
-					imgSrc='/img/hero.webp'
 					imgAlt='Quatum computer.'
 				/>
 				{config && <MainSection text={homeMainContent} services={config.serviceLinks} />}
@@ -30,15 +29,4 @@ export default function Home() {
 			<Footer />
 		</>
 	);
-}
-
-export async function getStaticProps() {
-	// `getStaticProps` is executed on the server side.
-	return {
-		props: {
-			fallback: {
-				'/api/me': null
-			}
-		}
-	};
 }

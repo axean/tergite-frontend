@@ -76,6 +76,7 @@ export namespace API {
 	export interface Config {
 		baseUrl: string;
 		serviceLinks: ServiceLinkInfo[];
+		oauth2Providers: Oauth2ProviderInfo[];
 	}
 
 	/**
@@ -102,6 +103,14 @@ export namespace API {
 
 	export interface Oauth2ProviderInfo {
 		name: string;
-		logo?: string;
+		logo?: ImageInfo;
+	}
+
+	export interface ImageInfo {
+		src: string;
+		// height and width are not necessary for SVGs
+		height?: number;
+		width?: number;
+		blurDataUrl?: string;
 	}
 }

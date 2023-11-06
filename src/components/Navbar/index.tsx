@@ -46,7 +46,7 @@ const Navbar = ({}: Props) => {
 				data-headlessui-state=''
 				data-cy-site-actions-navbar
 			>
-				<Logo src='/img/chalmers.26fdad12.svg' />
+				<Logo />
 				<ul className='flex'>
 					{<NavItem text='Home' link='/' />}
 					{isAdmin && <NavItem text='Projects' link='/projects' />}

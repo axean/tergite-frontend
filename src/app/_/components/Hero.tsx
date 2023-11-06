@@ -1,5 +1,7 @@
 import Image from 'next/image';
-export default function Hero({ text, title, subtitle, imgSrc, imgAlt }: Props) {
+import heroImage from '@/images/hero.webp';
+
+export default function Hero({ text, title, subtitle, imgAlt }: Props) {
 	return (
 		<header className='relative z-[2] w-full print:hidden' data-cy-hero>
 			<Image
@@ -17,7 +19,7 @@ export default function Hero({ text, title, subtitle, imgSrc, imgAlt }: Props) {
 					objectPosition: '50% 50%',
 					color: 'transparent'
 				}}
-				src={imgSrc}
+				src={heroImage}
 			/>
 			<div className='z-10 mx-auto flex h-[478px] w-4/5 max-w-screen-xl items-end sm:h-auto'>
 				<div className='m-4 flex max-w-4xl flex-col items-start bg-black/75 p-5 text-neutral-50 sm:my-28 sm:p-6 sm:py-7 lg:py-10 2xl:mx-0'>
@@ -44,6 +46,5 @@ interface Props {
 	title: string;
 	subtitle: string;
 	text: string;
-	imgSrc: string;
 	imgAlt: string;
 }
