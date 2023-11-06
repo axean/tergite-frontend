@@ -26,7 +26,6 @@ export default function EditProject() {
 	getter.error && raise(getter.error);
 
 	const { isMutating } = mutator;
-	const btnText = useMemo(() => (isMutating ? 'Saving...' : 'Save'), [isMutating]);
 
 	const handleSubmit = useCallback(
 		(ev: MouseEvent<HTMLButtonElement>) => {
@@ -62,9 +61,10 @@ export default function EditProject() {
 				<PageHeader heading={`Editing Project '${project?.ext_id}'`}>
 					<HeaderBtn
 						type='button'
-						text={btnText}
+						text='Save'
 						onClick={handleSubmit}
 						disabled={isMutating}
+						isLoading={isMutating}
 					/>
 				</PageHeader>
 

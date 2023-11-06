@@ -105,10 +105,10 @@ meResponses.slice(undefined, 1).forEach((resp) => {
 					cy.get('@lifespanInput').clear();
 					cy.get('@lifespanInput').type(`${token.lifespan_seconds}`);
 
+					cy.get('[data-cy-header-btn] [data-cy-spinner]').should('not.exist');
 					cy.get('[data-cy-header-btn]').click();
-					cy.get('[data-cy-header-btn]')
-						.should('contain.text', 'Generating...')
-						.should('be.disabled');
+					cy.get('[data-cy-header-btn]').should('be.disabled');
+					cy.get('[data-cy-header-btn] [data-cy-spinner]').should('not.exist');
 
 					cy.get('[data-cy-overlay] [data-cy-card]')
 						.within(() => {

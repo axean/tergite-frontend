@@ -1,14 +1,15 @@
 import { MouseEventHandler } from 'react';
+import Spinner from '../Spinner';
 
-export function CardBtn({ label, onClick, disabled, className = '' }: Props) {
+export function CardBtn({ label, onClick, disabled, className = '', isLoading = false }: Props) {
 	return (
 		<button
 			data-cy-card-btn
-			className={`rounded py-2 px-7 font-semibold text-lg border hover:border-transparent disabled:border-transparent ${className}`}
+			className={`rounded py-2 text-center px-7 font-semibold text-lg border hover:border-transparent disabled:border-transparent ${className}`}
 			disabled={disabled}
 			onClick={onClick}
 		>
-			{label}
+			{isLoading ? <Spinner /> : label}
 		</button>
 	);
 }
@@ -18,4 +19,5 @@ interface Props {
 	onClick: MouseEventHandler<HTMLButtonElement>;
 	label: string;
 	className?: string;
+	isLoading?: boolean;
 }

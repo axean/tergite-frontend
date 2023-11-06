@@ -40,8 +40,6 @@ export default function CreateToken() {
 	const [createdToken, setCreatedToken] = useState<API.CreatedAppToken>();
 	const [isModalVisible, setisModalVisible] = useState(false);
 
-	const btnText = useMemo(() => (isMutating ? 'Generating...' : 'Generate'), [isMutating]);
-
 	const handleSubmit = useCallback(
 		async (ev: MouseEvent<HTMLButtonElement>) => {
 			ev.preventDefault();
@@ -77,9 +75,10 @@ export default function CreateToken() {
 				<PageHeader heading='Projects'>
 					<HeaderBtn
 						type='button'
-						text={btnText}
+						text='Generate'
 						onClick={handleSubmit}
 						disabled={isMutating}
+						isLoading={isMutating}
 					/>
 				</PageHeader>
 

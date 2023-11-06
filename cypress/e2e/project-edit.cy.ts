@@ -143,10 +143,10 @@ meResponses.forEach((resp) => {
 						).type(email);
 					});
 
+					cy.get('[data-cy-header-btn] [data-cy-spinner]').should('not.exist');
 					cy.get('[data-cy-header-btn]').click();
-					cy.get('[data-cy-header-btn]')
-						.should('contain.text', 'Saving...')
-						.should('be.disabled');
+					cy.get('[data-cy-header-btn]').should('be.disabled');
+					cy.get('[data-cy-header-btn] [data-cy-spinner]').should('exist');
 
 					cy.url().should('match', /^http\:\/\/localhost\:3000\/projects\/\w+$/);
 

@@ -13,7 +13,7 @@
 		"mock-server-start-app": "start-server-and-test mock-server http://0.0.0.0:8002 -- \"start-test\"",
 		"build-and-start-test-server": "NODE_ENV=test npm run build && start-server-and-test mock-server-start-app http://0.0.0.0:3000",
 		"e2e": "npm run build-and-start-test-server -- \"cypress run\"",
-		"visual-e2e": "npm run build-and-start-test-server -- \"cypress open --numTestsKeptInMemory=10\""
+		"visual-e2e": "npm run build-and-start-test-server -- \"cypress open\""
 	},
 	"dependencies": {
 		"@types/node": "20.5.4",

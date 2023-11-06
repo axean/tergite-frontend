@@ -43,8 +43,6 @@ export default function CreateProject() {
 		qpu_seconds: 0
 	});
 
-	const btnText = useMemo(() => (isMutating ? 'Saving...' : 'Save'), [isMutating]);
-
 	const handleSubmit = useCallback(
 		async (ev: MouseEvent<HTMLButtonElement>) => {
 			ev.preventDefault();
@@ -69,9 +67,10 @@ export default function CreateProject() {
 				<PageHeader heading='Projects'>
 					<HeaderBtn
 						type='button'
-						text={btnText}
+						text='Save'
 						onClick={handleSubmit}
 						disabled={isMutating}
+						isLoading={isMutating}
 					/>
 				</PageHeader>
 

@@ -20,16 +20,19 @@ export async function GET(request: Request) {
 		{ href: process.env.WEBGUI_ENDPOINT || '/webgui', text: 'GUI' },
 		{ href: process.env.MSS_ENDPOINT || '/mss', text: 'API' }
 	];
+	// when compiled, width and height are essential; when in dev, chaos arises with both fill and width on Image
+	const extraProps = process.env.NODE_ENV === 'production' ? { height: 410, width: 1000 } : {};
+
 	const oauth2Providers: API.Oauth2ProviderInfo[] = [
 		{
 			name: 'github',
-			logo: { src: `${appBaseUrl}/img/github-black.png`, height: 410, width: 1000 }
+			logo: { src: `${appBaseUrl}/img/github-black.png`, ...extraProps }
 		},
 		{ name: 'puhuri' },
 		{
 			name: 'chalmers',
 			// @ts-ignore
-			logo: { src: `${appBaseUrl}/img/chalmers-logo.svg`, height: 410, width: 1000 }
+			logo: { src: `${appBaseUrl}/img/chalmers-logo.svg`, ...extraProps }
 		}
 	];
 

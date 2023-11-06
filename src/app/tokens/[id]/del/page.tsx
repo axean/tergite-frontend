@@ -29,9 +29,6 @@ export default function DeleteToken() {
 	const mutator = useSWRMutation(swrKey, destroyer, { populateCache: false, revalidate: false });
 	mutator.error && raise(mutator.error);
 
-	const { isMutating } = mutator;
-	const btnText = useMemo(() => (isMutating ? 'Deleting...' : 'Delete'), [isMutating]);
-
 	const handleTextInput = useCallback(
 		(ev: ChangeEvent<HTMLInputElement>) => {
 			ev.preventDefault();
@@ -71,7 +68,8 @@ export default function DeleteToken() {
 
 					<CardFooter className='flex justify-end'>
 						<CardBtn
-							label={btnText}
+							label='Delete'
+							isLoading={mutator.isMutating}
 							disabled={!isBtnEnabled || mutator.isMutating}
 							onClick={handleBtnClick}
 							className='bg-red-500 text-white hover:bg-red-300 border-red-900 disabled:bg-red-300'

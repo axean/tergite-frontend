@@ -100,10 +100,10 @@ meResponses.forEach((resp) => {
 				it('Delete button removes project and redirects back to project list', () => {
 					cy.get('[data-cy-inner-input]').clear();
 					cy.get('[data-cy-inner-input]').type(project.ext_id);
+					cy.get('[data-cy-card-btn] [data-cy-spinner]').should('not.exist');
 					cy.get('[data-cy-card-btn]').click();
-					cy.get('[data-cy-card-btn]')
-						.should('contain.text', 'Deleting...')
-						.should('be.disabled');
+					cy.get('[data-cy-card-btn]').should('be.disabled');
+					cy.get('[data-cy-card-btn] [data-cy-spinner]').should('exist');
 
 					cy.url().should('eq', `http://localhost:3000/projects`);
 					cy.get(`[data-cy-data-cell=${project.id}--action]`).should('not.exist');
