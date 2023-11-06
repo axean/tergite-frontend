@@ -9,6 +9,7 @@ import Page from '@/components/Page';
 import { fetcher, raise } from '@/service/browser';
 import { API } from '@/types';
 import useSWRImmutable from 'swr/immutable';
+import Spinner from '@/components/Spinner';
 
 export default function Home() {
 	const { data: config, error } = useSWRImmutable<API.Config>(`/api/config`, fetcher);

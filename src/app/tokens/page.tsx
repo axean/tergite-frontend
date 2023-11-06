@@ -4,7 +4,7 @@ import { API } from '@/types';
 import DataTable from '@/components/DataTable';
 import { fetcher, getTokenInfo, raise } from '@/service/browser';
 import useSWR from 'swr';
-import Loading from '@/components/Loading';
+import Spinner from '@/components/Spinner';
 import useSWRImmutable from 'swr/immutable';
 import Page, { HeaderLinkBtn, PageHeader, PageMain } from '@/components/Page';
 import { useMemo } from 'react';
@@ -42,7 +42,7 @@ export default function Tokens() {
 			</PageHeader>
 
 			<PageMain>
-				{isLoading && <Loading />}
+				{isLoading && <Spinner />}
 
 				{tokenInfoList && (
 					<DataTable

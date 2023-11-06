@@ -28,6 +28,7 @@ export async function GET(request: Request) {
 		{ name: 'puhuri' },
 		{
 			name: 'chalmers',
+			// @ts-ignore
 			logo: { src: `${appBaseUrl}/img/chalmers-logo.svg`, height: 410, width: 1000 }
 		}
 	];
