@@ -24,7 +24,7 @@ export default function CreateToken() {
 	const { data: config, error: configErr } = useSWRImmutable<API.Config>(`/api/config`, fetcher);
 	configErr && raise(configErr);
 
-	const swrKey = config ? `${config.baseUrl}/auth/me/app-tokens` : null;
+	const swrKey = config ? `${config.baseUrl}/auth/me/app-tokens/` : null;
 	const {
 		trigger: submit,
 		isMutating,

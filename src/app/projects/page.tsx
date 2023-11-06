@@ -23,7 +23,7 @@ export default function Projects() {
 	configErr && raise(configErr);
 
 	const { data, isLoading, error } = useSWR(
-		config ? `${config.baseUrl}/auth/projects` : null,
+		config ? `${config.baseUrl}/auth/projects/` : null,
 		fetcher<API.Response.Paginated<API.Project>>
 	);
 	error && raise(error);

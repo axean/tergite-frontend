@@ -26,7 +26,7 @@ export default function CreateProject() {
 	const { data: config, error: configErr } = useSWRImmutable<API.Config>(`/api/config`, fetcher);
 	configErr && raise(configErr);
 
-	const swrKey = config ? `${config.baseUrl}/auth/projects` : null;
+	const swrKey = config ? `${config.baseUrl}/auth/projects/` : null;
 	const {
 		trigger: submit,
 		isMutating,

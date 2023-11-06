@@ -28,7 +28,7 @@ export default function Tokens() {
 	configErr && raise(configErr);
 
 	const { data, isLoading, error } = useSWR(
-		config ? `${config.baseUrl}/auth/me/app-tokens` : null,
+		config ? `${config.baseUrl}/auth/me/app-tokens/` : null,
 		fetcher<API.Response.Paginated<API.AppToken>>
 	);
 	error && raise(error);
