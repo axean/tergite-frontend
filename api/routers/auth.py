@@ -78,6 +78,9 @@ router.include_router(
     tags=["auth"],
 )
 
+# FIXME: There is still an issue with programmatically generating the redirect URI.
+#  It keeps missing the http(s). It is like the scheme is never passed along, which is weird
+
 # For browser based auth
 router.include_router(
     JWT_AUTH.get_oauth_router(
