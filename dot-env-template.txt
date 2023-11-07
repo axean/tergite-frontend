@@ -11,3 +11,21 @@ BCC_MACHINE_ROOT_URL=http://host:port
 DB_MACHINE_ROOT_URL=mongodb://user:pass@host:port
 MSS_PORT=num
 WS_PORT=num
+
+# APP_SETTINGS reflect which environment the app is to run in.
+# Options
+#  - development
+#  - production
+#  - staging
+#  - test
+# Default: production
+APP_SETTINGS=production
+
+# the test BCC connection
+TEST_BCC_MACHINE_ROOT_URL=http://localhost:8000
+# the test mongodb connection. Ensure mongo is running
+TEST_DB_MACHINE_ROOT_URL=mongodb://localhost:27017
+
+# For datetime precisions; number of additional components of the time to include
+# See https://docs.python.org/3/library/datetime.html#datetime.datetime.isoformat
+# DATETIME_PRECISION=<any of 'milliseconds', 'auto', 'microseconds', 'seconds', 'minutes', 'hours'>

@@ -23,6 +23,7 @@ from api.dto.FilteredDeviceData import FilteredComponent, FilteredDeviceData
 from api.dto.Device import DeviceData, DeviceInfo, DevicesSimpleInfo
 from api.dto.VisualisationType import VisualisationType
 from api.services import service
+from mongodb_dependency import MongoDbDep
 
 router = APIRouter(prefix="/devices", tags=["devices"])
 
@@ -30,7 +31,7 @@ FROM_DATETIME = datetime(2000, 1, 1, tzinfo=timezone.utc)
 
 
 @router.get("/", response_model=List[DevicesSimpleInfo])
-async def all_endpoints_simple():
+async def all_endpoints_simple(db: MongoDbDep):
     """
     Returns simple overall data for all endpoints.
     """
@@ -45,17 +46,17 @@ async def all_endpoints_simple():
             "online_date": item.online_date,
             "sample_name": item.sample_name,
         }
-        for item in await service.get_all_latest_backends()
+        for item in await service.get_all_latest_backends(db)
     ]
 
 
 @router.get("/all_last_data", response_model=List[DeviceData])
-async def root():
+async def root(db: MongoDbDep):
     """
     Returns the static and dynamic properties of all available backends.
     """
     print("GOT DEVICES/ALL_LAST_DATA")
-    return await service.get_all_latest_backends()
+    return await service.get_all_latest_backends(db)
 
 
 @router.get("/online_statuses", response_model=Dict[str, bool])
@@ -68,58 +69,66 @@ async def get_all_device_statuses():
 
 
 @router.get("/{device}", response_model=DeviceInfo)
-async def get_device_info(device: str):
+async def get_device_info(db: MongoDbDep, device: str):
     """
     Returns configuration information from the specified backend.
     """
-    return await service.get_device_info(device)
+    return await service.get_device_info(db, device_name=device)
 
 
 @router.get("/{device}/data", response_model=DeviceData)
-async def get_device_data(device: str, force_refresh: bool = False):
+async def get_device_data(
+    db: MongoDbDep,
+    device: str,
+    force_refresh: bool = False,
+):
     """
     Returns the static and dynamic properties of a specified backend.
     """
     if force_refresh:
         await service.force_refresh(device)
-    data = await service.get_backend_by_name_one(device, service.DB_SORT_DESCENDING)
+    data = await service.get_backend_by_name_one(
+        db, device_name=device, sort=service.DB_SORT_DESCENDING
+    )
     if data is None:
         raise HTTPException(status_code=404, detail=f"Device name {device} not found")
     return DeviceData.parse_obj(data)
 
 
 @router.get("/{device}/data/qiskit", response_model=QiskitDeviceData)
-async def get_qiskit_device_data(device: str, force_refresh: bool = False):
+async def get_qiskit_device_data(
+    db: MongoDbDep, device: str, force_refresh: bool = False
+):
     """
     Returns the stored data from the specified device in Qiskit format.
     """
     if force_refresh:
         await service.force_refresh(device)
-    return await service.get_qiskit_device_data_by_name(device)
+    return await service.get_qiskit_device_data_by_name(db, device_name=device)
 
 
 @router.get("/{device}/config", response_model=PrivateBackendConfiguration)
-async def get_config(device: str):
+async def get_config(db: MongoDbDep, device: str):
     """
     Returns the configuration file of the specified backend.
     """
-    return await service.get_latest_device_configuration_by_name(device)
+    return await service.get_latest_device_configuration_by_name(db, device_name=device)
 
 
 @router.get("/{device}/config/qiskit", response_model=QiskitConfiguration)
-async def get_qiskit_config(device: str):
+async def get_qiskit_config(db: MongoDbDep, device: str):
     """
     Returns the configuration file of the specified backend in Qiskit format.
     """
-    return await service.get_latest_qiskit_configuration_by_name(device)
+    return await service.get_latest_qiskit_configuration_by_name(db, device_name=device)
 
 
 @router.get("/{device}/online_since", response_model=datetime)
-async def get_device_online_since_date(device: str):
+async def get_device_online_since_date(db: MongoDbDep, device: str):
     """
     Returns endpoint online status.
     """
-    item = await service.get_backend_online_date(device)
+    item = await service.get_backend_online_date(db, device_name=device)
     if item is None:
         raise HTTPException(
             status_code=404, detail=f"Device name {device} doesn't exist"
@@ -128,11 +137,11 @@ async def get_device_online_since_date(device: str):
 
 
 @router.get("/{device}/offline_since", response_model=datetime)
-async def get_device_offline_since_date(device: str):
+async def get_device_offline_since_date(db: MongoDbDep, device: str):
     """
     Returns when the endpoint was last seen if offline.
     """
-    item = await service.get_backend_offline_date(device)
+    item = await service.get_backend_offline_date(db, device_name=device)
     if item is None:
         raise HTTPException(
             status_code=404, detail=f"Device name {device} doesn't exist"
@@ -150,6 +159,7 @@ async def get_device_status(device: str):
 
 @router.get("/{device}/{type}/period", response_model=FilteredDeviceData)
 async def get_properties_by_type_and_period(
+    db: MongoDbDep,
     device: str,
     type: str,
     _from: str = Query(None, alias="from"),
@@ -179,15 +189,17 @@ async def get_properties_by_type_and_period(
             detail=f'Invalid type "{str(type)}". Valid types are {str(VisualisationType.values())}',
         )
     return await service.get_properties_by_type_and_period(
-        device,
-        VisualisationType(type),
-        from_datetime,
-        to_datetime,
+        db,
+        device_name=device,
+        type=VisualisationType(type),
+        from_datetime=from_datetime,
+        to_datetime=to_datetime,
     )
 
 
 @router.get("/{device}/period", response_model=List[DeviceData])
 async def get_backend_over_time(
+    db: MongoDbDep,
     device: str,
     _from: str = Query(None, alias="from"),
     to: Union[str, None] = None,
@@ -217,7 +229,11 @@ async def get_backend_over_time(
         )
 
     snapshots = await service.get_snapshot_backend_date_range(
-        device, from_datetime, to_datetime, False
+        db,
+        device_name=device,
+        from_time=from_datetime,
+        to_time=to_datetime,
+        include_id=False,
     )
 
     if not snapshots:
@@ -230,7 +246,7 @@ async def get_backend_over_time(
 
 
 @router.get("/{device}/{type}", response_model=FilteredDeviceData)
-async def get_properties_by_type(device: str, type: str):
+async def get_properties_by_type(db: MongoDbDep, device: str, type: str):
     """
     Returns the properties of the specified backend's latest snapshot with the given
     type.
@@ -240,7 +256,9 @@ async def get_properties_by_type(device: str, type: str):
             status_code=400,
             detail=f'Invalid type "{str(type)}". Valid types are {str(VisualisationType.values())}',
         )
-    return await service.get_properties_by_type(device, VisualisationType(type))
+    return await service.get_properties_by_type(
+        db, device_name=device, type=VisualisationType(type)
+    )
 
 
 @router.get(
@@ -248,6 +266,7 @@ async def get_properties_by_type(device: str, type: str):
     response_model=List[FilteredComponent],
 )
 async def get_property_over_time(
+    db: MongoDbDep,
     device: str,
     components: str,
     property: str,
@@ -279,7 +298,12 @@ async def get_property_over_time(
         )
 
     property_ranges = await service.get_property_over_time(
-        device, components, property, from_datetime, to_datetime
+        db,
+        device_name=device,
+        components=components,
+        property_name=property,
+        from_datetime=from_datetime,
+        to_datetime=to_datetime,
     )
 
     if not property_ranges:

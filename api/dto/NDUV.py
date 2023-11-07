@@ -14,12 +14,14 @@
 
 from datetime import datetime
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class NDUV(BaseModel):
     date: datetime
     name: str
     unit: str
-    value: float
+    value: Optional[
+        float
+    ]  # the data in the database has null in this position in some records
     types: List[str]

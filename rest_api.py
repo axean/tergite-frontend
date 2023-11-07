@@ -13,10 +13,10 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+import logging
 
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, HTTPException, status
 from uuid import uuid4, UUID
-from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime
 import pymongo
 import settings
@@ -26,19 +26,12 @@ import functools
 from fastapi.middleware.cors import CORSMiddleware
 from api.routers import devices
 from api.services import service
-
+from mongodb_dependency import MongoDbDep
 
 # settings
 BCC_MACHINE_ROOT_URL = settings.BCC_MACHINE_ROOT_URL
 DB_MACHINE_ROOT_URL = settings.DB_MACHINE_ROOT_URL
 DB_NAME = settings.DB_NAME
-
-# mongodb
-mongodb = AsyncIOMotorClient(str(DB_MACHINE_ROOT_URL))
-db = mongodb[DB_NAME]
-jobs_col = db["jobs"]  # job collection
-calib_col = db["calibrations"]  # experimentally measured data
-backend_col = db["backends"]  # quantum device backend data
 
 
 # application
@@ -86,6 +79,8 @@ def create_new_documents(collection: str, *, unique_key: str = None) -> callable
     def decorator(function: callable) -> callable:
         @functools.wraps(function)
         async def wrapper(*args, **kwargs):
+            # FIXME: get the database from the args passed to the function
+            db = kwargs.get("db")
             col = db[collection]
             documents, response_content = function(*args, **kwargs)
             filtered_documents = list()
@@ -125,6 +120,8 @@ def update_documents(collection: str) -> callable:
     def decorator(function: callable) -> callable:
         @functools.wraps(function)
         async def wrapper(*args, **kwargs):
+            # FIXME: get the database from the args passed to the function
+            db = kwargs.get("db")
             col = db[collection]
             db_filter, update, response_content = function(*args, **kwargs)
             update_ts = new_timestamp()
@@ -157,65 +154,81 @@ async def root():
 
 
 @app.get("/backends")
-async def read_backends():
-    return await retrieve_ordered_subset(backend_col, nlast=-1, **REGSORT)
+async def read_backends(db: MongoDbDep):
+    return await retrieve_ordered_subset(db.backends, nlast=-1, **REGSORT)
 
 
 @app.get("/calibrations")
-async def read_calibrations(nlast: int = 10):
-    return await retrieve_ordered_subset(calib_col, nlast=nlast, **REGSORT)
+async def read_calibrations(db: MongoDbDep, nlast: int = 10):
+    return await retrieve_ordered_subset(db.calibrations, nlast=nlast, **REGSORT)
 
 
 @app.get("/jobs")
-async def read_jobs(nlast: int = 10):
-    return await retrieve_ordered_subset(jobs_col, nlast=nlast, **REGSORT)
+async def read_jobs(db: MongoDbDep, nlast: int = 10):
+    return await retrieve_ordered_subset(db.jobs, nlast=nlast, **REGSORT)
 
 
 @app.get("/backends/{backend_name}")
-async def read_backend(backend_name: str):
-    return await retrieve_using_tag({"name": backend_name}, backend_col)
+async def read_backend(db: MongoDbDep, backend_name: str):
+    return await retrieve_using_tag({"name": backend_name}, db.backends)
 
 
 @app.get("/rng/{job_id}")
-async def read_rng(job_id: UUID):
+async def read_rng(db: MongoDbDep, job_id: UUID):
     return await retrieve_using_tag({"job_id": str(job_id)}, db["rng"])
 
+
 @app.get("/calibrations/{job_id}")
-async def read_calibration(job_id: UUID):
-    return await retrieve_using_tag({"job_id": str(job_id)}, calib_col)
+async def read_calibration(db: MongoDbDep, job_id: UUID):
+    return await retrieve_using_tag({"job_id": str(job_id)}, db.calibrations)
+
 
 @app.get("/jobs/{job_id}")
-async def read_job(job_id: UUID):
-    return await retrieve_using_tag({"job_id": str(job_id)}, jobs_col)
+async def read_job(db: MongoDbDep, job_id: UUID):
+    return await retrieve_using_tag({"job_id": str(job_id)}, db.jobs)
 
 
 @app.get("/jobs/{job_id}/result")
-async def read_job_result(job_id: UUID):
-    # NOTE: This may raise KeyError
-    document = await retrieve_using_tag({"job_id": str(job_id)}, jobs_col)
+async def read_job_result(db: MongoDbDep, job_id: UUID):
+    try:
+        # NOTE: This may raise KeyError
+        document = await retrieve_using_tag({"job_id": str(job_id)}, db.jobs)
 
-    # helper printout with first 5 outcomes
-    print("Measurement results:")
-    memory = document["result"]["memory"]
-    for experiment_memory in memory:
-        s = str(experiment_memory[:5])
-        if experiment_memory[5:6]:
-            s = s.replace("]", ", ...]")
-        print(s)
+        # helper printout with first 5 outcomes
+        print("Measurement results:")
+        memory = document["result"]["memory"]
+        for experiment_memory in memory:
+            s = str(experiment_memory[:5])
+            if experiment_memory[5:6]:
+                s = s.replace("]", ", ...]")
+            print(s)
 
-    return document["result"]
+        return document["result"]
+    except KeyError as exp:
+        logging.error(exp)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"job of id {job_id} has no result",
+        )
 
 
 @app.get("/jobs/{job_id}/download_url")
-async def read_job_download_url(job_id: UUID):
-    # NOTE: This may raise KeyError: download_url might not exist
-    document = await retrieve_using_tag({"job_id": str(job_id)}, jobs_col)
-    print(document["download_url"])
-    return document["download_url"]
+async def read_job_download_url(db: MongoDbDep, job_id: UUID):
+    try:
+        # NOTE: This may raise KeyError: download_url might not exist
+        document = await retrieve_using_tag({"job_id": str(job_id)}, db.jobs)
+        print(document["download_url"])
+        return document["download_url"]
+    except KeyError as exp:
+        logging.error(exp)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"job of id {job_id} has no download_url",
+        )
 
 @app.get("/backends/{backend_name}/properties/lda_parameters")
-async def read_lda_parameters(backend_name: str):
-    document = await read_backend(backend_name=backend_name)
+async def read_lda_parameters(db: MongoDbDep, backend_name: str):
+    document = await retrieve_using_tag({"name": backend_name}, db.backends)
     return document["properties"]["lda_parameters"]
 
 
@@ -224,10 +237,10 @@ async def read_lda_parameters(backend_name: str):
 
 @app.post("/jobs")
 @create_new_documents(collection="jobs")
-def create_job_document():
+def create_job_document(db: MongoDbDep, backend: str = "pingu"):
     job_id = uuid4()
     print(f"Creating new job with id: {job_id}")
-    documents = [{"job_id": str(job_id), "status": "REGISTERING", "backend": "pingu"}]
+    documents = [{"job_id": str(job_id), "status": "REGISTERING", "backend": backend}]
     response_content = {
         "job_id": str(job_id),
         "upload_url": str(BCC_MACHINE_ROOT_URL) + "/jobs",
@@ -237,7 +250,7 @@ def create_job_document():
 
 @app.put("/backends")
 @create_new_documents(collection="backends", unique_key="name")
-def create_backend_document(backend_dict: dict):
+def create_backend_document(db: MongoDbDep, backend_dict: dict):
     if "name" not in backend_dict.keys():
         return [], "Backend needs to have a name"
 
@@ -246,55 +259,66 @@ def create_backend_document(backend_dict: dict):
 
 @app.post("/calibrations")
 @create_new_documents(collection="calibrations")
-def create_calibration_documents(documents: list):
+def create_calibration_documents(db: MongoDbDep, documents: list):
     return documents, "OK"
+
 
 @app.post("/random")
 @create_new_documents(collection="rng")
-def create_rng_documents(documents: list):
+def create_rng_documents(db: MongoDbDep, documents: list):
     """
-        Store documents containing batches of random numbers.
-        One document is one batch of random numbers requested by a user.
+    Store documents containing batches of random numbers.
+    One document is one batch of random numbers requested by a user.
 
-        Document schema: {
-            job_id : str,   # id of the job, queued by the user
-            numbers : list, # the random integers
-            N : int,        # how many integers did the user request
-            width : int     # how many bits is the integer, 32, 64, etc.
-        }
+    Document schema: {
+        job_id : str,   # id of the job, queued by the user
+        numbers : list, # the random integers
+        N : int,        # how many integers did the user request
+        width : int     # how many bits is the integer, 32, 64, etc.
+    }
     """
     return documents, "OK"
 
+
 # ------------ UPDATE OPERATIONS ------------ #
+
 
 @app.put("/jobs/{job_id}/result")
 @update_documents(collection="jobs")
-def update_job_result(job_id: UUID, memory: list):
+def update_job_result(db: MongoDbDep, job_id: UUID, memory: list):
     return {"job_id": str(job_id)}, {"$set": {"result": {"memory": memory}}}, "OK"
 
 
 @app.put("/jobs/{job_id}/status")
 @update_documents(collection="jobs")
-def update_job_status(job_id: UUID, status: str = Body(..., max_length=10)):
+def update_job_status(
+    db: MongoDbDep, job_id: UUID, status: str = Body(..., max_length=10)
+):
     return {"job_id": str(job_id)}, {"$set": {"status": status}}, "OK"
 
 
 @app.put("/jobs/{job_id}/download_url")
 @update_documents(collection="jobs")
-def update_job_download_url(job_id: UUID, url: str = Body(..., max_length=140)):
+def update_job_download_url(
+    db: MongoDbDep, job_id: UUID, url: str = Body(..., max_length=140)
+):
     return {"job_id": str(job_id)}, {"$set": {"download_url": url}}, "OK"
 
 
 # This should probably be a PUT method as well. The decision depends on the wider context.
 @app.post("/jobs/{job_id}/timelog")
 @update_documents(collection="jobs")
-def update_timelog_entry(job_id: UUID, event_name: str = Body(..., max_legth=10)):
+def update_timelog_entry(
+    db: MongoDbDep, job_id: UUID, event_name: str = Body(..., max_legth=10)
+):
     timestamp = new_timestamp()
     return {"job_id": str(job_id)}, {"$set": {"timelog." + event_name: timestamp}}, "OK"
 
 @app.put("/backends/{backend_name}/properties/lda_parameters")
 @update_documents(collection="backends")
-def update_lda_parameters(backend_name: str, lda_parameters: dict):
+def update_lda_parameters(
+    db: MongoDbDep, backend_name: str, lda_parameters: dict
+):
     return {"name": backend_name}, {"$set": {"properties": {"lda_parameters": lda_parameters}}}, "OK"
 
 # Webgui Public services

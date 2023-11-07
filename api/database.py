@@ -11,14 +11,10 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+import logging
+from datetime import datetime
 
-
-import motor.motor_asyncio
-from settings import DB_MACHINE_ROOT_URL, DB_NAME
-
-client = motor.motor_asyncio.AsyncIOMotorClient(str(DB_MACHINE_ROOT_URL))
-collection = client[str(DB_NAME)]["data"]
-config_collection = client[str(DB_NAME)]["config"]
+from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorClient
 
 
 # Code section deletes entries from data base
@@ -32,3 +28,34 @@ async def do_delete_one():
 
 loop = client.get_io_loop()
 loop.run_until_complete(do_delete_one())"""
+
+_CONNECTIONS = {}
+
+
+def get_mongodb(url: str, name: str) -> AsyncIOMotorDatabase:
+    """Returns a mongo db which can be used to get collections
+
+    https://fastapi.tiangolo.com/advanced/settings/#lru_cache-technical-details
+    lru_cache memoizes the function
+
+    Args:
+        url: the mongo db url
+        name: the name of the mongo database
+
+    Returns:
+        a AsyncIOMotorDatabase instance that can be used to extract collections
+    """
+    global _CONNECTIONS
+
+    try:
+        client = _CONNECTIONS[url]
+        if client.io_loop.is_closed():
+            client.close()
+            logging.debug(f"New mongo db connection at {datetime.utcnow().isoformat()}")
+            client = AsyncIOMotorClient(url, tz_aware=True)
+    except KeyError:
+        logging.debug(f"New mongo db connection at {datetime.utcnow().isoformat()}")
+        client = AsyncIOMotorClient(url, tz_aware=True)
+
+    _CONNECTIONS[url] = client
+    return client[name]

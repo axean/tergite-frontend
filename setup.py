@@ -2,6 +2,7 @@
 #
 # (C) Copyright Miroslav Dobsicek 2021
 # (C) Copyright Abdullah-Al Amin 2021
+# (C) Copyright Martin Ahindura 2023
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,18 +15,9 @@
 
 from setuptools import setup, find_packages
 
-REQUIREMENTS = [
-    "fastapi>=0.65.1",
-    "motor>=2.4.0",
-    "python-multipart>=0.0.5",
-    "redis>=3.5.3",
-    "requests>=2.25.1",
-    "rq>=1.8.1",
-    "uvicorn>=0.13.4",
-    "aiohttp>=3.8.1",
-    "websockets>=10.3",
-    "tomli>=2.0.1",
-]
+
+with open("requirements.txt", mode="r") as _file:
+    REQUIREMENTS = _file.readlines()
 
 setup(
     name="tergite-mss",

@@ -33,6 +33,7 @@ def filter_device_data_by_type(
     Returns a filtered device data object containing all properties of the given
     device_data that have the specified type.
     """
+
     # Each list of components will be reduced to a list of FilteredComponents
     # using this function.
     def filter_components(
@@ -105,7 +106,6 @@ def join_filtered_device_data(
         joined_components: List[FilteredComponent] = []
 
         for component0 in device0_components:
-
             # component0 and component1 hold the values of the same component
             # at different time ranges.
             component1 = next(
