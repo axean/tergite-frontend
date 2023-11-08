@@ -134,3 +134,5 @@ nohup.out
 
 # starter for debugger
 start_mss.py
+
+.DS_Store
