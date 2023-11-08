@@ -94,3 +94,21 @@ router.include_router(
   Instructions are on the [README.md](../README.md)
 - Start the landing page.
   Instructions are on its [README.md](https://github.com/tergite/tergite-landing-page/src/main/README.md)
+
+## Authorization
+
+- We control access to MSS, and its BCCs using two ways
+  - `roles` control basic access to auth-related endpoints e.g. project creation, token management etc.
+  - `projects` control access to all other endpoints. To create a job, or get its results etc, 
+     one must be attached to a project that has more than zero QPU seconds.
+- QPU seconds are the number of seconds a project's experiments are allocated on the quantum computer.
+- QPU seconds can be increased, decreased etc., but no job can be created without positive QPU seconds.
+
+### How Authorization Works
+
+Here is an interaction diagram of QAL9000 auth showcasing authentication via [MyAccessID](https://ds.myaccessid.org/).
+
+
+![Interaction diagram of QAL9000 auth showcasing MyAccessID](./assets/qal9000-auth.png)
+
+**The raw editable drawio diagram can be found [in the assets folder](./assets/qal9000-auth.drawio)**
