@@ -10,6 +10,8 @@ from pytest_lazyfixture import lazy_fixture
 from services.auth import AppToken, Project
 from tests._utils.auth import (
     TEST_APP_TOKEN_DICT,
+    TEST_NO_QPU_APP_TOKEN_DICT,
+    TEST_NO_QPU_PROJECT_DICT,
     TEST_PROJECT_DICT,
     TEST_PROJECT_ID,
     TEST_SUPERUSER_EMAIL,
@@ -417,7 +419,7 @@ def test_admin_view_all_projects_in_detail(
                 "is_active": item.get("is_active", True),
                 "user_emails": item["user_emails"],
             }
-            for item in [TEST_PROJECT_DICT] + PROJECT_LIST
+            for item in [TEST_PROJECT_DICT, TEST_NO_QPU_PROJECT_DICT] + PROJECT_LIST
         ]
 
         assert response.status_code == 200
@@ -442,7 +444,7 @@ def test_view_own_projects_in_less_detail(
                 "qpu_seconds": item["qpu_seconds"],
                 "is_active": item.get("is_active", True),
             }
-            for item in [TEST_PROJECT_DICT] + PROJECT_LIST
+            for item in [TEST_PROJECT_DICT, TEST_NO_QPU_PROJECT_DICT] + PROJECT_LIST
             if user_email in item["user_emails"]
         ]
 
@@ -634,7 +636,8 @@ def test_view_own_app_tokens_in_less_detail(
                 "title": v["title"],
                 "created_at": datetime.now(timezone.utc).isoformat("T"),
             }
-            for v in [TEST_APP_TOKEN_DICT] + inserted_app_tokens
+            for v in [TEST_APP_TOKEN_DICT, TEST_NO_QPU_APP_TOKEN_DICT]
+            + inserted_app_tokens
             if str(v["user_id"]) == user_id
         ]
 

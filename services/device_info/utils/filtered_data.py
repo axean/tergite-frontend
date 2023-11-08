@@ -16,13 +16,16 @@
 from functools import reduce
 from typing import List, Union
 
-from ..dto.Coupler import Coupler
-from ..dto.Device import DeviceData
-from ..dto.FilteredDeviceData import FilteredComponent, FilteredDeviceData
-from ..dto.Gate import Gate
-from ..dto.Qubit import Qubit
-from ..dto.Resonator import Resonator
-from ..dto.VisualisationType import VisualisationType
+from ..dtos import (
+    Coupler,
+    DeviceData,
+    FilteredComponent,
+    FilteredDeviceData,
+    Gate,
+    Qubit,
+    Resonator,
+    VisualisationType,
+)
 
 
 def filter_device_data_by_type(
@@ -36,9 +39,9 @@ def filter_device_data_by_type(
     # Each list of components will be reduced to a list of FilteredComponents
     # using this function.
     def filter_components(
-        filtered_list: "list[FilteredComponent]", component
-    ) -> "list[FilteredComponent]":
-        filtered_component = filter_component_by_type(component, type)
+        filtered_list: "List[FilteredComponent]", component
+    ) -> "List[FilteredComponent]":
+        filtered_component = _filter_component_by_type(component, type)
 
         if filtered_component is None:
             return filtered_list
@@ -58,9 +61,9 @@ def filter_device_data_by_type(
     )
 
 
-def filter_component_by_type(
+def _filter_component_by_type(
     component: Union[Qubit, Coupler, Resonator, Gate],
-    type: VisualisationType,
+    type_: VisualisationType,
 ) -> Union[FilteredComponent, None]:
     """
     Returns a FilteredComponent with the properties of the given component that
@@ -74,13 +77,14 @@ def filter_component_by_type(
     filtered_component_obj = {}
 
     for prop in all_props:
-        if type.value in prop.types:
+        if type_.value in prop.types:
             filtered_component_obj[prop.name] = [prop]
 
     if len(filtered_component_obj.keys()) == 0:
         return None
 
     filtered_component_obj["id"] = component.id
+    # {id: str, str: [{k, v}]}
     return FilteredComponent.parse_obj(filtered_component_obj)
 
 
@@ -118,14 +122,14 @@ def join_filtered_device_data(
                     f"The given FilteredDevices do not contain the same {component_key}."
                 )
 
-            joined_components.append(join_filtered_components(component0, component1))
+            joined_components.append(_join_filtered_components(component0, component1))
 
         joined_dict[component_key] = joined_components
 
     return FilteredDeviceData.parse_obj(joined_dict)
 
 
-def join_filtered_components(
+def _join_filtered_components(
     comp0: FilteredComponent,
     comp1: FilteredComponent,
 ) -> FilteredComponent:

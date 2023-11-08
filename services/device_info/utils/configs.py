@@ -11,18 +11,20 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-
 from typing import List, Union
 
-from ..dto.Coupler import CouplerConfig
-from ..dto.DeviceConfiguration import PrivateBackendConfiguration, QiskitConfiguration
-from ..dto.Gate import GateConfig
-from ..dto.Qubit import QubitConfig
+from ..dtos import (
+    CouplerConfig,
+    GateConfig,
+    PrivateBackendFullDeviceConfig,
+    QiskitFullDeviceConfig,
+    QubitConfig,
+)
 
 
-def private_backend_config_to_qiskit_format(
-    config: PrivateBackendConfiguration,
-) -> QiskitConfiguration:
+def to_qiskit_config_format(
+    config: PrivateBackendFullDeviceConfig,
+) -> QiskitFullDeviceConfig:
     """
     Returns the given configuration in Qiskit format.
     """
@@ -37,12 +39,12 @@ def private_backend_config_to_qiskit_format(
     )
 
     config_dict = {
-        **dict(config),
+        **config.dict(),
         "coupling_map": qiskit_coupling_map,
         "gates": qiskit_gates,
     }
 
-    return QiskitConfiguration.parse_obj(config_dict)
+    return QiskitFullDeviceConfig.parse_obj(config_dict)
 
 
 def _get_qiskit_formatted_coupling_map(

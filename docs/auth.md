@@ -48,7 +48,7 @@ ERIKSON_COOKIE_REDIRECT_URI = config(
 )
 ```
 
-- Add the erikson authentication routes to the [`api/routers/auth.py`](../api/routers/auth.py) file.
+- Add the erikson authentication routes to the [`api/routers/auth.py`](../api/rest/routers/auth.py) file.
 
 ```python
 # If Erikson uses microsoft to handle its users, we use the `get_microsoft_client` utility
@@ -103,6 +103,8 @@ router.include_router(
      one must be attached to a project that has more than zero QPU seconds.
 - QPU seconds are the number of seconds a project's experiments are allocated on the quantum computer.
 - QPU seconds can be increased, decreased etc., but no job can be created without positive QPU seconds.
+- A job could run for longer than the allocated project QPU seconds but 
+  it may fail to update MSS of its results. A user must thus make sure their project has enough QPU seconds.
 
 ### How Authorization Works
 

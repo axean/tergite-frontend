@@ -24,13 +24,13 @@ _EXCLUDED_FIELDS = ["_id"]
 
 
 @pytest.mark.parametrize("job_id", _JOB_IDS)
-def test_read_job(db, client, job_id: str, app_token_header):
+def test_read_job(db, client, job_id: str, no_qpu_app_token_header):
     """Get to /jobs/{job_id} returns the job for the given job_id"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
 
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.get(f"/jobs/{job_id}", headers=app_token_header)
+        response = client.get(f"/jobs/{job_id}", headers=no_qpu_app_token_header)
         got = response.json()
         expected = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
 
@@ -39,13 +39,13 @@ def test_read_job(db, client, job_id: str, app_token_header):
 
 
 @pytest.mark.parametrize("job_id", _JOB_IDS)
-def test_read_job_result(db, client, job_id: str, app_token_header):
+def test_read_job_result(db, client, job_id: str, no_qpu_app_token_header):
     """Get to /jobs/{job_id}/result returns the job result for the given job_id"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
 
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.get(f"/jobs/{job_id}/result", headers=app_token_header)
+        response = client.get(f"/jobs/{job_id}/result", headers=no_qpu_app_token_header)
         got = response.json()
         expected_job = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
 
@@ -61,13 +61,15 @@ def test_read_job_result(db, client, job_id: str, app_token_header):
 
 
 @pytest.mark.parametrize("job_id", _JOB_IDS)
-def test_read_job_download_url(db, client, job_id: str, app_token_header):
+def test_read_job_download_url(db, client, job_id: str, no_qpu_app_token_header):
     """Get to /jobs/{job_id}/download_url the job download_url for the given job_id"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
 
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.get(f"/jobs/{job_id}/download_url", headers=app_token_header)
+        response = client.get(
+            f"/jobs/{job_id}/download_url", headers=no_qpu_app_token_header
+        )
         got = response.json()
         expected_job = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
 
@@ -124,7 +126,7 @@ def test_create_job(db, client, backend: str, app_token_header):
 
 
 @pytest.mark.parametrize("nlast", [1, 4, 6, 10, None])
-def test_read_jobs(db, client, nlast: int, app_token_header):
+def test_read_jobs(db, client, nlast: int, no_qpu_app_token_header):
     """Get to /jobs returns the latest jobs only upto the given nlast records"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
 
@@ -133,7 +135,7 @@ def test_read_jobs(db, client, nlast: int, app_token_header):
 
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.get(f"/jobs{query_string}", headers=app_token_header)
+        response = client.get(f"/jobs{query_string}", headers=no_qpu_app_token_header)
         got = order_by(response.json(), field="job_id")
         expected = order_by(_JOBS_LIST[:limit], field="job_id")
 

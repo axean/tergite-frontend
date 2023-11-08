@@ -31,6 +31,7 @@ from tests._utils.auth import (
     TEST_CHALMERS_TOKEN_RESP,
     TEST_GITHUB_PROFILE,
     TEST_GITHUB_TOKEN_RESP,
+    TEST_NO_QPU_APP_TOKEN_STRING,
     TEST_PUHURI_PROFILE,
     TEST_PUHURI_TOKEN_RESP,
     TEST_SUPERUSER_EMAIL,
@@ -76,6 +77,12 @@ def app_token_header() -> Dict[str, str]:
 
 
 @pytest.fixture
+def no_qpu_app_token_header() -> Dict[str, str]:
+    """the auth header for the client when the project has negative qpu seconds"""
+    yield {"Authorization": f"Bearer {TEST_NO_QPU_APP_TOKEN_STRING}"}
+
+
+@pytest.fixture
 def user_jwt_header() -> Dict[str, str]:
     """the auth header for the client when JWT of user is used"""
     yield get_auth_header(TEST_USER_ID)
@@ -90,7 +97,7 @@ def admin_jwt_header() -> Dict[str, str]:
 @pytest.fixture
 def client(db) -> TestClient:
     """A test client for fast api"""
-    from rest_api import app
+    from api.rest import app
 
     init_test_auth(db)
     yield TestClient(app)

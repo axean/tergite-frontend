@@ -72,15 +72,18 @@ class AppTokenAuthenticator:
         @with_signature(signature)
         async def current_project_token_dependency(*args, **options):
             return await self._authenticate(
-                *args,
-                optional=optional,
-                active=active,
-                **options,
+                *args, optional=optional, active=active, **options
             )
 
         return current_project_token_dependency
 
-    def current_project(self, optional: bool = False, active: bool = False, **kwargs):
+    def current_project(
+        self,
+        optional: bool = False,
+        active: bool = False,
+        ignore_qpu_seconds: bool = False,
+        **kwargs,
+    ):
         """Return a dependency callable to retrieve current project.
 
         Args:
@@ -90,6 +93,8 @@ class AppTokenAuthenticator:
                 Otherwise, an exception is raised. Defaults to `False`.
             active: If `True`, throw `401 Unauthorized` if
                 the project is inactive. Defaults to `False`.
+            ignore_qpu_seconds: If `True`, authorization will succeed even when QPU
+                seconds of project are below zero. Defaults to `False`.
         """
         signature = self._get_dependency_signature()
 
@@ -99,6 +104,7 @@ class AppTokenAuthenticator:
                 *args,
                 optional=optional,
                 active=active,
+                ignore_qpu_seconds=ignore_qpu_seconds,
                 **options,
             )
             return project
@@ -111,6 +117,7 @@ class AppTokenAuthenticator:
         project_manager: ProjectAppTokenManager,
         optional: bool = False,
         active: bool = False,
+        ignore_qpu_seconds: bool = False,
         **kwargs,
     ) -> Tuple[Optional[Project], Optional[str]]:
         project: Optional[Project] = None
@@ -136,7 +143,7 @@ class AppTokenAuthenticator:
             if active and not project.is_active:
                 status_code = status.HTTP_401_UNAUTHORIZED
                 project = None
-            elif project.qpu_seconds <= 0:
+            elif not ignore_qpu_seconds and project.qpu_seconds <= 0:
                 # tokens for projects with no qpu allocation
                 # are not allowed except if optional is True
                 error_msg = f"{project.qpu_seconds} QPU seconds left on project {project.ext_id}"

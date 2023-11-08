@@ -13,12 +13,15 @@ from services.auth.users.dtos import User, UserRole
 from tests._utils.env import TEST_JWT_SECRET
 
 TEST_PROJECT_ID = "bf4876d01e60f05ebc9fac9e"
+TEST_NO_QPU_PROJECT_ID = "fd530427c7141f2693aa850b"
 TEST_PROJECT_EXT_ID = "test-project-1"
+TEST_NO_QPU_PROJECT_EXT_ID = "no-qpu-project-1"
 TEST_USER_ID = "8154077d9cb952b92453d575"
 TEST_SUPERUSER_ID = "de7ddbd2500951be940356a2"
 TEST_USER_EMAIL = "john.doe@example.com"
 TEST_SUPERUSER_EMAIL = "jane.doe@example.com"
 TEST_APP_TOKEN_STRING = "46-0Jhgb1_thq8MqIF0SlVHoS8rFPiLBFL33XO_eJ7I"
+TEST_NO_QPU_APP_TOKEN_STRING = "56-0Khgb1_thq8MyIF0Srtye8rFPiLBFL33XO_et7I"
 
 _password_helper = PasswordHelper()
 
@@ -75,11 +78,26 @@ TEST_PROJECT_DICT = dict(
     qpu_seconds=108000,
 )
 
+TEST_NO_QPU_PROJECT_DICT = dict(
+    _id=PydanticObjectId(TEST_NO_QPU_PROJECT_ID),
+    ext_id=TEST_NO_QPU_PROJECT_EXT_ID,
+    user_emails=["john.doe@example.com"],
+    qpu_seconds=-108000,
+)
+
 TEST_APP_TOKEN_DICT = dict(
     title="test-token",
     token=TEST_APP_TOKEN_STRING,
     user_id=TEST_USER_DICT["_id"],
     project_ext_id=TEST_PROJECT_EXT_ID,
+    lifespan_seconds=3600,
+)
+
+TEST_NO_QPU_APP_TOKEN_DICT = dict(
+    title="no-qpu-token",
+    token=TEST_NO_QPU_APP_TOKEN_STRING,
+    user_id=TEST_USER_DICT["_id"],
+    project_ext_id=TEST_NO_QPU_PROJECT_EXT_ID,
     lifespan_seconds=3600,
 )
 
@@ -89,7 +107,9 @@ def init_test_auth(db: database.Database):
     insert_if_not_exist(db, User, TEST_USER_DICT)
     insert_if_not_exist(db, User, TEST_SUPERUSER_DICT)
     insert_if_not_exist(db, Project, TEST_PROJECT_DICT)
+    insert_if_not_exist(db, Project, TEST_NO_QPU_PROJECT_DICT)
     insert_if_not_exist(db, AppToken, TEST_APP_TOKEN_DICT)
+    insert_if_not_exist(db, AppToken, TEST_NO_QPU_APP_TOKEN_DICT)
 
 
 T = TypeVar("T", bound=Document)

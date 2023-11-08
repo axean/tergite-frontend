@@ -6,25 +6,20 @@ from typing import Any, Dict, List, Union
 import pytest
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from config import app_config
-from services.device_info.dto.Device import DeviceData
-from services.device_info.dto.Device import DeviceInfo as BasicDeviceConfig
-from services.device_info.dto.Device import DevicesSimpleInfo as BasicDeviceData
-from services.device_info.dto.DeviceConfiguration import (
-    PrivateBackendConfiguration as PrivateBackendFullDeviceConfig,
-)
-from services.device_info.dto.FilteredDeviceData import (
+from services.device_info.config import app_config
+from services.device_info.dtos import (
+    BasicDeviceConfig,
+    BasicDeviceData,
+    DeviceData,
     FilteredComponent,
     FilteredDeviceData,
+    PrivateBackendFullDeviceConfig,
+    Property,
+    VisualisationType,
 )
-from services.device_info.dto.NDUV import NDUV as Property
-from services.device_info.dto.VisualisationType import VisualisationType
-from services.device_info.utils.configuration_utils import (
-    private_backend_config_to_qiskit_format as to_qiskit_config_format,
-)
-from services.device_info.utils.qiskit_utils import (
-    device_data_to_qiskit as to_qiskit_device_data,
-)
+from services.device_info.utils.configs import to_qiskit_config_format
+from services.device_info.utils.qiskit import to_qiskit_device_data
+from tests._utils.aiohttp import MockAiohttpClient
 from tests._utils.date_time import is_not_older_than
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection
@@ -38,7 +33,6 @@ from tests._utils.records import (
     order_by,
     pop_field,
 )
-from tests._utils.ws import MockWebsocket
 
 _DATA_COLLECTION = "data"
 _CONFIG_COLLECTION = "config"
@@ -55,8 +49,10 @@ _DEVICE_CONFIG_LIST = load_json_fixture("device_config_list.json")
 
 _DEVICE_NAMES = list(set([item["backend_name"] for item in _DEVICE_DATA_LIST]))
 _ONLINE_STATUS_MAP = {
-    backend: is_even(i)
-    for i, backend in enumerate(list(_ENDPOINTS_MAP.keys()) + _DEVICE_NAMES)
+    backend: is_even(i) for i, backend in enumerate(list(_ENDPOINTS_MAP.keys()))
+}
+_ONLINE_ADDR_STATUS_MAP = {
+    addr: _ONLINE_STATUS_MAP[backend] for backend, addr in _ENDPOINTS_MAP.items()
 }
 # the device list as seen in database
 _DB_DEVICE_DATA_LIST = [
@@ -72,7 +68,7 @@ _API_DEVICE_INFO = [
         BasicDeviceConfig.parse_obj(
             {
                 **item,
-                "is_online": _ONLINE_STATUS_MAP[item["backend_name"]],
+                "is_online": _ONLINE_STATUS_MAP[item["backend_name"].lower()],
             }
         ).json()
     )
@@ -451,7 +447,7 @@ def test_get_device_offline_since_date(
         database=db, collection_name=_DATA_COLLECTION, data=_DEVICE_DATA_LIST
     )
     _mock_online_status_ping(mocker)
-    is_online = _ONLINE_STATUS_MAP.get(device, False)
+    is_online = _ONLINE_STATUS_MAP.get(device.lower(), False)
 
     # using context manager to ensure on_startup runs
     with client as client:
@@ -485,7 +481,7 @@ def test_get_device_offline_since_date(
 def test_get_device_status(client, mocker, device: str, app_token_header):
     """GET to /devices/{device}/online_status returns endpoint online status."""
     _mock_online_status_ping(mocker)
-    expected = _ONLINE_STATUS_MAP.get(device, False)
+    expected = _ONLINE_STATUS_MAP.get(device.lower(), False)
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get(
@@ -747,13 +743,15 @@ def _mock_online_status_ping(mocker):
         mocker: the pytest-mock mocker object
     """
     mocker.patch(
-        "websockets.client.connect",
-        return_value=MockWebsocket(result_map=_ONLINE_STATUS_MAP, default=False),
+        "aiohttp.ClientSession",
+        return_value=MockAiohttpClient(
+            result_map=_ONLINE_ADDR_STATUS_MAP, default=False
+        ),
     )
 
 
 def _mock_forced_refresh(mocker, db: AsyncIOMotorDatabase, fresh_data: Dict[str, Any]):
-    """Mocks the online-status HTTP ping for all backends
+    """Mocks a forced refresh of the backend data
 
     Args:
         mocker: the pytest-mock mocker object
@@ -763,9 +761,9 @@ def _mock_forced_refresh(mocker, db: AsyncIOMotorDatabase, fresh_data: Dict[str,
 
     def side_effect(*args, **kwargs):
         insert_in_collection(db, "data", data=[fresh_data])
-        return MockWebsocket(result_map={}, default="OK")
+        return MockAiohttpClient(result_map={}, default="OK")
 
-    mocker.patch("websockets.client.connect", side_effect=side_effect)
+    mocker.patch("aiohttp.ClientSession", side_effect=side_effect)
 
 
 def _get_props_with_type(

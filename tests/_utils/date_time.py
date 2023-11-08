@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
-from api.utils import datetime_utils
+from utils import date_time
 
 
 def is_not_older_than(timestamp_str: str, seconds: int) -> bool:
@@ -13,6 +13,6 @@ def is_not_older_than(timestamp_str: str, seconds: int) -> bool:
     Returns:
         True if timestamp str is not older than the given seconds
     """
-    return datetime_utils.parse_datetime_string(timestamp_str) - datetime.now(
+    return date_time.parse_datetime_string(timestamp_str) - datetime.now(
         tz=timezone.utc
     ) <= timedelta(seconds=seconds)

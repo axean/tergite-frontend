@@ -40,11 +40,20 @@ def datetime_to_zulu(d: datetime) -> str:
     """
     Returns the given datetime object in string format with an ending Z.
     """
-
-    # FIXME: mongo db saves timestamps only up to the millisecond level. For more precision, save the timestamp
-    #   as an integer thus you will need to change your pydantic model to have an int not a datetime
+    # FIXME: MongoDB shaves off the nanoseconds automatically.
+    #   to make things uniform in tests, we shave them off here also. But it is possible to store
+    #   datetimes as int timestamps instead of dates in order to avoid loss of precision
     return (
         d.astimezone(timezone.utc)
         .isoformat(timespec=_DATETIME_PRECISION)
         .replace("+00:00", "Z")
     )
+
+
+def get_current_timestamp():
+    """Returns current time in UTC string but with hours replaced with a Z"""
+    return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+
+
+DEFAULT_FROM_DATETIME_STR = datetime(2000, 1, 1, 0, 0, tzinfo=timezone.utc).isoformat()
+DEFAULT_TO_DATETIME_STR = datetime.now(timezone.utc).isoformat()
