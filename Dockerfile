@@ -49,4 +49,4 @@ ENV JWT_TTL=3600
 
 EXPOSE 80
 
-CMD uvicorn --host 0.0.0.0 --port $MSS_PORT rest_api:app --proxy-headers
+CMD uvicorn --host 0.0.0.0 --port $MSS_PORT api.rest:app --proxy-headers
