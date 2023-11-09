@@ -4,9 +4,10 @@ import Image from 'next/image';
 import { API } from '@/types';
 import Spinner from '@/components/Spinner';
 
-export default function Oauth2LoginBtn({ provider, logo }: Props) {
+export default function Oauth2LoginBtn({ provider, logo, nextUrl = '' }: Props) {
 	const [isLoading, setIsLoading] = useState(false);
-	const href = useMemo(() => `/api/login/${provider}`, [provider]);
+	const queryString = useMemo(() => nextUrl && `?next=${nextUrl}`, [nextUrl]);
+	const href = useMemo(() => `/api/login/${provider}${queryString}`, [provider, queryString]);
 	const label = useMemo(() => `Login with ${provider}`, [provider]);
 
 	const handleClick = useCallback(() => setIsLoading(true), [setIsLoading]);
@@ -46,4 +47,5 @@ export default function Oauth2LoginBtn({ provider, logo }: Props) {
 interface Props {
 	logo?: API.ImageInfo;
 	provider: string;
+	nextUrl?: string;
 }

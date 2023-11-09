@@ -2,6 +2,9 @@ import utils from '../../utils';
 import users from '../fixtures/users.json';
 import { testNavigation } from './navigation';
 
+const providers = ['github', 'puhuri', 'chalmers'];
+const nextUrls = [undefined, 'http://localhost:3000/tokens', 'http://localhost:3000/projects'];
+
 testNavigation('http://localhost:3000/login', {
 	init: () => {
 		cy.intercept('GET', `/api/config`).as('initialRequest');
@@ -11,17 +14,17 @@ testNavigation('http://localhost:3000/login', {
 	}
 });
 
-const providers = ['github', 'puhuri', 'chalmers'];
-
 users.forEach((user) => {
-	describe(`login page for user '${user.id}'`, () => {
-		before(() => {
-			cy.readFile('./.env.test', 'utf-8').then((str) => utils.loadEnvFromString(str));
-		});
+	providers.slice(undefined, 1).forEach((provider) => {
+		nextUrls.forEach((nextQueryParam) => {
+			const queryStr = nextQueryParam ? `?next=${nextQueryParam}` : '';
 
-		providers.forEach((provider) => {
-			beforeEach(() => {
-				if (user.id) {
+			describe(`login page for user '${user.id}' for ?next=${nextQueryParam}`, () => {
+				before(() => {
+					cy.readFile('./.env.test', 'utf-8').then((str) => utils.loadEnvFromString(str));
+				});
+
+				beforeEach(() => {
 					const cookieName = process.env.USER_ID_COOKIE_NAME as string;
 					const domain = process.env.COOKIE_DOMAIN as string;
 
@@ -31,22 +34,24 @@ users.forEach((user) => {
 						secure: false,
 						sameSite: 'lax'
 					});
-				}
-				cy.visit('http://localhost:3000/login');
-			});
 
-			it(`renders ${provider} login link`, () => {
-				cy.get(`[data-cy-login-with=${provider}]`)
-					.should('contain.text', `Login with ${provider}`)
-					.should('have.attr', 'href', `/api/login/${provider}`);
-			});
+					cy.visit(`http://localhost:3000/login${queryStr}`);
+				});
 
-			it(`click ${provider} login logs one in`, () => {
-				const next = encodeURI(process.env.OAUTH_REDIRECT_URI as string);
-				cy.get(`[data-cy-login-with=${provider}]`).click();
+				it(`renders ${provider} login link`, () => {
+					cy.get(`[data-cy-login-with=${provider}]`)
+						.should('contain.text', `Login with ${provider}`)
+						.should('have.attr', 'href', `/api/login/${provider}${queryStr}`);
+				});
 
-				cy.url().should('eq', `${next}/`);
-				cy.get('[data-cy-nav-btn]').should('contain.text', 'Logout');
+				it(`click ${provider} login logs one in`, () => {
+					const nextUrl = nextQueryParam || `${process.env.OAUTH_REDIRECT_URI}/`;
+					const next = encodeURI(nextUrl);
+					cy.get(`[data-cy-login-with=${provider}]`).realClick();
+
+					cy.url().should('eq', `${next}`);
+					cy.get('[data-cy-nav-btn]').should('contain.text', 'Logout');
+				});
 			});
 		});
 	});

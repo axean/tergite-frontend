@@ -10,7 +10,6 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const { verifyJwtToken, loadEnvFromFile } = require('../utils');
 const { mockDb, createCookieHeader } = require('./utils');
-// const audit = require('express-requests-logger');
 
 // Load environment before everything else
 loadEnvFromFile('./.env.test');
@@ -20,7 +19,6 @@ const app = express();
 
 app.use(cookieParser());
 app.use(bodyParser.json());
-// app.use(audit());
 app.use(
 	cors({
 		origin: true,
@@ -73,24 +71,31 @@ app.use('/auth/me/*', (req, res, next) => {
 });
 
 app.get('/auth/app/:provider/authorize', (req, res) => {
-	res.json({ authorization_url: OAUTH_PROVIDER_URL });
+	const { next: nextUrl } = req.query;
+	const queryStr = nextUrl ? `?next=${nextUrl}` : '';
+	res.json({ authorization_url: `${OAUTH_PROVIDER_URL}${queryStr}` });
 });
 
 app.get('/oauth/callback', (req, res) => {
-	const nextUrl = process.env.OAUTH_REDIRECT_URI;
+	const { next: nextUrl = process.env.OAUTH_REDIRECT_URI } = req.query;
 	const cookieName = process.env.USER_ID_COOKIE_NAME;
 	const userId = req.cookies[cookieName];
 	const user = mockDb.getOneUser(userId);
 
-	createCookieHeader(user)
-		.then((cookieHeader) => {
-			res.set('Set-Cookie', cookieHeader);
-			res.redirect(nextUrl);
-		})
-		.catch((error) => {
-			res.status(500);
-			res.json({ message: 'unexpected error' });
-		});
+	if (user) {
+		createCookieHeader(user)
+			.then((cookieHeader) => {
+				res.set('Set-Cookie', cookieHeader);
+				res.redirect(nextUrl);
+			})
+			.catch((error) => {
+				res.status(500);
+				res.json({ message: 'unexpected error' });
+			});
+	} else {
+		res.status(401);
+		res.json({ detail: 'Unauthorized' });
+	}
 });
 
 app.get('/auth/projects/:id', (req, res) => {

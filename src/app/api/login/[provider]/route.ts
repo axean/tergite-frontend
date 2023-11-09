@@ -1,4 +1,3 @@
-import { API } from '@/types';
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
@@ -7,9 +6,12 @@ import axios from 'axios';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request, { params }: { params: { provider: string } }) {
+	const url = new URL(request.url);
+	const searchParams = new URLSearchParams(url.search);
 	const provider = params.provider;
+	const nextQueryParam = searchParams.get('next');
 	const host = request.headers.get('host');
-	const redirectUrl = process.env.OAUTH_REDIRECT_URI || `http://${host}`;
+	const redirectUrl = nextQueryParam || process.env.OAUTH_REDIRECT_URI || `http://${host}`;
 	const nextUrl = encodeURI(redirectUrl);
 	// issue with fetch/axios and localhost:
 	// https://github.com/vercel/next.js/issues/45315#issuecomment-1406579321
