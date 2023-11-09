@@ -1,6 +1,6 @@
 {
 	"name": "tergite-landing-page",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
@@ -49,3 +49,4 @@
 		"start-server-and-test": "^2.0.0"
 	}
 }
+
