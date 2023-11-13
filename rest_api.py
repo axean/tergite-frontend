@@ -226,6 +226,7 @@ async def read_job_download_url(db: MongoDbDep, job_id: UUID):
             detail=f"job of id {job_id} has no download_url",
         )
 
+
 @app.get("/backends/{backend_name}/properties/lda_parameters")
 async def read_lda_parameters(db: MongoDbDep, backend_name: str):
     try:
@@ -234,9 +235,9 @@ async def read_lda_parameters(db: MongoDbDep, backend_name: str):
     except KeyError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"backend {backend_name} lacks lda_parameters"
+            detail=f"backend {backend_name} lacks lda_parameters",
         )
-    
+
     return lda_parameters
 
 
