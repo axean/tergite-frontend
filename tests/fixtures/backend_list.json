@@ -2204,5 +2204,366 @@
       3332940000,
       4061610000
     ]
+  },
+  {
+  "name": "SimulatorA",
+  "characterized": true,
+  "open_pulse": true,
+  "version": "2023.11.01",
+  "num_qubits": 5,
+  "num_couplers": 8,
+  "num_resonators": 5,
+  "dt": 1e-9,
+  "dtm": 1e-9,
+  "meas_map": [
+    [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  ],
+  "coupling_map": [
+    [
+      0,
+      2
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      3,
+      2
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      4,
+      2
+    ]
+  ],
+  "device_properties": {
+    "qubit": [
+      {
+        "index": 0,
+        "frequency": 4511468734.695521,
+        "pi_pulse_amplitude": 0.12588710987796073,
+        "pi_pulse_duration": 5.3e-8,
+        "pulse_sigma": 6.625e-9,
+        "pulse_type": "Gaussian",
+        "t1_decoherence": 0.000034,
+        "t2_decoherence": 0.000033
+      },
+      {
+        "index": 1,
+        "frequency": 4677101400.167224,
+        "pi_pulse_amplitude": 0.12359040811904862,
+        "pi_pulse_duration": 5.3e-8,
+        "pulse_sigma": 6.625e-9,
+        "pulse_type": "Gaussian",
+        "t1_decoherence": 0.000034,
+        "t2_decoherence": 0.000033
+      },
+      {
+        "index": 2,
+        "frequency": 5770216237.569148,
+        "pi_pulse_amplitude": 0.12401041056807886,
+        "pi_pulse_duration": 5.3e-8,
+        "pulse_sigma": 6.625e-9,
+        "pulse_type": "Gaussian",
+        "t1_decoherence": 0.000034,
+        "t2_decoherence": 0.000033
+      },
+      {
+        "index": 3,
+        "frequency": 6856209150.926443,
+        "pi_pulse_amplitude": 0.12012094179919938,
+        "pi_pulse_duration": 5.3e-8,
+        "pulse_sigma": 6.625e-9,
+        "pulse_type": "Gaussian",
+        "t1_decoherence": 0.000034,
+        "t2_decoherence": 0.000033
+      },
+      {
+        "index": 4,
+        "frequency": 6701087992.406896,
+        "pi_pulse_amplitude": 0.12156732231494262,
+        "pi_pulse_duration": 5.3e-8,
+        "pulse_sigma": 6.625e-9,
+        "pulse_type": "Gaussian",
+        "t1_decoherence": 0.000034,
+        "t2_decoherence": 0.000033
+      }
+    ],
+    "readout_resonator": [
+      {
+        "index": 0,
+        "acq_delay": 5e-8,
+        "acq_integration_time": 0.000001,
+        "frequency": 7260080000,
+        "pulse_amplitued": 0.11634350924190985,
+        "pulse_delay": 0,
+        "pulse_duration": 3e-7,
+        "pulse_type": "Square"
+      },
+      {
+        "index": 1,
+        "acq_delay": 5e-8,
+        "acq_integration_time": 0.000001,
+        "frequency": 7380000000,
+        "pulse_amplitued": 0.1169807671031404,
+        "pulse_delay": 0,
+        "pulse_duration": 3e-7,
+        "pulse_type": "Square"
+      },
+      {
+        "index": 2,
+        "acq_delay": 5e-8,
+        "acq_integration_time": 0.000001,
+        "frequency": 7502000000,
+        "pulse_amplitued": 0.0844799369164222,
+        "pulse_delay": 0,
+        "pulse_duration": 3e-7,
+        "pulse_type": "Square"
+      },
+      {
+        "index": 3,
+        "acq_delay": 5e-8,
+        "acq_integration_time": 0.000001,
+        "frequency": 7712000000,
+        "pulse_amplitued": 0.05502809905001427,
+        "pulse_delay": 0,
+        "pulse_duration": 3e-7,
+        "pulse_type": "Square"
+      },
+      {
+        "index": 4,
+        "acq_delay": 5e-8,
+        "acq_integration_time": 0.000001,
+        "frequency": 7871000000,
+        "pulse_amplitued": 0.06852585788333684,
+        "pulse_delay": 0,
+        "pulse_duration": 3e-7,
+        "pulse_type": "Square"
+      }
+    ],
+    "coupler": [
+      {}
+    ]
+  },
+  "meas_lo_freq": [
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "qubit_lo_freq": [
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "properties": {
+    "lda_parameters": {
+      "q0": {
+        "twoState": {
+          "score": 0.9935,
+          "coef": [
+            [
+              -8723.306008336513,
+              8681.564559249004
+            ]
+          ],
+          "intercept": [
+            -56.55052645738266
+          ]
+        },
+        "threeState": {
+          "score": 0.929,
+          "coef": [
+            [
+              2107.923891627188,
+              -616.0194040309294
+            ],
+            [
+              -5436.788137631635,
+              -2222.1781216655822
+            ],
+            [
+              1331.5456984017783,
+              1135.2790102786041
+            ]
+          ],
+          "intercept": [
+            6.709086533996576,
+            -25.775194842172624,
+            0.20166420705938704
+          ]
+        }
+      },
+      "q1": {
+        "twoState": {
+          "score": 0.99275,
+          "coef": [
+            [
+              -8194.540942589843,
+              7833.003778504878
+            ]
+          ],
+          "intercept": [
+            -53.278843680601526
+          ]
+        },
+        "threeState": {
+          "score": 0.9256666666666666,
+          "coef": [
+            [
+              1967.8694300562267,
+              -803.5060458506114
+            ],
+            [
+              -4884.730713754838,
+              -1810.1776060698735
+            ],
+            [
+              1166.7445134794448,
+              1045.4734607681937
+            ]
+          ],
+          "intercept": [
+            6.628571018980033,
+            -23.810042993640533,
+            -0.4036614947152084
+          ]
+        }
+      },
+      "q2": {
+        "twoState": {
+          "score": 0.99375,
+          "coef": [
+            [
+              1170.5557464971516,
+              12042.868296689236
+            ]
+          ],
+          "intercept": [
+            -24.038698906510042
+          ]
+        },
+        "threeState": {
+          "score": 0.9291111111111111,
+          "coef": [
+            [
+              -268.1529315991213,
+              -2878.0563350510465
+            ],
+            [
+              -3543.539092502481,
+              4357.352723523719
+            ],
+            [
+              1524.6768096406404,
+              -591.718555389068
+            ]
+          ],
+          "intercept": [
+            1.7221008028814158,
+            -15.845139471159744,
+            -1.903346481815108
+          ]
+        }
+      },
+      "q3": {
+        "twoState": {
+          "score": 0.9325,
+          "coef": [
+            [
+              -3310.54735617763,
+              -4965.178553637727
+            ]
+          ],
+          "intercept": [
+            -6.751687571694206
+          ]
+        },
+        "threeState": {
+          "score": 0.8258888888888889,
+          "coef": [
+            [
+              1246.0888180451852,
+              -880.1018687483087
+            ],
+            [
+              -1360.9098058710613,
+              -2133.0341629675117
+            ],
+            [
+              45.928395130350495,
+              1205.2544126863281
+            ]
+          ],
+          "intercept": [
+            -0.7097708711698021,
+            -3.89702352167119,
+            -1.6916560454876408
+          ]
+        }
+      },
+      "q4": {
+        "twoState": {
+          "score": 0.9935,
+          "coef": [
+            [
+              11081.372255401842,
+              552.401606874683
+            ]
+          ],
+          "intercept": [
+            -12.75065354083771
+          ]
+        },
+        "threeState": {
+          "score": 0.9001111111111111,
+          "coef": [
+            [
+              -2555.9054614122665,
+              2017.3779106688755
+            ],
+            [
+              3488.7978499181713,
+              782.6645974282839
+            ],
+            [
+              -373.15695540236226,
+              -1120.017003238864
+            ]
+          ],
+          "intercept": [
+            0.08247367351985613,
+            -7.071946993053746,
+            -2.7249062197180276
+          ]
+        }
+      }
+    }
   }
+}
 ]
