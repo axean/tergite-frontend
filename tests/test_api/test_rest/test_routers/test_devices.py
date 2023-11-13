@@ -151,7 +151,7 @@ def test_read_backend_lda_parameters(db, client, backend_name: str):
         expected = record["properties"]["lda_parameters"]
         expected_status = 200
     except KeyError:
-        expected = {"detail": "backend lacks lda_parameters"}
+        expected = {"detail": f"backend {backend_name} lacks lda_parameters"}
         expected_status = 404
 
     assert response.status_code == expected_status
