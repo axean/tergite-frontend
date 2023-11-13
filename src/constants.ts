@@ -2,8 +2,6 @@
  * Some constants usable across the app
  */
 
-import { API } from './types';
-
 export const homeHeroText =
 	'WACQT is a national research programme, coordinated from Chalmers, that aims to take Swedish research and industry to the forefront of quantum technology. Our main project is to develop a high-end quantum computer that can solve problems far beyond the reach of the best conventional supercomputers.';
 

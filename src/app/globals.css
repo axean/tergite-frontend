@@ -26,6 +26,10 @@ body {
 	--tw-bg-opacity: 1;
 	background-color: rgb(0 48 80 / var(--tw-bg-opacity));
 }
+.bg-west-coast-400 {
+	--tw-bg-opacity: 0.7;
+	background-color: rgb(0 48 80 / var(--tw-bg-opacity));
+}
 
 .text-west-coast {
 	color: rgb(0 48 80 / 1);

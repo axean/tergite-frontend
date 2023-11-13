@@ -9,6 +9,10 @@ export default function Oauth2LoginBtn({ provider, logo, nextUrl = '' }: Props) 
 	const queryString = useMemo(() => nextUrl && `?next=${nextUrl}`, [nextUrl]);
 	const href = useMemo(() => `/api/login/${provider}${queryString}`, [provider, queryString]);
 	const label = useMemo(() => `Login with ${provider}`, [provider]);
+	const colorClass = useMemo(
+		() => (isLoading ? 'bg-west-coast-400 text-white' : 'bg-white'),
+		[isLoading]
+	);
 
 	const handleClick = useCallback(() => setIsLoading(true), [setIsLoading]);
 
@@ -21,7 +25,7 @@ export default function Oauth2LoginBtn({ provider, logo, nextUrl = '' }: Props) 
 			<div
 				onClick={handleClick}
 				data-cy-login-with={provider}
-				className='grid grid-cols-3 h-20 w-96 cursor-pointer bg-white hover:bg-west-coast font-semibold hover:text-white py-2 px-7 border border-west-coast-300 hover:border-transparent rounded gap-2'
+				className={`grid grid-cols-3 h-20 w-96 cursor-pointer ${colorClass}  hover:bg-west-coast font-semibold hover:text-white py-2 px-7 border border-west-coast-300 hover:border-transparent rounded gap-2`}
 			>
 				<span className='h-full col-span-2 capitalize flex items-center border-r border-west-coast-300'>
 					{label}
