@@ -652,3 +652,25 @@ async def _get_latest_device_data(
         dropped_fields=("_id", "_force_refresh"),
         sorted_by=[("last_update_date", _DB_SORT_DESCENDING)],
     )
+
+
+async def patch_backend(db: AsyncIOMotorDatabase, name: str, payload: Dict[str, Any]):
+    """Patches the backend data for the given backend
+
+    Args:
+        db: the mongo database from where to get the job
+        name: the name of the backend
+        payload: the new data to patch into the backend data
+
+    Returns:
+        the number of documents that were modified
+
+    Raises:
+        ValueError: server failed updating documents
+        DocumentNotFoundError: no documents matching {"name": name} were found
+    """
+    return await mongodb_utils.update_many(
+        db.backends,
+        _filter={"name": str(name)},
+        payload=payload,
+    )

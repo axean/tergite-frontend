@@ -23,4 +23,5 @@ from .service import (
     insert_backend_data_in_db,
     is_address_online,
     is_device_online,
+    patch_backend,
 )

@@ -72,6 +72,32 @@ async def create_backend(db: MongoDbDep, payload: Dict[str, Any]):
     return "OK"
 
 
+@backends_router.get("/{name}/properties/lda_parameters")
+async def read_lda_parameters(db: MongoDbDep, name: str):
+    try:
+        document = await device_info.get_one_backend(db, name=name)
+        lda_parameters = document["properties"]["lda_parameters"]
+    except KeyError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"backend {name} lacks lda_parameters",
+        )
+
+    return lda_parameters
+
+
+@backends_router.put("/{name}/properties/lda_parameters")
+async def update_lda_parameters(db: MongoDbDep, name: str, lda_parameters: dict):
+    try:
+        await device_info.patch_backend(
+            db, name, payload={"properties": {"lda_parameters": lda_parameters}}
+        )
+    except ValueError as exp:
+        logging.error(exp)
+
+    return "OK"
+
+
 @devices_router.get("/", response_model=List[BasicDeviceData])
 async def get_all_basic_device_data(db: MongoDbDep):
     """Gets the basic summarized data for all backends."""
