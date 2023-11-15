@@ -20,12 +20,19 @@ from starlette.datastructures import URL, CommaSeparatedStrings
 config = Config(".env")
 
 APP_SETTINGS = config("APP_SETTINGS", cast=str, default="production")
+IS_AUTH_ENABLED = config("IS_AUTH_ENABLED", cast=bool, default=True)
 
 _logger_level = logging.DEBUG
 _bcc_machine_root_url_env = "BCC_MACHINE_ROOT_URL"
 _db_machine_root_url_env = "DB_MACHINE_ROOT_URL"
+_is_production = APP_SETTINGS == "production"
 
-if APP_SETTINGS == "production":
+if not IS_AUTH_ENABLED and _is_production:
+    raise ValueError(
+        "'IS_AUTH_ENABLED' environment variable has been set to false in production."
+    )
+
+if _is_production:
     _logger_level = logging.INFO
 
 if APP_SETTINGS == "test":

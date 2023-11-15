@@ -22,6 +22,8 @@ from fastapi_users.authentication.authenticator import (
 )
 from makefun import with_signature
 
+import settings
+
 from ..projects.dtos import Project
 from ..projects.manager import ProjectAppTokenManager, ProjectManagerDependency
 from .auth_backend import AppTokenAuthenticationBackend
@@ -53,17 +55,12 @@ class AppTokenAuthenticator:
 
     def current_project_token(
         self,
-        optional: bool = False,
         active: bool = False,
         **kwargs,
     ):
         """Return a dependency callable to retrieve the current project and token.
 
         Args:
-            optional: If `True`, `None` is returned if there is no current project
-                or if it doesn't pass the other requirements.
-                Otherwise, throw `401 Unauthorized`. Defaults to `False`.
-                Otherwise, an exception is raised. Defaults to `False`.
             active: If `True`, throw `401 Unauthorized` if
                 the project is inactive. Defaults to `False`.
         """
@@ -72,14 +69,13 @@ class AppTokenAuthenticator:
         @with_signature(signature)
         async def current_project_token_dependency(*args, **options):
             return await self._authenticate(
-                *args, optional=optional, active=active, **options
+                *args, optional=(not settings.IS_AUTH_ENABLED), active=active, **options
             )
 
         return current_project_token_dependency
 
     def current_project(
         self,
-        optional: bool = False,
         active: bool = False,
         ignore_qpu_seconds: bool = False,
         **kwargs,
@@ -87,10 +83,6 @@ class AppTokenAuthenticator:
         """Return a dependency callable to retrieve current project.
 
         Args:
-            optional: If `True`, `None` is returned if there is no current project
-                or if it doesn't pass the other requirements.
-                Otherwise, throw `401 Unauthorized`. Defaults to `False`.
-                Otherwise, an exception is raised. Defaults to `False`.
             active: If `True`, throw `401 Unauthorized` if
                 the project is inactive. Defaults to `False`.
             ignore_qpu_seconds: If `True`, authorization will succeed even when QPU
@@ -102,7 +94,7 @@ class AppTokenAuthenticator:
         async def current_project_dependency(*args, **options):
             project, _ = await self._authenticate(
                 *args,
-                optional=optional,
+                optional=(not settings.IS_AUTH_ENABLED),
                 active=active,
                 ignore_qpu_seconds=ignore_qpu_seconds,
                 **options,

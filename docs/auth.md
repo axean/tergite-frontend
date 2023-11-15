@@ -114,3 +114,25 @@ Here is an interaction diagram of QAL9000 auth showcasing authentication via [My
 ![Interaction diagram of QAL9000 auth showcasing MyAccessID](./assets/qal9000-auth.png)
 
 **The raw editable drawio diagram can be found [in the assets folder](./assets/qal9000-auth.drawio)**
+
+### FAQs
+
+#### - How do we bypass authentication in development?
+
+We use feature flag `IS_AUTH_ENABLED` environment variable, setting it to False
+
+```shell
+IS_AUTH_ENABLED=False
+```
+
+**Note: `/auth` endpoints will still require authentication because they depend on the current user**
+
+#### - How do we ensure that in production, authentication is always turned on?
+
+On startup, we raise a ValueError when environment variables `IS_AUTH_ENABLED=False` yet `APP_SETTINGS=production` and log it.
+
+#### - How do we allow other qal9000 services (e.g. BCC or calibration workers) to access MSS, without user intervention?
+
+Use bot app tokens created by the admin. These are more secure because they can easily be revoked and scoped.
+Since they won't be used to run jobs, their project QPU seconds are expected not to run out.
+If you are in development mode, you can just switch of authentication altogether.

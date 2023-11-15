@@ -1,5 +1,3 @@
-import random
-
 from tests._utils.env import (
     TEST_DB_NAME,
     TEST_JWT_SECRET,
@@ -11,7 +9,10 @@ from tests._utils.env import (
 # Set up the test environment before any other imports are made
 setup_test_env()
 
+import importlib
+import random
 from datetime import datetime, timezone
+from os import environ
 from typing import Any, Dict, List
 
 import httpx
@@ -22,6 +23,7 @@ from fastapi.testclient import TestClient
 from fastapi_users.router.oauth import generate_state_token
 from httpx_oauth.clients import github, microsoft
 
+import settings
 from tests._utils.auth import (
     INVALID_CHALMERS_PROFILE,
     INVALID_GITHUB_PROFILE,
@@ -101,6 +103,21 @@ def client(db) -> TestClient:
 
     init_test_auth(db)
     yield TestClient(app)
+
+
+@pytest.fixture
+def no_auth_client(db) -> TestClient:
+    """A test client for fast api without auth"""
+    environ["IS_AUTH_ENABLED"] = "False"
+    importlib.reload(settings)
+    from api.rest import app
+
+    init_test_auth(db)
+    yield TestClient(app)
+
+    # reset
+    environ["IS_AUTH_ENABLED"] = "True"
+    importlib.reload(settings)
 
 
 @pytest.fixture

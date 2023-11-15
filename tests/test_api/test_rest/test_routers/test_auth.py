@@ -1,12 +1,15 @@
 """Integration tests for the auth router"""
+import importlib
 import re
 from datetime import datetime, timedelta, timezone
+from os import environ
 from typing import Optional
 
 import httpx
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
+import settings
 from services.auth import AppToken, Project
 from tests._utils.auth import (
     TEST_APP_TOKEN_DICT,
@@ -65,6 +68,20 @@ _OTHERS_TOKENS_REQUESTS = [
 _AUTH_COOKIE_REGEX = re.compile(
     r"some-cookie=(.*); Domain=testserver; HttpOnly; Max-Age=3600; Path=/; SameSite=lax; Secure"
 )
+
+
+def test_is_auth_enabled(client):
+    """When `IS_AUTH_ENABLED=True`, application cannot be accessed without authentication"""
+    with client as client:
+        response = client.get("/")
+        assert response.status_code == 401
+
+
+def test_not_is_auth_enabled(no_auth_client):
+    """When `IS_AUTH_ENABLED=False`, application can be accessed without authentication"""
+    with no_auth_client as client:
+        response = client.get("/")
+        assert response.status_code == 200
 
 
 def test_admin_authorize(client):

@@ -35,6 +35,8 @@ TEST_DB_MACHINE_ROOT_URL=mongodb://localhost:27017
 #
 # All auth options are optional, but to use auth, you must set client ID's and secrets and the JWT secret
 #
+# Default is true. Setting this to False in production will raise a ValueError at startup.
+IS_AUTH_ENABLED=True
 # In order to give different groups of users, different access, each group will have its
 # own client
 #
