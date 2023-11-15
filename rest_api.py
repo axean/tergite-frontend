@@ -247,7 +247,7 @@ def create_job_document(db: MongoDbDep, backend: str = "pingu"):
 
 
 @app.put("/backends")
-@create_new_documents(collection="backend_test", unique_key="name")
+@create_new_documents(collection="backend", unique_key="name")
 def create_backend_document(db: MongoDbDep, backend_dict: dict):
     if "name" not in backend_dict.keys():
         return [], "Backend needs to have a name"
@@ -258,44 +258,42 @@ def create_backend_document(db: MongoDbDep, backend_dict: dict):
 @app.put("/backends/{collection}")
 async def create_update_backend(db: MongoDbDep, collection: str, backend_dict: dict):
     backend_col = db[collection]
-    backened_log = db["backend_log"]
-    doc = backend_dict
+    backened_log = db['backend_log']
+    
     timestamp = new_timestamp()
-    doc.update({"timelog": {"REGISTERED": timestamp, "LAST_UPDATED":timestamp}}) 
+    backend_dict.update({"timelog": {"REGISTERED": timestamp, "LAST_UPDATED":timestamp}}) 
+    
     #there is no document in collection with that key
-    if not await backend_col.find_one({}, {'name': doc['name']}):
+    if not await backend_col.find_one({'name': str(backend_dict["name"])}, {"_id": 0}):
         # then insert that document
-        result = await backend_col.insert_one(doc)
+        result = await backend_col.insert_one(backend_dict)
         if result.acknowledged: 
             print(
-                f"Inserted '{doc['name']}' document into the '{collection}' collection."
+                f"Inserted '{backend_dict['name']}' document into the '{collection}' collection."
             )
         else:
             print(
-                f" Could not insert '{doc['name']}' document into the '{collection}' collection."
+                f" Could not insert '{backend_dict['name']}' document into the '{collection}' collection."
             )
     else:
         print(f"document is already present in the '{collection}' collection")
         # update the document anyway
-        result = await backend_col.update_one({"name": str(doc["name"])}, {"$set":doc})
+        result = await backend_col.update_one({"name": str(backend_dict["name"])}, {"$set":backend_dict})
         if result.acknowledged: 
             print(
-                f"Updated the '{doc['name']}' backend in '{collection}' collection"
+                f"Updated the '{backend_dict['name']}' backend in '{collection}' collection"
             )
-    # read the backend after any modification
-    current_backend =  await backend_col.find_one({'name':doc['name']})
-    del current_backend['_id']
     # write for log
-    result = await backened_log.insert_one(current_backend)
+    result = await backened_log.insert_one(backend_dict)
     if result.acknowledged: 
             print(
-                f"Log created for the '{doc['name']}' backend in 'backend_log' collection"
+                f"Log created for the '{backend_dict['name']}' backend in 'backend_log' collection"
             )
     else:
         print(
                 f" Could not insert document into the 'backend_log' collection."
-            )
-    return "OK" 
+            )  
+    return "OK"
 
 
 @app.post("/calibrations")
