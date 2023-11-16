@@ -24,7 +24,7 @@ from services import calibration as calibration_service
 router = APIRouter(prefix="/calibrations", tags=["calibration"])
 
 
-@router.get("/")
+@router.get("")
 async def read_calibrations(db: MongoDbDep, nlast: int = 10):
     return await calibration_service.get_latest_many(db, nlast)
 
@@ -34,7 +34,7 @@ async def read_calibration(db: MongoDbDep, job_id: UUID):
     return await calibration_service.get_one(db, job_id)
 
 
-@router.post("/")
+@router.post("")
 async def create_calibrations(db: MongoDbDep, documents: list):
     try:
         await calibration_service.insert_many(db, documents)

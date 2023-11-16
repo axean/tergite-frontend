@@ -43,7 +43,7 @@ devices_router = APIRouter(prefix="/devices", tags=["devices"])
 backends_router = APIRouter(prefix="/backends", tags=["backends"])
 
 
-@backends_router.get("/")
+@backends_router.get("")
 async def read_backends(db: MongoDbDep):
     """Retrieves all backends"""
     return await device_info.get_all_backends(db)
@@ -61,7 +61,7 @@ async def read_backend(db: MongoDbDep, name: str):
 
 
 # FIXME: This should probably be a POST not a PUT because this is a `CREATE`
-@backends_router.put("/")
+@backends_router.put("")
 async def create_backend(db: MongoDbDep, payload: Dict[str, Any]):
     """Creates a new backend if it does not exist already"""
     try:

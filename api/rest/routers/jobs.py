@@ -82,7 +82,7 @@ async def read_job_download_url(
         )
 
 
-@router.post("/")
+@router.post("")
 async def create_job(
     db: MongoDbDep, project: CurrentStrictProjectDep, backend: str = "pingu"
 ):
@@ -90,7 +90,7 @@ async def create_job(
     return await jobs_service.create_job(db, backend=backend)
 
 
-@router.get("/")
+@router.get("")
 async def read_jobs(db: MongoDbDep, project: CurrentLaxProjectDep, nlast: int = 10):
     """Gets the latest jobs only upto the given nlast records"""
     return await jobs_service.get_latest_many(db, limit=nlast)

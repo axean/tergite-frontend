@@ -42,7 +42,7 @@ async def read_rng(db: MongoDbDep, job_id: UUID):
         )
 
 
-@random_router.post("/")
+@random_router.post("")
 async def create_many_rng(db: MongoDbDep, documents: List[rng_service.dtos.Rng]):
     """
     Store documents containing batches of random numbers.
