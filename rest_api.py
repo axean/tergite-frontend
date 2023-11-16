@@ -247,7 +247,7 @@ def create_job_document(db: MongoDbDep, backend: str = "pingu"):
 
 
 @app.put("/backends")
-@create_new_documents(collection="backend", unique_key="name")
+@create_new_documents(collection="backends", unique_key="name")
 def create_backend_document(db: MongoDbDep, backend_dict: dict):
     if "name" not in backend_dict.keys():
         return [], "Backend needs to have a name"
