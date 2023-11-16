@@ -323,7 +323,7 @@ def create_rng_documents(db: MongoDbDep, documents: list):
 
 
 @app.put("/backends/update/{backend_name}")
-@update_documents(collection="backend_test")
+@update_documents(collection="backends")
 def update_backend_document(db: MongoDbDep, backend_name, items_to_update: dict):
     return {"name": str(backend_name)}, {"$set":items_to_update}, "OK"
 
