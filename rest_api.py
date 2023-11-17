@@ -15,10 +15,12 @@
 # that they have been altered from the originals.
 import logging
 
-from fastapi import FastAPI, Body, HTTPException, status
+from fastapi import FastAPI, Body, HTTPException, status, Query
 from uuid import uuid4, UUID
 from datetime import datetime
 import pymongo
+from motor.motor_asyncio import AsyncIOMotorDatabase
+
 import settings
 
 # Imports for Webgui
@@ -154,6 +156,14 @@ def update_documents(collection: str) -> callable:
     return decorator
 
 
+async def _log_backend_config(db: AsyncIOMotorDatabase, backend: dict):
+    """Appends the given backend config to the backend log collection"""
+    backend_log = db.backend_log
+    inserted_log = await backend_log.insert_one(backend)
+    if not inserted_log.acknowledged:
+        raise ValueError(f"could not insert '{backend['name']}' backend into the log.")
+
+
 # ------------ GET OPERATIONS ------------ #
 @app.get("/")
 async def root():
@@ -265,54 +275,32 @@ def create_job_document(db: MongoDbDep, backend: str = "pingu"):
 
 
 @app.put("/backends")
-@create_new_documents(collection="backends", unique_key="name")
-def create_backend_document(db: MongoDbDep, backend_dict: dict):
-    if "name" not in backend_dict.keys():
-        return [], "Backend needs to have a name"
+async def create_backend_document(
+    db: MongoDbDep,
+    backend_dict: dict,
+    collection_name: str = Query("backends", alias="collection"),
+):
+    if "name" not in backend_dict:
+        return "Backend needs to have a name"
 
-    return [backend_dict], "OK"
-
-
-@app.put("/backends/{collection}")
-async def create_update_backend(db: MongoDbDep, collection: str, backend_dict: dict):
-    backend_col = db[collection]
-    backened_log = db["backend_log"]
-
+    collection = db[collection_name]
     timestamp = new_timestamp()
-    backend_dict.update(
-        {"timelog": {"REGISTERED": timestamp, "LAST_UPDATED": timestamp}}
-    )
+    backend_dict.update({"timelog": {"LAST_UPDATED": timestamp}})
 
-    # there is no document in collection with that key
-    if not await backend_col.find_one({"name": str(backend_dict["name"])}, {"_id": 0}):
-        # then insert that document
-        result = await backend_col.insert_one(backend_dict)
-        if result.acknowledged:
-            print(
-                f"Inserted '{backend_dict['name']}' document into the '{collection}' collection."
-            )
-        else:
-            print(
-                f" Could not insert '{backend_dict['name']}' document into the '{collection}' collection."
-            )
-    else:
-        print(f"document is already present in the '{collection}' collection")
-        # update the document anyway
-        result = await backend_col.update_one(
-            {"name": str(backend_dict["name"])}, {"$set": backend_dict}
+    upserted_doc = await collection.find_one_and_update(
+        {"name": str(backend_dict["name"])},
+        {"$set": backend_dict, "$setOnInsert": {"timelog": {"REGISTERED": timestamp}}},
+        upsert=True,
+        return_document=pymongo.ReturnDocument.AFTER,
+    )
+    if upserted_doc is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"could not insert '{backend_dict['name']}' document into the '{collection_name}' collection.",
         )
-        if result.acknowledged:
-            print(
-                f"Updated the '{backend_dict['name']}' backend in '{collection}' collection"
-            )
-    # write for log
-    result = await backened_log.insert_one(backend_dict)
-    if result.acknowledged:
-        print(
-            f"Log created for the '{backend_dict['name']}' backend in 'backend_log' collection"
-        )
-    else:
-        print(f" Could not insert document into the 'backend_log' collection.")
+
+    await _log_backend_config(db=db, backend=upserted_doc)
+
     return "OK"
 
 
@@ -342,7 +330,7 @@ def create_rng_documents(db: MongoDbDep, documents: list):
 # ------------ UPDATE OPERATIONS ------------ #
 
 
-@app.put("/backends/update/{backend_name}")
+@app.put("/backends/{backend_name}")
 @update_documents(collection="backends")
 def update_backend_document(db: MongoDbDep, backend_name, items_to_update: dict):
     return {"name": str(backend_name)}, {"$set": items_to_update}, "OK"
