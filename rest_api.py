@@ -230,6 +230,20 @@ async def read_job_download_url(db: MongoDbDep, job_id: UUID):
         )
 
 
+@app.get("/backends/{backend_name}/properties/lda_parameters")
+async def read_lda_parameters(db: MongoDbDep, backend_name: str):
+    try:
+        document = await retrieve_using_tag({"name": backend_name}, db.backends)
+        lda_parameters = document["properties"]["lda_parameters"]
+    except KeyError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"backend {backend_name} lacks lda_parameters",
+        )
+
+    return lda_parameters
+
+
 # ------------ CREATE OPERATIONS ------------ #
 
 
@@ -358,6 +372,16 @@ def update_timelog_entry(
 ):
     timestamp = new_timestamp()
     return {"job_id": str(job_id)}, {"$set": {"timelog." + event_name: timestamp}}, "OK"
+
+
+@app.put("/backends/{backend_name}/properties/lda_parameters")
+@update_documents(collection="backends")
+def update_lda_parameters(db: MongoDbDep, backend_name: str, lda_parameters: dict):
+    return (
+        {"name": backend_name},
+        {"$set": {"properties": {"lda_parameters": lda_parameters}}},
+        "OK",
+    )
 
 
 # Webgui Public services
