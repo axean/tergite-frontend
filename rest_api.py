@@ -92,12 +92,16 @@ def create_new_documents(collection: str, *, unique_key: str = None) -> callable
                         # then insert that document
                         filtered_documents.append(doc)
                     else:
-                        print(f"document with '{unique_key}':'{doc[unique_key]}' is already present in the '{collection}' collection")
+                        print(
+                            f"document with '{unique_key}':'{doc[unique_key]}' is already present in the '{collection}' collection"
+                        )
                 else:
                     filtered_documents.append(doc)
-                
+
                 timestamp = new_timestamp()
-                doc.update({"timelog": {"REGISTERED": timestamp, "LAST_UPDATED":timestamp}})
+                doc.update(
+                    {"timelog": {"REGISTERED": timestamp, "LAST_UPDATED": timestamp}}
+                )
 
             if len(filtered_documents):
                 result = await col.insert_many(filtered_documents)
@@ -272,16 +276,18 @@ def create_backend_document(db: MongoDbDep, backend_dict: dict):
 @app.put("/backends/{collection}")
 async def create_update_backend(db: MongoDbDep, collection: str, backend_dict: dict):
     backend_col = db[collection]
-    backened_log = db['backend_log']
-    
+    backened_log = db["backend_log"]
+
     timestamp = new_timestamp()
-    backend_dict.update({"timelog": {"REGISTERED": timestamp, "LAST_UPDATED":timestamp}}) 
-    
-    #there is no document in collection with that key
-    if not await backend_col.find_one({'name': str(backend_dict["name"])}, {"_id": 0}):
+    backend_dict.update(
+        {"timelog": {"REGISTERED": timestamp, "LAST_UPDATED": timestamp}}
+    )
+
+    # there is no document in collection with that key
+    if not await backend_col.find_one({"name": str(backend_dict["name"])}, {"_id": 0}):
         # then insert that document
         result = await backend_col.insert_one(backend_dict)
-        if result.acknowledged: 
+        if result.acknowledged:
             print(
                 f"Inserted '{backend_dict['name']}' document into the '{collection}' collection."
             )
@@ -292,21 +298,21 @@ async def create_update_backend(db: MongoDbDep, collection: str, backend_dict: d
     else:
         print(f"document is already present in the '{collection}' collection")
         # update the document anyway
-        result = await backend_col.update_one({"name": str(backend_dict["name"])}, {"$set":backend_dict})
-        if result.acknowledged: 
+        result = await backend_col.update_one(
+            {"name": str(backend_dict["name"])}, {"$set": backend_dict}
+        )
+        if result.acknowledged:
             print(
                 f"Updated the '{backend_dict['name']}' backend in '{collection}' collection"
             )
     # write for log
     result = await backened_log.insert_one(backend_dict)
-    if result.acknowledged: 
-            print(
-                f"Log created for the '{backend_dict['name']}' backend in 'backend_log' collection"
-            )
-    else:
+    if result.acknowledged:
         print(
-                f" Could not insert document into the 'backend_log' collection."
-            )  
+            f"Log created for the '{backend_dict['name']}' backend in 'backend_log' collection"
+        )
+    else:
+        print(f" Could not insert document into the 'backend_log' collection.")
     return "OK"
 
 
@@ -339,7 +345,7 @@ def create_rng_documents(db: MongoDbDep, documents: list):
 @app.put("/backends/update/{backend_name}")
 @update_documents(collection="backends")
 def update_backend_document(db: MongoDbDep, backend_name, items_to_update: dict):
-    return {"name": str(backend_name)}, {"$set":items_to_update}, "OK"
+    return {"name": str(backend_name)}, {"$set": items_to_update}, "OK"
 
 
 @app.put("/jobs/{job_id}/result")
