@@ -166,7 +166,7 @@ def test_read_backend_lda_parameters(db, client, backend_name: str, app_token_he
 
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
-def test_create_backend(db, client, backend_dict: Dict[str, Any], app_token_header):
+def test_create_backend(db, client, backend_dict: Dict[str, Any], system_jwt_header):
     """PUT to /backends/ creates a new backend if it does not exist already"""
     # FIXME: this should be made a POST (but for backward compatibility, it is still a PUT)
     original_data_in_db = find_in_collection(
@@ -178,7 +178,7 @@ def test_create_backend(db, client, backend_dict: Dict[str, Any], app_token_head
         response = client.put(
             "/backends/",
             json=backend_dict,
-            headers=app_token_header,
+            headers=system_jwt_header,
         )
         final_data_in_db = find_in_collection(
             db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
@@ -195,7 +195,7 @@ def test_create_backend(db, client, backend_dict: Dict[str, Any], app_token_head
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
 def test_create_pre_existing_backend(
-    db, client, backend_dict: Dict[str, Any], app_token_header
+    db, client, backend_dict: Dict[str, Any], system_jwt_header
 ):
     """PUT to /backends/ a pre-existing backend will do nothing"""
     # FIXME: this should be made a POST (but for backward compatibility, it is still a PUT)
@@ -209,7 +209,7 @@ def test_create_pre_existing_backend(
         response = client.put(
             "/backends/",
             json=backend_dict,
-            headers=app_token_header,
+            headers=system_jwt_header,
         )
         final_data_in_db = find_in_collection(
             db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
@@ -224,7 +224,7 @@ def test_create_pre_existing_backend(
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
 def test_update_lda_parameters(
-    db, client, backend_dict: Dict[str, Any], app_token_header
+    db, client, backend_dict: Dict[str, Any], system_jwt_header
 ):
     """PUT to /backends/{backend}/properties/lda_parameters updates the lda parameters of backend"""
     insert_in_collection(db, collection_name=_BACKENDS_COLLECTION, data=[backend_dict])
@@ -238,7 +238,7 @@ def test_update_lda_parameters(
         response = client.put(
             f"/backends/{backend_name}/properties/lda_parameters",
             json=_LDA_PARAMETERS_BODY,
-            headers=app_token_header,
+            headers=system_jwt_header,
         )
         final_data_in_db = find_in_collection(
             db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS

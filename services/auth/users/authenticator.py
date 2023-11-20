@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """FastAPIUsers-specific definition of Authenticator for users"""
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 from fastapi import HTTPException, status
 from fastapi_users.authentication import AuthenticationBackend, Authenticator
@@ -21,11 +21,66 @@ from fastapi_users.authentication.authenticator import (
 )
 from makefun import with_signature
 
-from .dtos import ID, UP
+from .dtos import ID, UP, UserRole
 from .strategy import CustomJWTStrategy
 
 
 class UserAuthenticator(Authenticator):
+    def current_user(
+        self,
+        optional: bool = False,
+        active: bool = False,
+        verified: bool = False,
+        superuser: bool = False,
+        get_enabled_backends: Optional[EnabledBackendsDependency] = None,
+        roles: Tuple[UserRole] = (),
+    ):
+        """Return a dependency callable to retrieve currently authenticated user.
+
+        Args:
+            optional: If `True`, `None` is returned if there is no authenticated user
+                or if it doesn't pass the other requirements.
+                Otherwise, throw `401 Unauthorized`. Defaults to `False`.
+                Otherwise, an exception is raised. Defaults to `False`.
+            active: If `True`, throw `401 Unauthorized` if
+                the authenticated user is inactive. Defaults to `False`.
+            verified: If `True`, throw `401 Unauthorized` if
+                the authenticated user is not verified. Defaults to `False`.
+            superuser: If `True`, throw `403 Forbidden` if
+                the authenticated user is not a superuser. Defaults to `False`.
+            get_enabled_backends: Optional dependency callable returning
+                a list of enabled authentication backends.
+                Useful if you want to dynamically enable some authentication backends
+                based on external logic, like a configuration in database.
+                By default, all specified authentication backends are enabled.
+                Please not however that every backends will appear in the OpenAPI documentation,
+                as FastAPI resolves it statically.
+            roles: List of possible roles the user should have. The user can have any of
+                the roles. If the user doesn't have any, a 403 error is raised.
+
+        Returns:
+            a dependency injector to get the current user for any of the given roles
+        """
+        signature = self._get_dependency_signature(get_enabled_backends)
+
+        @with_signature(signature)
+        async def current_user_dependency(*args, **kwargs):
+            user, _ = await self._authenticate(
+                *args,
+                optional=optional,
+                active=active,
+                verified=verified,
+                superuser=superuser,
+                **kwargs,
+            )
+
+            if user and roles and not any(role in user.roles for role in roles):
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+            return user
+
+        return current_user_dependency
+
     def current_user_id(
         self,
         optional: bool = False,

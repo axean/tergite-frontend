@@ -29,6 +29,7 @@ class UserRole(str, enum.Enum):
     RESEARCHER = "researcher"
     ADMIN = "admin"
     PARTNER = "partner"
+    SYSTEM = "system"
 
 
 class UserRead(schemas.BaseUser[PydanticObjectId]):

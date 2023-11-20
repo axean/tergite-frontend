@@ -18,24 +18,26 @@ from uuid import UUID
 
 from fastapi import APIRouter
 
-from api.rest.dependencies import MongoDbDep
+from api.rest.dependencies import CurrentProjectDep, CurrentSystemUserDep, MongoDbDep
 from services import calibration as calibration_service
 
 router = APIRouter(prefix="/calibrations", tags=["calibration"])
 
 
-@router.get("")
+@router.get("", dependencies=[CurrentProjectDep])
 async def read_calibrations(db: MongoDbDep, nlast: int = 10):
     return await calibration_service.get_latest_many(db, nlast)
 
 
-@router.get("/{job_id}")
+@router.get("/{job_id}", dependencies=[CurrentProjectDep])
 async def read_calibration(db: MongoDbDep, job_id: UUID):
     return await calibration_service.get_one(db, job_id)
 
 
 @router.post("")
-async def create_calibrations(db: MongoDbDep, documents: list):
+async def create_calibrations(
+    db: MongoDbDep, user: CurrentSystemUserDep, documents: list
+):
     try:
         await calibration_service.insert_many(db, documents)
     except Exception as exp:

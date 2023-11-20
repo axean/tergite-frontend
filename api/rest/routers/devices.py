@@ -21,7 +21,7 @@ from typing import Any, Dict, List, Union
 
 from fastapi import APIRouter, HTTPException, Query, status
 
-from api.rest.dependencies import MongoDbDep
+from api.rest.dependencies import CurrentProjectDep, CurrentSystemUserDep, MongoDbDep
 from services import device_info
 from services.device_info.dtos import (
     BasicDeviceConfig,
@@ -43,13 +43,13 @@ devices_router = APIRouter(prefix="/devices", tags=["devices"])
 backends_router = APIRouter(prefix="/backends", tags=["backends"])
 
 
-@backends_router.get("")
+@backends_router.get("", dependencies=[CurrentProjectDep])
 async def read_backends(db: MongoDbDep):
     """Retrieves all backends"""
     return await device_info.get_all_backends(db)
 
 
-@backends_router.get("/{name}")
+@backends_router.get("/{name}", dependencies=[CurrentProjectDep])
 async def read_backend(db: MongoDbDep, name: str):
     try:
         return await device_info.get_one_backend(db, name=name)
@@ -62,7 +62,9 @@ async def read_backend(db: MongoDbDep, name: str):
 
 # FIXME: This should probably be a POST not a PUT because this is a `CREATE`
 @backends_router.put("")
-async def create_backend(db: MongoDbDep, payload: Dict[str, Any]):
+async def create_backend(
+    db: MongoDbDep, user: CurrentSystemUserDep, payload: Dict[str, Any]
+):
     """Creates a new backend if it does not exist already"""
     try:
         await device_info.create_backend(db, payload=payload)
@@ -72,7 +74,9 @@ async def create_backend(db: MongoDbDep, payload: Dict[str, Any]):
     return "OK"
 
 
-@backends_router.get("/{name}/properties/lda_parameters")
+@backends_router.get(
+    "/{name}/properties/lda_parameters", dependencies=[CurrentProjectDep]
+)
 async def read_lda_parameters(db: MongoDbDep, name: str):
     try:
         document = await device_info.get_one_backend(db, name=name)
@@ -87,7 +91,9 @@ async def read_lda_parameters(db: MongoDbDep, name: str):
 
 
 @backends_router.put("/{name}/properties/lda_parameters")
-async def update_lda_parameters(db: MongoDbDep, name: str, lda_parameters: dict):
+async def update_lda_parameters(
+    db: MongoDbDep, user: CurrentSystemUserDep, name: str, lda_parameters: dict
+):
     try:
         await device_info.patch_backend(
             db, name, payload={"properties": {"lda_parameters": lda_parameters}}

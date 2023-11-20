@@ -60,7 +60,7 @@ CHALMERS_CLIENT_SECRET=<some-microsoft-client-secret>
 # the regex validation for emails to allow for this login. default: ".*"
 CHALMERS_EMAIL_REGEX=".*"
 # Roles are comma-separated.
-# roles can be: "admin", "user", "researcher", "partner". Default is "user".
+# roles can be: "admin", "user", "researcher", "partner", "system". Default is "user".
 CHALMERS_ROLES="researcher"
 # the redirect uri after authentication if we are using cookies. default: None
 CHALMERS_COOKIE_REDIRECT_URI=https://api.qal9000.se/auth/app/chalmers/callback

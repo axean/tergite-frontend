@@ -20,7 +20,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
 
-from api.rest.dependencies import MongoDbDep
+from api.rest.dependencies import CurrentSystemUserDep, MongoDbDep
 from services import random_numbers as rng_service
 from utils import mongodb as mongodb_utils
 
@@ -43,7 +43,9 @@ async def read_rng(db: MongoDbDep, job_id: UUID):
 
 
 @random_router.post("")
-async def create_many_rng(db: MongoDbDep, documents: List[rng_service.dtos.Rng]):
+async def create_many_rng(
+    db: MongoDbDep, user: CurrentSystemUserDep, documents: List[rng_service.dtos.Rng]
+):
     """
     Store documents containing batches of random numbers.
     One document is one batch of random numbers requested by a user.

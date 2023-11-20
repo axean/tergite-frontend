@@ -38,6 +38,7 @@ from tests._utils.auth import (
     TEST_PUHURI_TOKEN_RESP,
     TEST_SUPERUSER_EMAIL,
     TEST_SUPERUSER_ID,
+    TEST_SYSTEM_USER_ID,
     TEST_USER_EMAIL,
     TEST_USER_ID,
     get_jwt_token,
@@ -94,6 +95,12 @@ def user_jwt_header() -> Dict[str, str]:
 def admin_jwt_header() -> Dict[str, str]:
     """the auth header for the client when JWT of an admin is used"""
     yield get_auth_header(TEST_SUPERUSER_ID)
+
+
+@pytest.fixture
+def system_jwt_header() -> Dict[str, str]:
+    """the auth header for the client when JWT of a system user is used"""
+    yield get_auth_header(TEST_SYSTEM_USER_ID)
 
 
 @pytest.fixture

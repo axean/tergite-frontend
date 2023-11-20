@@ -17,7 +17,7 @@ from beanie import PydanticObjectId, init_beanie
 
 import settings
 
-from . import app_tokens, projects, users
+from . import UserRole, app_tokens, projects, users
 
 # JWT-based authentication
 JWT_HEADER_BACKEND = users.get_jwt_header_backend(
@@ -40,6 +40,7 @@ JWT_AUTH = users.UserBasedAuth[users.dtos.User, PydanticObjectId](
 GET_CURRENT_USER = JWT_AUTH.current_user(active=True)
 GET_CURRENT_USER_ID = JWT_AUTH.current_user_id()
 GET_CURRENT_SUPERUSER = JWT_AUTH.current_user(active=True, superuser=True)
+GET_CURRENT_SYSTEM_USER = JWT_AUTH.current_user(active=True, roles=(UserRole.SYSTEM,))
 
 # Project-based app token auth
 APP_TOKEN_BACKEND = projects.get_app_token_backend("auth/app-tokens/generate")

@@ -50,7 +50,7 @@ def test_read_calibration(job_id: str, db, client, app_token_header):
         assert expected == got
 
 
-def test_create_calibrations(db, client, app_token_header):
+def test_create_calibrations(db, client, system_jwt_header):
     """POST list of calibration-like dicts to `/calibrations` creates them"""
     original_data_in_db = find_in_collection(
         db, collection_name=_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
@@ -61,7 +61,7 @@ def test_create_calibrations(db, client, app_token_header):
         response = client.post(
             "/calibrations/",
             json=_CALIBRATIONS_LIST,
-            headers=app_token_header,
+            headers=system_jwt_header,
         )
         final_data_in_db = find_in_collection(
             db, collection_name=_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS

@@ -52,11 +52,11 @@ app.add_middleware(
 )
 
 app.include_router(devices.devices_router, dependencies=[CurrentProjectDep])
-app.include_router(devices.backends_router, dependencies=[CurrentProjectDep])
+app.include_router(devices.backends_router)
 app.include_router(jobs.router)
-app.include_router(calibrations.router, dependencies=[CurrentProjectDep])
+app.include_router(calibrations.router)
 app.include_router(random.rng_router, dependencies=[CurrentProjectDep])
-app.include_router(random.random_router, dependencies=[CurrentProjectDep])
+app.include_router(random.random_router)
 app.include_router(auth.router)
 
 
