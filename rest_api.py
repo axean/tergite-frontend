@@ -159,6 +159,8 @@ def update_documents(collection: str) -> callable:
 async def _log_backend_config(db: AsyncIOMotorDatabase, backend: dict):
     """Appends the given backend config to the backend log collection"""
     backend_log = db.backend_log
+    # to create a new backend in the log everytime with a new id
+    backend.pop("_id", None)
     inserted_log = await backend_log.insert_one(backend)
     if not inserted_log.acknowledged:
         raise ValueError(f"could not insert '{backend['name']}' backend into the log.")
@@ -278,18 +280,20 @@ def create_job_document(db: MongoDbDep, backend: str = "pingu"):
 async def create_backend_document(
     db: MongoDbDep,
     backend_dict: dict,
-    collection_name: str = Query("backends", alias="collection"),
+    collection_name: str = Query("backends", alias="collection")
 ):
     if "name" not in backend_dict:
         return "Backend needs to have a name"
 
     collection = db[collection_name]
+    # this is to ensure the if any timelog is passed is removed 
+    backend_dict.pop("timelog", None)
     timestamp = new_timestamp()
-    backend_dict.update({"timelog": {"LAST_UPDATED": timestamp}})
+    backend_dict['timelog.LAST_UPDATED']= timestamp
 
     upserted_doc = await collection.find_one_and_update(
         {"name": str(backend_dict["name"])},
-        {"$set": backend_dict, "$setOnInsert": {"timelog": {"REGISTERED": timestamp}}},
+        {"$set": backend_dict, "$setOnInsert": {"timelog.REGISTERED": timestamp}},
         upsert=True,
         return_document=pymongo.ReturnDocument.AFTER,
     )
