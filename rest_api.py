@@ -13,19 +13,18 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+# Imports for Webgui
+import functools
 import logging
-
-from fastapi import FastAPI, Body, HTTPException, status, Query
-from uuid import uuid4, UUID
 from datetime import datetime
+from uuid import UUID, uuid4
+
 import pymongo
+from fastapi import Body, FastAPI, HTTPException, Query, status
+from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 import settings
-
-# Imports for Webgui
-import functools
-from fastapi.middleware.cors import CORSMiddleware
 from api.routers import devices
 from api.services import service
 from mongodb_dependency import MongoDbDep
@@ -280,16 +279,16 @@ def create_job_document(db: MongoDbDep, backend: str = "pingu"):
 async def create_backend_document(
     db: MongoDbDep,
     backend_dict: dict,
-    collection_name: str = Query("backends", alias="collection")
+    collection_name: str = Query("backends", alias="collection"),
 ):
     if "name" not in backend_dict:
         return "Backend needs to have a name"
 
     collection = db[collection_name]
-    # this is to ensure the if any timelog is passed is removed 
+    # this is to ensure that if any timelog is passed is removed
     backend_dict.pop("timelog", None)
     timestamp = new_timestamp()
-    backend_dict['timelog.LAST_UPDATED']= timestamp
+    backend_dict["timelog.LAST_UPDATED"] = timestamp
 
     upserted_doc = await collection.find_one_and_update(
         {"name": str(backend_dict["name"])},
@@ -303,7 +302,7 @@ async def create_backend_document(
             detail=f"could not insert '{backend_dict['name']}' document into the '{collection_name}' collection.",
         )
 
-    await _log_backend_config(db=db, backend=upserted_doc)
+    await _log_backend_config(db=db, backend={**upserted_doc})
 
     return "OK"
 

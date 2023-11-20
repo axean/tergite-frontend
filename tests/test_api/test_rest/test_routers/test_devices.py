@@ -283,12 +283,14 @@ def test_create_pre_existing_backend(db, client, backend_dict: Dict[str, Any]):
     final_data_in_db = find_in_collection(
         db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
     )
+    timelogs = pop_field(final_data_in_db, "timelog")
 
     assert response.status_code == 200
     assert response.json() == "OK"
 
     assert original_data_in_db == [backend_dict]
     assert final_data_in_db == original_data_in_db
+    assert all([is_not_older_than(x["LAST_UPDATED"], seconds=30) for x in timelogs])
 
 
 @pytest.mark.parametrize("backend_dict, collection", _BACKENDS_AND_COLLECTIONS_FIXTURE)
@@ -309,12 +311,14 @@ def test_create_pre_existing_backend_collection(
     final_data_in_db = find_in_collection(
         db, collection_name=collection, fields_to_exclude=_EXCLUDED_FIELDS
     )
+    timelogs = pop_field(final_data_in_db, "timelog")
 
     assert response.status_code == 200
     assert response.json() == "OK"
 
     assert original_data_in_db == [backend_dict]
     assert final_data_in_db == original_data_in_db
+    assert all([is_not_older_than(x["LAST_UPDATED"], seconds=30) for x in timelogs])
 
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
