@@ -4,7 +4,7 @@
 # (C) Copyright Simon Genne, Arvid Holmqvist, Bashar Oumari, Jakob Ristner,
 #               Björn Rosengren, and Jakob Wik 2022 (BSc project)
 # (C) Copyright Fabian Forslund, Niklas Botö 2022
-# (C) Copyright Abdullah-Al Amin 2022
+# (C) Copyright Abdullah-Al Amin 2022, 2023
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,17 +13,18 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-import logging
-
-from fastapi import FastAPI, Body, HTTPException, status
-from uuid import uuid4, UUID
-from datetime import datetime
-import pymongo
-import settings
-
 # Imports for Webgui
 import functools
+import logging
+from datetime import datetime
+from uuid import UUID, uuid4
+
+import pymongo
+from fastapi import Body, FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
+from motor.motor_asyncio import AsyncIOMotorDatabase
+
+import settings
 from api.routers import devices
 from services.device_info import service as device_info_service
 from mongodb_dependency import MongoDbDep
@@ -91,10 +92,17 @@ def create_new_documents(collection: str, *, unique_key: str = None) -> callable
                     if not await col.count_documents({unique_key: doc[unique_key]}):
                         # then insert that document
                         filtered_documents.append(doc)
+                    else:
+                        print(
+                            f"document with '{unique_key}':'{doc[unique_key]}' is already present in the '{collection}' collection"
+                        )
                 else:
                     filtered_documents.append(doc)
 
-                doc.update({"timelog": {"REGISTERED": new_timestamp()}})
+                timestamp = new_timestamp()
+                doc.update(
+                    {"timelog": {"REGISTERED": timestamp, "LAST_UPDATED": timestamp}}
+                )
 
             if len(filtered_documents):
                 result = await col.insert_many(filtered_documents)
@@ -136,7 +144,7 @@ def update_documents(collection: str) -> callable:
                 and (result_up.matched_count == result_lu.matched_count)
             ):
                 print(
-                    f"Updated {result_up.modified_count} document(s) in the '{collection}' collection."
+                    f"Updated {result_lu.modified_count} document(s) in the '{collection}' collection."
                 )
                 return response_content
             else:
@@ -145,6 +153,16 @@ def update_documents(collection: str) -> callable:
         return wrapper
 
     return decorator
+
+
+async def _log_backend_config(db: AsyncIOMotorDatabase, backend: dict):
+    """Appends the given backend config to the backend log collection"""
+    backend_log = db.backend_log
+    # to create a new backend in the log everytime with a new id
+    backend.pop("_id", None)
+    inserted_log = await backend_log.insert_one(backend)
+    if not inserted_log.acknowledged:
+        raise ValueError(f"could not insert '{backend['name']}' backend into the log.")
 
 
 # ------------ GET OPERATIONS ------------ #
@@ -227,6 +245,20 @@ async def read_job_download_url(db: MongoDbDep, job_id: UUID):
         )
 
 
+@app.get("/backends/{backend_name}/properties/lda_parameters")
+async def read_lda_parameters(db: MongoDbDep, backend_name: str):
+    try:
+        document = await retrieve_using_tag({"name": backend_name}, db.backends)
+        lda_parameters = document["properties"]["lda_parameters"]
+    except KeyError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"backend {backend_name} lacks lda_parameters",
+        )
+
+    return lda_parameters
+
+
 # ------------ CREATE OPERATIONS ------------ #
 
 
@@ -244,12 +276,35 @@ def create_job_document(db: MongoDbDep, backend: str = "pingu"):
 
 
 @app.put("/backends")
-@create_new_documents(collection="backends", unique_key="name")
-def create_backend_document(db: MongoDbDep, backend_dict: dict):
-    if "name" not in backend_dict.keys():
-        return [], "Backend needs to have a name"
+async def create_backend_document(
+    db: MongoDbDep,
+    backend_dict: dict,
+    collection_name: str = Query("backends", alias="collection"),
+):
+    if "name" not in backend_dict:
+        return "Backend needs to have a name"
 
-    return [backend_dict], "OK"
+    collection = db[collection_name]
+    # this is to ensure that if any timelog is passed is removed
+    backend_dict.pop("timelog", None)
+    timestamp = new_timestamp()
+    backend_dict["timelog.LAST_UPDATED"] = timestamp
+
+    upserted_doc = await collection.find_one_and_update(
+        {"name": str(backend_dict["name"])},
+        {"$set": backend_dict, "$setOnInsert": {"timelog.REGISTERED": timestamp}},
+        upsert=True,
+        return_document=pymongo.ReturnDocument.AFTER,
+    )
+    if upserted_doc is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"could not insert '{backend_dict['name']}' document into the '{collection_name}' collection.",
+        )
+
+    await _log_backend_config(db=db, backend={**upserted_doc})
+
+    return "OK"
 
 
 @app.post("/calibrations")
@@ -276,6 +331,12 @@ def create_rng_documents(db: MongoDbDep, documents: list):
 
 
 # ------------ UPDATE OPERATIONS ------------ #
+
+
+@app.put("/backends/{backend_name}")
+@update_documents(collection="backends")
+def update_backend_document(db: MongoDbDep, backend_name, items_to_update: dict):
+    return {"name": str(backend_name)}, {"$set": items_to_update}, "OK"
 
 
 @app.put("/jobs/{job_id}/result")
@@ -308,6 +369,16 @@ def update_timelog_entry(
 ):
     timestamp = new_timestamp()
     return {"job_id": str(job_id)}, {"$set": {"timelog." + event_name: timestamp}}, "OK"
+
+
+@app.put("/backends/{backend_name}/properties/lda_parameters")
+@update_documents(collection="backends")
+def update_lda_parameters(db: MongoDbDep, backend_name: str, lda_parameters: dict):
+    return (
+        {"name": backend_name},
+        {"$set": {"properties": {"lda_parameters": lda_parameters}}},
+        "OK",
+    )
 
 
 # Webgui Public services

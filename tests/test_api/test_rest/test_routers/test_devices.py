@@ -1,6 +1,7 @@
 """Integration tests for the devices router"""
 import json
 from datetime import datetime
+from itertools import zip_longest
 from typing import Any, Dict, List, Union
 
 import pytest
@@ -45,6 +46,8 @@ from tests._utils.ws import MockWebsocket
 _DATA_COLLECTION = "data"
 _CONFIG_COLLECTION = "config"
 _BACKENDS_COLLECTION = "backends"
+_BACKENDS_LOG_COLLECTION = "backend_log"
+_COLLECTIONS = ["backends", "backend_test", "backend_sub"]
 _EXCLUDED_FIELDS = ["_id", "_force_refresh"]
 
 _ENDPOINTS_MAP = app_config["ENDPOINTS_URL"]
@@ -54,6 +57,7 @@ _ENDPOINT_RESPONSE_MAP = {
 _BACKENDS_LIST = load_json_fixture("backend_list.json")
 _DEVICE_DATA_LIST = load_json_fixture("device_data_list.json")
 _DEVICE_CONFIG_LIST = load_json_fixture("device_config_list.json")
+_LDA_PARAMETERS_BODY = load_json_fixture("lda_parameters.json")
 
 _DEVICE_NAMES = list(set([item["backend_name"] for item in _DEVICE_DATA_LIST]))
 _ONLINE_STATUS_MAP = {
@@ -110,6 +114,10 @@ _COMPONENT_PROP_PAIR_LIST = [
     ("couplers", "xtalk_{2,6}"),
 ]
 
+_BACKENDS_AND_COLLECTIONS_FIXTURE = list(
+    zip_longest(_BACKENDS_LIST, _COLLECTIONS, fillvalue="backends")
+)
+
 
 def test_read_backends(db, client):
     """GET to /backends/ retrieves all backends"""
@@ -140,10 +148,30 @@ def test_read_backend(db, client, backend_name: str):
     assert expected == got
 
 
+@pytest.mark.parametrize("backend_name", [v["name"] for v in _BACKENDS_LIST])
+def test_read_backend_lda_parameters(db, client, backend_name: str):
+    """GET to /backends/{backend_name}/properties/lda_parameters returns the lda_parameters of the backend"""
+    insert_in_collection(
+        database=db, collection_name=_BACKENDS_COLLECTION, data=_BACKENDS_LIST
+    )
+
+    response = client.get(f"/backends/{backend_name}/properties/lda_parameters")
+    got = response.json()
+    record = get_record(_BACKENDS_LIST, _filter={"name": backend_name})
+    try:
+        expected = record["properties"]["lda_parameters"]
+        expected_status = 200
+    except KeyError:
+        expected = {"detail": f"backend {backend_name} lacks lda_parameters"}
+        expected_status = 404
+
+    assert response.status_code == expected_status
+    assert got == expected
+
+
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
 def test_create_backend(db, client, backend_dict: Dict[str, Any]):
     """PUT to /backends/ creates a new backend if it does not exist already"""
-    # FIXME: this should be made a POST (but for backward compatibility, it is still a PUT)
     original_data_in_db = find_in_collection(
         db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
     )
@@ -166,9 +194,90 @@ def test_create_backend(db, client, backend_dict: Dict[str, Any]):
 
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
+def test_create_backend_log(db, client, backend_dict: Dict[str, Any]):
+    """PUT to /backends/ adds a backend log"""
+    original_data_in_db = find_in_collection(
+        db, collection_name=_BACKENDS_LOG_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+
+    for i in range(3):
+        response = client.put(
+            "/backends/",
+            json=backend_dict,
+        )
+
+        assert response.status_code == 200
+        assert response.json() == "OK"
+
+    final_data_in_db = find_in_collection(
+        db, collection_name=_BACKENDS_LOG_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+    timelogs = pop_field(final_data_in_db, "timelog")
+
+    assert original_data_in_db == []
+    assert final_data_in_db == [backend_dict, backend_dict, backend_dict]
+    assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+
+
+@pytest.mark.parametrize("backend_dict, collection", _BACKENDS_AND_COLLECTIONS_FIXTURE)
+def test_create_backend_in_collection(
+    db, client, backend_dict: Dict[str, Any], collection: str
+):
+    """PUT to /backends?collection='some-collection' creates a new backend in 'some-collection' if it not exist"""
+    original_data_in_db = find_in_collection(
+        db, collection_name=collection, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+
+    response = client.put(
+        "/backends/",
+        json=backend_dict,
+        params=dict(collection=collection),
+    )
+    final_data_in_db = find_in_collection(
+        db, collection_name=collection, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+    timelogs = pop_field(final_data_in_db, "timelog")
+
+    assert response.status_code == 200
+    assert response.json() == "OK"
+
+    assert original_data_in_db == []
+    assert final_data_in_db == [backend_dict]
+    assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+
+
+@pytest.mark.parametrize("backend_dict, collection", _BACKENDS_AND_COLLECTIONS_FIXTURE)
+def test_create_backend_in_collection_log(
+    db, client, backend_dict: Dict[str, Any], collection: str
+):
+    """PUT to /backends?collection='some-collection' adds a backend log"""
+    original_data_in_db = find_in_collection(
+        db, collection_name=_BACKENDS_LOG_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+
+    for i in range(3):
+        response = client.put(
+            "/backends/",
+            json=backend_dict,
+            params=dict(collection=collection),
+        )
+
+        assert response.status_code == 200
+        assert response.json() == "OK"
+
+    final_data_in_db = find_in_collection(
+        db, collection_name=_BACKENDS_LOG_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+    timelogs = pop_field(final_data_in_db, "timelog")
+
+    assert original_data_in_db == []
+    assert final_data_in_db == [backend_dict, backend_dict, backend_dict]
+    assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+
+
+@pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
 def test_create_pre_existing_backend(db, client, backend_dict: Dict[str, Any]):
     """PUT to /backends/ a pre-existing backend will do nothing"""
-    # FIXME: this should be made a POST (but for backward compatibility, it is still a PUT)
     insert_in_collection(db, collection_name=_BACKENDS_COLLECTION, data=[backend_dict])
     original_data_in_db = find_in_collection(
         db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
@@ -181,12 +290,101 @@ def test_create_pre_existing_backend(db, client, backend_dict: Dict[str, Any]):
     final_data_in_db = find_in_collection(
         db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
     )
+    timelogs = pop_field(final_data_in_db, "timelog")
 
     assert response.status_code == 200
     assert response.json() == "OK"
 
     assert original_data_in_db == [backend_dict]
     assert final_data_in_db == original_data_in_db
+    assert all([is_not_older_than(x["LAST_UPDATED"], seconds=30) for x in timelogs])
+
+
+@pytest.mark.parametrize("backend_dict, collection", _BACKENDS_AND_COLLECTIONS_FIXTURE)
+def test_create_pre_existing_backend_collection(
+    db, client, backend_dict: Dict[str, Any], collection: str
+):
+    """PUT to /backends?collection='some-collection' a pre-existing backend will do nothing"""
+    insert_in_collection(db, collection_name=collection, data=[backend_dict])
+    original_data_in_db = find_in_collection(
+        db, collection_name=collection, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+
+    response = client.put(
+        "/backends/",
+        json=backend_dict,
+        params=dict(collection=collection),
+    )
+    final_data_in_db = find_in_collection(
+        db, collection_name=collection, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+    timelogs = pop_field(final_data_in_db, "timelog")
+
+    assert response.status_code == 200
+    assert response.json() == "OK"
+
+    assert original_data_in_db == [backend_dict]
+    assert final_data_in_db == original_data_in_db
+    assert all([is_not_older_than(x["LAST_UPDATED"], seconds=30) for x in timelogs])
+
+
+@pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
+def test_update_backend(db, client, backend_dict: Dict[str, Any]):
+    """PUT to /backends/{backend} updates the given backend"""
+    insert_in_collection(db, collection_name=_BACKENDS_COLLECTION, data=[backend_dict])
+    original_data_in_db = find_in_collection(
+        db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+    backend_name = backend_dict["name"]
+    payload = {"foo": "bar", "hey": "you"}
+
+    response = client.put(
+        f"/backends/{backend_name}",
+        json=payload,
+    )
+    final_data_in_db = find_in_collection(
+        db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+    expected = {
+        **original_data_in_db[0],
+        **payload,
+        "timelog": {**final_data_in_db[0]["timelog"]},
+    }
+
+    assert response.status_code == 200
+    assert response.json() == "OK"
+
+    assert original_data_in_db == [backend_dict]
+    assert final_data_in_db[0] == expected
+
+
+@pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
+def test_update_lda_parameters(db, client, backend_dict: Dict[str, Any]):
+    """PUT to /backends/{backend}/properties/lda_parameters updates the lda parameters of backend"""
+    insert_in_collection(db, collection_name=_BACKENDS_COLLECTION, data=[backend_dict])
+    original_data_in_db = find_in_collection(
+        db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+    backend_name = backend_dict["name"]
+
+    response = client.put(
+        f"/backends/{backend_name}/properties/lda_parameters",
+        json=_LDA_PARAMETERS_BODY,
+    )
+    final_data_in_db = find_in_collection(
+        db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+    expected = {
+        **original_data_in_db[0],
+        "properties": {"lda_parameters": _LDA_PARAMETERS_BODY},
+        "timelog": {**final_data_in_db[0]["timelog"]},
+    }
+
+    assert response.status_code == 200
+    assert response.json() == "OK"
+
+    assert original_data_in_db == [backend_dict]
+    assert final_data_in_db[0] == expected
 
 
 def test_get_all_basic_device_data(db, client, mocker):
