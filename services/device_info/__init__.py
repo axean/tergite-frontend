@@ -1,7 +1,7 @@
 from .service import (
     append_latest_device_config,
     append_latest_device_info,
-    create_backend,
+    upsert_backend,
     fetch_data,
     force_refresh,
     get_all_backend_online_statuses,

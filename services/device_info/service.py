@@ -20,11 +20,12 @@ from functools import reduce
 from typing import Any, Dict, List, Union
 
 import aiohttp
+import pymongo
 from motor.motor_asyncio import AsyncIOMotorCollection as MotorCollection
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from utils import mongodb as mongodb_utils
-from utils.date_time import parse_datetime_string
+from utils.date_time import parse_datetime_string, get_current_timestamp
 
 from .config import app_config
 from .dtos import (
@@ -87,22 +88,45 @@ async def get_one_backend(db: AsyncIOMotorDatabase, name: str):
 
 
 # FIXME: Create a standard schema for the given payload
-async def create_backend(db: AsyncIOMotorDatabase, payload: Dict[str, Any]):
-    """Creates a new backend from the payload passed
+async def upsert_backend(
+    db: AsyncIOMotorDatabase, payload: Dict[str, Any], collection_name: str
+):
+    """Creates a new backend in the given collection or updates it if it exists
+
+    It also appends the resultant backend config into the backends log
 
     Args:
         db: the mongo database where the backend information is stored
         payload: the backend dict
+        collection_name: the name of the collection into which to upsert the backend
 
     Returns:
         the new backend
 
     Raises:
-        ValueError: server failed to replace or insert document
+        ValueError: could not insert '{payload['name']}' document into the '{collection_name}' collection.
     """
-    return await mongodb_utils.insert_one_if_not_exists(
-        db.backends, document=payload, unique_fields=("name",)
+    collection = db[collection_name]
+    # this is to ensure that if any timelog is passed is removed
+    payload.pop("timelog", None)
+    timestamp = get_current_timestamp()
+    payload["timelog.LAST_UPDATED"] = timestamp
+
+    backend = await collection.find_one_and_update(
+        {"name": str(payload["name"])},
+        {"$set": payload, "$setOnInsert": {"timelog.REGISTERED": timestamp}},
+        upsert=True,
+        return_document=pymongo.ReturnDocument.AFTER,
     )
+
+    if backend is None:
+        raise ValueError(
+            f"could not insert '{payload['name']}' document into the '{collection_name}' collection.",
+        )
+
+    await _log_backend_config(db=db, backend={**backend})
+
+    return backend
 
 
 async def get_all_basic_device_data(db: AsyncIOMotorDatabase) -> List[BasicDeviceData]:
@@ -674,3 +698,17 @@ async def patch_backend(db: AsyncIOMotorDatabase, name: str, payload: Dict[str, 
         _filter={"name": str(name)},
         payload=payload,
     )
+
+
+async def _log_backend_config(db: AsyncIOMotorDatabase, backend: Dict[str, Any]):
+    """Appends the given backend config to the backend log collection.
+
+    Raises:
+        ValueError: could not insert '{backend['name']}' backend into the log.
+    """
+    backend_log = db.backend_log
+    # to create a new backend in the log everytime with a new id
+    backend.pop("_id", None)
+    inserted_log = await backend_log.insert_one(backend)
+    if not inserted_log.acknowledged:
+        raise ValueError(f"could not insert '{backend['name']}' backend into the log.")
