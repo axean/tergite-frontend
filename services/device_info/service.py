@@ -25,7 +25,7 @@ from motor.motor_asyncio import AsyncIOMotorCollection as MotorCollection
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from utils import mongodb as mongodb_utils
-from utils.date_time import parse_datetime_string, get_current_timestamp
+from utils.date_time import get_current_timestamp, parse_datetime_string
 
 from .config import app_config
 from .dtos import (

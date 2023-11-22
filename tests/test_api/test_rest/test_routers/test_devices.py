@@ -200,92 +200,105 @@ def test_create_backend(db, client, backend_dict: Dict[str, Any], app_token_head
 
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
-def test_create_backend_log(db, client, backend_dict: Dict[str, Any]):
-    """PUT to /backends/ adds a backend log"""
+def test_create_backend_log(db, client, backend_dict: Dict[str, Any], app_token_header):
+    """PUT to /backends adds a backend log"""
     original_data_in_db = find_in_collection(
         db, collection_name=_BACKENDS_LOG_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
     )
 
-    for i in range(3):
-        response = client.put(
-            "/backends/",
-            json=backend_dict,
+    # using context manager to ensure on_startup runs
+    with client as client:
+        for i in range(3):
+            response = client.put(
+                "/backends",
+                json=backend_dict,
+                headers=app_token_header,
+            )
+
+            assert response.status_code == 200
+            assert response.json() == "OK"
+
+        final_data_in_db = find_in_collection(
+            db,
+            collection_name=_BACKENDS_LOG_COLLECTION,
+            fields_to_exclude=_EXCLUDED_FIELDS,
         )
+        timelogs = pop_field(final_data_in_db, "timelog")
 
-        assert response.status_code == 200
-        assert response.json() == "OK"
-
-    final_data_in_db = find_in_collection(
-        db, collection_name=_BACKENDS_LOG_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
-    )
-    timelogs = pop_field(final_data_in_db, "timelog")
-
-    assert original_data_in_db == []
-    assert final_data_in_db == [backend_dict, backend_dict, backend_dict]
-    assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+        assert original_data_in_db == []
+        assert final_data_in_db == [backend_dict, backend_dict, backend_dict]
+        assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
 
 
 @pytest.mark.parametrize("backend_dict, collection", _BACKENDS_AND_COLLECTIONS_FIXTURE)
 def test_create_backend_in_collection(
-    db, client, backend_dict: Dict[str, Any], collection: str
+    db, client, backend_dict: Dict[str, Any], collection: str, app_token_header
 ):
     """PUT to /backends?collection='some-collection' creates a new backend in 'some-collection' if it not exist"""
     original_data_in_db = find_in_collection(
         db, collection_name=collection, fields_to_exclude=_EXCLUDED_FIELDS
     )
 
-    response = client.put(
-        "/backends/",
-        json=backend_dict,
-        params=dict(collection=collection),
-    )
-    final_data_in_db = find_in_collection(
-        db, collection_name=collection, fields_to_exclude=_EXCLUDED_FIELDS
-    )
-    timelogs = pop_field(final_data_in_db, "timelog")
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.put(
+            "/backends",
+            json=backend_dict,
+            params=dict(collection=collection),
+            headers=app_token_header,
+        )
+        final_data_in_db = find_in_collection(
+            db, collection_name=collection, fields_to_exclude=_EXCLUDED_FIELDS
+        )
+        timelogs = pop_field(final_data_in_db, "timelog")
 
-    assert response.status_code == 200
-    assert response.json() == "OK"
+        assert response.status_code == 200
+        assert response.json() == "OK"
 
-    assert original_data_in_db == []
-    assert final_data_in_db == [backend_dict]
-    assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+        assert original_data_in_db == []
+        assert final_data_in_db == [backend_dict]
+        assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
 
 
 @pytest.mark.parametrize("backend_dict, collection", _BACKENDS_AND_COLLECTIONS_FIXTURE)
 def test_create_backend_in_collection_log(
-    db, client, backend_dict: Dict[str, Any], collection: str
+    db, client, backend_dict: Dict[str, Any], collection: str, app_token_header
 ):
     """PUT to /backends?collection='some-collection' adds a backend log"""
     original_data_in_db = find_in_collection(
         db, collection_name=_BACKENDS_LOG_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
     )
 
-    for i in range(3):
-        response = client.put(
-            "/backends/",
-            json=backend_dict,
-            params=dict(collection=collection),
+    # using context manager to ensure on_startup runs
+    with client as client:
+        for i in range(3):
+            response = client.put(
+                "/backends",
+                json=backend_dict,
+                params=dict(collection=collection),
+                headers=app_token_header,
+            )
+
+            assert response.status_code == 200
+            assert response.json() == "OK"
+
+        final_data_in_db = find_in_collection(
+            db,
+            collection_name=_BACKENDS_LOG_COLLECTION,
+            fields_to_exclude=_EXCLUDED_FIELDS,
         )
+        timelogs = pop_field(final_data_in_db, "timelog")
 
-        assert response.status_code == 200
-        assert response.json() == "OK"
-
-    final_data_in_db = find_in_collection(
-        db, collection_name=_BACKENDS_LOG_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
-    )
-    timelogs = pop_field(final_data_in_db, "timelog")
-
-    assert original_data_in_db == []
-    assert final_data_in_db == [backend_dict, backend_dict, backend_dict]
-    assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+        assert original_data_in_db == []
+        assert final_data_in_db == [backend_dict, backend_dict, backend_dict]
+        assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
 
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
 def test_create_pre_existing_backend(
     db, client, backend_dict: Dict[str, Any], app_token_header
 ):
-    """PUT to /backends/ a pre-existing backend will do nothing"""
+    """PUT to /backends a pre-existing backend will do nothing"""
     insert_in_collection(db, collection_name=_BACKENDS_COLLECTION, data=[backend_dict])
     original_data_in_db = find_in_collection(
         db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
@@ -294,7 +307,7 @@ def test_create_pre_existing_backend(
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.put(
-            "/backends/",
+            "/backends",
             json=backend_dict,
             headers=app_token_header,
         )
@@ -324,7 +337,7 @@ def test_create_pre_existing_backend_collection(
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.put(
-            "/backends/",
+            "/backends",
             json=backend_dict,
             params=dict(collection=collection),
             headers=app_token_header,
