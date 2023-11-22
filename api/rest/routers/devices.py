@@ -60,16 +60,29 @@ async def read_backend(db: MongoDbDep, name: str):
         )
 
 
-# FIXME: This should probably be a POST not a PUT because this is a `CREATE`
 @backends_router.put("")
-async def create_backend(
-    db: MongoDbDep, user: CurrentSystemUserDep, payload: Dict[str, Any]
+async def upsert_backend(
+    db: MongoDbDep,
+    user: CurrentSystemUserDep,
+    payload: Dict[str, Any],
+    collection_name: str = Query("backends", alias="collection"),
 ):
-    """Creates a new backend if it does not exist already"""
+    """Creates a new backend if it does not exist already or updates it.
+
+    It also appends this resultant backend config into the backends log.
+    """
+    if "name" not in payload:
+        return "Backend needs to have a name"
+
     try:
-        await device_info.create_backend(db, payload=payload)
+        await device_info.upsert_backend(
+            db, payload=payload, collection_name=collection_name
+        )
     except ValueError as exp:
         logging.error(exp)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"{exp}"
+        )
 
     return "OK"
 
@@ -100,6 +113,23 @@ async def update_lda_parameters(
         )
     except ValueError as exp:
         logging.error(exp)
+        # FIXME: change this to an HTTPException
+        return {"message": "Server failed to update the documents."}
+
+    return "OK"
+
+
+@backends_router.put("/{name}")
+async def update_backend(
+    db: MongoDbDep, user: CurrentSystemUserDep, name: str, body: dict
+):
+    """Updates the given backend with the new body supplied."""
+    try:
+        await device_info.patch_backend(db, name, payload=body)
+    except ValueError as exp:
+        logging.error(exp)
+        # FIXME: change this to an HTTPException
+        return {"message": "Server failed to update the documents."}
 
     return "OK"
 

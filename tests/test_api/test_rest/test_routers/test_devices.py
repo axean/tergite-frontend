@@ -1,6 +1,7 @@
 """Integration tests for the devices router"""
 import json
 from datetime import datetime
+from itertools import zip_longest
 from typing import Any, Dict, List, Union
 
 import pytest
@@ -37,6 +38,8 @@ from tests._utils.records import (
 _DATA_COLLECTION = "data"
 _CONFIG_COLLECTION = "config"
 _BACKENDS_COLLECTION = "backends"
+_BACKENDS_LOG_COLLECTION = "backend_log"
+_COLLECTIONS = ["backends", "backend_test", "backend_sub"]
 _EXCLUDED_FIELDS = ["_id", "_force_refresh"]
 
 _ENDPOINTS_MAP = app_config["ENDPOINTS_URL"]
@@ -105,6 +108,10 @@ _COMPONENT_PROP_PAIR_LIST = [
     ("couplers", "xtalk_{2,6}"),
 ]
 
+_BACKENDS_AND_COLLECTIONS_FIXTURE = list(
+    zip_longest(_BACKENDS_LIST, _COLLECTIONS, fillvalue="backends")
+)
+
 
 def test_read_backends(db, client, app_token_header):
     """GET to /backends/ retrieves all backends"""
@@ -168,7 +175,6 @@ def test_read_backend_lda_parameters(db, client, backend_name: str, app_token_he
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
 def test_create_backend(db, client, backend_dict: Dict[str, Any], system_jwt_header):
     """PUT to /backends/ creates a new backend if it does not exist already"""
-    # FIXME: this should be made a POST (but for backward compatibility, it is still a PUT)
     original_data_in_db = find_in_collection(
         db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
     )
@@ -194,11 +200,107 @@ def test_create_backend(db, client, backend_dict: Dict[str, Any], system_jwt_hea
 
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
+def test_create_backend_log(
+    db, client, backend_dict: Dict[str, Any], system_jwt_header
+):
+    """PUT to /backends adds a backend log"""
+    original_data_in_db = find_in_collection(
+        db, collection_name=_BACKENDS_LOG_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        for i in range(3):
+            response = client.put(
+                "/backends",
+                json=backend_dict,
+                headers=system_jwt_header,
+            )
+
+            assert response.status_code == 200
+            assert response.json() == "OK"
+
+        final_data_in_db = find_in_collection(
+            db,
+            collection_name=_BACKENDS_LOG_COLLECTION,
+            fields_to_exclude=_EXCLUDED_FIELDS,
+        )
+        timelogs = pop_field(final_data_in_db, "timelog")
+
+        assert original_data_in_db == []
+        assert final_data_in_db == [backend_dict, backend_dict, backend_dict]
+        assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+
+
+@pytest.mark.parametrize("backend_dict, collection", _BACKENDS_AND_COLLECTIONS_FIXTURE)
+def test_create_backend_in_collection(
+    db, client, backend_dict: Dict[str, Any], collection: str, system_jwt_header
+):
+    """PUT to /backends?collection='some-collection' creates a new backend in 'some-collection' if it not exist"""
+    original_data_in_db = find_in_collection(
+        db, collection_name=collection, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.put(
+            "/backends",
+            json=backend_dict,
+            params=dict(collection=collection),
+            headers=system_jwt_header,
+        )
+        final_data_in_db = find_in_collection(
+            db, collection_name=collection, fields_to_exclude=_EXCLUDED_FIELDS
+        )
+        timelogs = pop_field(final_data_in_db, "timelog")
+
+        assert response.status_code == 200
+        assert response.json() == "OK"
+
+        assert original_data_in_db == []
+        assert final_data_in_db == [backend_dict]
+        assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+
+
+@pytest.mark.parametrize("backend_dict, collection", _BACKENDS_AND_COLLECTIONS_FIXTURE)
+def test_create_backend_in_collection_log(
+    db, client, backend_dict: Dict[str, Any], collection: str, system_jwt_header
+):
+    """PUT to /backends?collection='some-collection' adds a backend log"""
+    original_data_in_db = find_in_collection(
+        db, collection_name=_BACKENDS_LOG_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        for i in range(3):
+            response = client.put(
+                "/backends",
+                json=backend_dict,
+                params=dict(collection=collection),
+                headers=system_jwt_header,
+            )
+
+            assert response.status_code == 200
+            assert response.json() == "OK"
+
+        final_data_in_db = find_in_collection(
+            db,
+            collection_name=_BACKENDS_LOG_COLLECTION,
+            fields_to_exclude=_EXCLUDED_FIELDS,
+        )
+        timelogs = pop_field(final_data_in_db, "timelog")
+
+        assert original_data_in_db == []
+        assert final_data_in_db == [backend_dict, backend_dict, backend_dict]
+        assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+
+
+@pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
 def test_create_pre_existing_backend(
     db, client, backend_dict: Dict[str, Any], system_jwt_header
 ):
-    """PUT to /backends/ a pre-existing backend will do nothing"""
-    # FIXME: this should be made a POST (but for backward compatibility, it is still a PUT)
+    """PUT to /backends a pre-existing backend will do nothing"""
     insert_in_collection(db, collection_name=_BACKENDS_COLLECTION, data=[backend_dict])
     original_data_in_db = find_in_collection(
         db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
@@ -207,19 +309,85 @@ def test_create_pre_existing_backend(
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.put(
-            "/backends/",
+            "/backends",
             json=backend_dict,
             headers=system_jwt_header,
         )
         final_data_in_db = find_in_collection(
             db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
         )
+        timelogs = pop_field(final_data_in_db, "timelog")
 
         assert response.status_code == 200
         assert response.json() == "OK"
 
         assert original_data_in_db == [backend_dict]
         assert final_data_in_db == original_data_in_db
+        assert all([is_not_older_than(x["LAST_UPDATED"], seconds=30) for x in timelogs])
+
+
+@pytest.mark.parametrize("backend_dict, collection", _BACKENDS_AND_COLLECTIONS_FIXTURE)
+def test_create_pre_existing_backend_collection(
+    db, client, backend_dict: Dict[str, Any], collection: str, system_jwt_header
+):
+    """PUT to /backends?collection='some-collection' a pre-existing backend will do nothing"""
+    insert_in_collection(db, collection_name=collection, data=[backend_dict])
+    original_data_in_db = find_in_collection(
+        db, collection_name=collection, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.put(
+            "/backends",
+            json=backend_dict,
+            params=dict(collection=collection),
+            headers=system_jwt_header,
+        )
+        final_data_in_db = find_in_collection(
+            db, collection_name=collection, fields_to_exclude=_EXCLUDED_FIELDS
+        )
+        timelogs = pop_field(final_data_in_db, "timelog")
+
+        assert response.status_code == 200
+        assert response.json() == "OK"
+
+        assert original_data_in_db == [backend_dict]
+        assert final_data_in_db == original_data_in_db
+        assert all([is_not_older_than(x["LAST_UPDATED"], seconds=30) for x in timelogs])
+
+
+@pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
+def test_update_backend(db, client, backend_dict: Dict[str, Any], system_jwt_header):
+    """PUT to /backends/{backend} updates the given backend"""
+    insert_in_collection(db, collection_name=_BACKENDS_COLLECTION, data=[backend_dict])
+    original_data_in_db = find_in_collection(
+        db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+    backend_name = backend_dict["name"]
+    payload = {"foo": "bar", "hey": "you"}
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.put(
+            f"/backends/{backend_name}",
+            json=payload,
+            headers=system_jwt_header,
+        )
+        final_data_in_db = find_in_collection(
+            db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+        )
+        expected = {
+            **original_data_in_db[0],
+            **payload,
+            "timelog": {**final_data_in_db[0]["timelog"]},
+        }
+
+        assert response.status_code == 200
+        assert response.json() == "OK"
+
+        assert original_data_in_db == [backend_dict]
+        assert final_data_in_db[0] == expected
 
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
