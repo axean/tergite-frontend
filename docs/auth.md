@@ -133,6 +133,34 @@ On startup, we raise a ValueError when environment variables `IS_AUTH_ENABLED=Fa
 
 #### - How do we allow other qal9000 services (e.g. BCC or calibration workers) to access MSS, without user intervention?
 
-Use bot app tokens created by the admin. These are more secure because they can easily be revoked and scoped.
+Use app tokens created by any user who had the 'system' role. 
+The advantage of using app tokens is that they are more secure because they can easily be revoked and scoped.
 Since they won't be used to run jobs, their project QPU seconds are expected not to run out.
+
 If you are in development mode, you can just switch of authentication altogether.
+
+#### How do I log in?
+
+- You need to run both [MSS](https://github.com/tergite/tergite-mss/) and the [landing page](https://github.com/tergite/tergite-landing-page/).
+- **Make sure that your `.env` files have all variables filled appropriately** for example, both applications should have the same `JWT_SECRET`.
+- The landing page, when running, has appropriate links, say in the navbar, to direct you on how to the authentication screens.
+- However, you can also log in without running the landing page app first. See the next FAQ.
+
+#### How do I log in without having to run the landing page?
+
+- **Make sure that your `.env` file has all variables filled appropriately**. 
+  The `dot-env-template.txt` is a good template to copy from, but it must all placeholder (`<some-stuff>`) must be replaced in the actual `.env` file.
+- Run the application
+
+```shell
+./start_mss.sh
+```
+
+- Visit the http://localhost:8002/auth/github/authorize endpoint in your browser if you are running on local host.
+- Copy the “authorization_url” from the response and paste it in another tab in your browser. Follow any prompts the browser gives you.
+- After you are redirected back to http://localhost:8002/auth/github/callback, you should see an “access_token”. Copy it to your clipboard.  
+  If you run into any errors, ensure that the `TERGITE_CLIENT_ID` and `TERGITE_CLIENT_SECRET` in your `.env` file are appropriately set.
+- You can then try to create an app token or anything auth related using `curl` or [postman](https://www.postman.com/).  
+  To authenticate those requests, you must always pass an "Authorization" header of format `Bearer <access_token>`.  
+  **Do note that this auth token can only be used on `/auth/...` endpoints. It will return 401/403 errors on all other endpoints**.
+- Do note also that some endpoints are only accessible to users that have a given role e.g. 'admin' or 'system' etc.
