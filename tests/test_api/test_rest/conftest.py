@@ -44,6 +44,7 @@ from tests._utils.auth import (
     get_jwt_token,
     init_test_auth,
     insert_if_not_exist,
+    TEST_SYSTEM_USER_APP_TOKEN_STRING,
 )
 from tests._utils.fixtures import load_json_fixture
 
@@ -86,6 +87,12 @@ def no_qpu_app_token_header() -> Dict[str, str]:
 
 
 @pytest.fixture
+def system_app_token_header() -> Dict[str, str]:
+    """the auth header for the client when the user is a system user"""
+    yield {"Authorization": f"Bearer {TEST_SYSTEM_USER_APP_TOKEN_STRING}"}
+
+
+@pytest.fixture
 def user_jwt_header() -> Dict[str, str]:
     """the auth header for the client when JWT of user is used"""
     yield get_auth_header(TEST_USER_ID)
@@ -95,12 +102,6 @@ def user_jwt_header() -> Dict[str, str]:
 def admin_jwt_header() -> Dict[str, str]:
     """the auth header for the client when JWT of an admin is used"""
     yield get_auth_header(TEST_SUPERUSER_ID)
-
-
-@pytest.fixture
-def system_jwt_header() -> Dict[str, str]:
-    """the auth header for the client when JWT of a system user is used"""
-    yield get_auth_header(TEST_SYSTEM_USER_ID)
 
 
 @pytest.fixture

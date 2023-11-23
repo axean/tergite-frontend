@@ -24,6 +24,7 @@ TEST_SUPERUSER_EMAIL = "jane.doe@example.com"
 TEST_SYSTEM_USER_EMAIL = "system.doe@example.com"
 TEST_APP_TOKEN_STRING = "46-0Jhgb1_thq8MqIF0SlVHoS8rFPiLBFL33XO_eJ7I"
 TEST_NO_QPU_APP_TOKEN_STRING = "56-0Khgb1_thq8MyIF0Srtye8rFPiLBFL33XO_et7I"
+TEST_SYSTEM_USER_APP_TOKEN_STRING = "l5ZPTt/AcD18ogpXhYfIYfmQTwc4tp917F3g708Uc1oAT0WW"
 
 _password_helper = PasswordHelper()
 
@@ -83,14 +84,14 @@ TEST_SYSTEM_USER_DICT = dict(
 TEST_PROJECT_DICT = dict(
     _id=PydanticObjectId(TEST_PROJECT_ID),
     ext_id=TEST_PROJECT_EXT_ID,
-    user_emails=["john.doe@example.com"],
+    user_emails=[TEST_USER_EMAIL, TEST_SYSTEM_USER_EMAIL],
     qpu_seconds=108000,
 )
 
 TEST_NO_QPU_PROJECT_DICT = dict(
     _id=PydanticObjectId(TEST_NO_QPU_PROJECT_ID),
     ext_id=TEST_NO_QPU_PROJECT_EXT_ID,
-    user_emails=["john.doe@example.com"],
+    user_emails=[TEST_USER_EMAIL],
     qpu_seconds=-108000,
 )
 
@@ -110,6 +111,14 @@ TEST_NO_QPU_APP_TOKEN_DICT = dict(
     lifespan_seconds=3600,
 )
 
+TEST_SYSTEM_USER_TOKEN_DICT = dict(
+    title="system-user-token",
+    token=TEST_SYSTEM_USER_APP_TOKEN_STRING,
+    user_id=TEST_SYSTEM_USER_DICT["_id"],
+    project_ext_id=TEST_PROJECT_EXT_ID,
+    lifespan_seconds=3600,
+)
+
 
 def init_test_auth(db: database.Database):
     """Initializes the auth items in the test database"""
@@ -120,6 +129,7 @@ def init_test_auth(db: database.Database):
     insert_if_not_exist(db, Project, TEST_NO_QPU_PROJECT_DICT)
     insert_if_not_exist(db, AppToken, TEST_APP_TOKEN_DICT)
     insert_if_not_exist(db, AppToken, TEST_NO_QPU_APP_TOKEN_DICT)
+    insert_if_not_exist(db, AppToken, TEST_SYSTEM_USER_TOKEN_DICT)
 
 
 T = TypeVar("T", bound=Document)

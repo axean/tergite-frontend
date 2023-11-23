@@ -13,7 +13,7 @@ _COLLECTION = "rng"
 _EXCLUDED_FIELDS = ["_id"]
 
 
-def test_create_many_rng(db, client, system_jwt_header):
+def test_create_many_rng(db, client, system_app_token_header):
     """POST list of rng to /random/ should create them in the service"""
     original_data_in_db = find_in_collection(
         db, collection_name=_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
@@ -21,7 +21,9 @@ def test_create_many_rng(db, client, system_jwt_header):
 
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.post("/random/", json=_RNG_LIST, headers=system_jwt_header)
+        response = client.post(
+            "/random/", json=_RNG_LIST, headers=system_app_token_header
+        )
         final_data_in_db = find_in_collection(
             db, collection_name=_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
         )

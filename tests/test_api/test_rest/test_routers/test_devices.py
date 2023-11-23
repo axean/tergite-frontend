@@ -173,7 +173,9 @@ def test_read_backend_lda_parameters(db, client, backend_name: str, app_token_he
 
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
-def test_create_backend(db, client, backend_dict: Dict[str, Any], system_jwt_header):
+def test_create_backend(
+    db, client, backend_dict: Dict[str, Any], system_app_token_header
+):
     """PUT to /backends/ creates a new backend if it does not exist already"""
     original_data_in_db = find_in_collection(
         db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
@@ -184,7 +186,7 @@ def test_create_backend(db, client, backend_dict: Dict[str, Any], system_jwt_hea
         response = client.put(
             "/backends/",
             json=backend_dict,
-            headers=system_jwt_header,
+            headers=system_app_token_header,
         )
         final_data_in_db = find_in_collection(
             db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
@@ -201,7 +203,7 @@ def test_create_backend(db, client, backend_dict: Dict[str, Any], system_jwt_hea
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
 def test_create_backend_log(
-    db, client, backend_dict: Dict[str, Any], system_jwt_header
+    db, client, backend_dict: Dict[str, Any], system_app_token_header
 ):
     """PUT to /backends adds a backend log"""
     original_data_in_db = find_in_collection(
@@ -214,7 +216,7 @@ def test_create_backend_log(
             response = client.put(
                 "/backends",
                 json=backend_dict,
-                headers=system_jwt_header,
+                headers=system_app_token_header,
             )
 
             assert response.status_code == 200
@@ -234,7 +236,7 @@ def test_create_backend_log(
 
 @pytest.mark.parametrize("backend_dict, collection", _BACKENDS_AND_COLLECTIONS_FIXTURE)
 def test_create_backend_in_collection(
-    db, client, backend_dict: Dict[str, Any], collection: str, system_jwt_header
+    db, client, backend_dict: Dict[str, Any], collection: str, system_app_token_header
 ):
     """PUT to /backends?collection='some-collection' creates a new backend in 'some-collection' if it not exist"""
     original_data_in_db = find_in_collection(
@@ -247,7 +249,7 @@ def test_create_backend_in_collection(
             "/backends",
             json=backend_dict,
             params=dict(collection=collection),
-            headers=system_jwt_header,
+            headers=system_app_token_header,
         )
         final_data_in_db = find_in_collection(
             db, collection_name=collection, fields_to_exclude=_EXCLUDED_FIELDS
@@ -264,7 +266,7 @@ def test_create_backend_in_collection(
 
 @pytest.mark.parametrize("backend_dict, collection", _BACKENDS_AND_COLLECTIONS_FIXTURE)
 def test_create_backend_in_collection_log(
-    db, client, backend_dict: Dict[str, Any], collection: str, system_jwt_header
+    db, client, backend_dict: Dict[str, Any], collection: str, system_app_token_header
 ):
     """PUT to /backends?collection='some-collection' adds a backend log"""
     original_data_in_db = find_in_collection(
@@ -278,7 +280,7 @@ def test_create_backend_in_collection_log(
                 "/backends",
                 json=backend_dict,
                 params=dict(collection=collection),
-                headers=system_jwt_header,
+                headers=system_app_token_header,
             )
 
             assert response.status_code == 200
@@ -298,7 +300,7 @@ def test_create_backend_in_collection_log(
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
 def test_create_pre_existing_backend(
-    db, client, backend_dict: Dict[str, Any], system_jwt_header
+    db, client, backend_dict: Dict[str, Any], system_app_token_header
 ):
     """PUT to /backends a pre-existing backend will do nothing"""
     insert_in_collection(db, collection_name=_BACKENDS_COLLECTION, data=[backend_dict])
@@ -311,7 +313,7 @@ def test_create_pre_existing_backend(
         response = client.put(
             "/backends",
             json=backend_dict,
-            headers=system_jwt_header,
+            headers=system_app_token_header,
         )
         final_data_in_db = find_in_collection(
             db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
@@ -328,7 +330,7 @@ def test_create_pre_existing_backend(
 
 @pytest.mark.parametrize("backend_dict, collection", _BACKENDS_AND_COLLECTIONS_FIXTURE)
 def test_create_pre_existing_backend_collection(
-    db, client, backend_dict: Dict[str, Any], collection: str, system_jwt_header
+    db, client, backend_dict: Dict[str, Any], collection: str, system_app_token_header
 ):
     """PUT to /backends?collection='some-collection' a pre-existing backend will do nothing"""
     insert_in_collection(db, collection_name=collection, data=[backend_dict])
@@ -342,7 +344,7 @@ def test_create_pre_existing_backend_collection(
             "/backends",
             json=backend_dict,
             params=dict(collection=collection),
-            headers=system_jwt_header,
+            headers=system_app_token_header,
         )
         final_data_in_db = find_in_collection(
             db, collection_name=collection, fields_to_exclude=_EXCLUDED_FIELDS
@@ -358,7 +360,9 @@ def test_create_pre_existing_backend_collection(
 
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
-def test_update_backend(db, client, backend_dict: Dict[str, Any], system_jwt_header):
+def test_update_backend(
+    db, client, backend_dict: Dict[str, Any], system_app_token_header
+):
     """PUT to /backends/{backend} updates the given backend"""
     insert_in_collection(db, collection_name=_BACKENDS_COLLECTION, data=[backend_dict])
     original_data_in_db = find_in_collection(
@@ -372,7 +376,7 @@ def test_update_backend(db, client, backend_dict: Dict[str, Any], system_jwt_hea
         response = client.put(
             f"/backends/{backend_name}",
             json=payload,
-            headers=system_jwt_header,
+            headers=system_app_token_header,
         )
         final_data_in_db = find_in_collection(
             db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
@@ -392,7 +396,7 @@ def test_update_backend(db, client, backend_dict: Dict[str, Any], system_jwt_hea
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
 def test_update_lda_parameters(
-    db, client, backend_dict: Dict[str, Any], system_jwt_header
+    db, client, backend_dict: Dict[str, Any], system_app_token_header
 ):
     """PUT to /backends/{backend}/properties/lda_parameters updates the lda parameters of backend"""
     insert_in_collection(db, collection_name=_BACKENDS_COLLECTION, data=[backend_dict])
@@ -406,7 +410,7 @@ def test_update_lda_parameters(
         response = client.put(
             f"/backends/{backend_name}/properties/lda_parameters",
             json=_LDA_PARAMETERS_BODY,
-            headers=system_jwt_header,
+            headers=system_app_token_header,
         )
         final_data_in_db = find_in_collection(
             db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
