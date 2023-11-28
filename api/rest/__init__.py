@@ -31,7 +31,7 @@ from .routers import auth, calibrations, devices, jobs, random
 app_kwargs = dict(
     title="Main Service Server",
     description="A frontend to all our quantum backends",
-    version="0.2.3",
+    version="0.2.4",
 )
 if settings.APP_SETTINGS.lower() != "development":
     app_kwargs["docs_url"] = None
