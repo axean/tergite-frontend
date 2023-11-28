@@ -18,7 +18,11 @@ from uuid import UUID
 
 from fastapi import APIRouter
 
-from api.rest.dependencies import CurrentProjectDep, CurrentSystemUserDep, MongoDbDep
+from api.rest.dependencies import (
+    CurrentProjectDep,
+    CurrentSystemUserProjectDep,
+    MongoDbDep,
+)
 from services import calibration as calibration_service
 
 router = APIRouter(prefix="/calibrations", tags=["calibration"])
@@ -36,7 +40,7 @@ async def read_calibration(db: MongoDbDep, job_id: UUID):
 
 @router.post("")
 async def create_calibrations(
-    db: MongoDbDep, user: CurrentSystemUserDep, documents: list
+    db: MongoDbDep, user: CurrentSystemUserProjectDep, documents: list
 ):
     try:
         await calibration_service.insert_many(db, documents)

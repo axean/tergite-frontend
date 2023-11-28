@@ -10,7 +10,7 @@ from services.auth import Project, User
 from services.auth.service import (
     GET_CURRENT_LAX_PROJECT,
     GET_CURRENT_PROJECT,
-    GET_CURRENT_SYSTEM_USER,
+    GET_CURRENT_SYSTEM_USER_PROJECT,
 )
 from utils.mongodb import get_mongodb
 
@@ -19,7 +19,7 @@ async def get_default_mongodb():
     return get_mongodb(url=f"{settings.DB_MACHINE_ROOT_URL}", name=settings.DB_NAME)
 
 
-CurrentSystemUserDep = Annotated[User, Depends(GET_CURRENT_SYSTEM_USER)]
+CurrentSystemUserProjectDep = Annotated[User, Depends(GET_CURRENT_SYSTEM_USER_PROJECT)]
 CurrentProjectDep = Depends(GET_CURRENT_PROJECT)
 CurrentLaxProjectDep = Annotated[Project, Depends(GET_CURRENT_LAX_PROJECT)]
 CurrentStrictProjectDep = Annotated[Project, Depends(GET_CURRENT_PROJECT)]

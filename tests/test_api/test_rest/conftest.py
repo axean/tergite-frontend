@@ -38,13 +38,13 @@ from tests._utils.auth import (
     TEST_PUHURI_TOKEN_RESP,
     TEST_SUPERUSER_EMAIL,
     TEST_SUPERUSER_ID,
+    TEST_SYSTEM_USER_APP_TOKEN_STRING,
     TEST_SYSTEM_USER_ID,
     TEST_USER_EMAIL,
     TEST_USER_ID,
     get_jwt_token,
     init_test_auth,
     insert_if_not_exist,
-    TEST_SYSTEM_USER_APP_TOKEN_STRING,
 )
 from tests._utils.fixtures import load_json_fixture
 

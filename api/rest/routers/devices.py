@@ -21,7 +21,11 @@ from typing import Any, Dict, List, Union
 
 from fastapi import APIRouter, HTTPException, Query, status
 
-from api.rest.dependencies import CurrentProjectDep, CurrentSystemUserDep, MongoDbDep
+from api.rest.dependencies import (
+    CurrentProjectDep,
+    CurrentSystemUserProjectDep,
+    MongoDbDep,
+)
 from services import device_info
 from services.device_info.dtos import (
     BasicDeviceConfig,
@@ -63,7 +67,7 @@ async def read_backend(db: MongoDbDep, name: str):
 @backends_router.put("")
 async def upsert_backend(
     db: MongoDbDep,
-    user: CurrentSystemUserDep,
+    user: CurrentSystemUserProjectDep,
     payload: Dict[str, Any],
     collection_name: str = Query("backends", alias="collection"),
 ):
@@ -105,7 +109,7 @@ async def read_lda_parameters(db: MongoDbDep, name: str):
 
 @backends_router.put("/{name}/properties/lda_parameters")
 async def update_lda_parameters(
-    db: MongoDbDep, user: CurrentSystemUserDep, name: str, lda_parameters: dict
+    db: MongoDbDep, user: CurrentSystemUserProjectDep, name: str, lda_parameters: dict
 ):
     try:
         await device_info.patch_backend(
@@ -121,7 +125,7 @@ async def update_lda_parameters(
 
 @backends_router.put("/{name}")
 async def update_backend(
-    db: MongoDbDep, user: CurrentSystemUserDep, name: str, body: dict
+    db: MongoDbDep, user: CurrentSystemUserProjectDep, name: str, body: dict
 ):
     """Updates the given backend with the new body supplied."""
     try:

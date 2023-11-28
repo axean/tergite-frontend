@@ -55,7 +55,7 @@ class UserAuthenticator(Authenticator):
                 By default, all specified authentication backends are enabled.
                 Please not however that every backends will appear in the OpenAPI documentation,
                 as FastAPI resolves it statically.
-            roles: List of possible roles the user should have. The user can have any of
+            roles: Tuple of possible roles the user should have. The user can have any of
                 the roles. If the user doesn't have any, a 403 error is raised.
 
         Returns:

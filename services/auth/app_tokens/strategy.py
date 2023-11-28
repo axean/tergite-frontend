@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """FastAPIUsers-specific definition of AppTokens Strategy"""
 import secrets
-from typing import Optional
+from typing import Optional, Tuple
 
 from beanie import PydanticObjectId
 from fastapi_users.authentication.strategy import DatabaseStrategy
@@ -19,6 +19,7 @@ from fastapi_users.authentication.strategy import DatabaseStrategy
 from ..projects.dtos import Project
 from ..projects.exc import ProjectNotExists
 from ..projects.manager import ProjectAppTokenManager
+from ..users.dtos import User
 from . import exc
 from .database import AppTokenDatabase
 from .dtos import AppTokenCreate
@@ -64,7 +65,7 @@ class AppTokenStrategy(DatabaseStrategy):
 
     async def read_token(
         self, token: Optional[str], project_manager: ProjectAppTokenManager
-    ) -> Optional[Project]:
+    ) -> Optional[Tuple[Project, User]]:
         if token is None:
             return None
 
@@ -77,9 +78,8 @@ class AppTokenStrategy(DatabaseStrategy):
         try:
             user_id = str(access_token.user_id)
             ext_id = access_token.project_ext_id
-            project = await project_manager.get_by_ext_and_user_id(
+            return await project_manager.get_pair_by_ext_and_user_id(
                 ext_id=ext_id, user_id=user_id
             )
-            return project
         except ProjectNotExists:
             return None

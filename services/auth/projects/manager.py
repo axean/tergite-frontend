@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """FastAPIUsers-inspired logic for managing projects"""
-from typing import Any, Dict, List, Mapping, Optional
+from typing import Any, Dict, List, Mapping, Optional, Tuple
 
 from beanie import PydanticObjectId
 from fastapi.requests import Request
@@ -22,6 +22,7 @@ from fastapi_users_db_beanie import ObjectIDIDMixin
 from ..app_tokens.database import AppTokenDatabase
 from ..app_tokens.dtos import AppToken, AppTokenCreate
 from ..users.database import UserDatabase
+from ..users.dtos import User
 from . import exc
 from .database import ProjectDatabase
 from .dtos import Project, ProjectCreate, ProjectUpdate
@@ -69,9 +70,11 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
 
         return project
 
-    async def get_by_ext_and_user_id(self, ext_id: str, user_id: str) -> Project:
+    async def get_pair_by_ext_and_user_id(
+        self, ext_id: str, user_id: str
+    ) -> Tuple[Project, User]:
         """
-        Get a project by ext_id and user_id.
+        Get a tuple of project and user for the given by ext_id and user_id.
 
         The user_id must be attached to this project.
 
@@ -98,7 +101,7 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
         if project is None:
             raise exc.ProjectNotExists()
 
-        return project
+        return project, user
 
     async def get_many(
         self, filter_obj: Mapping[str, Any], skip: int = 0, limit: Optional[int] = None
@@ -266,9 +269,10 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
             the project of the given project_ext_id in details, and id in current_user
         """
         try:
-            return await self.get_by_ext_and_user_id(
+            project, _ = await self.get_pair_by_ext_and_user_id(
                 details.project_ext_id, user_id=user_id
             )
+            return project
         except exc.ProjectNotExists:
             return None
 
