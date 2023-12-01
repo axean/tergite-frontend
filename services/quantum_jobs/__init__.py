@@ -5,6 +5,7 @@
 #               Björn Rosengren, and Jakob Wik 2022 (BSc project)
 # (C) Copyright Fabian Forslund, Niklas Botö 2022
 # (C) Copyright Abdullah-Al Amin 2022
+# (C) Copyright Martin Ahindura 2023
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,8 +14,6 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-#
-# Refactored by Martin Ahindura on 2023-11-08
 import logging
 from typing import Any, Dict
 from uuid import UUID, uuid4
@@ -128,13 +127,13 @@ async def get_latest_many(db: AsyncIOMotorDatabase, limit: int = 10):
     )
 
 
-async def update_job_result(db: AsyncIOMotorDatabase, job_id: UUID, memory: list):
-    """Updates the memory part of the result of the job of the given job_id
+async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: dict):
+    """Updates the job of the given job_id
 
     Args:
         db: the mongo database from where to get the job
         job_id: the job id of the job
-        memory: the new memory data to insert into the result of job
+        payload: the new payload to update in job
 
     Returns:
         the number of documents that were modified
@@ -146,75 +145,5 @@ async def update_job_result(db: AsyncIOMotorDatabase, job_id: UUID, memory: list
     return await mongodb_utils.update_many(
         db.jobs,
         _filter={"job_id": str(job_id)},
-        payload={"result": {"memory": memory}},
-    )
-
-
-# FIXME: the status might be better modelled as an enum
-async def update_job_status(db: AsyncIOMotorDatabase, job_id: UUID, status: str):
-    """Updates the memory part of the result of the job of the given job_id
-
-    Args:
-        db: the mongo database from where to get the job
-        job_id: the job id of the job
-        status: the new status of the job
-
-    Returns:
-        the number of documents that were modified
-
-    Raises:
-        ValueError: server failed updating documents
-        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
-    """
-    return await mongodb_utils.update_many(
-        db.jobs,
-        _filter={"job_id": str(job_id)},
-        payload={"status": status},
-    )
-
-
-async def update_job_download_url(db: AsyncIOMotorDatabase, job_id: UUID, url: str):
-    """Updates the download_url the job of the given job_id
-
-    Args:
-        db: the mongo database from where to get the job
-        job_id: the job id of the job
-        url: the new download url of the job
-
-    Returns:
-        the number of documents that were modified
-
-    Raises:
-        ValueError: server failed updating documents
-        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
-    """
-    return await mongodb_utils.update_many(
-        db.jobs,
-        _filter={"job_id": str(job_id)},
-        payload={"download_url": url},
-    )
-
-
-async def refresh_timelog_entry(
-    db: AsyncIOMotorDatabase, job_id: UUID, event_name: str
-):
-    """Updates the timelog the job of the given job_id to the current timestamp
-
-    Args:
-        db: the mongo database from where to get the job
-        job_id: the job id of the job
-        event_name: the name of the event whose timelog is to be refreshed
-
-    Returns:
-        the number of documents that were modified
-
-    Raises:
-        ValueError: server failed updating documents
-        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
-    """
-    timestamp = get_current_timestamp()
-    return await mongodb_utils.update_many(
-        db.jobs,
-        _filter={"job_id": str(job_id)},
-        payload={"timelog." + event_name: timestamp},
+        payload=payload,
     )
