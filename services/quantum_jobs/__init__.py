@@ -15,9 +15,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from uuid import UUID, uuid4
 
+from beanie import PydanticObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 import settings
@@ -93,12 +94,17 @@ async def get_job_download_url(db: AsyncIOMotorDatabase, job_id: UUID):
     return document["download_url"]
 
 
-async def create_job(db: AsyncIOMotorDatabase, backend: str) -> CreatedJobResponse:
+async def create_job(
+    db: AsyncIOMotorDatabase,
+    backend: str,
+    project_id: Optional[PydanticObjectId] = None,
+) -> CreatedJobResponse:
     """Creates a new job for the given backend
 
     Args:
         db: the mongo database from where to create the job
         backend: the backend where the job is to run
+        project_id: the ID of the project to which this job is attached
 
     Returns:
         the created job details
@@ -106,7 +112,12 @@ async def create_job(db: AsyncIOMotorDatabase, backend: str) -> CreatedJobRespon
     job_id = uuid4()
     logging.info(f"Creating new job with id: {job_id}")
 
-    document = {"job_id": str(job_id), "status": "REGISTERING", "backend": backend}
+    document = {
+        "job_id": str(job_id),
+        "project_id": str(project_id),
+        "status": "REGISTERING",
+        "backend": backend,
+    }
 
     await mongodb_utils.insert_one(collection=db.jobs, document=document)
     return {

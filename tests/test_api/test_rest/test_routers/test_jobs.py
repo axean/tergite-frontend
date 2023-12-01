@@ -1,5 +1,6 @@
 """Integration tests for the jobs router"""
 import pytest
+from beanie import PydanticObjectId
 
 import settings
 from tests._utils.date_time import is_not_older_than
@@ -87,7 +88,9 @@ def test_read_job_download_url(db, client, job_id: str, no_qpu_app_token_header)
 
 
 @pytest.mark.parametrize("backend", _BACKENDS)
-def test_create_job(db, client, backend: str, app_token_header):
+def test_create_job(
+    db, client, backend: str, project_id: PydanticObjectId, app_token_header
+):
     """Post to /jobs/ creates a job in the given backend"""
     query_string = "" if backend is None else f"?backend={backend}"
     backend_param = backend if backend else "pingu"
@@ -105,6 +108,7 @@ def test_create_job(db, client, backend: str, app_token_header):
         json_response = response.json()
         new_job_id = json_response["job_id"]
         expected_job = {
+            "project_id": str(project_id),
             "job_id": new_job_id,
             "backend": backend_param,
             "status": "REGISTERING",

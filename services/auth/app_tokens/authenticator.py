@@ -97,8 +97,9 @@ class AppTokenAuthenticator:
         ignore_qpu_seconds: bool = False,
         user_roles: Tuple[UserRole] = (),
         **kwargs,
-    ) -> Tuple[Optional[Tuple[Project, User]], Optional[str]]:
+    ) -> Tuple[Optional[Project], Optional[str]]:
         project_user_pair: Optional[Tuple[Project, User]] = None
+        project: Optional[Project] = None
         token: Optional[str] = None
         enabled_backends: Sequence[AuthenticationBackend] = kwargs.get(
             "enabled_backends", self.backends
@@ -134,7 +135,7 @@ class AppTokenAuthenticator:
                 project_user_pair = None
         if not project_user_pair and not optional:
             raise HTTPException(status_code=status_code, detail=error_msg)
-        return project_user_pair, token
+        return project, token
 
     def _get_dependency_signature(self) -> Signature:
         """Generate a dynamic signature for the current_user dependency.

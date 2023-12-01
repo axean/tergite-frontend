@@ -34,14 +34,15 @@ from tests._utils.auth import (
     TEST_GITHUB_PROFILE,
     TEST_GITHUB_TOKEN_RESP,
     TEST_NO_QPU_APP_TOKEN_STRING,
+    TEST_PROJECT_EXT_ID,
     TEST_PUHURI_PROFILE,
     TEST_PUHURI_TOKEN_RESP,
     TEST_SUPERUSER_EMAIL,
     TEST_SUPERUSER_ID,
     TEST_SYSTEM_USER_APP_TOKEN_STRING,
-    TEST_SYSTEM_USER_ID,
     TEST_USER_EMAIL,
     TEST_USER_ID,
+    get_db_record,
     get_jwt_token,
     init_test_auth,
     insert_if_not_exist,
@@ -102,6 +103,15 @@ def user_jwt_header() -> Dict[str, str]:
 def admin_jwt_header() -> Dict[str, str]:
     """the auth header for the client when JWT of an admin is used"""
     yield get_auth_header(TEST_SUPERUSER_ID)
+
+
+@pytest.fixture
+def project_id(db) -> PydanticObjectId:
+    """the project id for the default app token header"""
+    from services.auth import Project
+
+    project = get_db_record(db, schema=Project, _filter={"ext_id": TEST_PROJECT_EXT_ID})
+    yield project["_id"]
 
 
 @pytest.fixture

@@ -150,10 +150,18 @@ def insert_if_not_exist(db: database.Database, schema: Type[T], data: Dict[str, 
         pass
 
 
-def get_db_record(db: database.Database, schema: Type[T], _id: str) -> Optional[T]:
+def get_db_record(
+    db: database.Database,
+    schema: Type[T],
+    _id: Optional[str] = None,
+    _filter: Optional[dict] = None,
+) -> Optional[dict]:
     """Gets a given auth document from the database or None if it does not exist"""
     col: collection.Collection = db[schema.Settings.name]
-    return col.find_one({"_id": PydanticObjectId(_id)})
+    filter_obj = {"_id": PydanticObjectId(_id)} if _id else {}
+    if _filter is not None:
+        filter_obj.update(_filter)
+    return col.find_one(filter_obj)
 
 
 def get_jwt_token(

@@ -87,7 +87,7 @@ async def create_job(
     db: MongoDbDep, project: CurrentStrictProjectDep, backend: str = "pingu"
 ):
     """Creates a job in the given backend"""
-    return await jobs_service.create_job(db, backend=backend)
+    return await jobs_service.create_job(db, backend=backend, project_id=project.id)
 
 
 @router.get("")
