@@ -18,14 +18,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
-from utils.date_time import datetime_to_zulu
-
-
-class ZEncodedBaseModel(BaseModel):
-    class Config:
-        json_encoders = {
-            datetime: datetime_to_zulu,
-        }
+from utils.models import ZEncodedBaseModel
 
 
 class Property(ZEncodedBaseModel):

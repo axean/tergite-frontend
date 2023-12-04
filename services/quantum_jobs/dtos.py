@@ -10,7 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Data Transfer Objects for the quantum jobs service"""
-from typing import TypedDict
+from datetime import datetime
+from typing import Optional, TypedDict
+
+from utils.models import ZEncodedBaseModel
 
 
 class CreatedJobResponse(TypedDict):
@@ -18,3 +21,18 @@ class CreatedJobResponse(TypedDict):
 
     job_id: str
     upload_url: str
+
+
+class TimestampPair(ZEncodedBaseModel):
+    started: Optional[datetime]
+    finished: Optional[datetime]
+
+
+class JobTimestamps(ZEncodedBaseModel):
+    """Timestamps for the job"""
+
+    registration: TimestampPair
+    pre_processing: TimestampPair
+    execution: TimestampPair
+    post_processing: TimestampPair
+    final: TimestampPair

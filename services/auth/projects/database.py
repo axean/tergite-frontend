@@ -14,6 +14,7 @@
 from typing import Any, Dict, List, Mapping, Optional
 
 from beanie import PydanticObjectId
+from beanie.odm.operators.update.general import Inc
 from fastapi_users.models import ID
 
 from ..users.dtos import User
@@ -82,3 +83,15 @@ class ProjectDatabase:
     async def delete(self, project: Project) -> None:
         """Delete a project."""
         await project.delete()
+
+    @staticmethod
+    async def increment_qpu_seconds(project_id: PydanticObjectId, qpu_seconds: float):
+        """Increments the QPU seconds of the given project
+
+        Args:
+            project_id: the ID of the project
+            qpu_seconds: the seconds to increment by
+        """
+        return await Project.find_one(Project.id == project_id).update(
+            Inc({Project.qpu_seconds: qpu_seconds})
+        )

@@ -17,15 +17,17 @@
 import logging
 from uuid import UUID
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, HTTPException
 from fastapi import status as http_status
 
 from api.rest.dependencies import (
     CurrentLaxProjectDep,
     CurrentStrictProjectDep,
     MongoDbDep,
+    ProjectDbDep,
 )
 from services import quantum_jobs as jobs_service
+from services.quantum_jobs import JobTimestamps
 from utils import mongodb as mongodb_utils
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
@@ -98,16 +100,32 @@ async def read_jobs(db: MongoDbDep, project: CurrentLaxProjectDep, nlast: int = 
 
 @router.put("/{job_id}")
 async def update_job(
-    db: MongoDbDep, project: CurrentStrictProjectDep, job_id: UUID, payload: dict
+    db: MongoDbDep,
+    project_db: ProjectDbDep,
+    project: CurrentStrictProjectDep,
+    job_id: UUID,
+    payload: dict,
 ):
-    """Updates the result of the job with the given memory object"""
+    """Updates the result of the job with the given memory object
+
+    This may raise pydantic.error_wrappers.ValidationError in case
+    the timestamps have an unexpected structure
+    """
     try:
         await jobs_service.update_job(db, job_id=job_id, payload=payload)
+        if "timestamps" in payload:
+            timestamps = JobTimestamps.parse_obj(payload["timestamps"])
+            await jobs_service.update_resource_usage(
+                db,
+                project_db=project_db,
+                job_id=job_id,
+                timestamps=timestamps,
+            )
     except mongodb_utils.DocumentNotFoundError as exp:
         logging.error(exp)
         raise HTTPException(
             status_code=http_status.HTTP_404_NOT_FOUND,
-            detail=f"job id {job_id} not found",
+            detail=f"job id {job_id} or its project not found",
         )
 
     return "OK"

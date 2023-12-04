@@ -1,8 +1,13 @@
 """Integration tests for the jobs router"""
+import datetime
+from typing import Dict, Optional
+
 import pytest
 from beanie import PydanticObjectId
 
 import settings
+from services.auth import Project
+from tests._utils.auth import TEST_PROJECT_EXT_ID, get_db_record
 from tests._utils.date_time import is_not_older_than
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection
@@ -12,15 +17,9 @@ _STATUSES = ["DONE", "REGISTERED", "EXECUTING"]
 _URLS = ["http://example.com", "http://foo.com", "http://bar.com"]
 _DEFAULT_MEMORY_LIST = ["0x0", "0x1", "0x0", "0x0", "0x0", "0x1"]
 _JOBS_LIST = load_json_fixture("job_list.json")
+_JOB_TIMESTAMPED_UPDATES = load_json_fixture("job_timestamped_updates.json")
+_JOB_UPDATES = load_json_fixture("job_updates.json")
 _JOB_IDS = [item["job_id"] for item in _JOBS_LIST]
-_JOB_UPDATE_PAYLOADS = [
-    {
-        "result": {"memory": [f"{index}-{v}" for v in _DEFAULT_MEMORY_LIST]},
-        "status": _STATUSES[index % 3],
-        "download_url": _URLS[index % 3],
-    }
-    for index, item in enumerate(_JOBS_LIST)
-]
 _BACKENDS = ["loke", "loki", None]
 _COLLECTION = "jobs"
 _EXCLUDED_FIELDS = ["_id"]
@@ -149,10 +148,11 @@ def test_read_jobs(db, client, nlast: int, no_qpu_app_token_header):
         assert got == expected
 
 
-@pytest.mark.parametrize("job_id, payload", zip(_JOB_IDS, _JOB_UPDATE_PAYLOADS))
-def test_update_job(db, client, job_id: str, payload: dict, app_token_header):
+@pytest.mark.parametrize("payload", _JOB_UPDATES)
+def test_update_job(db, client, payload: dict, app_token_header):
     """PUT to /jobs/{job_id} updates the job with the given object"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
+    job_id = payload.pop("job_id")
 
     # using context manager to ensure on_startup runs
     with client as client:
@@ -178,3 +178,48 @@ def test_update_job(db, client, job_id: str, payload: dict, app_token_header):
         assert job_after_update == expected_job
         assert is_not_older_than(timelog["LAST_UPDATED"], seconds=30)
         assert timelog["RESULT"] == "foo"
+
+
+@pytest.mark.parametrize("payload", _JOB_TIMESTAMPED_UPDATES)
+def test_update_job_resource_usage(
+    db, client, project_id, payload: dict, app_token_header
+):
+    """PUT to /jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps" property"""
+    job_list = [{**item, "project_id": project_id} for item in _JOBS_LIST]
+    insert_in_collection(database=db, collection_name=_COLLECTION, data=job_list)
+    job_id = payload.pop("job_id")
+    project_before_update = get_db_record(
+        db, schema=Project, _filter={"ext_id": TEST_PROJECT_EXT_ID}
+    )
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.put(
+            f"/jobs/{job_id}",
+            json={**payload, "timelog.RESULT": "foo"},
+            headers=app_token_header,
+        )
+        assert response.status_code == 200
+
+    project_after_update = get_db_record(
+        db, schema=Project, _filter={"ext_id": TEST_PROJECT_EXT_ID}
+    )
+    expected_resource_usage = _get_resource_usage(payload["timestamps"])
+    actual_resource_usage = round(
+        project_before_update["qpu_seconds"] - project_after_update["qpu_seconds"], 6
+    )
+
+    assert actual_resource_usage == expected_resource_usage
+
+
+def _get_resource_usage(timestamps: Dict[str, Dict[str, str]]) -> Optional[float]:
+    """Retrieves the resource usage in seconds"""
+    try:
+        execution_timestamps = timestamps["execution"]
+        started_timestamp_str = execution_timestamps["started"].replace("Z", "+00:00")
+        finished_timestamp_str = execution_timestamps["finished"].replace("Z", "+00:00")
+        started_timestamp = datetime.datetime.fromisoformat(started_timestamp_str)
+        finished_timestamp = datetime.datetime.fromisoformat(finished_timestamp_str)
+        return (finished_timestamp - started_timestamp).total_seconds()
+    except AttributeError:
+        return 0

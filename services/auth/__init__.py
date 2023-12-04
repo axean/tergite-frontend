@@ -15,6 +15,7 @@ from .app_tokens.dtos import (
     AppTokenListResponse,
     AppTokenRead,
 )
+from .projects import ProjectDatabase, get_project_db
 from .projects.dtos import (
     Project,
     ProjectAdminView,
@@ -44,6 +45,7 @@ __all__ = [
     ProjectRead,
     ProjectAdminView,
     ProjectListResponse,
+    ProjectDatabase,
     AppToken,
     AppTokenRead,
     AppTokenCreate,
@@ -54,4 +56,5 @@ __all__ = [
     get_openid_client,
     get_microsoft_client,
     get_github_client,
+    get_project_db,
 ]

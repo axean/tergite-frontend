@@ -15,7 +15,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import logging
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 from uuid import UUID, uuid4
 
 from beanie import PydanticObjectId
@@ -23,9 +23,11 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 import settings
 from utils import mongodb as mongodb_utils
-from utils.date_time import get_current_timestamp
 
-from .dtos import CreatedJobResponse
+from .dtos import CreatedJobResponse, JobTimestamps
+
+if TYPE_CHECKING:
+    from ..auth.projects.database import ProjectDatabase
 
 
 async def get_one(db: AsyncIOMotorDatabase, job_id: UUID):
@@ -158,3 +160,58 @@ async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: dict):
         _filter={"job_id": str(job_id)},
         payload=payload,
     )
+
+
+async def update_resource_usage(
+    db: AsyncIOMotorDatabase,
+    project_db: "ProjectDatabase",
+    job_id: UUID,
+    timestamps: JobTimestamps,
+):
+    """Updates the resource usage for the job of the given job_id
+
+    Args:
+        db: the mongo database from where to get the job
+        project_db: the ProjectDatabase instance where projects are found
+        job_id: the job id of the job
+        timestamps: the collection of timestamps for the given job
+
+    Raises:
+        utils.mongodb.DocumentNotFoundError: No documents matching the filter '{"job_id": job_id}'
+           were found in the 'jobs' collection.
+        utils.mongodb.DocumentNotFoundError: project '{project_id}' for job '{job_id}' not found
+        KeyError: 'project_id'
+    """
+    try:
+        qpu_seconds_used = _get_resource_usage(timestamps)
+    except TypeError:
+        # no need to update resource usage is timestamps are None
+        return
+
+    job = await get_one(db, job_id=job_id)
+    project_id = job["project_id"]
+    project = await project_db.increment_qpu_seconds(
+        project_id=project_id, qpu_seconds=(-1 * qpu_seconds_used)
+    )
+    if project is None:
+        raise mongodb_utils.DocumentNotFoundError(
+            f"project '{project_id}' for job '{job_id}' not found"
+        )
+
+
+def _get_resource_usage(timestamps: JobTimestamps) -> float:
+    """Computes the resource usage given a set of job timestamps
+
+    It raises a TypeError if any of the relevant timestamps is not a datetime
+
+    Args:
+        timestamps: the JobTimestamps collection from which resource usage is computed
+
+    Raises:
+        TypeError: unsupported operand type(s) for -: 'datetime.datetime' and 'NoneType'
+        TypeError: unsupported operand type(s) for -: 'NoneType' and 'datetime.datetime'
+        TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType'
+    """
+    return (
+        timestamps.execution.finished - timestamps.execution.started
+    ).total_seconds()
