@@ -147,7 +147,9 @@ def test_read_backend(db, client, backend_name: str, app_token_header):
 
 
 @pytest.mark.parametrize("backend_name", [v["name"] for v in _BACKENDS_LIST])
-def test_read_backend_lda_parameters(db, client, backend_name: str, app_token_header):
+def test_read_backend_lda_parameters(
+    db, client, backend_name: str, system_app_token_header
+):
     """GET to /backends/{backend_name}/properties/lda_parameters returns the lda_parameters of the backend"""
     insert_in_collection(
         database=db, collection_name=_BACKENDS_COLLECTION, data=_BACKENDS_LIST
@@ -157,7 +159,7 @@ def test_read_backend_lda_parameters(db, client, backend_name: str, app_token_he
     with client as client:
         response = client.get(
             f"/backends/{backend_name}/properties/lda_parameters",
-            headers=app_token_header,
+            headers=system_app_token_header,
         )
         got = response.json()
         record = get_record(_BACKENDS_LIST, _filter={"name": backend_name})

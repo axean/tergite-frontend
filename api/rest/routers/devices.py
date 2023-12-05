@@ -91,10 +91,10 @@ async def upsert_backend(
     return "OK"
 
 
-@backends_router.get(
-    "/{name}/properties/lda_parameters", dependencies=[CurrentProjectDep]
-)
-async def read_lda_parameters(db: MongoDbDep, name: str):
+@backends_router.get("/{name}/properties/lda_parameters")
+async def read_lda_parameters(
+    db: MongoDbDep, user: CurrentSystemUserProjectDep, name: str
+):
     try:
         document = await device_info.get_one_backend(db, name=name)
         lda_parameters = document["properties"]["lda_parameters"]
