@@ -23,6 +23,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 import settings
 from utils import mongodb as mongodb_utils
+from utils.http_clients import BccClient
 
 from .dtos import CreatedJobResponse, JobTimestamps
 
@@ -98,33 +99,39 @@ async def get_job_download_url(db: AsyncIOMotorDatabase, job_id: UUID):
 
 async def create_job(
     db: AsyncIOMotorDatabase,
+    bcc_client: BccClient,
     backend: str,
     project_id: Optional[PydanticObjectId] = None,
+    app_token: Optional[str] = None,
 ) -> CreatedJobResponse:
     """Creates a new job for the given backend
 
     Args:
         db: the mongo database from where to create the job
+        bcc_client: the HTTP client for accessing BCC
         backend: the backend where the job is to run
         project_id: the ID of the project to which this job is attached
+        app_token: the associated with this new job. It is None if no auth is required
 
     Returns:
         the created job details
     """
-    job_id = uuid4()
+    job_id = f"{uuid4()}"
     logging.info(f"Creating new job with id: {job_id}")
 
     document = {
-        "job_id": str(job_id),
+        "job_id": job_id,
         "project_id": str(project_id),
         "status": "REGISTERING",
         "backend": backend,
     }
 
     await mongodb_utils.insert_one(collection=db.jobs, document=document)
+    await bcc_client.save_credentials(job_id=job_id, app_token=app_token)
+
     return {
-        "job_id": str(job_id),
-        "upload_url": str(settings.BCC_MACHINE_ROOT_URL) + "/jobs",
+        "job_id": job_id,
+        "upload_url": f"{settings.BCC_MACHINE_ROOT_URL}/jobs",
     }
 
 

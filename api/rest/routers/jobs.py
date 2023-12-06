@@ -19,8 +19,11 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 from fastapi import status as http_status
+from fastapi.requests import Request
 
+import settings
 from api.rest.dependencies import (
+    BccClientDep,
     CurrentLaxProjectDep,
     CurrentStrictProjectDep,
     MongoDbDep,
@@ -29,6 +32,7 @@ from api.rest.dependencies import (
 from services import quantum_jobs as jobs_service
 from services.quantum_jobs import JobTimestamps
 from utils import mongodb as mongodb_utils
+from utils.api import get_bearer_token
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
@@ -86,10 +90,21 @@ async def read_job_download_url(
 
 @router.post("")
 async def create_job(
-    db: MongoDbDep, project: CurrentStrictProjectDep, backend: str = "pingu"
+    request: Request,
+    db: MongoDbDep,
+    bcc_client: BccClientDep,
+    project: CurrentStrictProjectDep,
+    backend: str = "pingu",
 ):
     """Creates a job in the given backend"""
-    return await jobs_service.create_job(db, backend=backend, project_id=project.id)
+    app_token = get_bearer_token(request, raise_if_error=settings.IS_AUTH_ENABLED)
+    return await jobs_service.create_job(
+        db,
+        bcc_client=bcc_client,
+        backend=backend,
+        project_id=project.id,
+        app_token=app_token,
+    )
 
 
 @router.get("")
