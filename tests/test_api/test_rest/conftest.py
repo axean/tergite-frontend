@@ -1,4 +1,5 @@
 from tests._utils.env import (
+    TEST_BCC_URL,
     TEST_DB_NAME,
     TEST_JWT_SECRET,
     TEST_MONGODB_URL,
@@ -311,6 +312,31 @@ def invalid_chalmers_user(respx_mock):
         return_value=httpx.Response(status_code=200, json=TEST_CHALMERS_TOKEN_RESP)
     )
 
+    yield respx_mock
+
+
+@pytest.fixture
+def mock_bcc(respx_mock):
+    """A mock BCC service"""
+    respx_mock.post(f"{TEST_BCC_URL}/auth").mock(
+        return_value=httpx.Response(status_code=200, json={"message": "ok"})
+    )
+
+    yield respx_mock
+
+
+@pytest.fixture
+def mock_unavailable_bcc(respx_mock):
+    """A mock BCC service that is unavailable"""
+    respx_mock.post(f"{TEST_BCC_URL}/auth").mock(side_effect=httpx.ConnectError)
+
+    yield respx_mock
+
+
+@pytest.fixture
+def mock_timed_out_bcc(respx_mock):
+    """A mock BCC service that times out"""
+    respx_mock.post(f"{TEST_BCC_URL}/auth").mock(side_effect=httpx.ConnectTimeout)
     yield respx_mock
 
 

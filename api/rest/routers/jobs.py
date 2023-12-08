@@ -33,6 +33,7 @@ from services import quantum_jobs as jobs_service
 from services.quantum_jobs import JobTimestamps
 from utils import mongodb as mongodb_utils
 from utils.api import get_bearer_token
+from utils.exc import ServiceUnavailableError
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
@@ -98,13 +99,18 @@ async def create_job(
 ):
     """Creates a job in the given backend"""
     app_token = get_bearer_token(request, raise_if_error=settings.IS_AUTH_ENABLED)
-    return await jobs_service.create_job(
-        db,
-        bcc_client=bcc_client,
-        backend=backend,
-        project_id=project.id,
-        app_token=app_token,
-    )
+    try:
+        return await jobs_service.create_job(
+            db,
+            bcc_client=bcc_client,
+            backend=backend,
+            project_id=project.id,
+            app_token=app_token,
+        )
+    except ServiceUnavailableError as exp:
+        raise HTTPException(
+            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE, detail=f"{exp}"
+        )
 
 
 @router.get("")

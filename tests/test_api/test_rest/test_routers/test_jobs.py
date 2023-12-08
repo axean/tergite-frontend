@@ -4,6 +4,7 @@ from typing import Dict, Optional
 
 import pytest
 from beanie import PydanticObjectId
+from pytest_lazyfixture import lazy_fixture
 
 import settings
 from services.auth import Project
@@ -23,6 +24,14 @@ _JOB_IDS = [item["job_id"] for item in _JOBS_LIST]
 _BACKENDS = ["loke", "loki", None]
 _COLLECTION = "jobs"
 _EXCLUDED_FIELDS = ["_id"]
+_UNAVAILABLE_BCC_FIXTURE = [
+    (backend, client)
+    for backend in _BACKENDS
+    for client in (
+        lazy_fixture("mock_timed_out_bcc"),
+        lazy_fixture("mock_unavailable_bcc"),
+    )
+]
 
 
 @pytest.mark.parametrize("job_id", _JOB_IDS)
@@ -88,7 +97,7 @@ def test_read_job_download_url(db, client, job_id: str, no_qpu_app_token_header)
 
 @pytest.mark.parametrize("backend", _BACKENDS)
 def test_create_job(
-    db, client, backend: str, project_id: PydanticObjectId, app_token_header
+    mock_bcc, db, client, backend: str, project_id: PydanticObjectId, app_token_header
 ):
     """Post to /jobs/ creates a job in the given backend"""
     query_string = "" if backend is None else f"?backend={backend}"
@@ -128,6 +137,28 @@ def test_create_job(
         assert jobs_before_creation == []
         assert jobs_after_creation == [expected_job]
         assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+
+
+@pytest.mark.parametrize("backend, bcc", _UNAVAILABLE_BCC_FIXTURE)
+def test_create_job_without_bcc(db, client, backend: str, app_token_header, bcc):
+    """Post to /jobs/ error out if BCC is not available"""
+    query_string = "" if backend is None else f"?backend={backend}"
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.post(
+            f"/jobs/{query_string}", json={}, headers=app_token_header
+        )
+        jobs_after_creation = find_in_collection(
+            db,
+            collection_name=_COLLECTION,
+            fields_to_exclude=_EXCLUDED_FIELDS,
+        )
+
+        assert response.status_code == 503
+        assert response.json() == {"detail": "backend is currently unavailable"}
+        # no job created
+        assert jobs_after_creation == []
 
 
 @pytest.mark.parametrize("nlast", [1, 4, 6, 10, None])

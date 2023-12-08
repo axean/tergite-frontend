@@ -14,13 +14,12 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-import settings
-from services.auth import service as auth_service
-from services.device_info import service as device_info_service
-
+from . import app_kwargs
+from .app_kwargs import get_app_kwargs
 from .dependencies import (
     CurrentProjectDep,
     CurrentStrictProjectDep,
@@ -28,19 +27,8 @@ from .dependencies import (
 )
 from .routers import auth, calibrations, devices, jobs, random
 
-app_kwargs = dict(
-    title="Main Service Server",
-    description="A frontend to all our quantum backends",
-    version="0.3.0",
-)
-if settings.APP_SETTINGS.lower() != "development":
-    app_kwargs["docs_url"] = None
-    app_kwargs["redoc_url"] = None
-    app_kwargs["openapi_url"] = None
-
-
 # application
-app = FastAPI(**app_kwargs)
+app = FastAPI(**get_app_kwargs())
 
 
 app.add_middleware(
@@ -63,10 +51,3 @@ app.include_router(auth.router)
 @app.get("/")
 async def home(current_project: CurrentStrictProjectDep):
     return "Welcome to the MSS machine"
-
-
-@app.on_event("startup")
-async def startup_event():
-    await device_info_service.on_startup()
-    db = await get_default_mongodb()
-    await auth_service.on_startup(db)

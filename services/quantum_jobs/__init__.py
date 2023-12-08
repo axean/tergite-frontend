@@ -22,8 +22,8 @@ from beanie import PydanticObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 import settings
+from services.external.bcc import BccClient
 from utils import mongodb as mongodb_utils
-from utils.http_clients import BccClient
 
 from .dtos import CreatedJobResponse, JobTimestamps
 
@@ -115,6 +115,12 @@ async def create_job(
 
     Returns:
         the created job details
+
+    Raises:
+            ValueError: job id '{job_id}' already exists
+                See :meth:`utils.http_clients.BccClient.save_credentials`
+            ServiceUnavailableError: backend is currently unavailable.
+                See :meth:`utils.http_clients.BccClient.save_credentials`
     """
     job_id = f"{uuid4()}"
     logging.info(f"Creating new job with id: {job_id}")
@@ -126,8 +132,8 @@ async def create_job(
         "backend": backend,
     }
 
-    await mongodb_utils.insert_one(collection=db.jobs, document=document)
     await bcc_client.save_credentials(job_id=job_id, app_token=app_token)
+    await mongodb_utils.insert_one(collection=db.jobs, document=document)
 
     return {
         "job_id": job_id,

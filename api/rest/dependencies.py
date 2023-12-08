@@ -12,7 +12,7 @@ from services.auth.service import (
     GET_CURRENT_PROJECT,
     GET_CURRENT_SYSTEM_USER_PROJECT,
 )
-from utils.http_clients import BccClient
+from services.external import bcc
 from utils.mongodb import get_mongodb
 
 
@@ -26,4 +26,4 @@ CurrentLaxProjectDep = Annotated[Project, Depends(GET_CURRENT_LAX_PROJECT)]
 CurrentStrictProjectDep = Annotated[Project, Depends(GET_CURRENT_PROJECT)]
 ProjectDbDep = Annotated[ProjectDatabase, Depends(get_project_db)]
 MongoDbDep = Annotated[AsyncIOMotorDatabase, Depends(get_default_mongodb)]
-BccClientDep = Annotated[BccClient, Depends(BccClient)]
+BccClientDep = Annotated[bcc.BccClient, Depends(bcc.get_client)]
