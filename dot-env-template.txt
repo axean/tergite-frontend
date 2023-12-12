@@ -37,3 +37,11 @@ MSS_HOST="0.0.0.0"
 # Auth config
 # Path to the configuration of auth. Default: "auth_config.toml"
 AUTH_CONFIG_FILE=<path-to-auth-config-file>
+
+# Background tasks
+# ================
+# Settings for tasks run in the background using any other scheduler apart from
+# the default FastAPI scheduler
+#
+# maximum number of workers in the thread or process pool. Default is 10
+# MAX_BACKGROUND_WORKERS=10

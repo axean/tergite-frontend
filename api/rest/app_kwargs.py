@@ -18,9 +18,15 @@
 from contextlib import asynccontextmanager
 from typing import Any, Dict
 
+import pymongo
+from apscheduler.executors.pool import ThreadPoolExecutor
+from apscheduler.jobstores.mongodb import MongoDBJobStore
+from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
+from pytz import utc
 
 import settings
+from services import background_tasks as tasks_service
 from services.auth import service as auth_service
 from services.device_info import service as device_info_service
 from services.external import bcc
@@ -46,6 +52,9 @@ def get_app_kwargs() -> Dict[str, Any]:
     return kwargs
 
 
+pymongo.MongoClient()
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     # on startup
@@ -53,7 +62,9 @@ async def lifespan(_app: FastAPI):
     await device_info_service.on_startup()
     db = await get_default_mongodb()
     await auth_service.on_startup(db)
+    tasks_service.start_scheduler()
 
     yield
     # on shutdown
     await bcc.close_client()
+    tasks_service.close_scheduler()

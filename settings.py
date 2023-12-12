@@ -62,3 +62,6 @@ MSS_PORT = config("MSS_PORT", cast=int)
 DATETIME_PRECISION = config("DATETIME_PRECISION", cast=str, default="auto")
 root_logger = logging.getLogger()
 root_logger.setLevel(_logger_level)
+
+# For tasks run in the background using other means apart from FastAPI's BackgroundTask
+MAX_BACKGROUND_WORKERS = config("MAX_BACKGROUND_WORKERS", cast=int, default=10)

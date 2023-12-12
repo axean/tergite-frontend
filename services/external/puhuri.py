@@ -13,6 +13,8 @@
 
 See: https://puhuri.neic.no/SDK%20guide/allocation-management-sp/#getting-a-list-of-resource-allocations
 
+polling is to be done using apscheduler
+
 This client is useful to enable the following user stories
 - Puhuri project admin can create new projects that have QAL 9000 offering indirectly in MSS (polling every few minutes or so)
 - Puhuri project admin can add new users to a project indirectly in QAL 9000 if that project has a QAL 9000 offering
@@ -20,6 +22,7 @@ This client is useful to enable the following user stories
 - Puhuri project admin can view the QPU seconds left in their project since QAL 9000 updates Puhuri of per-project 
     resource usage at a given interval or the moment an experiment is done
 """
+import asyncio
 import enum
 from datetime import datetime
 from typing import Any, List, Optional
@@ -32,9 +35,6 @@ from utils.models import ZEncodedBaseModel
 
 class PuhuriClient:
     """The client for accessing Puhuri's Waldur server
-
-    FIXME: We might need to make most of these methods async to ensure the server
-        continues doing what it is expected to do as it waits for puhuri to respond
 
     Attributes:
         uri: the API base URL for the Waldur instance
@@ -60,11 +60,14 @@ class PuhuriClient:
             WaldurClientException: error making request
             pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
         """
-        response = self._client.list_orders(
-            filters={
+        loop = asyncio.get_event_loop()
+        response = await loop.run_in_executor(
+            None,
+            self._client.list_orders,
+            {
                 "marketplace_resource_uuid": self.offering_uuid,
                 "state": "executing",
-            }
+            },
         )
         return [PuhuriOrder.parse_obj(item) for item in response]
 
