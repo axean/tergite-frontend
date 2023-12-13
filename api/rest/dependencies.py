@@ -13,6 +13,7 @@
 from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from typing_extensions import Annotated
+from waldur_client import WaldurClient
 
 import settings
 from services.auth import Project, ProjectDatabase, User, get_project_db
@@ -23,7 +24,7 @@ from services.auth.service import (
     GET_CURRENT_PROJECT,
     GET_CURRENT_SYSTEM_USER_PROJECT,
 )
-from services.external import bcc
+from services.external import bcc, puhuri
 from utils.mongodb import get_mongodb
 
 
@@ -38,3 +39,4 @@ CurrentStrictProjectDep = Annotated[Project, Depends(GET_CURRENT_PROJECT)]
 ProjectDbDep = Annotated[ProjectDatabase, Depends(get_project_db)]
 MongoDbDep = Annotated[AsyncIOMotorDatabase, Depends(get_default_mongodb)]
 BccClientDep = Annotated[bcc.BccClient, Depends(bcc.get_client)]
+PuhuriClientDep = Annotated[WaldurClient, Depends(puhuri.get_client)]

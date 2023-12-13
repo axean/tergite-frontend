@@ -28,8 +28,10 @@ from api.rest.dependencies import (
     CurrentStrictProjectDep,
     MongoDbDep,
     ProjectDbDep,
+    PuhuriClientDep,
 )
 from services import quantum_jobs as jobs_service
+from services.external import puhuri as puhuri_service
 from services.quantum_jobs import JobTimestamps
 from utils import mongodb as mongodb_utils
 from utils.api import get_bearer_token
@@ -124,6 +126,7 @@ async def update_job(
     db: MongoDbDep,
     project_db: ProjectDbDep,
     project: CurrentStrictProjectDep,
+    puhuri_client: PuhuriClientDep,
     job_id: UUID,
     payload: dict,
 ):
@@ -136,12 +139,23 @@ async def update_job(
         await jobs_service.update_job(db, job_id=job_id, payload=payload)
         if "timestamps" in payload:
             timestamps = JobTimestamps.parse_obj(payload["timestamps"])
-            await jobs_service.update_resource_usage(
+            response = await jobs_service.update_resource_usage(
                 db,
                 project_db=project_db,
                 job_id=job_id,
                 timestamps=timestamps,
             )
+
+            if settings.IS_PUHURI_SYNC_ENABLED and response:
+                project, qpu_seconds = response
+                await puhuri_service.send_resource_usage(
+                    db,
+                    api_client=puhuri_client,
+                    usage=puhuri_service.PuhuriResourceUsage(
+                        amount=qpu_seconds, project_id=project.ext_id
+                    ),
+                )
+
     except mongodb_utils.DocumentNotFoundError as exp:
         logging.error(exp)
         raise HTTPException(

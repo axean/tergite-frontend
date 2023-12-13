@@ -19,17 +19,13 @@ from contextlib import asynccontextmanager
 from typing import Any, Dict
 
 import pymongo
-from apscheduler.executors.pool import ThreadPoolExecutor
-from apscheduler.jobstores.mongodb import MongoDBJobStore
-from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
-from pytz import utc
 
 import settings
-from services import background_tasks as tasks_service
 from services.auth import service as auth_service
 from services.device_info import service as device_info_service
-from services.external import bcc
+from services.external import bcc, puhuri
+from utils import background_tasks
 
 from .dependencies import get_default_mongodb
 
@@ -62,9 +58,13 @@ async def lifespan(_app: FastAPI):
     await device_info_service.on_startup()
     db = await get_default_mongodb()
     await auth_service.on_startup(db)
-    tasks_service.start_scheduler()
+
+    # background tasks
+    scheduler = background_tasks.get_scheduler()
+    puhuri.register_background_tasks(scheduler)
+    scheduler.start()
 
     yield
     # on shutdown
     await bcc.close_client()
-    tasks_service.close_scheduler()
+    scheduler.shutdown()

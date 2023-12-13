@@ -16,6 +16,8 @@ from beanie import Document, PydanticObjectId
 from pydantic import BaseModel
 from pymongo import IndexModel
 
+PROJECT_DB_COLLECTION = "auth_projects"
+
 
 class ProjectCreate(BaseModel):
     """The schema for creating a project"""
@@ -58,7 +60,7 @@ class Project(ProjectCreate, Document):
     is_active: bool = True
 
     class Settings:
-        name = "auth_projects"
+        name = PROJECT_DB_COLLECTION
         indexes = [
             IndexModel("ext_id", unique=True),
         ]

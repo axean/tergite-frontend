@@ -15,7 +15,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import logging
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 from uuid import UUID, uuid4
 
 from beanie import PydanticObjectId
@@ -25,6 +25,7 @@ import settings
 from services.external.bcc import BccClient
 from utils import mongodb as mongodb_utils
 
+from ..auth import Project
 from .dtos import CreatedJobResponse, JobTimestamps
 
 if TYPE_CHECKING:
@@ -180,7 +181,7 @@ async def update_resource_usage(
     project_db: "ProjectDatabase",
     job_id: UUID,
     timestamps: JobTimestamps,
-):
+) -> Optional[Tuple[Project, float]]:
     """Updates the resource usage for the job of the given job_id
 
     Args:
@@ -188,6 +189,9 @@ async def update_resource_usage(
         project_db: the ProjectDatabase instance where projects are found
         job_id: the job id of the job
         timestamps: the collection of timestamps for the given job
+
+    Return:
+        tuple of the updated project and the qpu seconds used if the update happened or None if it didn't
 
     Raises:
         utils.mongodb.DocumentNotFoundError: No documents matching the filter '{"job_id": job_id}'
@@ -199,7 +203,7 @@ async def update_resource_usage(
         qpu_seconds_used = _get_resource_usage(timestamps)
     except TypeError:
         # no need to update resource usage is timestamps are None
-        return
+        return None
 
     job = await get_one(db, job_id=job_id)
     project_id = job["project_id"]
@@ -210,6 +214,7 @@ async def update_resource_usage(
         raise mongodb_utils.DocumentNotFoundError(
             f"project '{project_id}' for job '{job_id}' not found"
         )
+    return project, qpu_seconds_used
 
 
 def _get_resource_usage(timestamps: JobTimestamps) -> float:

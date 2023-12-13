@@ -13,7 +13,7 @@
 """Definition of the FastAPIUsers-inspired Database adapter for projects"""
 from typing import Any, Dict, List, Mapping, Optional
 
-from beanie import PydanticObjectId
+from beanie import PydanticObjectId, UpdateResponse
 from beanie.odm.operators.update.general import Inc
 from fastapi_users.models import ID
 
@@ -91,7 +91,11 @@ class ProjectDatabase:
         Args:
             project_id: the ID of the project
             qpu_seconds: the seconds to increment by
+
+        Returns:
+            the updated document
         """
         return await Project.find_one(Project.id == project_id).update(
-            Inc({Project.qpu_seconds: qpu_seconds})
+            Inc({Project.qpu_seconds: qpu_seconds}),
+            response_type=UpdateResponse.NEW_DOCUMENT,
         )

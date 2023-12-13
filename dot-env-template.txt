@@ -38,10 +38,22 @@ MSS_HOST="0.0.0.0"
 # Path to the configuration of auth. Default: "auth_config.toml"
 AUTH_CONFIG_FILE=<path-to-auth-config-file>
 
-# Background tasks
-# ================
-# Settings for tasks run in the background using any other scheduler apart from
-# the default FastAPI scheduler
-#
-# maximum number of workers in the thread or process pool. Default is 10
-# MAX_BACKGROUND_WORKERS=10
+# Puhuri synchronization
+# ======================
+# Puhuri is a resource management platform for HPC systems, that is also to be used for Quantum Computer's
+
+# Flag to turn puhuri synchronization on or off, defaults to True
+IS_PUHURI_SYNC_ENABLED=True
+
+# Unique ID for our Quantum Computer resource in puhuri.
+# You have to login to the puhuri site and extract the uuid
+# Please contact the Puhuri team on how to get this from the UI
+MSS_PUHURI_OFFERING_UUID=<the-unique-id-for-our-qc-offering-in-puhuri>
+
+# the URI to the Puhuri WALDUR server instance
+# Please contact the Puhuri team to get this.
+PUHURI_WALDUR_API_URI=<the URI to the Puhuri Waldur server>
+
+# The access token to be used in the Waldur client [https://docs.waldur.com/user-guide/] to connect to Puhuri
+# Please contact the Puhuri team on how to get this from the UI
+PUHURI_WALDUR_CLIENT_TOKEN=<API token for a puhuri user who has 'service provider manager' role for our offering on puhuri>
