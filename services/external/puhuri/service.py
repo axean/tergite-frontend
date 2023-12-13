@@ -163,32 +163,36 @@ def retry_failed_resource_usage_posts(
     pass
 
 
-def register_background_tasks(scheduler: BaseScheduler):
+def register_background_tasks(
+    scheduler: BaseScheduler,
+    poll_interval_mins: float = settings.PUHURI_POLL_INTERVAL_MINS,
+):
     """Registers the background tasks for the puhuri service on the given scheduler
 
     Args:
         scheduler: the scheduler to run the tasks in the background
+        poll_interval_mins: the interval at which puhuri is to be polled in minutes. default is 15
     """
     scheduler.add_job(
         update_internal_project_list,
         "interval",
-        minutes=15,
+        minutes=poll_interval_mins,
     )
 
     scheduler.add_job(
         update_internal_user_list,
         "interval",
-        minutes=15,
+        minutes=poll_interval_mins,
     )
 
     scheduler.add_job(
         update_internal_resource_allocation,
         "interval",
-        minutes=15,
+        minutes=poll_interval_mins,
     )
 
     scheduler.add_job(
         retry_failed_resource_usage_posts,
         "interval",
-        minutes=15,
+        minutes=poll_interval_mins,
     )

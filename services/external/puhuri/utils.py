@@ -17,11 +17,16 @@ from typing import List
 
 from waldur_client import WaldurClient
 
+import settings
+
 from .dtos import PuhuriOrder
 
 
 @lru_cache()
-def get_client(uri: str, access_token: str) -> WaldurClient:
+def get_client(
+    uri: str = settings.PUHURI_WALDUR_API_URI,
+    access_token: str = settings.PUHURI_WALDUR_CLIENT_TOKEN,
+) -> WaldurClient:
     """Retrieves the client used to access Puhuri
 
     This function is currently cached.

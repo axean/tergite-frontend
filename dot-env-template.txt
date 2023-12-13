@@ -57,3 +57,6 @@ PUHURI_WALDUR_API_URI=<the URI to the Puhuri Waldur server>
 # The access token to be used in the Waldur client [https://docs.waldur.com/user-guide/] to connect to Puhuri
 # Please contact the Puhuri team on how to get this from the UI
 PUHURI_WALDUR_CLIENT_TOKEN=<API token for a puhuri user who has 'service provider manager' role for our offering on puhuri>
+
+# the interval in minutes at which puhuri is polled. default is 15
+PUHURI_POLL_INTERVAL_MINS=<some value>

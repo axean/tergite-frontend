@@ -65,6 +65,7 @@ root_logger.setLevel(_logger_level)
 
 # PUHURI synchronization
 IS_PUHURI_SYNC_ENABLED = config("IS_PUHURI_SYNC_ENABLED", cast=bool, default=True)
+PUHURI_POLL_INTERVAL_MINS = config("PUHURI_POLL_INTERVAL_MINS", cast=float, default=15)
 MSS_PUHURI_OFFERING_UUID = config("MSS_PUHURI_OFFERING_UUID", cast=str, default="")
 if IS_PUHURI_SYNC_ENABLED and not MSS_PUHURI_OFFERING_UUID:
     raise ValueError(
