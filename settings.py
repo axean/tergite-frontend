@@ -66,11 +66,6 @@ root_logger.setLevel(_logger_level)
 # PUHURI synchronization
 IS_PUHURI_SYNC_ENABLED = config("IS_PUHURI_SYNC_ENABLED", cast=bool, default=True)
 PUHURI_POLL_INTERVAL_MINS = config("PUHURI_POLL_INTERVAL_MINS", cast=float, default=15)
-MSS_PUHURI_OFFERING_UUID = config("MSS_PUHURI_OFFERING_UUID", cast=str, default="")
-if IS_PUHURI_SYNC_ENABLED and not MSS_PUHURI_OFFERING_UUID:
-    raise ValueError(
-        "'MSS_PUHURI_OFFERING_UUID' environment variable must be set if 'IS_PUHURI_SYNC_ENABLED' is True."
-    )
 
 PUHURI_WALDUR_API_URI = config("PUHURI_WALDUR_API_URI", cast=str, default="")
 if IS_PUHURI_SYNC_ENABLED and not PUHURI_WALDUR_API_URI:
@@ -82,4 +77,18 @@ PUHURI_WALDUR_CLIENT_TOKEN = config("PUHURI_WALDUR_CLIENT_TOKEN", cast=str, defa
 if IS_PUHURI_SYNC_ENABLED and not PUHURI_WALDUR_CLIENT_TOKEN:
     raise ValueError(
         "'PUHURI_WALDUR_CLIENT_TOKEN' environment variable must be set if 'IS_PUHURI_SYNC_ENABLED' is True."
+    )
+
+PUHURI_PROVIDER_SECRET_CODE = config(
+    "PUHURI_PROVIDER_SECRET_CODE", cast=str, default=""
+)
+if IS_PUHURI_SYNC_ENABLED and not PUHURI_PROVIDER_SECRET_CODE:
+    raise ValueError(
+        "'PUHURI_PROVIDER_SECRET_CODE' environment variable must be set if 'IS_PUHURI_SYNC_ENABLED' is True."
+    )
+
+PUHURI_PROVIDER_UUID = config("PUHURI_PROVIDER_UUID", cast=str, default="")
+if IS_PUHURI_SYNC_ENABLED and not PUHURI_PROVIDER_UUID:
+    raise ValueError(
+        "'PUHURI_PROVIDER_UUID' environment variable must be set if 'IS_PUHURI_SYNC_ENABLED' is True."
     )

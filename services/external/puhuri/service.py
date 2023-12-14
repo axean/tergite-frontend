@@ -22,6 +22,8 @@ This client is useful to enable the following user stories
 - Puhuri project admin can view the QPU seconds left in their project since QAL 9000 updates Puhuri of per-project 
     resource usage at a given interval or the moment an experiment is done
 """
+import asyncio
+
 from apscheduler.schedulers.base import BaseScheduler
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from waldur_client import WaldurClient
@@ -29,7 +31,18 @@ from waldur_client import WaldurClient
 import settings
 
 from ...auth.projects.dtos import PROJECT_DB_COLLECTION
-from .dtos import RESOURCE_USAGE_COLLECTION, PuhuriResourceUsage
+from .dtos import RESOURCE_USAGE_COLLECTION
+from .utils import get_project_resources
+
+# FIXME: To handle usage-based projects, we might need to add a flag like is_prepaid
+#   on the project model in the database such that authentication does not fail for
+#   projects that have is_prepaid as False
+
+# FIXME: Also to total up a project's qpu_seconds after retrieving data from puhuri,
+#   we might need to sum up the "limit" properties.
+
+# FIXME: Question: How does one get the remaining amount of resource from a limit-based
+#   resource in puhuri?
 
 
 def update_internal_project_list(
@@ -113,7 +126,9 @@ def update_internal_resource_allocation(
 async def send_resource_usage(
     db: AsyncIOMotorDatabase,
     api_client: WaldurClient,
-    usage: PuhuriResourceUsage,
+    project_id: str,
+    qpu_seconds: float,
+    provider_uuid: str = settings.PUHURI_PROVIDER_UUID,
     db_collection: str = RESOURCE_USAGE_COLLECTION,
 ):
     """Sends the given resource usage to puhuri
@@ -123,15 +138,21 @@ async def send_resource_usage(
     of failed resource usage posts and resent later in the background.
 
     Args:
-        api_client: Puhuri Waldur client for accessing the Puhuri Waldur server API
         db: the mongodb client to the database where resource usage reports are stored
-        usage: the puhuri resource usage report to send
+        api_client: Puhuri Waldur client for accessing the Puhuri Waldur server API
+        project_id: the id of the project whose usage is to be reported
+        qpu_seconds: the qpu seconds used
+        provider_uuid: the unique ID of the service provider associated with this app in puhuri
         db_collection: the name of the collection where the resource usage reports are stored
 
     Raises:
         WaldurClientException: error making request
         pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
     """
+    loop = asyncio.get_event_loop()
+    resources = await loop.run_in_executor(
+        None, get_project_resources, api_client, provider_uuid, project_id
+    )
     pass
 
 

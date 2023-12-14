@@ -151,9 +151,8 @@ async def update_job(
                 await puhuri_service.send_resource_usage(
                     db,
                     api_client=puhuri_client,
-                    usage=puhuri_service.PuhuriResourceUsage(
-                        amount=qpu_seconds, project_id=project.ext_id
-                    ),
+                    project_id=project.ext_id,
+                    qpu_seconds=qpu_seconds,
                 )
 
     except mongodb_utils.DocumentNotFoundError as exp:

@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 """Entry point for the puhuri external service"""
 
-from .dtos import PuhuriResourceUsage
 from .service import register_background_tasks, send_resource_usage
 from .utils import get_client
 
@@ -19,6 +18,4 @@ __all__ = [
     get_client,
     send_resource_usage,
     register_background_tasks,
-    # dtos
-    PuhuriResourceUsage,
 ]

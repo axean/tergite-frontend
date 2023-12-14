@@ -41,9 +41,9 @@ roles = ["partner", "user"]
 openid_configuration_endpoint = "https://proxy.acc.puhuri.eduteams.org/.well-known/openid-configuration"
 ```
 
-- Update the [Landing page](https://github.com/tergite/tergite-landing-page) to include this provider also. 
- The instructions are found in the [auth docs](https://github.com/tergite/tergite-landing-page/src/main/docs/auth.md)
-- Start MSS. 
+- Update the [Landing page](https://github.com/tergite/tergite-landing-page) to include this provider also.
+  The instructions are found in the [auth docs](https://github.com/tergite/tergite-landing-page/src/main/docs/auth.md)
+- Start MSS.
   Instructions are on the [README.md](../README.md)
 - Start the landing page.
   Instructions are on its [README.md](https://github.com/tergite/tergite-landing-page/src/main/README.md)
@@ -52,17 +52,16 @@ openid_configuration_endpoint = "https://proxy.acc.puhuri.eduteams.org/.well-kno
 
 - We control access to MSS, and its BCCs using two ways
   - `roles` control basic access to auth-related endpoints e.g. project creation, token management etc.
-  - `projects` control access to all other endpoints. To create a job, or get its results etc, 
-     one must be attached to a project that has more than zero QPU seconds.
+  - `projects` control access to all other endpoints. To create a job, or get its results etc,
+    one must be attached to a project that has more than zero QPU seconds.
 - QPU seconds are the number of seconds a project's experiments are allocated on the quantum computer.
 - QPU seconds can be increased, decreased etc., but no job can be created without positive QPU seconds.
-- A job could run for longer than the allocated project QPU seconds but 
+- A job could run for longer than the allocated project QPU seconds but
   it may fail to update MSS of its results. A user must thus make sure their project has enough QPU seconds.
 
 ### How Authorization Works
 
 Here is an interaction diagram of QAL9000 auth showcasing authentication via [MyAccessID](https://ds.myaccessid.org/).
-
 
 ![Interaction diagram of QAL9000 auth showcasing MyAccessID](./assets/qal9000-auth.png)
 
@@ -87,7 +86,7 @@ environment variable `APP_SETTINGS=production` and log it.
 
 #### - How do we allow other qal9000 services (e.g. BCC or calibration workers) to access MSS, without user intervention?
 
-Use app tokens created by any user who had the 'system' role. 
+Use app tokens created by any user who had the 'system' role.
 The advantage of using app tokens is that they are more secure because they can easily be revoked and scoped.
 Since they won't be used to run jobs, their project QPU seconds are expected not to run out.
 
@@ -102,7 +101,7 @@ If you are in development mode, you can just switch of authentication altogether
 
 #### How do I log in without having to run the landing page?
 
-- **Make sure that your `.env` file has all variables filled appropriately**. 
+- **Make sure that your `.env` file has all variables filled appropriately**.
   The `dot-env-template.txt` is a good template to copy from, but it must all placeholder (`<some-stuff>`) must be replaced in the actual `.env` file.
 - Run the application
 
@@ -121,13 +120,13 @@ If you are in development mode, you can just switch of authentication altogether
 
 #### How does BCC get authenticated?
 
-- A client (say [tergite-qiskit-connector](https://github.com/tergite/tergite-qiskit-connector)) sends a `POST` 
+- A client (say [tergite-qiskit-connector](https://github.com/tergite/tergite-qiskit-connector)) sends a `POST`
   request is sent to `/jobs` on MSS (this app) with an `app_token` in its `Authorization` header
 - A new job entry is created in the database, together with a new unique `job_id`.
-- MSS notifies BCC of the `job_id` and its associated `app_token` by sending a `POST` request to `/auth` endpoint 
+- MSS notifies BCC of the `job_id` and its associated `app_token` by sending a `POST` request to `/auth` endpoint
   of [BCC](https://github.com/tergite/tergite-bcc).
 - In the response to the client, MSS returns the `/jobs` url for the given BCC backend
-- The client then sends its experiment data to the BCC `/jobs` url, with the same `app_token` in 
+- The client then sends its experiment data to the BCC `/jobs` url, with the same `app_token` in
   its `Authorization` header and the same `job_id` in the experiment data.
 - BCC checks if the `job_id` and the `app_token` are first of all associated, and if no other experiment data has
   been sent already with the same `job_id`-`app_token` pair. This is to ensure no user attempts to fool the system
@@ -136,7 +135,20 @@ If you are in development mode, you can just switch of authentication altogether
   or a 403 HTTP error is thrown.
 - The same `job_id`-`app_token` pair is used to download raw logfiles from BCC at `/logfiles/{job_id}` endpoint.
   This time, BCC just checks that the pair match but it does not check if the pair was used already.
-- This is the same behaviour when reading the job results at `jobs/{job_id}/result` 
-  or the job status at `jobs/{job_id}/status` or the entire job entry at `jobs/{job_id}` in BCC. 
-- This is also the same behaviour when attempting to delete the job at `/jobs/{job_id}` or to cancel it at 
+- This is the same behaviour when reading the job results at `jobs/{job_id}/result`
+  or the job status at `jobs/{job_id}/status` or the entire job entry at `jobs/{job_id}` in BCC.
+- This is also the same behaviour when attempting to delete the job at `/jobs/{job_id}` or to cancel it at
   `/jobs/{job_id}/cancel` in BCC.
+
+## Puhuri
+
+[Puhuri](https://puhuri.neic.no/) is an HPC resource management platform that could also be used to manage Quantumm Computer systems.
+
+We need to synchronize MSS's resource management with that in Puhuri
+
+The Puhuri Entity Layout
+![Puhuri Layout](./assets/puhuri-entity-layout.png)
+
+### Flows
+
+![Selecting resource to report on](./assets/puhuri-resource-usage-reporting-flow.png)
