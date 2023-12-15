@@ -57,5 +57,9 @@ PUHURI_WALDUR_CLIENT_TOKEN=<API token for a puhuri user who has 'service provide
 # Please contact the Puhuri team on how to get this from the UI
 PUHURI_PROVIDER_SECRET_CODE=<the secret code for the service provider associated with this app in the puhuri server>
 
+# The unique ID for the service provider associated with this app in the Waldur Puhuri server
+# Please contact the Puhuri team on how to get this from the UI
+PUHURI_PROVIDER_UUID=<the unique ID for the service provider associated with this app in Puhuri>
+
 # the interval in minutes at which puhuri is polled. default is 15
 PUHURI_POLL_INTERVAL_MINS=<some value>

@@ -23,16 +23,20 @@ This client is useful to enable the following user stories
     resource usage at a given interval or the moment an experiment is done
 """
 import asyncio
+import logging
+from datetime import datetime
+from typing import Optional
 
 from apscheduler.schedulers.base import BaseScheduler
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from waldur_client import WaldurClient
+from waldur_client import ComponentUsage, WaldurClient
 
 import settings
 
 from ...auth.projects.dtos import PROJECT_DB_COLLECTION
-from .dtos import RESOURCE_USAGE_COLLECTION
-from .utils import get_project_resources
+from .dtos import RESOURCE_USAGE_COLLECTION, PuhuriResource, PuhuriUsageReport
+from .exc import ResourceNotFoundError
+from .utils import get_default_component, get_project_resources, submit_usage_report
 
 # FIXME: To handle usage-based projects, we might need to add a flag like is_prepaid
 #   on the project model in the database such that authentication does not fail for
@@ -149,11 +153,70 @@ async def send_resource_usage(
         WaldurClientException: error making request
         pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
     """
-    loop = asyncio.get_event_loop()
-    resources = await loop.run_in_executor(
-        None, get_project_resources, api_client, provider_uuid, project_id
+    resources = await get_project_resources(
+        api_client, provider_uuid=provider_uuid, project_uuid=project_id
     )
-    pass
+    if len(resources) == 0:
+        raise ResourceNotFoundError(f"no resource found for project: {project_id}")
+
+    selected_resource: Optional[PuhuriResource] = None
+    component_type: Optional[str] = None
+    usage_based_resources = []
+    limit_based_resources = []
+
+    for item in resources:
+        if item.has_limits:
+            limit_based_resources.append(item)
+        else:
+            usage_based_resources.append(item)
+
+    if len(limit_based_resources) == 0:
+        selected_resource = resources[0]
+
+    for resource in limit_based_resources:
+        unit_value = resource.plan_unit.to_seconds()
+        limits_in_seconds = {k: v * unit_value for k, v in resource.limits.items()}
+
+        for key, limit in limits_in_seconds.items():
+            if limit >= qpu_seconds:
+                selected_resource = resource
+                component_type = key
+                break
+
+        if selected_resource is not None:
+            break
+
+    if selected_resource is None:
+        try:
+            selected_resource = usage_based_resources[0]
+        except IndexError:
+            selected_resource = limit_based_resources[0]
+
+    if component_type is None:
+        default_component = await get_default_component(
+            api_client, offering_uuid=selected_resource.offering_uuid
+        )
+        component_type = default_component.type
+
+    usage_report = PuhuriUsageReport(
+        resource=selected_resource.uuid,
+        date=datetime.utcnow().isoformat(),
+        plan_period=selected_resource.plan_uuid,
+        usages=[
+            ComponentUsage(
+                type=component_type,
+                amount=selected_resource.plan_unit.from_seconds(qpu_seconds),
+            )
+        ],
+    )
+
+    try:
+        await submit_usage_report(
+            customer_uuid=selected_resource.customer_uuid, usage_report=usage_report
+        )
+    except Exception as exp:
+        logging.error(exp)
+        # FIXME: Save the usage report for another attempt later
 
 
 def retry_failed_resource_usage_posts(

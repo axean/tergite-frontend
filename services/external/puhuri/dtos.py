@@ -11,13 +11,13 @@
 # that they have been altered from the originals.
 """Data Transfer objects for the puhuri external service"""
 import enum
+import math
 from datetime import datetime
-from typing import List
+from typing import Dict, List
 
 from pydantic import BaseModel, Extra
 from waldur_client import ComponentUsage
 
-import settings
 from utils.models import ZEncodedBaseModel
 
 RESOURCE_USAGE_COLLECTION = "resource_usage_reports"
@@ -35,17 +35,23 @@ class ResourceUsagePost(ZEncodedBaseModel):
 class PuhuriResource(ZEncodedBaseModel, extra=Extra.allow):
     """The schema of the items got from querying api/marketplace-resources"""
 
+    uuid: str
     project_uuid: str
     customer_uuid: str
     offering_uuid: str
     plan_uuid: str
-    plan_unit: str  # month, hour, day, half_month
+    plan_unit: "PuhuriPlanUnit"  # month, hour, day, half_month
     state: str  # Creating, ...
     is_usage_based: bool  # Here, billing is done after usage...i.e. post paid as opposed to pre-payment o
     # or pre-allocation...which QAL9000 expects
     is_limit_based: bool  # (FIXME: We probably should allow only limit-based resources)
     limits: dict  # e.g. {"pre-paid": 20). the "pre-paid" name is something one has to set in the UI. It can be anything
     # but it is the maximum amount bought by the user
+
+    @property
+    def has_limits(self) -> bool:
+        """Whether resource has limits or not"""
+        return len(self.limits) != 0
 
 
 class PuhuriOrder(ZEncodedBaseModel, extra=Extra.allow):
@@ -101,6 +107,16 @@ class PuhuriPlanUnit(str, enum.Enum):
     DAY = "day"
     HALF_MONTH = "half_month"
 
+    def to_seconds(self):
+        """Plan unit in terms of seconds"""
+        return _PLAN_UNIT_SECONDS_MAP[self]
+
+    def from_seconds(self, amount: float) -> int:
+        """Get amount from seconds into this given unit"""
+        # FIXME: experiments may be quick so if the plan unit is huge,
+        #   the customers will get cheated big.
+        return math.ceil(amount / _PLAN_UNIT_SECONDS_MAP[self])
+
 
 class PuhuriPlan(ZEncodedBaseModel, extra=Extra.allow):
     """The schema for the plans for each offering as got from Puhuri"""
@@ -119,3 +135,11 @@ class PuhuriComponent(ZEncodedBaseModel, extra=Extra.allow):
     uuid: str
     type: str
     name: str
+
+
+_PLAN_UNIT_SECONDS_MAP: Dict[PuhuriPlanUnit, int] = {
+    PuhuriPlanUnit.MONTH: 30 * 24 * 3600,
+    PuhuriPlanUnit.HOUR: 3600,
+    PuhuriPlanUnit.DAY: 24 * 3600,
+    PuhuriPlanUnit.HALF_MONTH: 15 * 24 * 3600,
+}

@@ -16,7 +16,7 @@ httpx-oauth>=0.13.0
 beanie>=1.22.6
 email-validator>=2.0.0.post2
 apscheduler>=3.10.4
-https://github.com/waldur/python-waldur-client/archive/master.zip
+python-waldur-client @ https://github.com/waldur/python-waldur-client/archive/master.zip
 # dev-dependencies
 isort>=5.12.0
 black>=23.7.0

@@ -13,7 +13,7 @@
 """
 import asyncio
 from functools import lru_cache
-from typing import List
+from typing import Dict, List
 
 import aiohttp
 import jwt
@@ -23,11 +23,13 @@ import settings
 
 from .dtos import (
     OrderItem,
+    PuhuriComponent,
     PuhuriOrder,
     PuhuriProviderOffering,
     PuhuriResource,
     PuhuriUsageReport,
 )
+from .exc import ComponentNotFoundError, UsageSubmissionError
 
 
 @lru_cache()
@@ -63,7 +65,7 @@ async def get_new_orders(client: WaldurClient, offering_id: str) -> List["Puhuri
 
     Raises:
         WaldurClientException: error making request
-        pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
+        pydantic.error_wrappers.ValidationError: {} validation error for PuhuriOrder ...
     """
     # FIXME: Which type of user can attempt to allocate resources for a given project?
     #       If any user, how do we check that a user has paid for the resource allocation before accepting the request
@@ -126,10 +128,11 @@ async def submit_usage_report(
 
     async with aiohttp.ClientSession() as session:
         async with session.post(url, data=data, headers=headers) as response:
-            assert response.ok
+            if not response.ok:
+                raise UsageSubmissionError(f"{response.json()}")
 
 
-def get_project_resources(
+async def get_project_resources(
     client: WaldurClient, provider_uuid: str, project_uuid: str
 ) -> List[PuhuriResource]:
     """Gets the resource objects which has the given project_uuid and the given provider_uuid
@@ -142,17 +145,19 @@ def get_project_resources(
 
     Raises:
         WaldurClientException: error making request
-        pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
+        pydantic.error_wrappers.ValidationError: {} validation error for PuhuriResource ...
     """
-    return [
-        PuhuriResource.parse_obj(item)
-        for item in client.filter_marketplace_resources(
-            dict(provider_uuid=provider_uuid, project_uuid=project_uuid),
-        )
-    ]
+    loop = asyncio.get_event_loop()
+    resource_dicts = await loop.run_in_executor(
+        None,
+        client.filter_marketplace_resources,
+        dict(provider_uuid=provider_uuid, project_uuid=project_uuid),
+    )
+
+    return [PuhuriResource.parse_obj(item) for item in resource_dicts]
 
 
-def get_provider_offerings(
+async def get_provider_offerings(
     client: WaldurClient, provider_uuid: str
 ) -> List[PuhuriProviderOffering]:
     """Gets the provider offerings for the given provider uuid
@@ -163,11 +168,41 @@ def get_provider_offerings(
 
     Raises:
         WaldurClientException: error making request
-        pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
+        pydantic.error_wrappers.ValidationError: {} validation error for PuhuriProviderOffering ...
     """
-    return [
-        PuhuriProviderOffering.parse_obj(item)
-        for item in client.list_marketplace_provider_offerings(
-            dict(customer_uuid=provider_uuid),
-        )
-    ]
+    loop = asyncio.get_event_loop()
+    offering_dicts = await loop.run_in_executor(
+        None,
+        client.list_marketplace_provider_offerings,
+        dict(customer_uuid=provider_uuid),
+    )
+
+    return [PuhuriProviderOffering.parse_obj(item) for item in offering_dicts]
+
+
+async def get_default_component(
+    client: WaldurClient, offering_uuid: str
+) -> PuhuriComponent:
+    """Gets te default component, given an offering_uuid
+
+    Args:
+        client: the Waldur client for accessing Puhuri
+        offering_uuid: the unique ID for the given offering
+
+    Raises:
+        WaldurClientException: error making request
+        ComponentNotFoundError: f"offering '{offering_uuid}' has no components"
+        pydantic.error_wrappers.ValidationError: {} validation error for PuhuriProviderOffering ...
+    """
+    loop = asyncio.get_event_loop()
+    offering_dict = await loop.run_in_executor(
+        None,
+        client.get_marketplace_provider_offering,
+        offering_uuid,
+    )
+
+    offering = PuhuriProviderOffering.parse_obj(offering_dict)
+    if len(offering.components) == 0:
+        raise ComponentNotFoundError(f"offering '{offering_uuid}' has no components")
+
+    return offering.components[0]
