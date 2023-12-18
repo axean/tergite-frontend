@@ -136,3 +136,6 @@ nohup.out
 start_mss.py
 
 .DS_Store
+
+# auth config
+auth_config.toml

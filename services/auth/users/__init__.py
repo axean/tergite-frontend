@@ -10,10 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Entry point for the users submodule of the auth module"""
-from functools import lru_cache
-from typing import Optional, Sequence, Tuple
+import re
+from typing import Dict, List, Optional, Sequence, Tuple
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from fastapi_users import FastAPIUsers, models
 from fastapi_users.authentication import (
     AuthenticationBackend,
@@ -23,9 +23,6 @@ from fastapi_users.authentication import (
 from fastapi_users.jwt import SecretType
 from fastapi_users.manager import UserManagerDependency
 from fastapi_users_db_beanie import BeanieUserDatabase
-from httpx_oauth.clients.github import GitHubOAuth2
-from httpx_oauth.clients.microsoft import MicrosoftGraphOAuth2
-from httpx_oauth.clients.openid import OpenID
 from httpx_oauth.oauth2 import BaseOAuth2
 
 import settings
@@ -37,6 +34,16 @@ from .dtos import ID, UP, CurrentUserDependency, OAuthAccount, User, UserRole
 from .manager import UserManager
 from .strategy import CustomJWTStrategy
 from .validators import EmailRegexValidator, Validator
+
+_AUTH_EMAIL_REGEX_MAP: Dict[str, Tuple[str, re.RegexFlag]] = {
+    client["name"]: (client.get("email_regex", ".*"), 0)
+    for client in settings.OAUTH2_CLIENTS_CONFS
+}
+
+_AUTH_ROLES_MAP: Dict[str, List[str]] = {
+    client["name"]: client.get("roles", None)
+    for client in settings.OAUTH2_CLIENTS_CONFS
+}
 
 
 def get_jwt_header_backend(
@@ -83,12 +90,12 @@ def get_jwt_cookie_backend(
 
 async def get_user_db():
     """Dependency injector of the users database"""
-    yield UserDatabase(settings.AUTH_ROLES_MAP)
+    yield UserDatabase(_AUTH_ROLES_MAP)
 
 
 async def get_email_validator() -> Validator:
     """Dependency injector of the email validators"""
-    yield EmailRegexValidator(settings.AUTH_EMAIL_REGEX_MAP)
+    yield EmailRegexValidator(_AUTH_EMAIL_REGEX_MAP)
 
 
 async def get_user_manager(
@@ -97,104 +104,6 @@ async def get_user_manager(
 ):
     """Dependency injector for UserManager"""
     yield UserManager(user_db, email_validator=email_validator)
-
-
-def get_current_user_of_any(
-    roles: Tuple[UserRole], get_current_user: CurrentUserDependency
-):
-    """Creates dependency injector of current user if user has any of the given roles
-
-    Args:
-        roles: the roles to check for
-        get_current_user: the dependency injector that retrieves the current user
-
-    Returns:
-        the dependency injector function
-    """
-
-    async def get_user(user: User = Depends(get_current_user)):
-        is_permitted = False
-        for role in roles:
-            if role in user.roles:
-                is_permitted = True
-                break
-
-        if not is_permitted:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-
-        yield user
-
-    return get_user
-
-
-@lru_cache()
-def get_github_client(
-    client_id: str, client_secret: str, name: str, **kwargs
-) -> GitHubOAuth2:
-    """Gets the GitHubOAuth2 corresponding to the given client id and secret and kwargs
-
-    This is a memoized function that will try to avoid recreating this client
-    if the parameters passed have not changed.
-
-    Args:
-        client_id: the Github Oauth2 client id
-        client_secret: the Github Oauth2 client secret
-        name: the name of this oauth2 client
-        kwargs: other options to pass to the GitHubOAuth2
-
-    Returns:
-        the Github Oauth2 client
-    """
-    return GitHubOAuth2(client_id, client_secret, name=name, **kwargs)
-
-
-@lru_cache()
-def get_microsoft_client(
-    client_id: str, client_secret: str, name: str, **kwargs
-) -> MicrosoftGraphOAuth2:
-    """Gets the MicrosoftGraphOAuth2 corresponding to the given client id and secret and kwargs
-
-    This is a memoized function that will try to avoid recreating this client
-    if the parameters passed have not changed.
-
-    Args:
-        client_id: the microsoft graph oauth2 client id
-        client_secret: the microsoft graph oauth2 client secret
-        name: the name of this oauth client
-        kwargs: other options to pass to the MicrosoftGraphOAuth2
-
-    Returns:
-        the microsoft graph oauth2 client
-    """
-    return MicrosoftGraphOAuth2(client_id, client_secret, name=name, **kwargs)
-
-
-@lru_cache()
-def get_openid_client(
-    client_id: str,
-    client_secret: str,
-    openid_configuration_endpoint: str,
-    name: str,
-    **kwargs,
-) -> OpenID:
-    """Gets the OpenID corresponding to the given client id and secret and kwargs
-
-    This is a memoized function that will try to avoid recreating this client
-    if the parameters passed have not changed.
-
-    Args:
-        client_id: the openID connect client id
-        client_secret: the OpenID Connect client secret
-        openid_configuration_endpoint: the OpenID Connect configuration endpoint
-        name: the name of this oauth client
-        kwargs: other options to pass to the OpenID
-
-    Returns:
-        the OpenID client
-    """
-    return OpenID(
-        client_id, client_secret, openid_configuration_endpoint, name=name, **kwargs
-    )
 
 
 class UserBasedAuth(FastAPIUsers[models.UP, models.ID]):

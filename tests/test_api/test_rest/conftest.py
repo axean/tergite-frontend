@@ -1,8 +1,10 @@
 from tests._utils.env import (
+    TEST_AUTH_CONFIG_FILE,
     TEST_BCC_URL,
     TEST_DB_NAME,
     TEST_JWT_SECRET,
     TEST_MONGODB_URL,
+    TEST_NO_AUTH_CONFIG_FILE,
     TEST_PUHURI_CONFIG_ENDPOINT,
     setup_test_env,
 )
@@ -127,7 +129,7 @@ def client(db) -> TestClient:
 @pytest.fixture
 def no_auth_client(db) -> TestClient:
     """A test client for fast api without auth"""
-    environ["IS_AUTH_ENABLED"] = "False"
+    environ["AUTH_CONFIG_FILE"] = TEST_NO_AUTH_CONFIG_FILE
     importlib.reload(settings)
     from api.rest import app
 
@@ -135,7 +137,7 @@ def no_auth_client(db) -> TestClient:
     yield TestClient(app)
 
     # reset
-    environ["IS_AUTH_ENABLED"] = "True"
+    environ["AUTH_CONFIG_FILE"] = TEST_AUTH_CONFIG_FILE
     importlib.reload(settings)
 
 

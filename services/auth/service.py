@@ -11,13 +11,18 @@
 # that they have been altered from the originals.
 
 """Service for oauth2 authentication and project-based authorization"""
+from typing import List
 
 import motor.motor_asyncio
 from beanie import PydanticObjectId, init_beanie
+from fastapi import APIRouter
+from fastapi_users import FastAPIUsers
+from fastapi_users.authentication import AuthenticationBackend
 
 import settings
 
-from . import UserRole, app_tokens, projects, users
+from . import app_tokens, projects, users
+from .users.dtos import Oauth2ClientConfig, UserRole
 
 # JWT-based authentication
 JWT_HEADER_BACKEND = users.get_jwt_header_backend(
@@ -69,4 +74,54 @@ async def on_startup(db: motor.motor_asyncio.AsyncIOMotorDatabase):
             app_tokens.dtos.AppToken,
             projects.dtos.Project,
         ],
+    )
+
+
+def register_oauth2_client(
+    router: APIRouter,
+    controller: FastAPIUsers,
+    auth_header_backend: AuthenticationBackend,
+    auth_cookie_backend: AuthenticationBackend,
+    jwt_secret: str,
+    conf: Oauth2ClientConfig,
+    tags: List[str] = ("auth",),
+):
+    """Registers an oauth2 method on the given router
+
+    Args:
+        router: APIRouter where to register the oauth2 method
+        controller: the FastAPIUsers instance that controls authentication
+        auth_header_backend: the AuthenticationBackend which handles the authentication via headers
+        auth_cookie_backend: the AuthenticationBackend which handles the authentication via cookies
+        jwt_secret: the secret string used to generate JWT tokens
+        conf: the configuration for the oauth2 client
+        tags: the list of tags to add to the routes of this client
+    """
+    client = conf.get_client()
+
+    router.include_router(
+        controller.get_oauth_router(
+            oauth_client=client,
+            backend=auth_header_backend,
+            state_secret=jwt_secret,
+            is_verified_by_default=True,
+        ),
+        prefix=f"/{client.name}",
+        tags=tags,
+    )
+
+    # FIXME: There is still an issue with programmatically generating the redirect URI.
+    #  It keeps missing the http(s). It is like the scheme is never passed along, which is weird
+
+    # For browser based auth
+    router.include_router(
+        controller.get_oauth_router(
+            oauth_client=client,
+            backend=auth_cookie_backend,
+            state_secret=jwt_secret,
+            is_verified_by_default=True,
+            redirect_url=conf.redirect_url,
+        ),
+        prefix=f"/app/{client.name}",
+        tags=tags,
     )

@@ -71,14 +71,14 @@ _AUTH_COOKIE_REGEX = re.compile(
 
 
 def test_is_auth_enabled(client):
-    """When `IS_AUTH_ENABLED=True`, application cannot be accessed without authentication"""
+    """When `is_enabled=true` in auth_config, application cannot be accessed without authentication"""
     with client as client:
         response = client.get("/")
         assert response.status_code == 401
 
 
 def test_not_is_auth_enabled(no_auth_client):
-    """When `IS_AUTH_ENABLED=False`, application can be accessed without authentication"""
+    """When `is_enabled=false` in auth_config, application can be accessed without authentication"""
     with no_auth_client as client:
         response = client.get("/")
         assert response.status_code == 200

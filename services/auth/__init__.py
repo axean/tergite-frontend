@@ -24,13 +24,28 @@ from .projects.dtos import (
     ProjectRead,
     ProjectUpdate,
 )
-from .users import (
-    get_current_user_of_any,
-    get_github_client,
-    get_microsoft_client,
-    get_openid_client,
+from .service import (
+    APP_TOKEN_AUTH,
+    APP_TOKEN_BACKEND,
+    GET_CURRENT_LAX_PROJECT,
+    GET_CURRENT_PROJECT,
+    GET_CURRENT_SUPERUSER,
+    GET_CURRENT_USER,
+    GET_CURRENT_USER_ID,
+    JWT_AUTH,
+    JWT_COOKIE_BACKEND,
+    JWT_HEADER_BACKEND,
+    on_startup,
+    register_oauth2_client,
 )
-from .users.dtos import User, UserCreate, UserRead, UserRole, UserUpdate
+from .users.dtos import (
+    Oauth2ClientConfig,
+    User,
+    UserCreate,
+    UserRead,
+    UserRole,
+    UserUpdate,
+)
 
 __all__ = [
     # DTOs
@@ -39,6 +54,7 @@ __all__ = [
     UserUpdate,
     User,
     UserRole,
+    Oauth2ClientConfig,
     Project,
     ProjectCreate,
     ProjectUpdate,
@@ -52,9 +68,17 @@ __all__ = [
     AppTokenListResponse,
     # service
     "service",
-    get_current_user_of_any,
-    get_openid_client,
-    get_microsoft_client,
-    get_github_client,
+    JWT_HEADER_BACKEND,
+    JWT_COOKIE_BACKEND,
+    JWT_AUTH,
+    GET_CURRENT_USER,
+    GET_CURRENT_USER_ID,
+    GET_CURRENT_SUPERUSER,
+    APP_TOKEN_BACKEND,
+    APP_TOKEN_AUTH,
+    GET_CURRENT_PROJECT,
+    GET_CURRENT_LAX_PROJECT,
+    on_startup,
+    register_oauth2_client,
     get_project_db,
 ]
