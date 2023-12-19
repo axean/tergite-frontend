@@ -19,34 +19,6 @@
 		"user_emails": ["david.doe@example.com", "paul.doe@example.com"],
 		"qpu_seconds": 54000,
 		"is_active": true
-	},
-	{
-		"id": "eefe80907b96854b4246736a",
-		"ext_id": "test4",
-		"user_emails": ["paul.doe@example.com", "julie.doe@example.com"],
-		"qpu_seconds": 54000,
-		"is_active": true
-	},
-	{
-		"id": "5f4373a1277212d529c3ec40",
-		"ext_id": "test5",
-		"user_emails": ["jane.doe@example.com", "paul.doe@example.com"],
-		"qpu_seconds": 54000,
-		"is_active": true
-	},
-	{
-		"id": "c3658012cdf2f5dd759a0a00",
-		"ext_id": "test6",
-		"user_emails": ["john.doe@example.com", "paul.doe@example.com", "julie.doe@example.com"],
-		"qpu_seconds": 54000,
-		"is_active": true
-	},
-	{
-		"id": "71c4c5bf6b001f02a2b81ab9",
-		"ext_id": "test7",
-		"user_emails": ["david.doe@example.com"],
-		"qpu_seconds": 54000,
-		"is_active": true
 	}
 ]
 
