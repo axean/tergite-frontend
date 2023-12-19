@@ -21,27 +21,6 @@
 		}
 	},
 	{
-		"statusCode": 200,
-		"body": {
-			"id": "4939a0b9a7742e2cc52289e0",
-			"roles": ["user"]
-		}
-	},
-	{
-		"statusCode": 200,
-		"body": {
-			"id": "0558648bbf51b16948e818d3",
-			"roles": ["user"]
-		}
-	},
-	{
-		"statusCode": 200,
-		"body": {
-			"id": "1fdce4933169db9c76ba0a98",
-			"roles": ["user"]
-		}
-	},
-	{
 		"statusCode": 403,
 		"body": {
 			"detail": "UNAUTHENTICATED"

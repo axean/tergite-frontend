@@ -13,10 +13,6 @@
 		"ext_id": "zero-qpu",
 		"user_emails": ["john.doe@example.com"],
 		"qpu_seconds": 0
-	},
-	{
-		"ext_id": "some-project",
-		"user_emails": ["john.doe@example.com", "jane.doe@example.com"],
-		"qpu_seconds": 5400
 	}
 ]
+

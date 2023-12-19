@@ -24,6 +24,20 @@ cd tergite-landing-page
 npm install
 ```
 
+-   Copy the `auth_config.example.toml` to `auth_config.toml` and update the configuration there.  
+    Make sure it is the same being used by the [MSS](https://github.com/tergite/tergite-mss/src/main/)connected to this app
+
+```shell
+cp auth_config.example.toml auth_config.toml
+```
+
+-   To update the environment variables, you also need to copy the `.env` file to `.env.local` and
+    update the environment variables therein.
+
+```shell
+cp .env .env.local
+```
+
 -   Run the development server
 
 ```shell
@@ -78,6 +92,7 @@ docker run -p 3000:80 --name landing-page \
     -e JWT_SECRET="some-secret" \
     -e OAUTH_REDIRECT_URI="http://127.0.0.1:3000" \
     -e COOKIE_NAME="tergiteauth"
+    -e AUTH_CONFIG_FILE="/path/to/your/auth_config.toml"
     ${CONTAINER_REGISTRY}/tergite-landing-page:local
 ```
 

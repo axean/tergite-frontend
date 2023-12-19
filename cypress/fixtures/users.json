@@ -23,11 +23,6 @@
 		"id": "0558648bbf51b16948e818d3",
 		"roles": ["user"],
 		"email": "julie.doe@example.com"
-	},
-	{
-		"id": "1fdce4933169db9c76ba0a98",
-		"roles": ["user"],
-		"email": "olick.doe@example.com"
 	}
 ]
 
