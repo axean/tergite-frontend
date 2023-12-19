@@ -3,7 +3,7 @@ const path = require('path');
 const { readFileSync } = require('fs');
 
 /**
- * Loads environment variables from .env.test file
+ * Loads environment variables from .env files
  */
 function loadEnvFromFile(file) {
 	// read file and decode it as utf-8 string
