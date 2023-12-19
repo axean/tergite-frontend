@@ -24,7 +24,7 @@ This client is useful to enable the following user stories
 """
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from apscheduler.schedulers.base import BaseScheduler
@@ -34,7 +34,12 @@ from waldur_client import ComponentUsage, WaldurClient
 import settings
 
 from ...auth.projects.dtos import PROJECT_DB_COLLECTION
-from .dtos import RESOURCE_USAGE_COLLECTION, PuhuriResource, PuhuriUsageReport
+from .dtos import (
+    RESOURCE_USAGE_COLLECTION,
+    PuhuriResource,
+    PuhuriUsageReport,
+    ResourceUsagePost,
+)
 from .exc import ResourceNotFoundError
 from .utils import get_default_component, get_project_resources, submit_usage_report
 
@@ -217,6 +222,15 @@ async def send_resource_usage(
     except Exception as exp:
         logging.error(exp)
         # FIXME: Save the usage report for another attempt later
+        timestamp = datetime.now(timezone.utc)
+        report_usage_post = ResourceUsagePost(
+            payload=usage_report,
+            attempts=1,
+            failure_reasons=[f"{exp}"],
+            created_on=timestamp,
+            last_modified_on=timestamp,
+        )
+        await db[db_collection].insert_one(report_usage_post)
 
 
 def retry_failed_resource_usage_posts(
