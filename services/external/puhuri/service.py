@@ -27,11 +27,15 @@ import logging
 from datetime import datetime, timezone
 from typing import Optional
 
+import aiohttp
 from apscheduler.schedulers.base import BaseScheduler
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from pymongo import ReplaceOne
+from pymongo.errors import BulkWriteError
 from waldur_client import ComponentUsage, WaldurClient
 
 import settings
+from utils.mongodb import get_mongodb
 
 from ...auth.projects.dtos import PROJECT_DB_COLLECTION
 from .dtos import (
@@ -41,7 +45,12 @@ from .dtos import (
     ResourceUsagePost,
 )
 from .exc import ResourceNotFoundError
-from .utils import get_default_component, get_project_resources, submit_usage_report
+from .utils import (
+    get_default_component,
+    get_project_resources,
+    resubmit_usage_report,
+    submit_usage_report,
+)
 
 # FIXME: To handle usage-based projects, we might need to add a flag like is_prepaid
 #   on the project model in the database such that authentication does not fail for
@@ -224,21 +233,24 @@ async def send_resource_usage(
         # FIXME: Save the usage report for another attempt later
         timestamp = datetime.now(timezone.utc)
         report_usage_post = ResourceUsagePost(
+            customer_uuid=selected_resource.customer_uuid,
             payload=usage_report,
             attempts=1,
             failure_reasons=[f"{exp}"],
             created_on=timestamp,
             last_modified_on=timestamp,
         )
-        await db[db_collection].insert_one(report_usage_post)
+        await db[db_collection].insert_one(report_usage_post.dict(exclude={"id"}))
 
 
-def retry_failed_resource_usage_posts(
+async def retry_failed_resource_usage_posts(
     api_uri: str = settings.PUHURI_WALDUR_API_URI,
     api_access_token: str = settings.PUHURI_WALDUR_CLIENT_TOKEN,
     db_url: str = f"{settings.DB_MACHINE_ROOT_URL}",
     db_name: str = settings.DB_NAME,
     db_collection: str = RESOURCE_USAGE_COLLECTION,
+    max_attempts: int = settings.MAX_PUHURI_SUBMISSION_ATTEMPTS,
+    secret_code: str = settings.PUHURI_PROVIDER_SECRET_CODE,
 ):
     """Tries to resend resource usage that failed to be sent
 
@@ -253,12 +265,31 @@ def retry_failed_resource_usage_posts(
         db_url: the mongodb URI to the database where resource usage reports are stored
         db_name: the name of the database where the resource usage reports are stored
         db_collection: the name of the collection where the resource usage reports are stored
+        max_attempts: the maximum number of times a given failed post should be tried
+        secret_code: the secret code for the service provider associated with this app in puhuri
 
-    Raises:
-        WaldurClientException: error making request
-        pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
     """
-    pass
+    db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
+    posts_collection = db[db_collection]
+    filter_obj = {"is_success": False, "attempts": {"$lt": max_attempts}}
+    headers = {"Authorization": f"Token {api_access_token}"}
+    async with aiohttp.ClientSession(base_url=api_uri, headers=headers) as session:
+        tasks = [
+            resubmit_usage_report(session, item, secret_code)
+            async for item in posts_collection.find(filter_obj)
+        ]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    db_operations = [
+        ReplaceOne({"_id": item.id}, item.dict())
+        for item in results
+        if isinstance(item, ResourceUsagePost)
+    ]
+
+    try:
+        await posts_collection.bulk_write(db_operations, ordered=False)
+    except BulkWriteError as exp:
+        logging.error(exp)
 
 
 def register_background_tasks(

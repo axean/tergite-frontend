@@ -13,23 +13,56 @@
 import enum
 import math
 from datetime import datetime
-from typing import Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Union
 
-from pydantic import BaseModel, Extra
+from beanie import PydanticObjectId
+from pydantic import BaseModel, Extra, Field
 from waldur_client import ComponentUsage
 
 from utils.models import ZEncodedBaseModel
+
+if TYPE_CHECKING:
+    DictStrAny = Dict[str, Any]
+    IntStr = Union[int, str]
+    AbstractSetIntStr = AbstractSet[IntStr]
+    MappingIntStrAny = Mapping[IntStr, Any]
 
 RESOURCE_USAGE_COLLECTION = "resource_usage_reports"
 
 
 class ResourceUsagePost(ZEncodedBaseModel):
+    id: Optional[PydanticObjectId] = Field(
+        None,
+        alias="_id",
+    )
+    customer_uuid: str
     payload: "PuhuriUsageReport"
     attempts: int = 1
     is_success: bool = False
     failure_reasons: List[str] = []
     created_on: datetime
     last_modified_on: datetime
+
+    def dict(
+        self,
+        *,
+        include: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
+        exclude: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
+        by_alias: bool = True,  # default this to True
+        skip_defaults: Optional[bool] = None,
+        exclude_unset: bool = False,
+        exclude_defaults: bool = False,
+        exclude_none: bool = False,
+    ) -> "DictStrAny":
+        return super().dict(
+            include=include,
+            exclude=exclude,
+            by_alias=by_alias,
+            skip_defaults=skip_defaults,
+            exclude_unset=exclude_unset,
+            exclude_defaults=exclude_defaults,
+            exclude_none=exclude_none,
+        )
 
 
 class PuhuriResource(ZEncodedBaseModel, extra=Extra.allow):

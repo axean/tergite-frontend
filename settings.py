@@ -66,6 +66,9 @@ root_logger.setLevel(_logger_level)
 # PUHURI synchronization
 IS_PUHURI_SYNC_ENABLED = config("IS_PUHURI_SYNC_ENABLED", cast=bool, default=True)
 PUHURI_POLL_INTERVAL_MINS = config("PUHURI_POLL_INTERVAL_MINS", cast=float, default=15)
+MAX_PUHURI_SUBMISSION_ATTEMPTS = config(
+    "MAX_PUHURI_SUBMISSION_ATTEMPTS", cast=float, default=3
+)
 
 PUHURI_WALDUR_API_URI = config("PUHURI_WALDUR_API_URI", cast=str, default="")
 if IS_PUHURI_SYNC_ENABLED and not PUHURI_WALDUR_API_URI:

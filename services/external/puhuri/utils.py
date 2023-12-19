@@ -28,6 +28,7 @@ from .dtos import (
     PuhuriProviderOffering,
     PuhuriResource,
     PuhuriUsageReport,
+    ResourceUsagePost,
 )
 from .exc import ComponentNotFoundError, UsageSubmissionError
 
@@ -118,7 +119,18 @@ async def submit_usage_report(
     access_code: str = settings.PUHURI_WALDUR_CLIENT_TOKEN,
     provider_secret_code: str = settings.PUHURI_PROVIDER_SECRET_CODE,
 ):
-    """Submits usage report to Puhuri"""
+    """Submits usage report to Puhuri
+
+    Args:
+        customer_uuid: the customer's unique ID in puhuri
+        usage_report: the usage report to submit
+        api_url: the base URL of the Puhuri Waldur server
+        access_code: the API key or access code of the user being used to submit to puhuri
+        provider_secret_code: the secret code for the service provider associated with this app in puhuri
+
+    Raises:
+        UsageSubmissionError: response error ...
+    """
     url = f"{api_url}/marketplace-public-api/set_usage/"
     data = {
         "customer": customer_uuid,
@@ -130,6 +142,39 @@ async def submit_usage_report(
         async with session.post(url, data=data, headers=headers) as response:
             if not response.ok:
                 raise UsageSubmissionError(f"{response.json()}")
+
+
+async def resubmit_usage_report(
+    aiohttp_session: aiohttp.ClientSession,
+    previous_attempt: ResourceUsagePost,
+    provider_secret_code: str = settings.PUHURI_PROVIDER_SECRET_CODE,
+):
+    """Retries a failed usage report submission to Puhuri
+
+    Args:
+        aiohttp_session: the aiohttp.ClientSession to use to make the requests
+        previous_attempt: the previously failed submission attempt
+        provider_secret_code: the secret code for the provider
+    """
+    url = "/marketplace-public-api/set_usage/"
+    data = {
+        "customer": previous_attempt.customer_uuid,
+        "data": encode_data(
+            data=previous_attempt.payload.dict(), secret_code=provider_secret_code
+        ),
+    }
+    result = previous_attempt.copy()
+
+    async with aiohttp_session.post(url, data=data) as response:
+        if not response.ok:
+            result.is_success = False
+            failure_reason = _get_failure_message(response)
+            result.failure_reasons.append(failure_reason)
+
+    result.attempts += 1
+    result.is_success = True
+
+    return result
 
 
 async def get_project_resources(
@@ -206,3 +251,15 @@ async def get_default_component(
         raise ComponentNotFoundError(f"offering '{offering_uuid}' has no components")
 
     return offering.components[0]
+
+
+def _get_failure_message(response: aiohttp.ClientResponse):
+    """Extracts the failure message from the response
+
+    Args:
+        response: the aiohttp.ClientResponse to extract message from
+    """
+    try:
+        return f"{response.status}: {response.json()}"
+    except Exception:
+        return f"{response.status}: {response.content}"

@@ -63,3 +63,7 @@ PUHURI_PROVIDER_UUID=<the unique ID for the service provider associated with thi
 
 # the interval in minutes at which puhuri is polled. default is 15
 PUHURI_POLL_INTERVAL_MINS=<some value>
+
+# maximum number of times to POST requests of usage reports to puhuri attempted, if they are failing. default is 3
+# this means only upto 3 POST requests for a given usage report will be attempted.
+MAX_PUHURI_SUBMISSION_ATTEMPTS=3
