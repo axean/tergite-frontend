@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """Entry point for the users submodule of the auth module"""
 import re
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, Optional, Sequence, Tuple, Union
 
 from fastapi import APIRouter, Depends
 from fastapi_users import FastAPIUsers, models
@@ -35,12 +35,12 @@ from .manager import UserManager
 from .strategy import CustomJWTStrategy
 from .validators import EmailRegexValidator, Validator
 
-_AUTH_EMAIL_REGEX_MAP: Dict[str, Tuple[str, re.RegexFlag]] = {
-    client["name"]: (client.get("email_regex", ".*"), 0)
+_AUTH_EMAIL_REGEX_MAP: Dict[str, Tuple[str, Union[re.RegexFlag, int]]] = {
+    f"{client['name']}": (client.get("email_regex", ".*"), 0)
     for client in settings.OAUTH2_CLIENTS_CONFS
 }
 
-_AUTH_ROLES_MAP: Dict[str, List[str]] = {
+_AUTH_ROLES_MAP: Dict[str, Optional[Sequence[str]]] = {
     client["name"]: client.get("roles", None)
     for client in settings.OAUTH2_CLIENTS_CONFS
 }
