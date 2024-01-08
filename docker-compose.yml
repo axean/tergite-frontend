@@ -9,6 +9,10 @@ services:
       driver: ${LOGGING_DRIVER}
     ports:
       - "8030:80"
+    environment:
+      - AUTH_CONFIG_FILE=/app/auth_config.toml
+    volumes:
+      - ./auth_config.toml:/app/auth_config.toml:ro
     env_file:
       - .env
 
@@ -19,6 +23,10 @@ services:
       driver: ${LOGGING_DRIVER}
     ports:
       - "8002:80"
+    environment:
+      - AUTH_CONFIG_FILE=/code/auth_config.toml
+    volumes:
+      - ./auth_config.toml:/code/auth_config.toml:ro
     env_file:
       - .env
 
