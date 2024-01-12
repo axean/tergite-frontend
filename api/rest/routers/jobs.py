@@ -148,9 +148,10 @@ async def update_job(
 
             if settings.IS_PUHURI_SYNC_ENABLED and response:
                 project, qpu_seconds = response
-                await puhuri_service.send_resource_usage(
+                await puhuri_service.save_job_resource_usage(
                     db,
                     api_client=puhuri_client,
+                    job_id=str(job_id),
                     project_id=project.ext_id,
                     qpu_seconds=qpu_seconds,
                 )

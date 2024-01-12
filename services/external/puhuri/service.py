@@ -25,10 +25,11 @@ This client is useful to enable the following user stories
 import asyncio
 import logging
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Optional, Dict, Tuple, Any
 
 import aiohttp
 from apscheduler.schedulers.base import BaseScheduler
+from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo import ReplaceOne
 from pymongo.errors import BulkWriteError
@@ -41,15 +42,19 @@ from ...auth.projects.dtos import PROJECT_DB_COLLECTION
 from .dtos import (
     RESOURCE_USAGE_COLLECTION,
     PuhuriResource,
-    PuhuriUsageReport,
-    ResourceUsagePost,
+    JobResourceUsage,
+    PuhuriFailedRequest,
+    PuhuriComponent,
+    REQUEST_FAILURES_COLLECTION,
 )
 from .exc import ResourceNotFoundError
 from .utils import (
     get_default_component,
     get_project_resources,
-    resubmit_usage_report,
-    submit_usage_report,
+    approve_pending_orders,
+    get_accounting_component,
+    get_plan_periods,
+    send_component_usages,
 )
 
 # FIXME: To handle usage-based projects, we might need to add a flag like is_prepaid
@@ -141,40 +146,62 @@ def update_internal_resource_allocation(
     pass
 
 
-async def send_resource_usage(
+async def save_job_resource_usage(
     db: AsyncIOMotorDatabase,
     api_client: WaldurClient,
+    job_id: str,
     project_id: str,
     qpu_seconds: float,
     provider_uuid: str = settings.PUHURI_PROVIDER_UUID,
     db_collection: str = RESOURCE_USAGE_COLLECTION,
 ):
-    """Sends the given resource usage to puhuri
+    """Saves the given job resource usage
 
     This is usually called after resource usage is reported to MSS
-    by BCC. If it fails due to network errors, it is added to a list
-    of failed resource usage posts and resent later in the background.
+    by BCC.
+
+    It may be later sent to an external resource monitoring service.
 
     Args:
-        db: the mongodb client to the database where resource usage reports are stored
+        db: the mongodb client to the database where job resource usages are stored
         api_client: Puhuri Waldur client for accessing the Puhuri Waldur server API
+        job_id: the ID of the given job
         project_id: the id of the project whose usage is to be reported
         qpu_seconds: the qpu seconds used
         provider_uuid: the unique ID of the service provider associated with this app in puhuri
-        db_collection: the name of the collection where the resource usage reports are stored
+        db_collection: the name of the collection where the job resource usages are stored
 
     Raises:
         WaldurClientException: error making request
         pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
     """
-    resources = await get_project_resources(
-        api_client, provider_uuid=provider_uuid, project_uuid=project_id
+    await approve_pending_orders(
+        client=api_client,
+        provider_uuid=provider_uuid,
     )
+
+    resources = await get_project_resources(
+        api_client,
+        provider_uuid=provider_uuid,
+        project_uuid=project_id,
+    )
+
     if len(resources) == 0:
         raise ResourceNotFoundError(f"no resource found for project: {project_id}")
 
+    # the resource whose usage is to be updated
     selected_resource: Optional[PuhuriResource] = None
-    component_type: Optional[str] = None
+    # the accounting component to use when send resource usage.
+    # Note: project -> many resources -> each with an (accounting) plan
+    #           -> each with multiple (accounting) components
+    # Note: the limit-based resources have a dictionary of "limits" with keys as the "internal names" or
+    #   "types" of the components
+    #   and the values as the maximum amount for that component. This amount is in units of that component
+    #   e.g. 10 for one component, might mean 10 days, while for another it might mean 10 minutes depending
+    #   on the 'measurement_unit' of that component.
+    #   We will select the component whose limit (in seconds) >= the usage
+    selected_component: Optional[PuhuriComponent] = None
+
     usage_based_resources = []
     limit_based_resources = []
 
@@ -187,109 +214,130 @@ async def send_resource_usage(
     if len(limit_based_resources) == 0:
         selected_resource = resources[0]
 
-    for resource in limit_based_resources:
-        unit_value = resource.plan_unit.to_seconds()
-        limits_in_seconds = {k: v * unit_value for k, v in resource.limits.items()}
+    # a cache for components to avoid querying for same component
+    # more than once
+    components_cache: Dict[Tuple[str, str], PuhuriComponent] = {}
 
-        for key, limit in limits_in_seconds.items():
-            if limit >= qpu_seconds:
+    for resource in limit_based_resources:
+        # offering_uuid = resource.offering_uuid
+
+        for comp_type, comp_amount in resource.limits.items():
+            component = get_accounting_component(
+                client=api_client,
+                offering_uuid=resource.offering_uuid,
+                component_type=comp_type,
+                cache=components_cache,
+            )
+
+            unit_value = component.measured_unit.to_seconds()
+            limit_in_seconds = comp_amount * unit_value
+
+            # select resource which has at least one limit (or purchased QPU seconds)
+            # greater or equal to the seconds to be reported.
+            if limit_in_seconds >= qpu_seconds:
                 selected_resource = resource
-                component_type = key
+                selected_component = component
                 break
 
         if selected_resource is not None:
             break
 
+    # if there is no selected resource yet, get the first usage-based resource
+    #  and resort to the first limit-based resource only if there is no usage-based resource
     if selected_resource is None:
         try:
             selected_resource = usage_based_resources[0]
         except IndexError:
             selected_resource = limit_based_resources[0]
 
-    if component_type is None:
-        default_component = await get_default_component(
+    if selected_component is None:
+        selected_component = await get_default_component(
             api_client, offering_uuid=selected_resource.offering_uuid
         )
-        component_type = default_component.type
 
-    usage_report = PuhuriUsageReport(
-        resource=selected_resource.uuid,
-        date=datetime.utcnow().isoformat(),
-        plan_period=selected_resource.plan_uuid,
-        usages=[
-            ComponentUsage(
-                type=component_type,
-                amount=selected_resource.plan_unit.from_seconds(qpu_seconds),
-            )
-        ],
+    now = datetime.now(tz=timezone.utc)
+    month = now.month
+    year = now.year
+    plan_periods = await get_plan_periods(
+        client=api_client,
+        resource_uuid=selected_resource.uuid,
+        month_year=(month, year),
     )
+    # get the last plan period in the month, assuming that it is the latest
+    plan_period = plan_periods[-1]
 
-    try:
-        await submit_usage_report(
-            customer_uuid=selected_resource.customer_uuid, usage_report=usage_report
-        )
-    except Exception as exp:
-        logging.error(exp)
-        # FIXME: Save the usage report for another attempt later
-        timestamp = datetime.now(timezone.utc)
-        report_usage_post = ResourceUsagePost(
-            customer_uuid=selected_resource.customer_uuid,
-            payload=usage_report,
-            attempts=1,
-            failure_reasons=[f"{exp}"],
-            created_on=timestamp,
-            last_modified_on=timestamp,
-        )
-        await db[db_collection].insert_one(report_usage_post.dict(exclude={"id"}))
+    component_amount = selected_component.measured_unit.from_seconds(qpu_seconds)
+    job_resource_usage = JobResourceUsage(
+        job_id=job_id,
+        created_on=now,
+        month=month,
+        year=year,
+        plan_period_uuid=plan_period.uuid,
+        component_type=selected_component.type,
+        component_amount=component_amount,
+        qpu_seconds=qpu_seconds,
+    )
+    await db[db_collection].insert_one(job_resource_usage.dict())
 
 
-async def retry_failed_resource_usage_posts(
+async def post_resource_usages(
     api_uri: str = settings.PUHURI_WALDUR_API_URI,
     api_access_token: str = settings.PUHURI_WALDUR_CLIENT_TOKEN,
     db_url: str = f"{settings.DB_MACHINE_ROOT_URL}",
     db_name: str = settings.DB_NAME,
-    db_collection: str = RESOURCE_USAGE_COLLECTION,
-    max_attempts: int = settings.MAX_PUHURI_SUBMISSION_ATTEMPTS,
-    secret_code: str = settings.PUHURI_PROVIDER_SECRET_CODE,
+    usages_collection: str = RESOURCE_USAGE_COLLECTION,
+    failures_collection: str = REQUEST_FAILURES_COLLECTION,
 ):
-    """Tries to resend resource usage that failed to be sent
+    """Sends the resource usages for the current month over to Puhuri
 
-    This is usually run in the background if puhuri synchronization is enabled via the
-    `IS_PUHURI_SYNC_ENABLED` environment flag.
-    Everytime a resource usage post is retried, its number of attempts is
-    incremented, for audit purposes.
+    Remember that Puhuri expects only one usage report per resource per month
+    Thus we need to aggregate the JobResourceUsage's first
 
     Args:
         api_uri: the URI to the Puhuri Waldur server API
         api_access_token: the access token to be used to access the Waldur server API
-        db_url: the mongodb URI to the database where resource usage reports are stored
-        db_name: the name of the database where the resource usage reports are stored
-        db_collection: the name of the collection where the resource usage reports are stored
-        max_attempts: the maximum number of times a given failed post should be tried
-        secret_code: the secret code for the service provider associated with this app in puhuri
-
+        db_url: the mongodb URI to the database where resource usages are stored
+        db_name: the name of the database where the resource usages are stored
+        usages_collection: the name of the collection where the job resource usages are stored
+        failures_collection: the name of the collection where the failed puhuri requests are stored
     """
+    now = datetime.now(tz=timezone.utc)
     db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
-    posts_collection = db[db_collection]
-    filter_obj = {"is_success": False, "attempts": {"$lt": max_attempts}}
-    headers = {"Authorization": f"Token {api_access_token}"}
-    async with aiohttp.ClientSession(base_url=api_uri, headers=headers) as session:
-        tasks = [
-            resubmit_usage_report(session, item, secret_code)
-            async for item in posts_collection.find(filter_obj)
-        ]
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+    client = WaldurClient(api_url=api_uri, access_token=api_access_token)
+    pipeline = {
+        "$match": {"month": now.month, "year": now.year},
+        "$group": {
+            "_id": {
+                "plan_period_uuid": "$plan_period_uuid",
+                "component_type": "$component_type",
+            },
+            "amount": {"$sum": "$component_amount"},
+            "qpu_seconds": {"$sum": "$qpu_seconds"},
+        },
+    }
 
-    db_operations = [
-        ReplaceOne({"_id": item.id}, item.dict())
-        for item in results
-        if isinstance(item, ResourceUsagePost)
+    db_cursor = db[usages_collection].aggregate(pipeline)
+    tasks = (
+        send_component_usages(
+            client,
+            plan_period_uuid=item["_id"]["plan_period_uuid"],
+            usages=[
+                ComponentUsage(
+                    type=item["_id"]["component_type"],
+                    amount=item["amount"],
+                    description=f"{item['qpu_seconds']} QPU seconds",
+                )
+            ],
+        )
+        async for item in db_cursor
+    )
+    results = await asyncio.gather(tasks, return_exceptions=True)
+
+    # save any errors
+    failures = [
+        item.dict() for item in results if isinstance(item, PuhuriFailedRequest)
     ]
-
-    try:
-        await posts_collection.bulk_write(db_operations, ordered=False)
-    except BulkWriteError as exp:
-        logging.error(exp)
+    await db[failures_collection].insert_many(failures)
 
 
 def register_background_tasks(
@@ -302,6 +350,12 @@ def register_background_tasks(
         scheduler: the scheduler to run the tasks in the background
         poll_interval_mins: the interval at which puhuri is to be polled in minutes. default is 15
     """
+    scheduler.add_job(
+        approve_pending_orders,
+        "interval",
+        minutes=poll_interval_mins,
+    )
+
     scheduler.add_job(
         update_internal_project_list,
         "interval",
@@ -321,7 +375,18 @@ def register_background_tasks(
     )
 
     scheduler.add_job(
-        retry_failed_resource_usage_posts,
+        post_resource_usages,
         "interval",
         minutes=poll_interval_mins,
+    )
+
+
+async def on_startup(db: AsyncIOMotorDatabase):
+    """Runs init operations when the application is starting up"""
+    await init_beanie(
+        database=db,
+        document_models=[
+            PuhuriFailedRequest,
+            JobResourceUsage,
+        ],
     )

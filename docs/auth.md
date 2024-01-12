@@ -152,3 +152,9 @@ The Puhuri Entity Layout
 ### Flows
 
 ![Selecting resource to report on](./assets/puhuri-resource-usage-reporting-flow.png)
+
+### Assumptions
+
+- When creating components in the puhuri UI, the 'measurement unit's
+  set on the component are of the following possible values:
+  'second', 'hour', 'minute', 'day', 'week', 'half_month', and 'month'.

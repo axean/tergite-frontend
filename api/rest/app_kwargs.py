@@ -58,6 +58,7 @@ async def lifespan(_app: FastAPI):
     await device_info_service.on_startup()
     db = await get_default_mongodb()
     await auth_service.on_startup(db)
+    await puhuri.on_startup(db)
 
     # background tasks
     scheduler = background_tasks.get_scheduler()

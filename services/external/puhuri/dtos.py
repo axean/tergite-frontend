@@ -11,12 +11,13 @@
 # that they have been altered from the originals.
 """Data Transfer objects for the puhuri external service"""
 import enum
-import math
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Union
 
-from beanie import PydanticObjectId
-from pydantic import BaseModel, Extra, Field
+import pymongo
+from beanie import Document
+from pydantic import BaseModel, Extra
+from pymongo import IndexModel
 from waldur_client import ComponentUsage
 
 from utils.models import ZEncodedBaseModel
@@ -27,42 +28,17 @@ if TYPE_CHECKING:
     AbstractSetIntStr = AbstractSet[IntStr]
     MappingIntStrAny = Mapping[IntStr, Any]
 
-RESOURCE_USAGE_COLLECTION = "resource_usage_reports"
+RESOURCE_USAGE_COLLECTION = "job_resource_usages"
+REQUEST_FAILURES_COLLECTION = "puhuri_failed_requests"
 
 
-class ResourceUsagePost(ZEncodedBaseModel):
-    id: Optional[PydanticObjectId] = Field(
-        None,
-        alias="_id",
-    )
-    customer_uuid: str
-    payload: "PuhuriUsageReport"
-    attempts: int = 1
-    is_success: bool = False
-    failure_reasons: List[str] = []
+class PuhuriFailedRequest(ZEncodedBaseModel, Document, extra=Extra.allow):
+    """Schema for requests that fail when made to Puhuri"""
+
+    reason: str
+    method: str
+    payload: Optional[Dict]
     created_on: datetime
-    last_modified_on: datetime
-
-    def dict(
-        self,
-        *,
-        include: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
-        exclude: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
-        by_alias: bool = True,  # default this to True
-        skip_defaults: Optional[bool] = None,
-        exclude_unset: bool = False,
-        exclude_defaults: bool = False,
-        exclude_none: bool = False,
-    ) -> "DictStrAny":
-        return super().dict(
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            skip_defaults=skip_defaults,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-        )
 
 
 class PuhuriResource(ZEncodedBaseModel, extra=Extra.allow):
@@ -73,7 +49,7 @@ class PuhuriResource(ZEncodedBaseModel, extra=Extra.allow):
     customer_uuid: str
     offering_uuid: str
     plan_uuid: str
-    plan_unit: "PuhuriPlanUnit"  # month, hour, day, half_month
+    plan_unit: str  # month, hour, day, half_month
     state: str  # Creating, ...
     is_usage_based: bool  # Here, billing is done after usage...i.e. post paid as opposed to pre-payment o
     # or pre-allocation...which QAL9000 expects
@@ -117,16 +93,43 @@ class PuhuriProviderOffering(ZEncodedBaseModel, extra=Extra.allow):
 
     uuid: str
     name: str
-    customer_uuid: str  # the uuid of the service provider who owns it
     plans: List["PuhuriPlan"]
-    components: List["PuhuriComponent"]  # PuhuriComponent.type is a usage type
+    components: List["PuhuriComponent"]
 
 
-class PuhuriUsageReport(BaseModel, extra=Extra.allow):
-    resource: str  # uuid of resource
-    date: str  # datetime in iso format
-    plan_period: str  # uuid of plan
-    usages: List[ComponentUsage]  # get ComponentUsage.type from PuhuriComponent.type
+class JobResourceUsage(BaseModel, Document):
+    job_id: str
+    created_on: datetime
+    qpu_seconds: float
+    month: int
+    year: int
+    plan_period_uuid: str
+    component_type: str
+    component_amount: float
+
+    class Settings:
+        name = RESOURCE_USAGE_COLLECTION
+        indexes = [
+            IndexModel(
+                [
+                    ("plan_period_uuid", pymongo.ASCENDING),
+                    ("component_type", pymongo.ASCENDING),
+                    ("year", pymongo.DESCENDING),
+                    ("month", pymongo.DESCENDING),
+                ],
+            ),
+        ]
+
+    @property
+    def component_usage(self) -> ComponentUsage:
+        """The Waldur/Puhuri component usage for job resource usage instance"""
+        return ComponentUsage(
+            type=self.component_type,
+            # ComponentUsage has 'amount' as int right now, yet the API expects a
+            # float of 2 decimal places. Ignore squiggly line
+            amount=self.component_amount,
+            description=f"{self.qpu_seconds} QPU seconds",
+        )
 
 
 class PuhuriPlanType(str, enum.Enum):
@@ -134,21 +137,46 @@ class PuhuriPlanType(str, enum.Enum):
     LIMIT_BASED = "limit-based"
 
 
-class PuhuriPlanUnit(str, enum.Enum):
+class PuhuriComponentUnit(str, enum.Enum):
+    # FIXME: We are making a big assumption that when creating components in the puhuri UI, the 'measurement unit's
+    #   set on the component are of the following possible values:
+    #   'second', 'hour', 'minute', 'day', 'week', 'half_month', and 'month'.
     MONTH = "month"
-    HOUR = "hour"
-    DAY = "day"
     HALF_MONTH = "half_month"
+    WEEK = "week"
+    DAY = "day"
+    HOUR = "hour"
+    MINUTE = "minute"
+    SECOND = "second"
 
     def to_seconds(self):
-        """Plan unit in terms of seconds"""
-        return _PLAN_UNIT_SECONDS_MAP[self]
+        """component unit in terms of seconds"""
+        return _COMPONENT_UNIT_SECONDS_MAP[self]
 
-    def from_seconds(self, amount: float) -> int:
-        """Get amount from seconds into this given unit"""
-        # FIXME: experiments may be quick so if the plan unit is huge,
-        #   the customers will get cheated big.
-        return math.ceil(amount / _PLAN_UNIT_SECONDS_MAP[self])
+    def from_seconds(self, amount: float) -> float:
+        """Get amount from seconds into this given unit, to 2 decimal places
+
+        Args:
+            amount: the amount in seconds
+
+        Returns:
+            the amount in the current units
+        """
+        # NOTE: Note The behavior of round() for floats can be surprising: for example, round(2.675, 2) gives 2.67
+        #  instead of the expected 2.68. This is not a bug: it’s a result of the fact that most decimal fractions
+        #  can’t be represented exactly as a float.
+        # See: https://docs.python.org/2/library/functions.html#round
+        # For our case, small rounding errors are not so critical.
+        return round(amount / _COMPONENT_UNIT_SECONDS_MAP[self], 2)
+
+
+class PuhuriComponent(ZEncodedBaseModel, extra=Extra.allow):
+    """The schema for accounting components"""
+
+    uuid: str
+    type: str
+    name: str
+    measured_unit: PuhuriComponentUnit
 
 
 class PuhuriPlan(ZEncodedBaseModel, extra=Extra.allow):
@@ -158,21 +186,44 @@ class PuhuriPlan(ZEncodedBaseModel, extra=Extra.allow):
     name: str
     plan_type: PuhuriPlanType
     is_active: bool
-    unit: PuhuriPlanUnit
+    unit: str
     unit_price: str  # float-like str
 
 
-class PuhuriComponent(ZEncodedBaseModel, extra=Extra.allow):
-    """The schema for Puhuri Components"""
+class PuhuriPlanPeriod(ZEncodedBaseModel, extra=Extra.allow):
+    """The schema for the plan periods of resources in Puhuri
+
+    Every resource that is in state "OK", has at least one
+    plan period.
+
+    FIXME: I am not sure yet, however, how plan periods map
+      to resources.
+    """
 
     uuid: str
+    plan_name: str
+    start: datetime
+    end: Optional[datetime]
+    components: List["PuhuriComponentUsage"] = []
+
+
+class PuhuriComponentUsage(ZEncodedBaseModel, extra=Extra.allow):
+    """The schema for the component usage as stored within puhuri"""
+
+    uuid: str
+    description: str
     type: str
     name: str
+    measured_unit: PuhuriComponentUnit
+    usage: float
 
 
-_PLAN_UNIT_SECONDS_MAP: Dict[PuhuriPlanUnit, int] = {
-    PuhuriPlanUnit.MONTH: 30 * 24 * 3600,
-    PuhuriPlanUnit.HOUR: 3600,
-    PuhuriPlanUnit.DAY: 24 * 3600,
-    PuhuriPlanUnit.HALF_MONTH: 15 * 24 * 3600,
+_COMPONENT_UNIT_SECONDS_MAP: Dict[PuhuriComponentUnit, int] = {
+    PuhuriComponentUnit.MONTH: 30 * 24 * 3_600,
+    PuhuriComponentUnit.HALF_MONTH: 15 * 24 * 3_600,
+    PuhuriComponentUnit.WEEK: 7 * 24 * 3_600,
+    PuhuriComponentUnit.DAY: 24 * 3600,
+    PuhuriComponentUnit.HOUR: 3_600,
+    PuhuriComponentUnit.MINUTE: 60,
+    PuhuriComponentUnit.SECOND: 1,
 }

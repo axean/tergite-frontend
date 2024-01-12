@@ -21,5 +21,9 @@ class ComponentNotFoundError(BaseMssException):
     """Exception raised when a component is not found"""
 
 
+class PlanPeriodNotFoundError(BaseMssException):
+    """Exception raised when a plan period is not found"""
+
+
 class UsageSubmissionError(BaseMssException):
     """Exception raised when usage submission fails"""

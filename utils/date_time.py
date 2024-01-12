@@ -13,6 +13,7 @@
 
 
 from datetime import datetime, timezone
+from typing import Optional, Tuple
 
 from fastapi import HTTPException
 
@@ -34,6 +35,38 @@ def parse_datetime_string(datetime_str: str) -> datetime:
         raise HTTPException(
             status_code=400, detail=f'"{datetime_str}" is not a valid date.'
         )
+
+
+def to_datetime(timestamp: str) -> datetime:
+    """converts a timestamp of format like 2024-01-10T14:32:05.880079Z to datetime
+
+    Args:
+        timestamp: the timestamp string
+
+    Returns:
+        the datetime corresponding to the given timestamp string
+    """
+    return datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+
+
+def is_in_month(
+    month_year: Tuple[int, int],
+    timestamp: str,
+) -> bool:
+    """Checks if the given timestamp is in the given month
+
+    Note that months start at 1 i.e. January = 1, February = 2, ...
+
+    Args:
+        month_year: the (month, year) pair
+        timestamp: the timestamp string in format like 2024-01-10T14:32:05.880079Z
+
+    Returns:
+        True if the timestamp belongs to the same month, False if otherwise
+    """
+    timestamp_date = to_datetime(timestamp)
+    month, year = month_year
+    return timestamp_date.month == month and timestamp_date.year == year
 
 
 def datetime_to_zulu(d: datetime) -> str:

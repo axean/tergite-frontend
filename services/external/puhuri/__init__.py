@@ -11,11 +11,12 @@
 # that they have been altered from the originals.
 """Entry point for the puhuri external service"""
 
-from .service import register_background_tasks, send_resource_usage
+from .service import register_background_tasks, save_job_resource_usage, on_startup
 from .utils import get_client
 
 __all__ = [
     get_client,
-    send_resource_usage,
+    save_job_resource_usage,
     register_background_tasks,
+    on_startup,
 ]

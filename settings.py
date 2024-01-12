@@ -82,14 +82,6 @@ if IS_PUHURI_SYNC_ENABLED and not PUHURI_WALDUR_CLIENT_TOKEN:
         "'PUHURI_WALDUR_CLIENT_TOKEN' environment variable must be set if 'IS_PUHURI_SYNC_ENABLED' is True."
     )
 
-PUHURI_PROVIDER_SECRET_CODE = config(
-    "PUHURI_PROVIDER_SECRET_CODE", cast=str, default=""
-)
-if IS_PUHURI_SYNC_ENABLED and not PUHURI_PROVIDER_SECRET_CODE:
-    raise ValueError(
-        "'PUHURI_PROVIDER_SECRET_CODE' environment variable must be set if 'IS_PUHURI_SYNC_ENABLED' is True."
-    )
-
 PUHURI_PROVIDER_UUID = config("PUHURI_PROVIDER_UUID", cast=str, default="")
 if IS_PUHURI_SYNC_ENABLED and not PUHURI_PROVIDER_UUID:
     raise ValueError(
