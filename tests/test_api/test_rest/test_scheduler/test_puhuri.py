@@ -1,9 +1,37 @@
 """Integration tests for the Puhuri background jobs"""
+import asyncio
+
+import pytest
+
+from tests._utils.env import (
+    TEST_PUHURI_POLL_INTERVAL,
+    TEST_PUHURI_WALDUR_API_URI,
+    TEST_PUHURI_WALDUR_CLIENT_TOKEN,
+)
+from tests._utils.fixtures import load_json_fixture
+from tests._utils.waldur import MockWaldurClient
+
+_PUHURI_PENDING_ORDERS = load_json_fixture("puhuri_pending_orders.json")
 
 
-def test_approve_pending_orders():
+@pytest.mark.asyncio
+async def test_approve_pending_orders(puhuri_client, client):
     """Should approve pending orders associated with current service provider, at given interval"""
-    assert False
+    mock_waldur_client = MockWaldurClient(
+        api_url=TEST_PUHURI_WALDUR_API_URI,
+        access_token=TEST_PUHURI_WALDUR_CLIENT_TOKEN,
+    )
+    assert mock_waldur_client.list_orders() == _PUHURI_PENDING_ORDERS
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        # wait for the scheduler to run its jobs
+        await asyncio.sleep(TEST_PUHURI_POLL_INTERVAL)
+
+        got = mock_waldur_client.list_orders()
+        expected = [{**item, "state": "done"} for item in _PUHURI_PENDING_ORDERS]
+
+        assert got == expected
 
 
 def test_post_resource_usages():

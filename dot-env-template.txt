@@ -57,8 +57,8 @@ PUHURI_WALDUR_CLIENT_TOKEN=<API token for a puhuri user who has 'service provide
 # Please contact the Puhuri team on how to get this from the UI
 PUHURI_PROVIDER_UUID=<the unique ID for the service provider associated with this app in Puhuri>
 
-# the interval in minutes at which puhuri is polled. default is 15
-PUHURI_POLL_INTERVAL_MINS=<some value>
+# the interval in seconds at which puhuri is polled. default is 900 (15 minutes)
+PUHURI_POLL_INTERVAL=<some value>
 
 # maximum number of times to POST requests of usage reports to puhuri attempted, if they are failing. default is 3
 # this means only upto 3 POST requests for a given usage report will be attempted.

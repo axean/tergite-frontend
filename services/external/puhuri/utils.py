@@ -124,13 +124,12 @@ async def approve_pending_orders(
         )
 
     loop = asyncio.get_event_loop()
-
-    filter_obj = {"state": "executing", "provider_uuid": provider_uuid}
+    filter_obj = {"state": "pending-provider", "provider_uuid": provider_uuid}
     order_items = await loop.run_in_executor(None, client.list_orders, filter_obj)
     await asyncio.gather(
         (
             loop.run_in_executor(
-                None, client.marketplace_order_set_state_done, order["uuid"]
+                None, client.marketplace_order_approve_by_provider, order["uuid"]
             )
             for order in order_items
         ),

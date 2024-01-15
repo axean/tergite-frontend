@@ -342,42 +342,42 @@ async def post_resource_usages(
 
 def register_background_tasks(
     scheduler: BaseScheduler,
-    poll_interval_mins: float = settings.PUHURI_POLL_INTERVAL_MINS,
+    poll_interval: float = settings.PUHURI_POLL_INTERVAL,
 ):
     """Registers the background tasks for the puhuri service on the given scheduler
 
     Args:
         scheduler: the scheduler to run the tasks in the background
-        poll_interval_mins: the interval at which puhuri is to be polled in minutes. default is 15
+        poll_interval: the interval at which puhuri is to be polled in seconds. default is 900 (15 minutes)
     """
     scheduler.add_job(
         approve_pending_orders,
         "interval",
-        minutes=poll_interval_mins,
+        seconds=poll_interval,
     )
 
     scheduler.add_job(
         update_internal_project_list,
         "interval",
-        minutes=poll_interval_mins,
+        seconds=poll_interval,
     )
 
     scheduler.add_job(
         update_internal_user_list,
         "interval",
-        minutes=poll_interval_mins,
+        seconds=poll_interval,
     )
 
     scheduler.add_job(
         update_internal_resource_allocation,
         "interval",
-        minutes=poll_interval_mins,
+        seconds=poll_interval,
     )
 
     scheduler.add_job(
         post_resource_usages,
         "interval",
-        minutes=poll_interval_mins,
+        seconds=poll_interval,
     )
 
 

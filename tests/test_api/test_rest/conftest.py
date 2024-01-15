@@ -1,3 +1,5 @@
+import respx
+
 from tests._utils.env import (
     TEST_AUTH_CONFIG_FILE,
     TEST_BCC_URL,
@@ -9,6 +11,7 @@ from tests._utils.env import (
     TEST_PUHURI_CONFIG_ENDPOINT,
     setup_test_env,
 )
+from tests._utils.modules import remove_modules
 
 # Set up the test environment before any other imports are made
 setup_test_env()
@@ -52,11 +55,21 @@ from tests._utils.auth import (
     insert_if_not_exist,
 )
 from tests._utils.fixtures import load_json_fixture
+from tests._utils.waldur import MockWaldurClient
 
 _PUHURI_OPENID_CONFIG = load_json_fixture("puhuri_openid_config.json")
 PROJECT_LIST = load_json_fixture("project_list.json")
 APP_TOKEN_LIST = load_json_fixture("app_token_list.json")
 TEST_NEXT_COOKIE_URL = "https://testserver/"
+
+
+@pytest.fixture
+def puhuri_client(mocker):
+    """A mock Waldur client to handle calls to Puhuri"""
+    remove_modules(["waldur_client"])
+
+    mocker.patch("waldur_client.WaldurClient", return_value=MockWaldurClient)
+    yield mocker
 
 
 @pytest.fixture
@@ -152,7 +165,7 @@ def no_puhuri_client(db) -> TestClient:
     yield TestClient(app)
 
     # reset
-    environ["IS_PUHURI_SYNC_ENABLED"] = TEST_IS_PUHURI_SYNC_ENABLED
+    environ["IS_PUHURI_SYNC_ENABLED"] = f"{TEST_IS_PUHURI_SYNC_ENABLED}"
     importlib.reload(settings)
 
 
