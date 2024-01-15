@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from functools import lru_cache
 from typing import Dict, List, Optional, Tuple
 
-from waldur_client import WaldurClient, ComponentUsage
+from waldur_client import ComponentUsage, WaldurClient
 
 import settings
 from utils.date_time import is_in_month
@@ -25,11 +25,11 @@ from utils.date_time import is_in_month
 from .dtos import (
     OrderItem,
     PuhuriComponent,
+    PuhuriFailedRequest,
     PuhuriOrder,
+    PuhuriPlanPeriod,
     PuhuriProviderOffering,
     PuhuriResource,
-    PuhuriPlanPeriod,
-    PuhuriFailedRequest,
 )
 from .exc import ComponentNotFoundError, PlanPeriodNotFoundError
 

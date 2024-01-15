@@ -61,11 +61,12 @@ async def lifespan(_app: FastAPI):
     await puhuri.on_startup(db)
 
     # background tasks
-    scheduler = background_tasks.get_scheduler()
-    puhuri.register_background_tasks(scheduler)
-    scheduler.start()
+    if settings.IS_PUHURI_SYNC_ENABLED:
+        scheduler = background_tasks.get_scheduler()
+        puhuri.register_background_tasks(scheduler)
+        scheduler.start()
 
     yield
     # on shutdown
     await bcc.close_client()
-    scheduler.shutdown()
+    background_tasks.stop_scheduler()

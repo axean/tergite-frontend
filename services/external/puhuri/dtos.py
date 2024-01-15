@@ -97,7 +97,7 @@ class PuhuriProviderOffering(ZEncodedBaseModel, extra=Extra.allow):
     components: List["PuhuriComponent"]
 
 
-class JobResourceUsage(BaseModel, Document):
+class JobResourceUsage(Document):
     job_id: str
     created_on: datetime
     qpu_seconds: float
@@ -196,8 +196,7 @@ class PuhuriPlanPeriod(ZEncodedBaseModel, extra=Extra.allow):
     Every resource that is in state "OK", has at least one
     plan period.
 
-    FIXME: I am not sure yet, however, how plan periods map
-      to resources.
+    There is one plan period per month for each resource.
     """
 
     uuid: str

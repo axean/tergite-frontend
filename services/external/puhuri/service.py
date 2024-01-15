@@ -25,7 +25,7 @@ This client is useful to enable the following user stories
 import asyncio
 import logging
 from datetime import datetime, timezone
-from typing import Optional, Dict, Tuple, Any
+from typing import Any, Dict, Optional, Tuple
 
 import aiohttp
 from apscheduler.schedulers.base import BaseScheduler
@@ -40,20 +40,20 @@ from utils.mongodb import get_mongodb
 
 from ...auth.projects.dtos import PROJECT_DB_COLLECTION
 from .dtos import (
-    RESOURCE_USAGE_COLLECTION,
-    PuhuriResource,
-    JobResourceUsage,
-    PuhuriFailedRequest,
-    PuhuriComponent,
     REQUEST_FAILURES_COLLECTION,
+    RESOURCE_USAGE_COLLECTION,
+    JobResourceUsage,
+    PuhuriComponent,
+    PuhuriFailedRequest,
+    PuhuriResource,
 )
 from .exc import ResourceNotFoundError
 from .utils import (
-    get_default_component,
-    get_project_resources,
     approve_pending_orders,
     get_accounting_component,
+    get_default_component,
     get_plan_periods,
+    get_project_resources,
     send_component_usages,
 )
 

@@ -10,8 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Utilities for running background tasks"""
+from typing import Optional
 
 from apscheduler.jobstores.mongodb import MongoDBJobStore
+from apscheduler.schedulers import SchedulerNotRunningError
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from pytz import utc
 
@@ -19,17 +21,36 @@ import settings
 
 _SCHEDULER_DB = "scheduler"
 _SCHEDULER_COLLECTION = "jobs"
+_SCHEDULER: Optional[AsyncIOScheduler] = None
 
 
 def get_scheduler() -> AsyncIOScheduler:
     """Get the background jobs' scheduler."""
-    return AsyncIOScheduler(
-        jobstores={
-            "default": MongoDBJobStore(
-                database=_SCHEDULER_DB,
-                collection=_SCHEDULER_COLLECTION,
-                host=f"{settings.DB_MACHINE_ROOT_URL}",
-            )
-        },
-        timezone=utc,
-    )
+    global _SCHEDULER
+
+    if _SCHEDULER is None:
+        _SCHEDULER = AsyncIOScheduler(
+            jobstores={
+                "default": MongoDBJobStore(
+                    database=_SCHEDULER_DB,
+                    collection=_SCHEDULER_COLLECTION,
+                    host=f"{settings.DB_MACHINE_ROOT_URL}",
+                )
+            },
+            timezone=utc,
+        )
+
+    return _SCHEDULER
+
+
+def stop_scheduler():
+    """Shutdown the scheduler that is running"""
+    global _SCHEDULER
+
+    if _SCHEDULER is not None:
+        try:
+            _SCHEDULER.shutdown()
+        except SchedulerNotRunningError:
+            pass
+
+        _SCHEDULER = None

@@ -2,6 +2,7 @@ from tests._utils.env import (
     TEST_AUTH_CONFIG_FILE,
     TEST_BCC_URL,
     TEST_DB_NAME,
+    TEST_IS_PUHURI_SYNC_ENABLED,
     TEST_JWT_SECRET,
     TEST_MONGODB_URL,
     TEST_NO_AUTH_CONFIG_FILE,
@@ -138,6 +139,20 @@ def no_auth_client(db) -> TestClient:
 
     # reset
     environ["AUTH_CONFIG_FILE"] = TEST_AUTH_CONFIG_FILE
+    importlib.reload(settings)
+
+
+@pytest.fixture
+def no_puhuri_client(db) -> TestClient:
+    """A test client for fast api without puhuri sync"""
+    environ["IS_PUHURI_SYNC_ENABLED"] = "False"
+    importlib.reload(settings)
+    from api.rest import app
+
+    yield TestClient(app)
+
+    # reset
+    environ["IS_PUHURI_SYNC_ENABLED"] = TEST_IS_PUHURI_SYNC_ENABLED
     importlib.reload(settings)
 
 
