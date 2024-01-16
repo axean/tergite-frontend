@@ -190,6 +190,17 @@ class PuhuriPlan(ZEncodedBaseModel, extra=Extra.allow):
     unit_price: str  # float-like str
 
 
+class PuhuriComponentUsage(ZEncodedBaseModel, extra=Extra.allow):
+    """The schema for the component usage as stored within puhuri"""
+
+    uuid: str
+    description: str
+    type: str
+    name: str
+    measured_unit: PuhuriComponentUnit
+    usage: float
+
+
 class PuhuriPlanPeriod(ZEncodedBaseModel, extra=Extra.allow):
     """The schema for the plan periods of resources in Puhuri
 
@@ -203,18 +214,7 @@ class PuhuriPlanPeriod(ZEncodedBaseModel, extra=Extra.allow):
     plan_name: str
     start: datetime
     end: Optional[datetime]
-    components: List["PuhuriComponentUsage"] = []
-
-
-class PuhuriComponentUsage(ZEncodedBaseModel, extra=Extra.allow):
-    """The schema for the component usage as stored within puhuri"""
-
-    uuid: str
-    description: str
-    type: str
-    name: str
-    measured_unit: PuhuriComponentUnit
-    usage: float
+    components: List[PuhuriComponentUsage] = []
 
 
 _COMPONENT_UNIT_SECONDS_MAP: Dict[PuhuriComponentUnit, int] = {

@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import respx
 
 from tests._utils.env import (
@@ -31,6 +33,7 @@ from fastapi_users.router.oauth import generate_state_token
 from httpx_oauth.clients import github, microsoft
 
 import settings
+from tests._utils import waldur
 from tests._utils.auth import (
     INVALID_CHALMERS_PROFILE,
     INVALID_GITHUB_PROFILE,
@@ -55,7 +58,6 @@ from tests._utils.auth import (
     insert_if_not_exist,
 )
 from tests._utils.fixtures import load_json_fixture
-from tests._utils.waldur import MockWaldurClient
 
 _PUHURI_OPENID_CONFIG = load_json_fixture("puhuri_openid_config.json")
 PROJECT_LIST = load_json_fixture("project_list.json")
@@ -64,25 +66,22 @@ TEST_NEXT_COOKIE_URL = "https://testserver/"
 
 
 @pytest.fixture
-def puhuri_client(mocker):
-    """A mock Waldur client to handle calls to Puhuri"""
+def mock_puhuri(respx_mock):
+    """Mock of the puhuri openid config url"""
     remove_modules(["waldur_client"])
 
-    mocker.patch("waldur_client.WaldurClient", return_value=MockWaldurClient)
-    yield mocker
+    with patch("waldur_client.WaldurClient", side_effect=waldur.get_mock_client):
+        respx_mock.get(TEST_PUHURI_CONFIG_ENDPOINT).mock(
+            return_value=httpx.Response(status_code=200, json=_PUHURI_OPENID_CONFIG)
+        )
+        yield respx_mock
+
+    # clean up
+    waldur.clear_mock_clients()
 
 
 @pytest.fixture
-def mock_puhuri_openid(respx_mock):
-    """Mock of the puhuri openid config url"""
-    respx_mock.get(TEST_PUHURI_CONFIG_ENDPOINT).mock(
-        return_value=httpx.Response(status_code=200, json=_PUHURI_OPENID_CONFIG)
-    )
-    yield respx_mock
-
-
-@pytest.fixture
-def db(mock_puhuri_openid) -> pymongo.database.Database:
+def db(mock_puhuri) -> pymongo.database.Database:
     """The mongo db instance for testing"""
     mongo_client = pymongo.MongoClient(TEST_MONGODB_URL)
     database = mongo_client[TEST_DB_NAME]
