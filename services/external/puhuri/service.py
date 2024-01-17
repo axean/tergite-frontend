@@ -23,19 +23,16 @@ This client is useful to enable the following user stories
     resource usage at a given interval or the moment an experiment is done
 """
 import asyncio
-import logging
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
-import aiohttp
 from apscheduler.schedulers.base import BaseScheduler
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from pymongo import ReplaceOne
-from pymongo.errors import BulkWriteError
 from waldur_client import ComponentUsage, WaldurClient
 
 import settings
+from utils.logging import err_logger
 from utils.mongodb import get_mongodb
 
 from ...auth.projects.dtos import PROJECT_DB_COLLECTION
@@ -91,7 +88,13 @@ def update_internal_project_list(
         WaldurClientException: error making request
         pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
     """
-    pass
+    try:
+        pass
+    except Exception as exp:
+        err_logger.error(
+            f"error update_internal_project_list: {exp.__class__.__name__}: {exp}"
+        )
+        raise exp
 
 
 def update_internal_user_list(
@@ -117,7 +120,13 @@ def update_internal_user_list(
         WaldurClientException: error making request
         pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
     """
-    pass
+    try:
+        pass
+    except Exception as exp:
+        err_logger.error(
+            f"error update_internal_user_list: {exp.__class__.__name__}: {exp}"
+        )
+        raise exp
 
 
 def update_internal_resource_allocation(
@@ -143,7 +152,13 @@ def update_internal_resource_allocation(
         WaldurClientException: error making request
         pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
     """
-    pass
+    try:
+        pass
+    except Exception as exp:
+        err_logger.error(
+            f"error update_internal_resource_allocation: {exp.__class__.__name__}: {exp}"
+        )
+        raise exp
 
 
 async def save_job_resource_usage(
@@ -301,43 +316,51 @@ async def post_resource_usages(
         usages_collection: the name of the collection where the job resource usages are stored
         failures_collection: the name of the collection where the failed puhuri requests are stored
     """
-    now = datetime.now(tz=timezone.utc)
-    db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
-    client = WaldurClient(api_url=api_uri, access_token=api_access_token)
-    pipeline = {
-        "$match": {"month": now.month, "year": now.year},
-        "$group": {
-            "_id": {
-                "plan_period_uuid": "$plan_period_uuid",
-                "component_type": "$component_type",
+    try:
+        now = datetime.now(tz=timezone.utc)
+        db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
+        client = WaldurClient(api_url=api_uri, access_token=api_access_token)
+        pipeline = [
+            {"$match": {"month": now.month, "year": now.year}},
+            {
+                "$group": {
+                    "_id": {
+                        "plan_period_uuid": "$plan_period_uuid",
+                        "component_type": "$component_type",
+                    },
+                    "amount": {"$sum": "$component_amount"},
+                    "qpu_seconds": {"$sum": "$qpu_seconds"},
+                },
             },
-            "amount": {"$sum": "$component_amount"},
-            "qpu_seconds": {"$sum": "$qpu_seconds"},
-        },
-    }
+        ]
 
-    db_cursor = db[usages_collection].aggregate(pipeline)
-    tasks = (
-        send_component_usages(
-            client,
-            plan_period_uuid=item["_id"]["plan_period_uuid"],
-            usages=[
-                ComponentUsage(
-                    type=item["_id"]["component_type"],
-                    amount=item["amount"],
-                    description=f"{item['qpu_seconds']} QPU seconds",
-                )
-            ],
-        )
-        async for item in db_cursor
-    )
-    results = await asyncio.gather(tasks, return_exceptions=True)
+        db_cursor = db[usages_collection].aggregate(pipeline)
+        tasks = [
+            send_component_usages(
+                client,
+                plan_period_uuid=item["_id"]["plan_period_uuid"],
+                usages=[
+                    ComponentUsage(
+                        type=item["_id"]["component_type"],
+                        amount=item["amount"],
+                        description=f"{item['qpu_seconds']} QPU seconds",
+                    )
+                ],
+            )
+            async for item in db_cursor
+        ]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    # save any errors
-    failures = [
-        item.dict() for item in results if isinstance(item, PuhuriFailedRequest)
-    ]
-    await db[failures_collection].insert_many(failures)
+        # save any errors
+        failures = [
+            item.dict() for item in results if isinstance(item, PuhuriFailedRequest)
+        ]
+        if len(failures) > 0:
+            await db[failures_collection].insert_many(failures)
+
+    except Exception as exp:
+        err_logger.error(f"error post_resource_usages: {exp.__class__.__name__}: {exp}")
+        raise exp
 
 
 def register_background_tasks(

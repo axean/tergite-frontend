@@ -1,7 +1,5 @@
 from unittest.mock import patch
 
-import respx
-
 from tests._utils.env import (
     TEST_AUTH_CONFIG_FILE,
     TEST_BCC_URL,
@@ -13,7 +11,6 @@ from tests._utils.env import (
     TEST_PUHURI_CONFIG_ENDPOINT,
     setup_test_env,
 )
-from tests._utils.modules import remove_modules
 
 # Set up the test environment before any other imports are made
 setup_test_env()
@@ -58,6 +55,7 @@ from tests._utils.auth import (
     insert_if_not_exist,
 )
 from tests._utils.fixtures import load_json_fixture
+from tests._utils.modules import remove_modules
 
 _PUHURI_OPENID_CONFIG = load_json_fixture("puhuri_openid_config.json")
 PROJECT_LIST = load_json_fixture("project_list.json")

@@ -21,9 +21,9 @@ from waldur_client import ComponentUsage, WaldurClient
 
 import settings
 from utils.date_time import is_in_month
+from utils.logging import err_logger
 
 from .dtos import (
-    OrderItem,
     PuhuriComponent,
     PuhuriFailedRequest,
     PuhuriOrder,
@@ -84,22 +84,6 @@ async def get_new_orders(client: WaldurClient, offering_id: str) -> List["Puhuri
     return [PuhuriOrder.parse_obj(item) for item in response]
 
 
-async def approve_orders(client: WaldurClient, orders: List[OrderItem]):
-    """Approves the given orders
-
-    Args:
-        client: the Waldur client for accessing the Puhuri Waldur server API
-        orders: the orders to approve
-    """
-    loop = asyncio.get_event_loop()
-    return await asyncio.gather(
-        loop.run_in_executor(
-            None, client.marketplace_order_approve_by_provider, order.uuid
-        )
-        for order in orders
-    )
-
-
 async def approve_pending_orders(
     client: Optional[WaldurClient] = None,
     provider_uuid: str = settings.PUHURI_PROVIDER_UUID,
@@ -117,26 +101,29 @@ async def approve_pending_orders(
     Raises:
         WaldurClientException: error making request
     """
-    if client is None:
-        client = WaldurClient(
-            api_url=api_url,
-            access_token=access_token,
-        )
+    # wrapping this in try-except because it can be run directly by scheduler
+    try:
+        if client is None:
+            client = WaldurClient(
+                api_url=api_url,
+                access_token=access_token,
+            )
 
-    loop = asyncio.get_event_loop()
-    filter_obj = {"state": "pending-provider", "provider_uuid": provider_uuid}
-    order_items = await loop.run_in_executor(None, client.list_orders, filter_obj)
-    await asyncio.gather(
-        asyncio.wait(
-            [
-                loop.run_in_executor(
-                    None, client.marketplace_order_approve_by_provider, order["uuid"]
-                )
-                for order in order_items
-            ]
-        ),
-        loop=loop,
-    )
+        loop = asyncio.get_event_loop()
+        filter_obj = {"state": "pending-provider", "provider_uuid": provider_uuid}
+        order_items = await loop.run_in_executor(None, client.list_orders, filter_obj)
+        tasks = (
+            loop.run_in_executor(
+                None, client.marketplace_order_approve_by_provider, order["uuid"]
+            )
+            for order in order_items
+        )
+        await asyncio.gather(*tasks, loop=loop)
+    except Exception as exp:
+        err_logger.error(
+            f"error approve_pending_orders: {exp.__class__.__name__}: {exp}"
+        )
+        raise exp
 
 
 async def send_component_usages(
@@ -335,7 +322,7 @@ async def get_plan_periods(
 
     if len(results) == 0:
         raise PlanPeriodNotFoundError(
-            f"resource '{resource_uuid}' has no plan periods for month {month}"
+            f"resource '{resource_uuid}' has no plan periods for month {month_year}"
         )
 
     return [PuhuriPlanPeriod.parse_obj(v) for v in results]
