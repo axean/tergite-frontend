@@ -1,5 +1,6 @@
 """Integration tests for the Puhuri background jobs"""
 import asyncio
+import json
 
 import pytest
 
@@ -31,7 +32,8 @@ async def test_approve_pending_orders(client):
         got = mock_waldur_client.list_orders()
         expected = [{**item, "state": "done"} for item in _PUHURI_PENDING_ORDERS]
 
-        assert got == expected
+        assert json.dumps(got) == json.dumps(expected)
+        assert json.dumps(got) != json.dumps(_PUHURI_PENDING_ORDERS)
 
 
 def test_post_resource_usages():
