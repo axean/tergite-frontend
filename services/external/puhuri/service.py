@@ -238,7 +238,61 @@ async def update_internal_user_list(
         pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
     """
     try:
-        pass
+        db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
+        collection = db[db_collection]
+        api_client = WaldurClient(api_url=api_uri, access_token=api_access_token)
+        loop = asyncio.get_event_loop()
+
+        approved_resources = await loop.run_in_executor(
+            None,
+            api_client.filter_marketplace_resources,
+            {"provider_uuid": provider_uuid, "state": "OK"},
+        )
+
+        tasks = (
+            loop.run_in_executor(
+                None,
+                api_client.marketplace_resource_get_team,
+                resource["uuid"],
+            )
+            for resource in approved_resources
+        )
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # get the map of projects and their user emails
+        projects_user_emails_map: Dict[str, List[str]] = {}
+        for index, user_list in enumerate(results):
+            project_id = approved_resources[index]["project_uuid"]
+
+            if isinstance(user_list, list):
+                emails = projects_user_emails_map.setdefault(project_id, [])
+                emails.extend([user["email"] for user in user_list])
+
+        # update the user lists of the projects that had user emails
+        await collection.bulk_write(
+            [
+                UpdateOne(
+                    {
+                        "ext_id": project_id,
+                        "source": ProjectSource.PUHURI.value,
+                    },
+                    {"$set": {"user_emails": list(set(user_list))}},
+                )
+                for project_id, user_list in projects_user_emails_map.items()
+            ]
+        )
+
+        # delete the user lists of pre-existing projects that had no user emails
+        # This ensures that users who have been removed from the puhuri side are also
+        # removed from this application
+        await collection.update_many(
+            {
+                "source": ProjectSource.PUHURI.value,
+                "ext_id": {"$nin": list(projects_user_emails_map.keys())},
+            },
+            {"$set": {"user_emails": []}},
+        )
+
     except Exception as exp:
         err_logger.error(
             f"error update_internal_user_list: {exp.__class__.__name__}: {exp}"
