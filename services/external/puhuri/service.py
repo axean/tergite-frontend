@@ -117,7 +117,7 @@ async def update_internal_project_list(
             Project(
                 ext_id=item.uuid,
                 source=ProjectSource.PUHURI,
-                qpu_seconds=await get_qpu_seconds(api_client, metadata=item),
+                qpu_seconds=await get_qpu_seconds(client=api_client, metadata=item),
                 is_active=False,
                 resource_ids=item.resource_uuids,
             )
@@ -212,12 +212,13 @@ async def update_internal_project_list(
         raise exp
 
 
-def update_internal_user_list(
+async def update_internal_user_list(
     api_uri: str = settings.PUHURI_WALDUR_API_URI,
     api_access_token: str = settings.PUHURI_WALDUR_CLIENT_TOKEN,
     db_url: str = f"{settings.DB_MACHINE_ROOT_URL}",
     db_name: str = settings.DB_NAME,
     db_collection: str = PROJECT_DB_COLLECTION,
+    provider_uuid: str = settings.PUHURI_PROVIDER_UUID,
 ):
     """Updates the user email list in each project in this app using the user list in puhuri
 
@@ -230,6 +231,7 @@ def update_internal_user_list(
         db_url: the mongodb URI to the database where projects are stored
         db_name: the name of the database where the projects are stored
         db_collection: the name of the collection where the projects are stored
+        provider_uuid: the unique ID of the service provider associated with this app in puhuri
 
     Raises:
         WaldurClientException: error making request
@@ -244,12 +246,13 @@ def update_internal_user_list(
         raise exp
 
 
-def update_internal_resource_allocation(
+async def update_internal_resource_allocation(
     api_uri: str = settings.PUHURI_WALDUR_API_URI,
     api_access_token: str = settings.PUHURI_WALDUR_CLIENT_TOKEN,
     db_url: str = f"{settings.DB_MACHINE_ROOT_URL}",
     db_name: str = settings.DB_NAME,
     db_collection: str = PROJECT_DB_COLLECTION,
+    provider_uuid: str = settings.PUHURI_PROVIDER_UUID,
 ):
     """Updates this app's project's resource allocation using puhuri's resource allocations
 
@@ -262,13 +265,64 @@ def update_internal_resource_allocation(
         db_url: the mongodb URI to the database where projects are stored
         db_name: the name of the database where the projects are stored
         db_collection: the name of the collection where the projects are stored
+        provider_uuid: the unique ID of the service provider associated with this app in puhuri
 
     Raises:
         WaldurClientException: error making request
         pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
     """
     try:
-        pass
+        db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
+        collection = db[db_collection]
+        api_client = WaldurClient(api_url=api_uri, access_token=api_access_token)
+        loop = asyncio.get_event_loop()
+
+        approved_resources = await loop.run_in_executor(
+            None,
+            api_client.filter_marketplace_resources,
+            {"provider_uuid": provider_uuid, "state": "OK"},
+        )
+
+        projects_metadata = extract_project_metadata(approved_resources)
+        approved_projects: List[Project] = [
+            Project(
+                ext_id=item.uuid,
+                source=ProjectSource.PUHURI,
+                qpu_seconds=await get_qpu_seconds(client=api_client, metadata=item),
+                is_active=True,
+                resource_ids=item.resource_uuids,
+            )
+            for item in projects_metadata
+        ]
+
+        responses = await asyncio.gather(
+            *(
+                collection.update_one(
+                    {
+                        "ext_id": project.ext_id,
+                        # a guard to ensure projects that no resource is ignored
+                        # NOTE: this may fail with a Conflict Error if any of the resource_ids
+                        #   does not already exist in the project i.e. it is newly allocated.
+                        #   This must be resolved by the routine that extracts new resources/projects or
+                        #   You might need to resolve this manually
+                        "resource_ids": {"$in": project.resource_ids},
+                    },
+                    {
+                        "$set": {
+                            "source": ProjectSource.PUHURI.value,
+                            "is_active": project.is_active,
+                            "qpu_seconds": project.qpu_seconds,
+                        },
+                    },
+                )
+                for project in approved_projects
+            ),
+            return_exceptions=True,
+        )
+
+        errors = [resp for resp in responses if not isinstance(resp, Exception)]
+        if len(errors) > 0:
+            raise Exception(f"errors updating existing projects: {errors}")
     except Exception as exp:
         err_logger.error(
             f"error update_internal_resource_allocation: {exp.__class__.__name__}: {exp}"
@@ -365,6 +419,7 @@ async def post_resource_usages(
             provider_uuid=provider_uuid,
         )
         if len(errors) > 0:
+            # log the errors silently and continue with the successful ones
             err_logger.error(f"errors preparing resource usages: {errors}")
 
         pipeline = [
