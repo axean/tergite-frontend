@@ -24,33 +24,39 @@ This client is useful to enable the following user stories
 """
 import asyncio
 from datetime import datetime, timezone
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from apscheduler.schedulers.base import BaseScheduler
 from beanie import init_beanie
-from motor.motor_asyncio import AsyncIOMotorDatabase
+from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
+from pymongo import UpdateOne
+from pymongo.errors import DuplicateKeyError
 from waldur_client import ComponentUsage, WaldurClient
 
 import settings
 from utils.logging import err_logger
 from utils.mongodb import get_mongodb
 
-from ...auth.projects.dtos import PROJECT_DB_COLLECTION
+from ...auth.projects.dtos import PROJECT_DB_COLLECTION, Project, ProjectSource
 from .dtos import (
+    INTERNAL_USAGE_COLLECTION,
+    PUHURI_USAGE_COLLECTION,
     REQUEST_FAILURES_COLLECTION,
-    RESOURCE_USAGE_COLLECTION,
-    JobResourceUsage,
+    InternalJobResourceUsage,
     PuhuriComponent,
     PuhuriFailedRequest,
+    PuhuriJobResourceUsage,
     PuhuriResource,
 )
 from .exc import ResourceNotFoundError
 from .utils import (
     approve_pending_orders,
+    extract_project_metadata,
     get_accounting_component,
     get_default_component,
     get_plan_periods,
     get_project_resources,
+    get_qpu_seconds,
     send_component_usages,
 )
 
@@ -65,12 +71,14 @@ from .utils import (
 #   resource in puhuri?
 
 
-def update_internal_project_list(
+async def update_internal_project_list(
+    api_client: Optional[WaldurClient] = None,
     api_uri: str = settings.PUHURI_WALDUR_API_URI,
     api_access_token: str = settings.PUHURI_WALDUR_CLIENT_TOKEN,
     db_url: str = f"{settings.DB_MACHINE_ROOT_URL}",
     db_name: str = settings.DB_NAME,
     db_collection: str = PROJECT_DB_COLLECTION,
+    provider_uuid: str = settings.PUHURI_PROVIDER_UUID,
 ):
     """Updates the projects list in this app with the latest projects in puhuri
 
@@ -78,18 +86,125 @@ def update_internal_project_list(
     `IS_PUHURI_SYNC_ENABLED` environment flag.
 
     Args:
+        api_client: Puhuri Waldur client for accessing the Puhuri Waldur server API
         api_uri: the URI to the Puhuri Waldur server API
         api_access_token: the access token to be used to access the Waldur server API
         db_url: the mongodb URI to the database where projects are stored
         db_name: the name of the database where the projects are stored
         db_collection: the name of the collection where the projects are stored
+        provider_uuid: the unique ID of the service provider associated with this app in puhuri
 
     Raises:
         WaldurClientException: error making request
         pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
     """
     try:
-        pass
+        db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
+        collection = db[db_collection]
+        if api_client is None:
+            api_client = WaldurClient(api_url=api_uri, access_token=api_access_token)
+
+        resource_filter = {"provider_uuid": provider_uuid, "state": "Creating"}
+        loop = asyncio.get_event_loop()
+
+        new_resources = await loop.run_in_executor(
+            None,
+            api_client.filter_marketplace_resources,
+            resource_filter,
+        )
+        project_metadata = extract_project_metadata(new_resources)
+        new_projects = [
+            Project(
+                ext_id=item.uuid,
+                source=ProjectSource.PUHURI,
+                qpu_seconds=await get_qpu_seconds(api_client, metadata=item),
+                is_active=False,
+                resource_ids=item.resource_uuids,
+            )
+            for item in project_metadata
+        ]
+
+        responses = await asyncio.gather(
+            *(
+                collection.update_one(
+                    {
+                        "ext_id": project.ext_id,
+                        # a guard to ensure projects whose order approvals keep
+                        # failing do not have their qpu_seconds incremented indefinitely
+                        # NOTE: this may fail with a Conflict Error if any of the resource_ids
+                        #   already exists in the project. You might need to resolve this manually
+                        "resource_ids": {"$nin": project.resource_ids},
+                    },
+                    {
+                        "$set": {
+                            "source": ProjectSource.PUHURI.value,
+                            "is_active": project.is_active,
+                        },
+                        "$inc": {
+                            "qpu_seconds": project.qpu_seconds,
+                        },
+                        "$addToSet": {"resource_ids": {"$each": project.resource_ids}},
+                    },
+                    upsert=True,
+                )
+                for project in new_projects
+            ),
+            return_exceptions=True,
+        )
+
+        updated_projects = [
+            new_projects[index]
+            for index, resp in enumerate(responses)
+            if not isinstance(resp, Exception)
+        ]
+
+        resource_project_map = {
+            resource_uuid: project.ext_id
+            for project in updated_projects
+            for resource_uuid in project.resource_ids
+        }
+
+        # responses is a list of Dict[resource_uuid, str]
+        # Note that we are filtering by resource UUID, not project UUID, because there is a chance
+        # that a project could have added new resources while we were still processing the
+        # current ones
+        responses = await asyncio.gather(
+            *(
+                approve_pending_orders(
+                    client=api_client,
+                    provider_uuid=provider_uuid,
+                    resource_uuid=resource_uuid,
+                )
+                for resource_uuid in resource_project_map.keys()
+            ),
+            return_exceptions=True,
+        )
+
+        approved_resource_uuid_maps = [
+            resp for resp in responses if isinstance(resp, dict)
+        ]
+        approved_resources = {
+            item["resource_uuid"]: True for item in approved_resource_uuid_maps
+        }
+
+        # approved projects are those that have all their resources approved
+        approved_project_ids = [
+            metadata.uuid
+            for metadata in project_metadata
+            if all(
+                approved_resources.get(resource_uuid)
+                for resource_uuid in metadata.resource_uuids
+            )
+        ]
+
+        # reactivate the updated projects that were fully approved
+        await collection.bulk_write(
+            [
+                UpdateOne({"ext_id": ext_id}, {"$set": {"is_active": True}})
+                for ext_id in approved_project_ids
+            ]
+        )
+
     except Exception as exp:
         err_logger.error(
             f"error update_internal_project_list: {exp.__class__.__name__}: {exp}"
@@ -163,12 +278,10 @@ def update_internal_resource_allocation(
 
 async def save_job_resource_usage(
     db: AsyncIOMotorDatabase,
-    api_client: WaldurClient,
     job_id: str,
     project_id: str,
     qpu_seconds: float,
-    provider_uuid: str = settings.PUHURI_PROVIDER_UUID,
-    db_collection: str = RESOURCE_USAGE_COLLECTION,
+    db_collection: str = INTERNAL_USAGE_COLLECTION,
 ):
     """Saves the given job resource usage
 
@@ -179,120 +292,22 @@ async def save_job_resource_usage(
 
     Args:
         db: the mongodb client to the database where job resource usages are stored
-        api_client: Puhuri Waldur client for accessing the Puhuri Waldur server API
         job_id: the ID of the given job
         project_id: the id of the project whose usage is to be reported
         qpu_seconds: the qpu seconds used
-        provider_uuid: the unique ID of the service provider associated with this app in puhuri
         db_collection: the name of the collection where the job resource usages are stored
-
-    Raises:
-        WaldurClientException: error making request
-        pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
     """
-    await approve_pending_orders(
-        client=api_client,
-        provider_uuid=provider_uuid,
-    )
-
-    resources = await get_project_resources(
-        api_client,
-        provider_uuid=provider_uuid,
-        project_uuid=project_id,
-    )
-
-    if len(resources) == 0:
-        raise ResourceNotFoundError(f"no resource found for project: {project_id}")
-
-    # the resource whose usage is to be updated
-    selected_resource: Optional[PuhuriResource] = None
-    # the accounting component to use when send resource usage.
-    # Note: project -> many resources -> each with an (accounting) plan
-    #           -> each with multiple (accounting) components
-    # Note: the limit-based resources have a dictionary of "limits" with keys as the "internal names" or
-    #   "types" of the components
-    #   and the values as the maximum amount for that component. This amount is in units of that component
-    #   e.g. 10 for one component, might mean 10 days, while for another it might mean 10 minutes depending
-    #   on the 'measurement_unit' of that component.
-    #   We will select the component whose limit (in seconds) >= the usage
-    selected_component: Optional[PuhuriComponent] = None
-
-    usage_based_resources = []
-    limit_based_resources = []
-
-    for item in resources:
-        if item.has_limits:
-            limit_based_resources.append(item)
-        else:
-            usage_based_resources.append(item)
-
-    if len(limit_based_resources) == 0:
-        selected_resource = resources[0]
-
-    # a cache for components to avoid querying for same component
-    # more than once
-    components_cache: Dict[Tuple[str, str], PuhuriComponent] = {}
-
-    for resource in limit_based_resources:
-        # offering_uuid = resource.offering_uuid
-
-        for comp_type, comp_amount in resource.limits.items():
-            component = get_accounting_component(
-                client=api_client,
-                offering_uuid=resource.offering_uuid,
-                component_type=comp_type,
-                cache=components_cache,
-            )
-
-            unit_value = component.measured_unit.to_seconds()
-            limit_in_seconds = comp_amount * unit_value
-
-            # select resource which has at least one limit (or purchased QPU seconds)
-            # greater or equal to the seconds to be reported.
-            if limit_in_seconds >= qpu_seconds:
-                selected_resource = resource
-                selected_component = component
-                break
-
-        if selected_resource is not None:
-            break
-
-    # if there is no selected resource yet, get the first usage-based resource
-    #  and resort to the first limit-based resource only if there is no usage-based resource
-    if selected_resource is None:
-        try:
-            selected_resource = usage_based_resources[0]
-        except IndexError:
-            selected_resource = limit_based_resources[0]
-
-    if selected_component is None:
-        selected_component = await get_default_component(
-            api_client, offering_uuid=selected_resource.offering_uuid
-        )
-
-    now = datetime.now(tz=timezone.utc)
-    month = now.month
-    year = now.year
-    plan_periods = await get_plan_periods(
-        client=api_client,
-        resource_uuid=selected_resource.uuid,
-        month_year=(month, year),
-    )
-    # get the last plan period in the month, assuming that it is the latest
-    plan_period = plan_periods[-1]
-
-    component_amount = selected_component.measured_unit.from_seconds(qpu_seconds)
-    job_resource_usage = JobResourceUsage(
+    usage = InternalJobResourceUsage(
         job_id=job_id,
-        created_on=now,
-        month=month,
-        year=year,
-        plan_period_uuid=plan_period.uuid,
-        component_type=selected_component.type,
-        component_amount=component_amount,
+        project_id=project_id,
+        created_on=datetime.now(tz=timezone.utc),
         qpu_seconds=qpu_seconds,
     )
-    await db[db_collection].insert_one(job_resource_usage.dict())
+    try:
+        await db[db_collection].insert_one(usage.dict())
+    except DuplicateKeyError:
+        # ignore duplicate entries
+        pass
 
 
 async def post_resource_usages(
@@ -300,26 +315,58 @@ async def post_resource_usages(
     api_access_token: str = settings.PUHURI_WALDUR_CLIENT_TOKEN,
     db_url: str = f"{settings.DB_MACHINE_ROOT_URL}",
     db_name: str = settings.DB_NAME,
-    usages_collection: str = RESOURCE_USAGE_COLLECTION,
+    raw_usages_collection: str = INTERNAL_USAGE_COLLECTION,
+    usages_collection: str = PUHURI_USAGE_COLLECTION,
     failures_collection: str = REQUEST_FAILURES_COLLECTION,
+    projects_collection: str = PROJECT_DB_COLLECTION,
+    provider_uuid: str = settings.PUHURI_PROVIDER_UUID,
 ):
     """Sends the resource usages for the current month over to Puhuri
 
     Remember that Puhuri expects only one usage report per resource per month
-    Thus we need to aggregate the JobResourceUsage's first
+    Thus we need to aggregate the PuhuriJobResourceUsage's first
 
     Args:
         api_uri: the URI to the Puhuri Waldur server API
         api_access_token: the access token to be used to access the Waldur server API
         db_url: the mongodb URI to the database where resource usages are stored
         db_name: the name of the database where the resource usages are stored
+        raw_usages_collection: the name of the collection where the raw job resource usages are stored
         usages_collection: the name of the collection where the job resource usages are stored
         failures_collection: the name of the collection where the failed puhuri requests are stored
+        projects_collection: the name of the collection where the projects are stored
+        provider_uuid: the unique ID of the service provider associated with this app in puhuri
     """
     try:
         now = datetime.now(tz=timezone.utc)
         db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
+        usage_col = db[usages_collection]
+        raw_usage_col = db[raw_usages_collection]
+        failures_col = db[failures_collection]
         client = WaldurClient(api_url=api_uri, access_token=api_access_token)
+
+        # ensure that all the provider's pending orders are accounted for.
+        # This ensures that all resources that we will query later have 'plan periods'.
+        await update_internal_project_list(
+            api_client=client,
+            api_uri=api_uri,
+            api_access_token=api_access_token,
+            db_url=db_url,
+            db_name=db_name,
+            db_collection=projects_collection,
+            provider_uuid=provider_uuid,
+        )
+
+        # prepare any unprocessed resource usages for posting
+        errors = await _prepare_resource_usages(
+            api_client=client,
+            raw_collection=raw_usage_col,
+            final_collection=usage_col,
+            provider_uuid=provider_uuid,
+        )
+        if len(errors) > 0:
+            err_logger.error(f"errors preparing resource usages: {errors}")
+
         pipeline = [
             {"$match": {"month": now.month, "year": now.year}},
             {
@@ -334,7 +381,7 @@ async def post_resource_usages(
             },
         ]
 
-        db_cursor = db[usages_collection].aggregate(pipeline)
+        db_cursor = usage_col.aggregate(pipeline)
         tasks = [
             send_component_usages(
                 client,
@@ -356,7 +403,7 @@ async def post_resource_usages(
             item.dict() for item in results if isinstance(item, PuhuriFailedRequest)
         ]
         if len(failures) > 0:
-            await db[failures_collection].insert_many(failures)
+            await failures_col.insert_many(failures)
 
     except Exception as exp:
         err_logger.error(f"error post_resource_usages: {exp.__class__.__name__}: {exp}")
@@ -373,12 +420,6 @@ def register_background_tasks(
         scheduler: the scheduler to run the tasks in the background
         poll_interval: the interval at which puhuri is to be polled in seconds. default is 900 (15 minutes)
     """
-    scheduler.add_job(
-        approve_pending_orders,
-        "interval",
-        seconds=poll_interval,
-    )
-
     scheduler.add_job(
         update_internal_project_list,
         "interval",
@@ -410,6 +451,168 @@ async def on_startup(db: AsyncIOMotorDatabase):
         database=db,
         document_models=[
             PuhuriFailedRequest,
-            JobResourceUsage,
+            PuhuriJobResourceUsage,
+            InternalJobResourceUsage,
         ],
     )
+
+
+async def _prepare_resource_usages(
+    api_client: WaldurClient,
+    raw_collection: AsyncIOMotorCollection,
+    final_collection: AsyncIOMotorCollection,
+    provider_uuid: str,
+):
+    """Processes the raw resource usages into puhuri resource usage records and saves them
+
+    Args:
+        api_client: Puhuri Waldur client for accessing the Puhuri Waldur server API
+        raw_collection: the mongodb collection with the raw internal job resource usages
+        final_collection: the mongodb collection where the processed job resource usages are stored
+        provider_uuid: the unique ID of the service provider associated with this app in puhuri
+
+    Raises:
+        WaldurClientException: error making request
+        pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
+
+    Returns:
+        dictionary of job_ids and exceptions
+    """
+    max_cache_length = 100
+    resource_cache: Dict[str, List[PuhuriResource]] = {}
+    # a cache for components to avoid querying for same component
+    # more than once
+    components_cache: Dict[Tuple[str, str], PuhuriComponent] = {}
+    errors: Dict[str, str] = {}
+
+    unprocessed_usages = raw_collection.find({"is_processed": False})
+
+    async for usage in unprocessed_usages:
+        project_id = usage["project_id"]
+        job_id = usage["job_id"]
+        qpu_seconds = usage["qpu_seconds"]
+        created_on = usage["created_on"]
+        month = created_on.month
+        year = created_on.year
+
+        try:
+            resources = resource_cache[project_id]
+        except KeyError:
+            try:
+                resources = await get_project_resources(
+                    api_client,
+                    provider_uuid=provider_uuid,
+                    project_uuid=project_id,
+                )
+            except Exception as exp:
+                # save error
+                errors[job_id] = str(exp)
+                continue
+
+            if len(resource_cache) < max_cache_length:
+                # Just a limit not to overwhelm the memory
+                resource_cache[project_id] = resources
+
+        if len(resources) == 0:
+            errors[job_id] = repr(
+                ResourceNotFoundError(f"no resource found for project: {project_id}")
+            )
+            continue
+
+        # the resource whose usage is to be updated
+        selected_resource: Optional[PuhuriResource] = None
+        # the accounting component to use when send resource usage.
+        # Note: project -> many resources -> each with an (accounting) plan
+        #           -> each with multiple (accounting) components
+        # Note: the limit-based resources have a dictionary of "limits" with keys as the "internal names" or
+        #   "types" of the components
+        #   and the values as the maximum amount for that component. This amount is in units of that component
+        #   e.g. 10 for one component, might mean 10 days, while for another it might mean 10 minutes depending
+        #   on the 'measurement_unit' of that component.
+        #   We will select the component whose limit (in seconds) >= the usage
+        selected_component: Optional[PuhuriComponent] = None
+
+        usage_based_resources = []
+        limit_based_resources = []
+
+        for item in resources:
+            if item.has_limits:
+                limit_based_resources.append(item)
+            else:
+                usage_based_resources.append(item)
+
+        if len(limit_based_resources) == 0:
+            selected_resource = resources[0]
+
+        try:
+            for resource in limit_based_resources:
+                # offering_uuid = resource.offering_uuid
+
+                for comp_type, comp_amount in resource.limits.items():
+                    component = await get_accounting_component(
+                        client=api_client,
+                        offering_uuid=resource.offering_uuid,
+                        component_type=comp_type,
+                        cache=components_cache,
+                    )
+
+                    unit_value = component.measured_unit.to_seconds()
+                    limit_in_seconds = comp_amount * unit_value
+
+                    # select resource which has at least one limit (or purchased QPU seconds)
+                    # greater or equal to the seconds to be reported.
+                    if limit_in_seconds >= qpu_seconds:
+                        selected_resource = resource
+                        selected_component = component
+                        break
+
+                if selected_resource is not None:
+                    break
+
+        except Exception as exp:
+            # save error and continue with the next usage
+            errors[job_id] = str(exp)
+            continue
+
+        # if there is no selected resource yet, get the first usage-based resource
+        #  and resort to the first limit-based resource only if there is no usage-based resource
+        if selected_resource is None:
+            try:
+                selected_resource = usage_based_resources[0]
+            except IndexError:
+                selected_resource = limit_based_resources[0]
+
+        if selected_component is None:
+            selected_component = await get_default_component(
+                api_client, offering_uuid=selected_resource.offering_uuid
+            )
+
+        plan_periods = await get_plan_periods(
+            client=api_client,
+            resource_uuid=selected_resource.uuid,
+            month_year=(month, year),
+        )
+        # get the last plan period in the month, assuming that it is the latest
+        plan_period = plan_periods[-1]
+
+        component_amount = selected_component.measured_unit.from_seconds(qpu_seconds)
+        processed_usage = PuhuriJobResourceUsage(
+            job_id=job_id,
+            created_on=created_on,
+            month=month,
+            year=year,
+            plan_period_uuid=plan_period.uuid,
+            component_type=selected_component.type,
+            component_amount=component_amount,
+            qpu_seconds=qpu_seconds,
+        )
+        try:
+            await final_collection.insert_one(processed_usage.dict())
+            await raw_collection.update_one(
+                {"job_id": job_id}, {"$set": {"is_processed": True}}
+            )
+        except Exception as exp:
+            # save error
+            errors[job_id] = str(exp)
+
+    return errors

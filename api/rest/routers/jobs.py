@@ -28,7 +28,6 @@ from api.rest.dependencies import (
     CurrentStrictProjectDep,
     MongoDbDep,
     ProjectDbDep,
-    PuhuriClientDep,
 )
 from services import quantum_jobs as jobs_service
 from services.external import puhuri as puhuri_service
@@ -126,7 +125,6 @@ async def update_job(
     db: MongoDbDep,
     project_db: ProjectDbDep,
     project: CurrentStrictProjectDep,
-    puhuri_client: PuhuriClientDep,
     job_id: UUID,
     payload: dict,
 ):
@@ -150,7 +148,6 @@ async def update_job(
                 project, qpu_seconds = response
                 await puhuri_service.save_job_resource_usage(
                     db,
-                    api_client=puhuri_client,
                     job_id=str(job_id),
                     project_id=project.ext_id,
                     qpu_seconds=qpu_seconds,

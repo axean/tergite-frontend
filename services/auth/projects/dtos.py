@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Data Transfer Objects for the projects submodule in the auth service"""
+import enum
 from typing import Generic, List, Optional, TypeVar
 
 from beanie import Document, PydanticObjectId
@@ -19,6 +20,13 @@ from pymongo import IndexModel
 PROJECT_DB_COLLECTION = "auth_projects"
 
 
+class ProjectSource(str, enum.Enum):
+    """Enumeration for all possible origins of projects"""
+
+    PUHURI = "puhuri"
+    INTERNAL = "internal"
+
+
 class ProjectCreate(BaseModel):
     """The schema for creating a project"""
 
@@ -26,6 +34,8 @@ class ProjectCreate(BaseModel):
     ext_id: str
     user_emails: List[str] = []
     qpu_seconds: int = 0
+    source: ProjectSource = ProjectSource.INTERNAL
+    resource_ids: List[str] = []
 
 
 class ProjectRead(BaseModel):

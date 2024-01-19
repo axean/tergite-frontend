@@ -32,27 +32,6 @@ _JOBS_COLLECTION = "jobs"
 
 
 @pytest.mark.asyncio
-async def test_approve_pending_orders(client):
-    """Should approve pending orders associated with current service provider"""
-    mock_waldur_client = get_mock_client(
-        api_url=TEST_PUHURI_WALDUR_API_URI,
-        access_token=TEST_PUHURI_WALDUR_CLIENT_TOKEN,
-    )
-    assert mock_waldur_client.list_orders() == _PUHURI_PENDING_ORDERS
-
-    # using context manager to ensure on_startup runs
-    with client as client:
-        # wait for the scheduler to run its jobs
-        await asyncio.sleep(TEST_PUHURI_POLL_INTERVAL + 1)
-
-        got = mock_waldur_client.list_orders()
-        expected = [{**item, "state": "done"} for item in _PUHURI_PENDING_ORDERS]
-
-        assert to_json(got) == to_json(expected)
-        assert to_json(got) != to_json(_PUHURI_PENDING_ORDERS)
-
-
-@pytest.mark.asyncio
 async def test_post_resource_usages(db, client, project_id, app_token_header):
     """Should post all accumulated resource usages at a given interval"""
     job_list = [{**item, "project_id": project_id} for item in _JOBS_LIST]

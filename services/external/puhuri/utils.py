@@ -15,7 +15,7 @@ import asyncio
 from dataclasses import asdict
 from datetime import datetime, timezone
 from functools import lru_cache
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from waldur_client import ComponentUsage, WaldurClient
 
@@ -28,6 +28,7 @@ from .dtos import (
     PuhuriFailedRequest,
     PuhuriOrder,
     PuhuriPlanPeriod,
+    PuhuriProjectMetadata,
     PuhuriProviderOffering,
     PuhuriResource,
 )
@@ -85,45 +86,39 @@ async def get_new_orders(client: WaldurClient, offering_id: str) -> List["Puhuri
 
 
 async def approve_pending_orders(
-    client: Optional[WaldurClient] = None,
-    provider_uuid: str = settings.PUHURI_PROVIDER_UUID,
-    api_url: str = settings.PUHURI_WALDUR_API_URI,
-    access_token: str = settings.PUHURI_WALDUR_CLIENT_TOKEN,
-):
-    """Approves all pending orders for the given service provider
+    client: WaldurClient,
+    provider_uuid: str,
+    **kwargs,
+) -> Dict[str, Any]:
+    """Approves all orders for the given service provider that are in the 'pending-provider' state
 
     Args:
-        client: the WaldurClient if available
+        client: the WaldurClient
         provider_uuid: the UUID string of the service provider
-        api_url: the URL to the Puhuri Waldur server API
-        access_token: the access token to be used to access the Waldur server API
+        kwargs: extra filters for filtering the orders
+
+    Returns:
+        dictionary of kwargs used to filter orders.
 
     Raises:
         WaldurClientException: error making request
     """
-    # wrapping this in try-except because it can be run directly by scheduler
-    try:
-        if client is None:
-            client = WaldurClient(
-                api_url=api_url,
-                access_token=access_token,
-            )
+    loop = asyncio.get_event_loop()
 
-        loop = asyncio.get_event_loop()
-        filter_obj = {"state": "pending-provider", "provider_uuid": provider_uuid}
-        order_items = await loop.run_in_executor(None, client.list_orders, filter_obj)
-        tasks = (
-            loop.run_in_executor(
-                None, client.marketplace_order_approve_by_provider, order["uuid"]
-            )
-            for order in order_items
+    filter_obj = {
+        "state": "pending-provider",
+        "provider_uuid": provider_uuid,
+        **kwargs,
+    }
+    order_items = await loop.run_in_executor(None, client.list_orders, filter_obj)
+    tasks = (
+        loop.run_in_executor(
+            None, client.marketplace_order_approve_by_provider, order["uuid"]
         )
-        await asyncio.gather(*tasks, loop=loop)
-    except Exception as exp:
-        err_logger.error(
-            f"error approve_pending_orders: {exp.__class__.__name__}: {exp}"
-        )
-        raise exp
+        for order in order_items
+    )
+    await asyncio.gather(*tasks)
+    return kwargs
 
 
 async def send_component_usages(
@@ -218,7 +213,7 @@ async def get_project_resources(
 #     return [PuhuriProviderOffering.parse_obj(item) for item in offering_dicts]
 
 
-def get_accounting_component(
+async def get_accounting_component(
     client: WaldurClient,
     offering_uuid: str,
     component_type: str,
@@ -238,12 +233,23 @@ def get_accounting_component(
 
     Returns:
         the component
+
+    Raises:
+        WaldurClientException: error making request
+        pydantic.error_wrappers.ValidationError: {} validation error for PuhuriResource ...
     """
     _cache = cache if isinstance(cache, dict) else {}
     component = _cache.get((offering_uuid, component_type))
 
     if component is None:
-        offering = client.get_marketplace_provider_offering(offering_uuid)
+        loop = asyncio.get_event_loop()
+
+        offering = await loop.run_in_executor(
+            None,
+            client.get_marketplace_provider_offering,
+            offering_uuid,
+        )
+
         _cache.update(
             {
                 (offering_uuid, v["type"]): PuhuriComponent.parse_obj(v)
@@ -326,3 +332,96 @@ async def get_plan_periods(
         )
 
     return [PuhuriPlanPeriod.parse_obj(v) for v in results]
+
+
+def remove_nones(data: Dict[str, Optional[Any]], __new: Any):
+    """Replaces None values with the replacement
+
+    Args:
+        data: the dictionary whose None values are to be replaced
+        __new: the replacement for the None values
+
+    Returns:
+        the dictionary with the None values replaced with the replacement
+    """
+    return {k: v if v is not None else __new for k, v in data.items()}
+
+
+def extract_project_metadata(
+    resources: List[Dict[str, Any]]
+) -> List[PuhuriProjectMetadata]:
+    """Extracts the project metadata from a list of resources
+
+    A project can contan any number of resources so we need to group the resources
+    by project UUID and aggregate any relevant fields like "limits" and "limit_usage"
+
+    Args:
+        resources: the list of resource dictionaries
+
+    Returns:
+        list of PuhuriProjectMetadata
+    """
+    results: Dict[str, PuhuriProjectMetadata] = {}
+
+    for resource in resources:
+        offering_uuid = resource["offering_uuid"]
+        project_uuid = resource["project_uuid"]
+        limits = remove_nones(resource["limits"], 0)
+        limit_usage = remove_nones(resource["limit_usage"], 0)
+        project_meta = PuhuriProjectMetadata(
+            uuid=project_uuid,
+            limits={offering_uuid: limits},
+            limit_usage={offering_uuid: limit_usage},
+            resource_uuids=[resource["uuid"]],
+        )
+        original_meta = results.get(project_uuid, None)
+
+        if isinstance(original_meta, PuhuriProjectMetadata):
+            original_limits = original_meta.limits.get(offering_uuid, {})
+            project_meta.limits[offering_uuid] = {
+                k: v + original_limits.get(k, 0) for k, v in limits.items()
+            }
+
+            original_usages = original_meta.limit_usage.get(offering_uuid, {})
+            project_meta.limit_usage[offering_uuid] = {
+                k: v + original_usages.get(k, 0) for k, v in limit_usage.items()
+            }
+
+            project_meta.resource_uuids.extend(original_meta.resource_uuids)
+
+        results[project_uuid] = project_meta
+
+    return list(results.values())
+
+
+async def get_qpu_seconds(
+    client: WaldurClient, metadata: PuhuriProjectMetadata
+) -> float:
+    """Computes the net QPU seconds the project is left with
+
+    Args:
+        client: the Waldur client to access Puhuri
+        metadata: the metadata of the project
+
+    Returns:
+        the net QPU seconds, i.e. allocated minus used
+    """
+    net_qpu_seconds = 0
+    _components_cache: Dict[Tuple[str, str], PuhuriComponent] = {}
+
+    for offering_uuid, limits in metadata.limits.items():
+        limit_usage = metadata.limit_usage.get(offering_uuid, {})
+
+        for comp_type, comp_amount in limits.items():
+            component = await get_accounting_component(
+                client=client,
+                offering_uuid=offering_uuid,
+                component_type=comp_type,
+                cache=_components_cache,
+            )
+
+            unit_value = component.measured_unit.to_seconds()
+            net_comp_amount = comp_amount - limit_usage.get(comp_type, 0)
+            net_qpu_seconds += net_comp_amount * unit_value
+
+    return net_qpu_seconds

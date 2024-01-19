@@ -28,8 +28,20 @@ if TYPE_CHECKING:
     AbstractSetIntStr = AbstractSet[IntStr]
     MappingIntStrAny = Mapping[IntStr, Any]
 
-RESOURCE_USAGE_COLLECTION = "job_resource_usages"
+PUHURI_USAGE_COLLECTION = "puhuri_resource_usages"
+INTERNAL_USAGE_COLLECTION = "internal_resource_usages"
 REQUEST_FAILURES_COLLECTION = "puhuri_failed_requests"
+
+
+class PuhuriProjectMetadata(ZEncodedBaseModel):
+    """Metadata as extracted from Puhuri resources"""
+
+    uuid: str
+    # dict of offering_uuid and limits dict
+    limits: Dict[str, Dict[str, float]] = {}
+    # dict of offering_uuid and limit_usage dict
+    limit_usage: Dict[str, Dict[str, float]] = {}
+    resource_uuids: List[str]
 
 
 class PuhuriFailedRequest(ZEncodedBaseModel, Document, extra=Extra.allow):
@@ -97,19 +109,34 @@ class PuhuriProviderOffering(ZEncodedBaseModel, extra=Extra.allow):
     components: List["PuhuriComponent"]
 
 
-class JobResourceUsage(Document):
+class InternalJobResourceUsage(Document):
+    job_id: str
+    project_id: str
+    created_on: datetime
+    qpu_seconds: float
+    is_processed: bool = False
+
+    class Settings:
+        name = INTERNAL_USAGE_COLLECTION
+        indexes = [
+            IndexModel("job_id", unique=True),
+        ]
+
+
+class PuhuriJobResourceUsage(Document):
     job_id: str
     created_on: datetime
     qpu_seconds: float
     month: int
     year: int
-    plan_period_uuid: str
-    component_type: str
-    component_amount: float
+    plan_period_uuid: str = None
+    component_type: str = None
+    component_amount: float = None
 
     class Settings:
-        name = RESOURCE_USAGE_COLLECTION
+        name = PUHURI_USAGE_COLLECTION
         indexes = [
+            IndexModel("job_id", unique=True),
             IndexModel(
                 [
                     ("plan_period_uuid", pymongo.ASCENDING),
