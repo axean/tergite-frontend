@@ -1,6 +1,6 @@
 {
 	"name": "tergite-landing-page",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
@@ -16,6 +16,7 @@
 		"visual-e2e": "npm run build-and-start-test-server -- \"cypress open\""
 	},
 	"dependencies": {
+		"@iarna/toml": "^2.2.5",
 		"@types/node": "20.5.4",
 		"@types/react": "18.2.21",
 		"@types/react-dom": "18.2.7",
@@ -28,7 +29,6 @@
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"sharp": "^0.32.6",
-		"smol-toml": "^1.1.3",
 		"swr": "^2.2.4",
 		"tailwindcss": "3.3.3",
 		"typescript": "5.1.6"

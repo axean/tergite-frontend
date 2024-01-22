@@ -1,4 +1,4 @@
-const { generateJwt, randInt } = require('../utils');
+const { generateJwt, randInt, readToml } = require('../utils');
 const projects = require('../cypress/fixtures/projects.json');
 const users = require('../cypress/fixtures/users.json');
 const tokens = require('../cypress/fixtures/tokens.json');
@@ -224,8 +224,12 @@ function clearObj(obj) {
  * @returns {Promise<string>} the value for the Set-Cookie header
  */
 async function createCookieHeader(user) {
-	const cookieName = process.env.COOKIE_NAME;
-	const cookieDomain = process.env.COOKIE_DOMAIN;
+	const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
+	const oauthConfig = await readToml(oauthConfigFile);
+	const generalConfig = oauthConfig.general || {};
+
+	const cookieName = generalConfig.cookie_name;
+	const cookieDomain = generalConfig.cookie_domain;
 
 	const jwtToken = await generateJwt(user);
 	const expiryTimestamp = new Date().getTime() + 7_200_000; // 2 hours in future

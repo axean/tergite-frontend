@@ -8,7 +8,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { verifyJwtToken, loadEnvFromFile } = require('../utils');
+const { verifyJwtToken, loadEnvFromFile, readToml } = require('../utils');
 const { mockDb, createCookieHeader } = require('./utils');
 
 // Load environment before everything else
@@ -31,22 +31,30 @@ app.use('/auth/projects*', (req, res, next) => {
 	if (req.method === 'OPTIONS') {
 		next();
 	}
+	const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
+	readToml(oauthConfigFile)
+		.then((oauthConfig) => {
+			const generalConfig = oauthConfig.general || {};
+			const cookieName = generalConfig.cookie_name;
+			const accessToken = req.cookies[cookieName];
 
-	const cookieName = process.env.COOKIE_NAME;
-	const accessToken = req.cookies[cookieName];
-
-	verifyJwtToken(accessToken)
-		.then(({ payload }) => {
-			if (!payload.roles.includes('admin')) {
-				res.status(403);
-				res.json({ detail: 'Forbidden' });
-			} else {
-				next();
-			}
+			verifyJwtToken(accessToken)
+				.then(({ payload }) => {
+					if (!payload.roles.includes('admin')) {
+						res.status(403);
+						res.json({ detail: 'Forbidden' });
+					} else {
+						next();
+					}
+				})
+				.catch((err) => {
+					res.status(401);
+					res.json({ detail: 'Unauthorized' });
+				});
 		})
 		.catch((err) => {
-			res.status(401);
-			res.json({ detail: 'Unauthorized' });
+			res.status(500);
+			res.json({ detail: `${err}` });
 		});
 });
 
@@ -56,17 +64,26 @@ app.use('/auth/me/*', (req, res, next) => {
 		next();
 	}
 
-	const cookieName = process.env.COOKIE_NAME;
-	const accessToken = req.cookies[cookieName];
+	const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
+	readToml(oauthConfigFile)
+		.then((oauthConfig) => {
+			const generalConfig = oauthConfig.general || {};
+			const cookieName = generalConfig.cookie_name;
+			const accessToken = req.cookies[cookieName];
 
-	verifyJwtToken(accessToken)
-		.then(({ payload }) => {
-			req.user = { ...payload, id: payload.sub };
-			next();
+			verifyJwtToken(accessToken)
+				.then(({ payload }) => {
+					req.user = { ...payload, id: payload.sub };
+					next();
+				})
+				.catch((err) => {
+					res.status(401);
+					res.json({ detail: 'Unauthorized' });
+				});
 		})
 		.catch((err) => {
-			res.status(401);
-			res.json({ detail: 'Unauthorized' });
+			res.status(500);
+			res.json({ detail: `${err}` });
 		});
 });
 

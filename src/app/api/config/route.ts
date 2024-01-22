@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { API } from '@/types';
-import { readToml } from '@/service/server';
+import { readToml } from '../../../../utils';
 
 const OAUTH2_LOGOS: { [key: string]: string } = {
-	github: 'img/github-black.png',
+	github: '/img/github-black.png',
 	chalmers: '/img/chalmers-logo.svg'
 };
 

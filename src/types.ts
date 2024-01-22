@@ -3,7 +3,8 @@ export namespace API {
 		ADMIN = 'admin',
 		USER = 'user',
 		PARTNER = 'partner',
-		RESEARCHER = 'researcher'
+		RESEARCHER = 'researcher',
+		SYSTEM = 'system'
 	}
 
 	export type User = {
@@ -112,5 +113,16 @@ export namespace API {
 		height?: number;
 		width?: number;
 		blurDataUrl?: string;
+	}
+
+	/**
+	 * Configuration for authentication
+	 */
+	export interface GeneralAuthConfig {
+		is_enabled?: boolean;
+		jwt_secret?: string;
+		jwt_ttl?: number;
+		cookie_domain?: string;
+		cookie_name?: string;
 	}
 }

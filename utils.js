@@ -1,6 +1,14 @@
-const { SignJWT, jwtVerify } = require('jose');
+const { SignJWT, jwtVerify, JWTVerifyResult } = require('jose');
 const path = require('path');
-const { readFileSync } = require('fs');
+const { readFileSync, promises } = require('fs');
+const parseToml = require('@iarna/toml/parse-async');
+
+/**
+ * A cache for all TOML files read
+ * @type {{ [key: string]: Record<string, TomlPrimitive> }}
+ * @constant
+ */
+const _TOML_FILE_CACHE = {};
 
 /**
  * Loads environment variables from .env files
@@ -40,15 +48,18 @@ function loadEnvFromString(data) {
 /**
  * Generate a valid test JWT for the given user
  * @param {{id: string, roles: string[]}} user - the user for whom the JWT is generated
+ * @param {string} oauthConfigFile - the path to the auth config file
  * @returns {Promise<string>} the JSON web token
  */
 async function generateJwt(user) {
 	const payload = { sub: user.id, roles: [...user.roles] };
-	const jwtSecret = process.env.JWT_SECRET;
+	const oauthConfig = await readToml(oauthConfigFile);
+	const generalConfig = oauthConfig.general || {};
+	const jwtSecret = generalConfig.jwt_secret || '';
 	const secret = new TextEncoder().encode(jwtSecret);
 
-	const alg = process.env.JWT_ALGORITHM || 'HS256';
-	const audience = [process.env.JWT_AUDIENCE];
+	const alg = 'HS256';
+	const audience = ['fastapi-users:auth'];
 
 	return await new SignJWT(payload)
 		.setProtectedHeader({ alg })
@@ -60,14 +71,17 @@ async function generateJwt(user) {
 
 /**
  * Verified a given JWT token
- * @param token - the token to be verified
- * @returns - the verifiration result including the claims stored  in the payload
+ * @param {string} token - the token to be verified
+ * @param {string} oauthConfigFile - the path to the auth config file
+ * @returns  {Promise<JWTVerifyResult>} - the verifiration result including the claims stored  in the payload
  */
-async function verifyJwtToken(token) {
-	const jwtSecret = process.env.JWT_SECRET || '';
-	const audience = process.env.JWT_AUDIENCE || 'fastapi-users:auth';
-	const jwtAlgorithm = process.env.JWT_ALGORITHM || 'HS256';
-	const algorithms = [jwtAlgorithm];
+async function verifyJwtToken(token, oauthConfigFile) {
+	const oauthConfig = await readToml(oauthConfigFile);
+
+	const generalConfig = oauthConfig.general || {};
+	const jwtSecret = generalConfig.jwt_secret || '';
+	const audience = 'fastapi-users:auth';
+	const algorithms = ['HS256'];
 	const secret = new TextEncoder().encode(jwtSecret);
 
 	return await jwtVerify(token, secret, { audience, algorithms });
@@ -82,11 +96,34 @@ async function verifyJwtToken(token) {
 function randInt(max) {
 	return Math.floor(Math.random() * max);
 }
+
+/**
+ * Reads variables from .toml files
+ *
+ * It will return cached versions of the files unless refresh=true
+ * @param {string} file - the path to the file to read
+ * @param {boolean} refresh - whether the cached value should be refreshed first, default to false
+ * @returns {Promise<{[key: string]: any}>} - the object read from the TOML file
+ */
+async function readToml(file, refresh = false) {
+	let cached_file = _TOML_FILE_CACHE[file];
+	if (!cached_file || refresh) {
+		// read file and decode it as utf-8 string
+		const data = await promises.readFile(path.resolve(process.cwd(), file), 'utf-8');
+		cached_file = parseToml(data);
+	}
+
+	// cache
+	_TOML_FILE_CACHE[file] = cached_file;
+	return cached_file;
+}
+
 module.exports = {
 	loadEnvFromFile,
 	loadEnvFromString,
 	generateJwt,
 	verifyJwtToken,
-	randInt
+	randInt,
+	readToml
 };
 
