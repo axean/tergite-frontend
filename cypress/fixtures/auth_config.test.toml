@@ -1,6 +1,6 @@
 [general]
 jwt_secret = "e8141bffc71337276986a6f93e33df3d214632f71f700f35d38311ce99ce"
-cookie_domain = "testserver"
+cookie_domain = "localhost"
 cookie_name = "some-cookie"
 
 [[clients]]

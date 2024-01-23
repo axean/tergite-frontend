@@ -231,7 +231,7 @@ async function createCookieHeader(user) {
 	const cookieName = generalConfig.cookie_name;
 	const cookieDomain = generalConfig.cookie_domain;
 
-	const jwtToken = await generateJwt(user);
+	const jwtToken = await generateJwt(user, oauthConfig);
 	const expiryTimestamp = new Date().getTime() + 7_200_000; // 2 hours in future
 	const expiry = new Date(expiryTimestamp).toUTCString();
 

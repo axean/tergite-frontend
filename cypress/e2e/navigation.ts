@@ -29,15 +29,21 @@ export const testNavigation = (
 				cy.intercept('GET', '/api/me').as('currentUserRequest');
 
 				if (user.id) {
-					cy.wrap(utils.generateJwt(user)).then((jwtToken) => {
-						const cookieName = process.env.COOKIE_NAME as string;
-						const domain = process.env.COOKIE_DOMAIN as string;
+					const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
 
-						cy.setCookie(cookieName, jwtToken as string, {
-							domain,
-							httpOnly: true,
-							secure: false,
-							sameSite: 'lax'
+					cy.task('readToml', oauthConfigFile).then((oauthConfig) => {
+						cy.wrap(utils.generateJwt(user, oauthConfig as any)).then((jwtToken) => {
+							const generalConfig =
+								(oauthConfig as Record<string, any>).general || {};
+							const cookieName = generalConfig.cookie_name;
+							const domain = generalConfig.cookie_domain;
+
+							cy.setCookie(cookieName, jwtToken as string, {
+								domain,
+								httpOnly: true,
+								secure: false,
+								sameSite: 'lax'
+							});
 						});
 					});
 				}
@@ -47,9 +53,9 @@ export const testNavigation = (
 				cy.get('[data-cy-content]').as('page');
 
 				cy.get('[data-cy-nav-item]').as('navItems');
-				!isNoAuth && cy.get('[data-cy-nav-btn]').as('logoutBtn');
 
 				cy.wait('@currentUserRequest');
+				!isNoAuth && cy.get('[data-cy-nav-btn]').as('logoutBtn');
 
 				postInit();
 			});

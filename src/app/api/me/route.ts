@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 	const token = getAccessToken(cookieName);
 
 	try {
-		const result = token && (await verifyJwtToken(token, oauthConfigFile));
+		const result = token && (await verifyJwtToken(token, oauthConfig));
 		const resp =
 			result && ({ id: result.payload.sub, roles: result.payload.roles } as API.User);
 		return NextResponse.json(resp);

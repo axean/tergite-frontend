@@ -25,14 +25,18 @@ users.forEach((user) => {
 				});
 
 				beforeEach(() => {
-					const cookieName = process.env.USER_ID_COOKIE_NAME as string;
-					const domain = process.env.COOKIE_DOMAIN as string;
+					const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
+					cy.task('readToml', oauthConfigFile).then((oauthConfig) => {
+						const generalConfig = (oauthConfig as Record<string, any>).general || {};
+						const cookieName = process.env.USER_ID_COOKIE_NAME as string;
+						const domain = generalConfig.cookie_domain;
 
-					cy.setCookie(cookieName, user.id, {
-						domain,
-						httpOnly: true,
-						secure: false,
-						sameSite: 'lax'
+						cy.setCookie(cookieName, user.id, {
+							domain,
+							httpOnly: true,
+							secure: false,
+							sameSite: 'lax'
+						});
 					});
 				});
 
@@ -56,15 +60,21 @@ users.forEach((user) => {
 				});
 
 				it(`automatically redirects to next page if already logged in`, () => {
-					cy.wrap(utils.generateJwt(user)).then((jwtToken) => {
-						const cookieName = process.env.COOKIE_NAME as string;
-						const domain = process.env.COOKIE_DOMAIN as string;
+					const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
 
-						cy.setCookie(cookieName, jwtToken as string, {
-							domain,
-							httpOnly: true,
-							secure: false,
-							sameSite: 'lax'
+					cy.task('readToml', oauthConfigFile).then((oauthConfig) => {
+						cy.wrap(utils.generateJwt(user, oauthConfig as any)).then((jwtToken) => {
+							const generalConfig =
+								(oauthConfig as Record<string, any>).general || {};
+							const cookieName = generalConfig.cookie_name;
+							const domain = generalConfig.cookie_domain;
+
+							cy.setCookie(cookieName, jwtToken as string, {
+								domain,
+								httpOnly: true,
+								secure: false,
+								sameSite: 'lax'
+							});
 						});
 					});
 

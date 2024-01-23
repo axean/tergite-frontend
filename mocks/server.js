@@ -38,7 +38,7 @@ app.use('/auth/projects*', (req, res, next) => {
 			const cookieName = generalConfig.cookie_name;
 			const accessToken = req.cookies[cookieName];
 
-			verifyJwtToken(accessToken)
+			verifyJwtToken(accessToken, oauthConfig)
 				.then(({ payload }) => {
 					if (!payload.roles.includes('admin')) {
 						res.status(403);
@@ -71,7 +71,7 @@ app.use('/auth/me/*', (req, res, next) => {
 			const cookieName = generalConfig.cookie_name;
 			const accessToken = req.cookies[cookieName];
 
-			verifyJwtToken(accessToken)
+			verifyJwtToken(accessToken, oauthConfig)
 				.then(({ payload }) => {
 					req.user = { ...payload, id: payload.sub };
 					next();
