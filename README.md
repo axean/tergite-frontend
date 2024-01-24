@@ -4,12 +4,12 @@ This is the collection of services that collectively are made available via the 
 
 ## Dependencies
 
-- Linux kernel. 
+- Linux kernel.
 
-    - This app is expected to be run on linux because of the logging type required. [journald is only for Linux](https://forums.docker.com/t/docker-for-windows-logging-failed-to-initialize-logging-driver-journald-is-not-enabled-on-this-host/68690/4). 
-    - Using the default `json-file` logging driver would quickly fill up your disk space after some time. See [here](https://docs.docker.com/config/containers/logging/configure/). 
-    - While the `local` logging driver should not be used by external tools like promtail, our logging aggregator client. See [here](https://docs.docker.com/config/containers/logging/local/)
-    
+  - This app is expected to be run on linux because of the logging type required. [journald is only for Linux](https://forums.docker.com/t/docker-for-windows-logging-failed-to-initialize-logging-driver-journald-is-not-enabled-on-this-host/68690/4).
+  - Using the default `json-file` logging driver would quickly fill up your disk space after some time. See [here](https://docs.docker.com/config/containers/logging/configure/).
+  - While the `local` logging driver should not be used by external tools like promtail, our logging aggregator client. See [here](https://docs.docker.com/config/containers/logging/local/)
+
 - [docker +v23.0.5](https://www.docker.com/products/docker-desktop/)
 
 ## Getting Started
@@ -34,11 +34,17 @@ DOCKER_USERNAME=johndoe
 docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME
 ```
 
+- Copy the `auth_config.example.toml` to `auth_config.toml` and update the configuration there.
+
+```shell
+cd tergite-qal9000
+cp auth_config.example.toml auth_config.toml
+```
+
 - Create a `.env` file basing on the `.env.example` file.
   Update the variables therein appropriately.
 
 ```shell
-cd tergite-qal9000
 cp .env.example .env
 ```
 

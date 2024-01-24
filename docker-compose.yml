@@ -9,6 +9,11 @@ services:
       driver: ${LOGGING_DRIVER}
     ports:
       - "8030:80"
+    environment:
+      - API_BASE_URL=http://mss
+      - AUTH_CONFIG_FILE=/app/auth_config.toml
+    volumes:
+      - ./auth_config.toml:/app/auth_config.toml:ro
     env_file:
       - .env
 
@@ -19,6 +24,10 @@ services:
       driver: ${LOGGING_DRIVER}
     ports:
       - "8002:80"
+    environment:
+      - AUTH_CONFIG_FILE=/code/auth_config.toml
+    volumes:
+      - ./auth_config.toml:/code/auth_config.toml:ro
     env_file:
       - .env
 
@@ -31,12 +40,15 @@ services:
       - "3000:3000"
     environment:
       - API_BASE_URL=http://mss/v2
+      - AUTH_CONFIG_FILE=/app/auth_config.toml
+    volumes:
+      - ./auth_config.toml:/app/auth_config.toml:ro
     env_file:
       - .env
 
   loki-promtail:
     restart: always
-    image: grafana/promtail:2.8.3
+    image: grafana/promtail:${PROMTAIL_VERSION:-2.8.3}
     logging:
       driver: ${LOGGING_DRIVER}
     volumes:
