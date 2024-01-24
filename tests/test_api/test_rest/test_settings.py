@@ -3,11 +3,9 @@ import importlib
 from os import environ
 
 import pytest
-from apscheduler.schedulers import SchedulerAlreadyRunningError
 
 import settings
 from tests._utils.env import TEST_NO_AUTH_CONFIG_FILE
-from utils.background_tasks import get_scheduler
 
 
 def test_no_auth_prod():
@@ -32,19 +30,11 @@ def test_no_auth_prod():
         importlib.reload(settings)
 
 
-def test_puhuri_sync_enabled(client):
+def test_puhuri_sync_enabled():
     """Should start puhuri scheduler if 'IS_PUHURI_SYNC_ENABLED' environment variable is True"""
-    # using context manager to ensure on_startup runs
-    with client as client:
-        puhuri_scheduler = get_scheduler()
-        with pytest.raises(SchedulerAlreadyRunningError):
-            puhuri_scheduler.start()
+    assert False
 
 
 def test_puhuri_sync_disabled(no_puhuri_client):
     """Should not start puhuri scheduler if 'IS_PUHURI_SYNC_ENABLED' environment variable is False"""
-    # using context manager to ensure on_startup runs
-    with no_puhuri_client as client:
-        puhuri_scheduler = get_scheduler()
-        puhuri_scheduler.start()
-        puhuri_scheduler.shutdown()
+    assert False

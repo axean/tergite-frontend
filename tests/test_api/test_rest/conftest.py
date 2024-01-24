@@ -153,20 +153,6 @@ def no_auth_client(db) -> TestClient:
 
 
 @pytest.fixture
-def no_puhuri_client(db) -> TestClient:
-    """A test client for fast api without puhuri sync"""
-    environ["IS_PUHURI_SYNC_ENABLED"] = "False"
-    importlib.reload(settings)
-    from api.rest import app
-
-    yield TestClient(app)
-
-    # reset
-    environ["IS_PUHURI_SYNC_ENABLED"] = f"{TEST_IS_PUHURI_SYNC_ENABLED}"
-    importlib.reload(settings)
-
-
-@pytest.fixture
 def inserted_projects(db) -> Dict[str, Dict[str, Any]]:
     """A dictionary of inserted project"""
     from services.auth import Project

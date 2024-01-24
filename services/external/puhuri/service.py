@@ -24,9 +24,8 @@ This client is useful to enable the following user stories
 """
 import asyncio
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Coroutine, Dict, List, Optional, Tuple, TypeVar
 
-from apscheduler.schedulers.base import BaseScheduler
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
 from pymongo import UpdateOne
@@ -34,7 +33,7 @@ from pymongo.errors import DuplicateKeyError
 from waldur_client import ComponentUsage, WaldurClient
 
 import settings
-from utils.logging import err_logger
+from utils.logging import err_logger, log_if_err
 from utils.mongodb import get_mongodb
 
 from ...auth.projects.dtos import PROJECT_DB_COLLECTION, Project, ProjectSource
@@ -64,11 +63,43 @@ from .utils import (
 #   on the project model in the database such that authentication does not fail for
 #   projects that have is_prepaid as False
 
-# FIXME: Also to total up a project's qpu_seconds after retrieving data from puhuri,
-#   we might need to sum up the "limit" properties.
 
-# FIXME: Question: How does one get the remaining amount of resource from a limit-based
-#   resource in puhuri?
+async def synchronize(
+    poll_interval: float = settings.PUHURI_POLL_INTERVAL,
+    db_url: str = f"{settings.DB_MACHINE_ROOT_URL}",
+    db_name: str = settings.DB_NAME,
+):
+    """Runs the tasks for synchronizing with the puhuri service
+
+    Args:
+        poll_interval: the interval at which puhuri is to be polled in seconds. default is 900 (15 minutes)
+        db_url: the mongodb URI to the database where resource usages are stored
+        db_name: the name of the database where the resource usages are stored
+    """
+    db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
+    await initialize_db(db)
+
+    while True:
+        await log_if_err(
+            update_internal_project_list(db_url=db_url, db_name=db_name),
+            err_msg_prefix="error in update_internal_project_list",
+        )
+
+        await log_if_err(
+            update_internal_user_list(db_url=db_url, db_name=db_name),
+            err_msg_prefix="error in update_internal_user_list",
+        )
+
+        await log_if_err(
+            update_internal_resource_allocation(db_url=db_url, db_name=db_name),
+            err_msg_prefix="error in update_internal_resource_allocation",
+        )
+        await log_if_err(
+            post_resource_usages(db_url=db_url, db_name=db_name),
+            err_msg_prefix="error in post_resource_usages",
+        )
+
+        await asyncio.sleep(poll_interval)
 
 
 async def update_internal_project_list(
@@ -98,118 +129,109 @@ async def update_internal_project_list(
         WaldurClientException: error making request
         pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
     """
-    try:
-        db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
-        collection = db[db_collection]
-        if api_client is None:
-            api_client = WaldurClient(api_url=api_uri, access_token=api_access_token)
+    db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
+    collection = db[db_collection]
+    if api_client is None:
+        api_client = WaldurClient(api_url=api_uri, access_token=api_access_token)
 
-        resource_filter = {"provider_uuid": provider_uuid, "state": "Creating"}
-        loop = asyncio.get_event_loop()
+    resource_filter = {"provider_uuid": provider_uuid, "state": "Creating"}
+    loop = asyncio.get_event_loop()
 
-        new_resources = await loop.run_in_executor(
-            None,
-            api_client.filter_marketplace_resources,
-            resource_filter,
+    new_resources = await loop.run_in_executor(
+        None,
+        api_client.filter_marketplace_resources,
+        resource_filter,
+    )
+    project_metadata = extract_project_metadata(new_resources)
+    new_projects = [
+        Project(
+            ext_id=item.uuid,
+            source=ProjectSource.PUHURI,
+            qpu_seconds=await get_qpu_seconds(client=api_client, metadata=item),
+            is_active=False,
+            resource_ids=item.resource_uuids,
         )
-        project_metadata = extract_project_metadata(new_resources)
-        new_projects = [
-            Project(
-                ext_id=item.uuid,
-                source=ProjectSource.PUHURI,
-                qpu_seconds=await get_qpu_seconds(client=api_client, metadata=item),
-                is_active=False,
-                resource_ids=item.resource_uuids,
-            )
-            for item in project_metadata
-        ]
+        for item in project_metadata
+    ]
 
-        responses = await asyncio.gather(
-            *(
-                collection.update_one(
-                    {
-                        "ext_id": project.ext_id,
-                        # a guard to ensure projects whose order approvals keep
-                        # failing do not have their qpu_seconds incremented indefinitely
-                        # NOTE: this may fail with a Conflict Error if any of the resource_ids
-                        #   already exists in the project. You might need to resolve this manually
-                        "resource_ids": {"$nin": project.resource_ids},
+    responses = await asyncio.gather(
+        *(
+            collection.update_one(
+                {
+                    "ext_id": project.ext_id,
+                    # a guard to ensure projects whose order approvals keep
+                    # failing do not have their qpu_seconds incremented indefinitely
+                    # NOTE: this may fail with a Conflict Error if any of the resource_ids
+                    #   already exists in the project. You might need to resolve this manually
+                    "resource_ids": {"$nin": project.resource_ids},
+                },
+                {
+                    "$set": {
+                        "source": ProjectSource.PUHURI.value,
+                        "is_active": project.is_active,
                     },
-                    {
-                        "$set": {
-                            "source": ProjectSource.PUHURI.value,
-                            "is_active": project.is_active,
-                        },
-                        "$inc": {
-                            "qpu_seconds": project.qpu_seconds,
-                        },
-                        "$addToSet": {"resource_ids": {"$each": project.resource_ids}},
+                    "$inc": {
+                        "qpu_seconds": project.qpu_seconds,
                     },
-                    upsert=True,
-                )
-                for project in new_projects
-            ),
-            return_exceptions=True,
-        )
-
-        updated_projects = [
-            new_projects[index]
-            for index, resp in enumerate(responses)
-            if not isinstance(resp, Exception)
-        ]
-
-        resource_project_map = {
-            resource_uuid: project.ext_id
-            for project in updated_projects
-            for resource_uuid in project.resource_ids
-        }
-
-        # responses is a list of Dict[resource_uuid, str]
-        # Note that we are filtering by resource UUID, not project UUID, because there is a chance
-        # that a project could have added new resources while we were still processing the
-        # current ones
-        responses = await asyncio.gather(
-            *(
-                approve_pending_orders(
-                    client=api_client,
-                    provider_uuid=provider_uuid,
-                    resource_uuid=resource_uuid,
-                )
-                for resource_uuid in resource_project_map.keys()
-            ),
-            return_exceptions=True,
-        )
-
-        approved_resource_uuid_maps = [
-            resp for resp in responses if isinstance(resp, dict)
-        ]
-        approved_resources = {
-            item["resource_uuid"]: True for item in approved_resource_uuid_maps
-        }
-
-        # approved projects are those that have all their resources approved
-        approved_project_ids = [
-            metadata.uuid
-            for metadata in project_metadata
-            if all(
-                approved_resources.get(resource_uuid)
-                for resource_uuid in metadata.resource_uuids
+                    "$addToSet": {"resource_ids": {"$each": project.resource_ids}},
+                },
+                upsert=True,
             )
+            for project in new_projects
+        ),
+        return_exceptions=True,
+    )
+
+    updated_projects = [
+        new_projects[index]
+        for index, resp in enumerate(responses)
+        if not isinstance(resp, Exception)
+    ]
+
+    resource_project_map = {
+        resource_uuid: project.ext_id
+        for project in updated_projects
+        for resource_uuid in project.resource_ids
+    }
+
+    # responses is a list of Dict[resource_uuid, str]
+    # Note that we are filtering by resource UUID, not project UUID, because there is a chance
+    # that a project could have added new resources while we were still processing the
+    # current ones
+    responses = await asyncio.gather(
+        *(
+            approve_pending_orders(
+                client=api_client,
+                provider_uuid=provider_uuid,
+                resource_uuid=resource_uuid,
+            )
+            for resource_uuid in resource_project_map.keys()
+        ),
+        return_exceptions=True,
+    )
+
+    approved_resource_uuid_maps = [resp for resp in responses if isinstance(resp, dict)]
+    approved_resources = {
+        item["resource_uuid"]: True for item in approved_resource_uuid_maps
+    }
+
+    # approved projects are those that have all their resources approved
+    approved_project_ids = [
+        metadata.uuid
+        for metadata in project_metadata
+        if all(
+            approved_resources.get(resource_uuid)
+            for resource_uuid in metadata.resource_uuids
+        )
+    ]
+
+    # reactivate the updated projects that were fully approved
+    await collection.bulk_write(
+        [
+            UpdateOne({"ext_id": ext_id}, {"$set": {"is_active": True}})
+            for ext_id in approved_project_ids
         ]
-
-        # reactivate the updated projects that were fully approved
-        await collection.bulk_write(
-            [
-                UpdateOne({"ext_id": ext_id}, {"$set": {"is_active": True}})
-                for ext_id in approved_project_ids
-            ]
-        )
-
-    except Exception as exp:
-        err_logger.error(
-            f"error update_internal_project_list: {exp.__class__.__name__}: {exp}"
-        )
-        raise exp
+    )
 
 
 async def update_internal_user_list(
@@ -237,67 +259,60 @@ async def update_internal_user_list(
         WaldurClientException: error making request
         pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
     """
-    try:
-        db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
-        collection = db[db_collection]
-        api_client = WaldurClient(api_url=api_uri, access_token=api_access_token)
-        loop = asyncio.get_event_loop()
+    db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
+    collection = db[db_collection]
+    api_client = WaldurClient(api_url=api_uri, access_token=api_access_token)
+    loop = asyncio.get_event_loop()
 
-        approved_resources = await loop.run_in_executor(
+    approved_resources = await loop.run_in_executor(
+        None,
+        api_client.filter_marketplace_resources,
+        {"provider_uuid": provider_uuid, "state": "OK"},
+    )
+
+    tasks = (
+        loop.run_in_executor(
             None,
-            api_client.filter_marketplace_resources,
-            {"provider_uuid": provider_uuid, "state": "OK"},
+            api_client.marketplace_resource_get_team,
+            resource["uuid"],
         )
+        for resource in approved_resources
+    )
+    results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        tasks = (
-            loop.run_in_executor(
-                None,
-                api_client.marketplace_resource_get_team,
-                resource["uuid"],
+    # get the map of projects and their user emails
+    projects_user_emails_map: Dict[str, List[str]] = {}
+    for index, user_list in enumerate(results):
+        project_id = approved_resources[index]["project_uuid"]
+
+        if isinstance(user_list, list):
+            emails = projects_user_emails_map.setdefault(project_id, [])
+            emails.extend([user["email"] for user in user_list])
+
+    # update the user lists of the projects that had user emails
+    await collection.bulk_write(
+        [
+            UpdateOne(
+                {
+                    "ext_id": project_id,
+                    "source": ProjectSource.PUHURI.value,
+                },
+                {"$set": {"user_emails": list(set(user_list))}},
             )
-            for resource in approved_resources
-        )
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+            for project_id, user_list in projects_user_emails_map.items()
+        ]
+    )
 
-        # get the map of projects and their user emails
-        projects_user_emails_map: Dict[str, List[str]] = {}
-        for index, user_list in enumerate(results):
-            project_id = approved_resources[index]["project_uuid"]
-
-            if isinstance(user_list, list):
-                emails = projects_user_emails_map.setdefault(project_id, [])
-                emails.extend([user["email"] for user in user_list])
-
-        # update the user lists of the projects that had user emails
-        await collection.bulk_write(
-            [
-                UpdateOne(
-                    {
-                        "ext_id": project_id,
-                        "source": ProjectSource.PUHURI.value,
-                    },
-                    {"$set": {"user_emails": list(set(user_list))}},
-                )
-                for project_id, user_list in projects_user_emails_map.items()
-            ]
-        )
-
-        # delete the user lists of pre-existing projects that had no user emails
-        # This ensures that users who have been removed from the puhuri side are also
-        # removed from this application
-        await collection.update_many(
-            {
-                "source": ProjectSource.PUHURI.value,
-                "ext_id": {"$nin": list(projects_user_emails_map.keys())},
-            },
-            {"$set": {"user_emails": []}},
-        )
-
-    except Exception as exp:
-        err_logger.error(
-            f"error update_internal_user_list: {exp.__class__.__name__}: {exp}"
-        )
-        raise exp
+    # delete the user lists of pre-existing projects that had no user emails
+    # This ensures that users who have been removed from the puhuri side are also
+    # removed from this application
+    await collection.update_many(
+        {
+            "source": ProjectSource.PUHURI.value,
+            "ext_id": {"$nin": list(projects_user_emails_map.keys())},
+        },
+        {"$set": {"user_emails": []}},
+    )
 
 
 async def update_internal_resource_allocation(
@@ -325,63 +340,57 @@ async def update_internal_resource_allocation(
         WaldurClientException: error making request
         pydantic.error_wrappers.ValidationError: {} validation error for ResourceAllocation ...
     """
-    try:
-        db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
-        collection = db[db_collection]
-        api_client = WaldurClient(api_url=api_uri, access_token=api_access_token)
-        loop = asyncio.get_event_loop()
+    db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
+    collection = db[db_collection]
+    api_client = WaldurClient(api_url=api_uri, access_token=api_access_token)
+    loop = asyncio.get_event_loop()
 
-        approved_resources = await loop.run_in_executor(
-            None,
-            api_client.filter_marketplace_resources,
-            {"provider_uuid": provider_uuid, "state": "OK"},
+    approved_resources = await loop.run_in_executor(
+        None,
+        api_client.filter_marketplace_resources,
+        {"provider_uuid": provider_uuid, "state": "OK"},
+    )
+
+    projects_metadata = extract_project_metadata(approved_resources)
+    approved_projects: List[Project] = [
+        Project(
+            ext_id=item.uuid,
+            source=ProjectSource.PUHURI,
+            qpu_seconds=await get_qpu_seconds(client=api_client, metadata=item),
+            is_active=True,
+            resource_ids=item.resource_uuids,
         )
+        for item in projects_metadata
+    ]
 
-        projects_metadata = extract_project_metadata(approved_resources)
-        approved_projects: List[Project] = [
-            Project(
-                ext_id=item.uuid,
-                source=ProjectSource.PUHURI,
-                qpu_seconds=await get_qpu_seconds(client=api_client, metadata=item),
-                is_active=True,
-                resource_ids=item.resource_uuids,
+    responses = await asyncio.gather(
+        *(
+            collection.update_one(
+                {
+                    "ext_id": project.ext_id,
+                    # a guard to ensure projects that no resource is ignored
+                    # NOTE: this may fail with a Conflict Error if any of the resource_ids
+                    #   does not already exist in the project i.e. it is newly allocated.
+                    #   This must be resolved by the routine that extracts new resources/projects or
+                    #   You might need to resolve this manually
+                    "resource_ids": {"$in": project.resource_ids},
+                },
+                {
+                    "$set": {
+                        "source": ProjectSource.PUHURI.value,
+                        "is_active": project.is_active,
+                        "qpu_seconds": project.qpu_seconds,
+                    },
+                },
             )
-            for item in projects_metadata
-        ]
+            for project in approved_projects
+        ),
+        return_exceptions=True,
+    )
 
-        responses = await asyncio.gather(
-            *(
-                collection.update_one(
-                    {
-                        "ext_id": project.ext_id,
-                        # a guard to ensure projects that no resource is ignored
-                        # NOTE: this may fail with a Conflict Error if any of the resource_ids
-                        #   does not already exist in the project i.e. it is newly allocated.
-                        #   This must be resolved by the routine that extracts new resources/projects or
-                        #   You might need to resolve this manually
-                        "resource_ids": {"$in": project.resource_ids},
-                    },
-                    {
-                        "$set": {
-                            "source": ProjectSource.PUHURI.value,
-                            "is_active": project.is_active,
-                            "qpu_seconds": project.qpu_seconds,
-                        },
-                    },
-                )
-                for project in approved_projects
-            ),
-            return_exceptions=True,
-        )
-
-        errors = [resp for resp in responses if not isinstance(resp, Exception)]
-        if len(errors) > 0:
-            raise Exception(f"errors updating existing projects: {errors}")
-    except Exception as exp:
-        err_logger.error(
-            f"error update_internal_resource_allocation: {exp.__class__.__name__}: {exp}"
-        )
-        raise exp
+    errors = [resp for resp in responses if not isinstance(resp, Exception)]
+    if len(errors) > 0:
+        raise Exception(f"errors updating existing projects: {errors}")
 
 
 async def save_job_resource_usage(
@@ -428,6 +437,7 @@ async def post_resource_usages(
     failures_collection: str = REQUEST_FAILURES_COLLECTION,
     projects_collection: str = PROJECT_DB_COLLECTION,
     provider_uuid: str = settings.PUHURI_PROVIDER_UUID,
+    update_projects: bool = False,
 ):
     """Sends the resource usages for the current month over to Puhuri
 
@@ -444,15 +454,16 @@ async def post_resource_usages(
         failures_collection: the name of the collection where the failed puhuri requests are stored
         projects_collection: the name of the collection where the projects are stored
         provider_uuid: the unique ID of the service provider associated with this app in puhuri
+        update_projects: whether the list of projects should first be updated; default is False
     """
-    try:
-        now = datetime.now(tz=timezone.utc)
-        db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
-        usage_col = db[usages_collection]
-        raw_usage_col = db[raw_usages_collection]
-        failures_col = db[failures_collection]
-        client = WaldurClient(api_url=api_uri, access_token=api_access_token)
+    now = datetime.now(tz=timezone.utc)
+    db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
+    usage_col = db[usages_collection]
+    raw_usage_col = db[raw_usages_collection]
+    failures_col = db[failures_collection]
+    client = WaldurClient(api_url=api_uri, access_token=api_access_token)
 
+    if update_projects:
         # ensure that all the provider's pending orders are accounted for.
         # This ensures that all resources that we will query later have 'plan periods'.
         await update_internal_project_list(
@@ -465,97 +476,62 @@ async def post_resource_usages(
             provider_uuid=provider_uuid,
         )
 
-        # prepare any unprocessed resource usages for posting
-        errors = await _prepare_resource_usages(
-            api_client=client,
-            raw_collection=raw_usage_col,
-            final_collection=usage_col,
-            provider_uuid=provider_uuid,
-        )
-        if len(errors) > 0:
-            # log the errors silently and continue with the successful ones
-            err_logger.error(f"errors preparing resource usages: {errors}")
+    # prepare any unprocessed resource usages for posting
+    errors = await _prepare_resource_usages(
+        api_client=client,
+        raw_collection=raw_usage_col,
+        final_collection=usage_col,
+        provider_uuid=provider_uuid,
+    )
+    if len(errors) > 0:
+        # log the errors silently and continue with the successful ones
+        err_logger.error(f"errors preparing resource usages: {errors}")
 
-        pipeline = [
-            {"$match": {"month": now.month, "year": now.year}},
-            {
-                "$group": {
-                    "_id": {
-                        "plan_period_uuid": "$plan_period_uuid",
-                        "component_type": "$component_type",
-                    },
-                    "amount": {"$sum": "$component_amount"},
-                    "qpu_seconds": {"$sum": "$qpu_seconds"},
+    pipeline = [
+        {"$match": {"month": now.month, "year": now.year}},
+        {
+            "$group": {
+                "_id": {
+                    "plan_period_uuid": "$plan_period_uuid",
+                    "component_type": "$component_type",
                 },
+                "amount": {"$sum": "$component_amount"},
+                "qpu_seconds": {"$sum": "$qpu_seconds"},
             },
-        ]
+        },
+    ]
 
-        db_cursor = usage_col.aggregate(pipeline)
-        tasks = [
-            send_component_usages(
-                client,
-                plan_period_uuid=item["_id"]["plan_period_uuid"],
-                usages=[
-                    ComponentUsage(
-                        type=item["_id"]["component_type"],
-                        amount=item["amount"],
-                        description=f"{item['qpu_seconds']} QPU seconds",
-                    )
-                ],
-            )
-            async for item in db_cursor
-        ]
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+    db_cursor = usage_col.aggregate(pipeline)
+    tasks = [
+        send_component_usages(
+            client,
+            plan_period_uuid=item["_id"]["plan_period_uuid"],
+            usages=[
+                ComponentUsage(
+                    type=item["_id"]["component_type"],
+                    amount=item["amount"],
+                    description=f"{item['qpu_seconds']} QPU seconds",
+                )
+            ],
+        )
+        async for item in db_cursor
+    ]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        # save any errors
-        failures = [
-            item.dict() for item in results if isinstance(item, PuhuriFailedRequest)
-        ]
-        if len(failures) > 0:
-            await failures_col.insert_many(failures)
-
-    except Exception as exp:
-        err_logger.error(f"error post_resource_usages: {exp.__class__.__name__}: {exp}")
-        raise exp
+    # save any errors
+    failures = [
+        item.dict() for item in results if isinstance(item, PuhuriFailedRequest)
+    ]
+    if len(failures) > 0:
+        await failures_col.insert_many(failures)
 
 
-def register_background_tasks(
-    scheduler: BaseScheduler,
-    poll_interval: float = settings.PUHURI_POLL_INTERVAL,
-):
-    """Registers the background tasks for the puhuri service on the given scheduler
+async def initialize_db(db: AsyncIOMotorDatabase):
+    """Initializes the database for puhuri synchronization
 
     Args:
-        scheduler: the scheduler to run the tasks in the background
-        poll_interval: the interval at which puhuri is to be polled in seconds. default is 900 (15 minutes)
+        db: the mongo database to initialize
     """
-    scheduler.add_job(
-        update_internal_project_list,
-        "interval",
-        seconds=poll_interval,
-    )
-
-    scheduler.add_job(
-        update_internal_user_list,
-        "interval",
-        seconds=poll_interval,
-    )
-
-    scheduler.add_job(
-        update_internal_resource_allocation,
-        "interval",
-        seconds=poll_interval,
-    )
-
-    scheduler.add_job(
-        post_resource_usages,
-        "interval",
-        seconds=poll_interval,
-    )
-
-
-async def on_startup(db: AsyncIOMotorDatabase):
-    """Runs init operations when the application is starting up"""
     await init_beanie(
         database=db,
         document_models=[

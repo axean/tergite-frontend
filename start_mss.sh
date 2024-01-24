@@ -12,6 +12,9 @@ PORT_NUMBER="${PORT_CONFIG#*=}"                  # extract the number
 [[ ! "$PORT_NUMBER" =~ ^[0-9]+$ ]]  &&  exit_with_error
 
 
+# puhuri sync
+python -m api.scripts.puhuri_sync --ignore-if-disabled &
+
 # rest-api
 uvicorn --host 0.0.0.0 --port "$PORT_NUMBER" api.rest:app  --proxy-headers --reload
 

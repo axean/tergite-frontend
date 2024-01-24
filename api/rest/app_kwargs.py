@@ -16,16 +16,16 @@
 # that they have been altered from the originals.
 """Collection of key-word args for the FastAPI app"""
 from contextlib import asynccontextmanager
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import pymongo
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI
 
 import settings
 from services.auth import service as auth_service
 from services.device_info import service as device_info_service
 from services.external import bcc, puhuri
-from utils import background_tasks
 
 from .dependencies import get_default_mongodb
 
@@ -58,15 +58,8 @@ async def lifespan(_app: FastAPI):
     await device_info_service.on_startup()
     db = await get_default_mongodb()
     await auth_service.on_startup(db)
-    await puhuri.on_startup(db)
-
-    # background tasks
-    if settings.IS_PUHURI_SYNC_ENABLED:
-        scheduler = background_tasks.get_scheduler()
-        puhuri.register_background_tasks(scheduler)
-        scheduler.start()
+    await puhuri.initialize_db(db)
 
     yield
     # on shutdown
     await bcc.close_client()
-    background_tasks.stop_scheduler()
