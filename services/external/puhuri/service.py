@@ -23,8 +23,9 @@ This client is useful to enable the following user stories
     resource usage at a given interval or the moment an experiment is done
 """
 import asyncio
+import logging
 from datetime import datetime, timezone
-from typing import Any, Coroutine, Dict, List, Optional, Tuple, TypeVar
+from typing import Dict, List, Optional, Tuple
 
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
@@ -65,13 +66,15 @@ from .utils import (
 
 
 async def synchronize(
-    poll_interval: float = settings.PUHURI_POLL_INTERVAL,
+    stop_event: asyncio.Event,
+    poll_interval: int = settings.PUHURI_POLL_INTERVAL,
     db_url: str = f"{settings.DB_MACHINE_ROOT_URL}",
     db_name: str = settings.DB_NAME,
 ):
     """Runs the tasks for synchronizing with the puhuri service
 
     Args:
+        stop_event: an asyncio event that may be used to terminate this function
         poll_interval: the interval at which puhuri is to be polled in seconds. default is 900 (15 minutes)
         db_url: the mongodb URI to the database where resource usages are stored
         db_name: the name of the database where the resource usages are stored
@@ -79,7 +82,7 @@ async def synchronize(
     db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
     await initialize_db(db)
 
-    while True:
+    while not stop_event.is_set():
         await log_if_err(
             update_internal_project_list(db_url=db_url, db_name=db_name),
             err_msg_prefix="error in update_internal_project_list",
@@ -99,7 +102,10 @@ async def synchronize(
             err_msg_prefix="error in post_resource_usages",
         )
 
-        await asyncio.sleep(poll_interval)
+        for _ in range(poll_interval):
+            # wait but leaving room for signal to terminate
+            if not stop_event.is_set():
+                await asyncio.sleep(1)
 
 
 async def update_internal_project_list(

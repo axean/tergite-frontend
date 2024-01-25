@@ -10,8 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Integration tests for the Puhuri background jobs"""
-import asyncio
 from datetime import datetime
+from time import sleep
 from typing import List
 
 import pytest
@@ -20,19 +20,15 @@ from waldur_client import ComponentUsage
 from api.scripts import puhuri_sync
 from services.auth import Project
 from tests._utils.auth import TEST_PROJECT_EXT_ID, get_db_record
-from tests._utils.env import (
-    TEST_PUHURI_POLL_INTERVAL,
-    TEST_PUHURI_WALDUR_API_URI,
-    TEST_PUHURI_WALDUR_CLIENT_TOKEN,
-)
+from tests._utils.env import TEST_PUHURI_POLL_INTERVAL
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.json import to_json
 from tests._utils.mongodb import find_in_collection, insert_in_collection
-from tests._utils.records import pop_field
-from tests._utils.waldur import get_mock_client
+from tests._utils.records import order_by, pop_field
 
 _PUHURI_PENDING_ORDERS = load_json_fixture("puhuri_pending_orders.json")
 _JOB_TIMESTAMPED_UPDATES = load_json_fixture("job_timestamped_updates.json")
+_INTERNAL_RESOURCE_USAGES = load_json_fixture("internal_resource_usages.json")
 _JOBS_LIST = load_json_fixture("job_list.json")
 _JOBS_COLLECTION = "jobs"
 _INTERNAL_USAGE_COLLECTION = "internal_resource_usages"
@@ -94,53 +90,53 @@ def test_save_resource_usages(db, client, project_id, app_token_header):
         assert all([(x - now).total_seconds() < 30 for x in created_on_timestamps])
 
 
-@pytest.mark.asyncio
-async def test_post_resource_usages(db, client, project_id, app_token_header):
+def test_post_resource_usages(db, mock_puhuri_sync_calls):
     """Should post all accumulated resource usages at a given interval"""
-    job_list = [{**item, "project_id": project_id} for item in _JOBS_LIST]
-    insert_in_collection(database=db, collection_name=_JOBS_COLLECTION, data=job_list)
-
-    mock_waldur_client = get_mock_client(
-        api_url=TEST_PUHURI_WALDUR_API_URI,
-        access_token=TEST_PUHURI_WALDUR_CLIENT_TOKEN,
+    insert_in_collection(
+        database=db,
+        collection_name=_INTERNAL_USAGE_COLLECTION,
+        data=[
+            {**item, "created_on": datetime.now()} for item in _INTERNAL_RESOURCE_USAGES
+        ],
     )
-    assert mock_waldur_client._component_usages == {}
 
-    # using context manager to ensure on_startup runs
-    with client as client:
-        # push job resource usages to MSS
-        for payload in _JOB_TIMESTAMPED_UPDATES.copy():
-            job_id = payload.pop("job_id")
+    assert mock_puhuri_sync_calls.empty()
 
-            client.put(
-                f"/jobs/{job_id}",
-                json={**payload, "timelog.RESULT": "foo"},
-                headers=app_token_header,
-            )
+    # wait for the script to run its tasks
+    sleep(TEST_PUHURI_POLL_INTERVAL + 1)
 
-        # wait for the scheduler to run its jobs
-        await asyncio.sleep(TEST_PUHURI_POLL_INTERVAL + 1)
+    got = []
+    while not mock_puhuri_sync_calls.empty():
+        got.append(mock_puhuri_sync_calls.get())
 
-        # the reported component usages are saved in the mock's '_component_usages' prop
-        got = mock_waldur_client._component_usages
-        expected = {
-            "c0e15746796646f183d9f0d0096cf084": [
-                ComponentUsage(
-                    type="pre-paid",
-                    amount=2.24,
-                    description="8042.9668759999995 QPU seconds",
-                )
-            ],
-            "b62a8f69b3d8497986a7769b75d735fe": [
-                ComponentUsage(
-                    type="pre-paid",
-                    amount=222.53,
-                    description="801104.495965 QPU seconds",
-                )
-            ],
-        }
+    expected = [
+        {
+            "plan_period_uuid": "c0e15746796646f183d9f0d0096cf084",
+            "usages": to_json(
+                [
+                    ComponentUsage(
+                        type="pre-paid",
+                        amount=2.24,
+                        description="8042.9 QPU seconds",
+                    )
+                ],
+            ),
+        },
+        {
+            "plan_period_uuid": "b62a8f69b3d8497986a7769b75d735fe",
+            "usages": to_json(
+                [
+                    ComponentUsage(
+                        type="pre-paid",
+                        amount=222.53,
+                        description="801104.5 QPU seconds",
+                    )
+                ]
+            ),
+        },
+    ]
 
-        assert to_json(got) == to_json(expected)
+    assert order_by(got, "plan_period_uuid") == order_by(expected, "plan_period_uuid")
 
 
 def test_update_internal_project_list():

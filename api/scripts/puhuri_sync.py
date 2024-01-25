@@ -19,11 +19,15 @@ import settings
 from services.external import puhuri
 
 
-def main(args: Optional[Sequence[str]]):
+def main(
+    args: Optional[Sequence[str]],
+    stop_event: asyncio.Event = asyncio.Event(),
+):
     """The main routine for running the puhuri synchronization
 
     Args:
         args: the commandline arguments to parse
+        stop_event: the asyncio Event for stopping this script
     """
     parser = argparse.ArgumentParser(description="synchronize with Puhuri")
 
@@ -36,7 +40,7 @@ def main(args: Optional[Sequence[str]]):
     parsed_args = parser.parse_args(args)
 
     if settings.IS_PUHURI_SYNC_ENABLED:
-        asyncio.run(puhuri.synchronize())
+        asyncio.run(puhuri.synchronize(stop_event))
     elif not parsed_args.ignore_if_disabled:
         raise ValueError("environment variable 'IS_PUHURI_SYNC_ENABLED' is False")
 

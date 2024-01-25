@@ -65,7 +65,7 @@ root_logger.setLevel(_logger_level)
 
 # PUHURI synchronization
 IS_PUHURI_SYNC_ENABLED = config("IS_PUHURI_SYNC_ENABLED", cast=bool, default=True)
-PUHURI_POLL_INTERVAL = config("PUHURI_POLL_INTERVAL", cast=float, default=900)
+PUHURI_POLL_INTERVAL = config("PUHURI_POLL_INTERVAL", cast=int, default=900)
 MAX_PUHURI_SUBMISSION_ATTEMPTS = config(
     "MAX_PUHURI_SUBMISSION_ATTEMPTS", cast=float, default=3
 )

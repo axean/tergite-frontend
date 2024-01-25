@@ -13,11 +13,12 @@ from tests._utils.env import (
 setup_test_env()
 
 import importlib
+import multiprocessing
 import random
 from datetime import datetime, timezone
 from os import environ
 from typing import Any, Dict, List
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import httpx
 import pymongo.database
@@ -29,7 +30,6 @@ from httpx_oauth.clients import github, microsoft
 
 import settings
 from services.external import puhuri
-from tests._utils import waldur
 from tests._utils.auth import (
     INVALID_CHALMERS_PROFILE,
     INVALID_GITHUB_PROFILE,
@@ -55,6 +55,7 @@ from tests._utils.auth import (
 )
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.modules import remove_modules
+from tests._utils.waldur import MockWaldurClient
 
 _PUHURI_OPENID_CONFIG = load_json_fixture("puhuri_openid_config.json")
 PROJECT_LIST = load_json_fixture("project_list.json")
@@ -88,16 +89,28 @@ def disabled_puhuri_sync():
 @pytest.fixture
 def mock_puhuri(respx_mock):
     """Mock of the puhuri openid config url"""
-    remove_modules(["waldur_client"])
+    respx_mock.get(TEST_PUHURI_CONFIG_ENDPOINT).mock(
+        return_value=httpx.Response(status_code=200, json=_PUHURI_OPENID_CONFIG)
+    )
+    yield respx_mock
 
-    with patch("waldur_client.WaldurClient", side_effect=waldur.get_mock_client):
-        respx_mock.get(TEST_PUHURI_CONFIG_ENDPOINT).mock(
-            return_value=httpx.Response(status_code=200, json=_PUHURI_OPENID_CONFIG)
-        )
-        yield respx_mock
+
+@pytest.fixture
+def mock_puhuri_sync_calls():
+    """A mock puhuri client that initializes the puhuri sync process"""
+    queue = multiprocessing.Queue()
+    worker = multiprocessing.Process(
+        target=setup_puhuri_sync,
+        args=([], queue),
+    )
+    worker.start()
+
+    yield queue
 
     # clean up
-    waldur.clear_mock_clients()
+    worker.terminate()
+    worker.join()
+    worker.close()
 
 
 @pytest.fixture
@@ -411,3 +424,29 @@ def get_unauthorized_app_token_post():
     ]
 
     return admin_only_post_data + user_only_post_data
+
+
+def setup_puhuri_sync(
+    args,
+    queue: multiprocessing.Queue,
+    **kwargs,
+):
+    """Sets up the puhuri sync worker ready for a different thread/process
+
+    Args:
+        args: the args to pass to puhuri_sync.main
+        queue: a queue for sharing state across processes
+        kwargs: the key-word arguments to pass to puhuri_sync.main
+    """
+    setup_test_env()
+    # FIXME: It seems very important that 'services' is removed
+    remove_modules(["settings", "api", "utils", "tests", "waldur_client", "services"])
+    import waldur_client
+
+    waldur_client.WaldurClient = lambda api_url, access_token: MockWaldurClient(
+        api_url=api_url, access_token=access_token, queue=queue
+    )
+
+    from api.scripts import puhuri_sync
+
+    puhuri_sync.main(args, **kwargs)

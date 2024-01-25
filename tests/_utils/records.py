@@ -171,3 +171,15 @@ def group_by(
             current_group[terminal_value] = [prop]
 
     return result
+
+
+def copy_records(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Copies the list of dicts into a new immutable list of dicts
+
+    Args:
+        records: the list of records to copy immutably
+
+    return
+        New list of records with same values
+    """
+    return [{**item} for item in records]
