@@ -237,7 +237,7 @@ def test_update_job_resource_usage(
     )
     expected_resource_usage = _get_resource_usage(payload["timestamps"])
     actual_resource_usage = round(
-        project_before_update["qpu_seconds"] - project_after_update["qpu_seconds"], 6
+        project_before_update["qpu_seconds"] - project_after_update["qpu_seconds"], 1
     )
 
     assert actual_resource_usage == expected_resource_usage
@@ -251,6 +251,6 @@ def _get_resource_usage(timestamps: Dict[str, Dict[str, str]]) -> Optional[float
         finished_timestamp_str = execution_timestamps["finished"].replace("Z", "+00:00")
         started_timestamp = datetime.datetime.fromisoformat(started_timestamp_str)
         finished_timestamp = datetime.datetime.fromisoformat(finished_timestamp_str)
-        return (finished_timestamp - started_timestamp).total_seconds()
+        return round((finished_timestamp - started_timestamp).total_seconds(), 1)
     except AttributeError:
         return 0

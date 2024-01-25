@@ -11,11 +11,15 @@
 # that they have been altered from the originals.
 """Integration tests for the Puhuri background jobs"""
 import asyncio
+from datetime import datetime
+from typing import List
 
 import pytest
 from waldur_client import ComponentUsage
 
 from api.scripts import puhuri_sync
+from services.auth import Project
+from tests._utils.auth import TEST_PROJECT_EXT_ID, get_db_record
 from tests._utils.env import (
     TEST_PUHURI_POLL_INTERVAL,
     TEST_PUHURI_WALDUR_API_URI,
@@ -23,13 +27,71 @@ from tests._utils.env import (
 )
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.json import to_json
-from tests._utils.mongodb import insert_in_collection
+from tests._utils.mongodb import find_in_collection, insert_in_collection
+from tests._utils.records import pop_field
 from tests._utils.waldur import get_mock_client
 
 _PUHURI_PENDING_ORDERS = load_json_fixture("puhuri_pending_orders.json")
 _JOB_TIMESTAMPED_UPDATES = load_json_fixture("job_timestamped_updates.json")
 _JOBS_LIST = load_json_fixture("job_list.json")
 _JOBS_COLLECTION = "jobs"
+_INTERNAL_USAGE_COLLECTION = "internal_resource_usages"
+_EXCLUDED_FIELDS = ["_id", "id"]
+
+
+def test_save_resource_usages(db, client, project_id, app_token_header):
+    """PUT to "/jobs/{job_id}" updates the resource usage in database for that project id"""
+    project_id_str = f"{project_id}"
+    job_list = [{**item, "project_id": project_id} for item in _JOBS_LIST]
+    insert_in_collection(database=db, collection_name=_JOBS_COLLECTION, data=job_list)
+    initial_data = find_in_collection(
+        db,
+        collection_name=_INTERNAL_USAGE_COLLECTION,
+        fields_to_exclude=_EXCLUDED_FIELDS,
+    )
+    project = get_db_record(db, schema=Project, _id=project_id_str)
+    expected_usages: List[dict] = []
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        # push job resource usages to MSS
+        for payload in _JOB_TIMESTAMPED_UPDATES.copy():
+            current_qpu_seconds = project["qpu_seconds"]
+            job_id = payload.pop("job_id")
+
+            response = client.put(
+                f"/jobs/{job_id}",
+                json={**payload, "timelog.RESULT": "foo"},
+                headers=app_token_header,
+            )
+            assert response.status_code == 200
+
+            project = get_db_record(db, schema=Project, _id=project_id_str)
+            usage = round(current_qpu_seconds - project["qpu_seconds"], 1)
+            if usage > 0:
+                expected_usages.append(
+                    {
+                        "job_id": job_id,
+                        "project_id": TEST_PROJECT_EXT_ID,
+                        "qpu_seconds": usage,
+                        "is_processed": False,
+                    }
+                )
+
+        final_data = find_in_collection(
+            db,
+            collection_name=_INTERNAL_USAGE_COLLECTION,
+            fields_to_exclude=_EXCLUDED_FIELDS,
+        )
+        now = datetime.now()
+        created_on_timestamps: List[datetime] = pop_field(final_data, "created_on")
+
+        assert initial_data == []
+        assert [
+            {**item, "qpu_seconds": round(item["qpu_seconds"], 1)}
+            for item in final_data
+        ] == expected_usages
+        assert all([(x - now).total_seconds() < 30 for x in created_on_timestamps])
 
 
 @pytest.mark.asyncio
@@ -47,7 +109,7 @@ async def test_post_resource_usages(db, client, project_id, app_token_header):
     # using context manager to ensure on_startup runs
     with client as client:
         # push job resource usages to MSS
-        for payload in _JOB_TIMESTAMPED_UPDATES:
+        for payload in _JOB_TIMESTAMPED_UPDATES.copy():
             job_id = payload.pop("job_id")
 
             client.put(

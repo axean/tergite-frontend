@@ -54,37 +54,6 @@ def get_client(
     return WaldurClient(uri, access_token=access_token)
 
 
-async def get_new_orders(client: WaldurClient, offering_id: str) -> List["PuhuriOrder"]:
-    """Retrieves the latest orders for the offering associated with MSS on puhuri
-
-    This is used to update our own project lists in MSS with the new additional qpu_seconds
-
-    Args:
-        client: the Waldur client for accessing the Puhuri Waldur server API
-        offering_id: the unique ID of the resource that MSS is associated with in Waldur
-
-    Returns:
-        list of orders that are yet to be approved or rejected
-
-    Raises:
-        WaldurClientException: error making request
-        pydantic.error_wrappers.ValidationError: {} validation error for PuhuriOrder ...
-    """
-    # FIXME: Which type of user can attempt to allocate resources for a given project?
-    #       If any user, how do we check that a user has paid for the resource allocation before accepting the request
-    #       Does Puhuri handle the billing and payment for us?
-    loop = asyncio.get_event_loop()
-    response = await loop.run_in_executor(
-        None,
-        client.list_orders,
-        {
-            "marketplace_resource_uuid": offering_id,
-            "state": "executing",
-        },
-    )
-    return [PuhuriOrder.parse_obj(item) for item in response]
-
-
 async def approve_pending_orders(
     client: WaldurClient,
     provider_uuid: str,

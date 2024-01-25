@@ -96,7 +96,7 @@ TEST_PROJECT_DICT = dict(
     _id=PydanticObjectId(TEST_PROJECT_ID),
     ext_id=TEST_PROJECT_EXT_ID,
     user_emails=[TEST_USER_EMAIL, TEST_SYSTEM_USER_EMAIL],
-    qpu_seconds=108000,
+    qpu_seconds=108000000000000,
 )
 
 TEST_NO_QPU_PROJECT_DICT = dict(
