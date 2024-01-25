@@ -1,10 +1,7 @@
-from unittest.mock import patch
-
 from tests._utils.env import (
     TEST_AUTH_CONFIG_FILE,
     TEST_BCC_URL,
     TEST_DB_NAME,
-    TEST_IS_PUHURI_SYNC_ENABLED,
     TEST_JWT_SECRET,
     TEST_MONGODB_URL,
     TEST_NO_AUTH_CONFIG_FILE,
@@ -20,6 +17,7 @@ import random
 from datetime import datetime, timezone
 from os import environ
 from typing import Any, Dict, List
+from unittest.mock import Mock, patch
 
 import httpx
 import pymongo.database
@@ -30,6 +28,7 @@ from fastapi_users.router.oauth import generate_state_token
 from httpx_oauth.clients import github, microsoft
 
 import settings
+from services.external import puhuri
 from tests._utils import waldur
 from tests._utils.auth import (
     INVALID_CHALMERS_PROFILE,
@@ -61,6 +60,29 @@ _PUHURI_OPENID_CONFIG = load_json_fixture("puhuri_openid_config.json")
 PROJECT_LIST = load_json_fixture("project_list.json")
 APP_TOKEN_LIST = load_json_fixture("app_token_list.json")
 TEST_NEXT_COOKIE_URL = "https://testserver/"
+
+
+@pytest.fixture
+def mock_puhuri_synchronize(mocker) -> Mock:
+    """A mock of the internal puhuri synchronize"""
+    mocker.patch("services.external.puhuri.synchronize")
+    yield puhuri.synchronize
+
+
+@pytest.fixture
+def disabled_puhuri_sync():
+    """Disables PUHURI synchronization"""
+    original_env = {
+        "IS_PUHURI_SYNC_ENABLED": environ.get("IS_PUHURI_SYNC_ENABLED", "True"),
+    }
+
+    environ["IS_PUHURI_SYNC_ENABLED"] = "False"
+    importlib.reload(settings)
+    yield
+
+    # reset
+    environ["IS_PUHURI_SYNC_ENABLED"] = original_env["IS_PUHURI_SYNC_ENABLED"]
+    importlib.reload(settings)
 
 
 @pytest.fixture

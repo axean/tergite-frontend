@@ -1,15 +1,12 @@
 """Integration tests for the auth router"""
-import importlib
 import re
 from datetime import datetime, timedelta, timezone
-from os import environ
 from typing import Optional
 
 import httpx
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
-import settings
 from services.auth import AppToken, Project
 from tests._utils.auth import (
     TEST_APP_TOKEN_DICT,
@@ -25,7 +22,7 @@ from tests._utils.auth import (
     is_valid_jwt,
 )
 from tests._utils.fixtures import load_json_fixture
-from tests.test_api.test_rest.conftest import (
+from tests.conftest import (
     APP_TOKEN_LIST,
     PROJECT_LIST,
     TEST_NEXT_COOKIE_URL,

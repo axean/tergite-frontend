@@ -28,13 +28,3 @@ def test_no_auth_prod():
         environ["APP_SETTINGS"] = original_env["APP_SETTINGS"]
         environ["AUTH_CONFIG_FILE"] = original_env["AUTH_CONFIG_FILE"]
         importlib.reload(settings)
-
-
-def test_puhuri_sync_enabled():
-    """Should start puhuri scheduler if 'IS_PUHURI_SYNC_ENABLED' environment variable is True"""
-    assert False
-
-
-def test_puhuri_sync_disabled(no_puhuri_client):
-    """Should not start puhuri scheduler if 'IS_PUHURI_SYNC_ENABLED' environment variable is False"""
-    assert False

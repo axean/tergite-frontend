@@ -13,7 +13,7 @@
 
 See: https://puhuri.neic.no/SDK%20guide/allocation-management-sp/#getting-a-list-of-resource-allocations
 
-polling is to be done using apscheduler
+polling is to be done in a loop at a given interval
 
 This client is useful to enable the following user stories
 - Puhuri project admin can create new projects that have QAL 9000 offering indirectly in MSS (polling every few minutes or so)

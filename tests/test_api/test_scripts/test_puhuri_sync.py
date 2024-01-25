@@ -15,6 +15,7 @@ import asyncio
 import pytest
 from waldur_client import ComponentUsage
 
+from api.scripts import puhuri_sync
 from tests._utils.env import (
     TEST_PUHURI_POLL_INTERVAL,
     TEST_PUHURI_WALDUR_API_URI,
@@ -93,3 +94,36 @@ def test_update_internal_user_list():
 def test_update_internal_resource_allocation():
     """Should update the internal resource allocation quotas with that got from Puhuri, at a given interval"""
     assert False
+
+
+def test_puhuri_sync_enabled(mock_puhuri_synchronize):
+    """Should start puhuri synchronizer if 'IS_PUHURI_SYNC_ENABLED' environment variable is True"""
+    puhuri_sync.main([])
+    mock_puhuri_synchronize.assert_called()
+
+
+def test_puhuri_sync_disabled(disabled_puhuri_sync, mock_puhuri_synchronize):
+    """Should not start puhuri synchronizer if 'IS_PUHURI_SYNC_ENABLED' environment variable is False"""
+    with pytest.raises(
+        ValueError,
+        match="environment variable 'IS_PUHURI_SYNC_ENABLED' is False",
+    ):
+        puhuri_sync.main([])
+
+    mock_puhuri_synchronize.assert_not_called()
+
+
+@pytest.mark.parametrize("arg", ["--ignore-if-disabled", "-i"])
+def test_puhuri_sync_ignore_if_disabled_when_disabled(
+    disabled_puhuri_sync, mock_puhuri_synchronize, arg
+):
+    """Should not raise any error with --ignore-if-disabled is passed as an argument"""
+    puhuri_sync.main([arg])
+    mock_puhuri_synchronize.assert_not_called()
+
+
+@pytest.mark.parametrize("arg", ["--ignore-if-disabled", "-i"])
+def test_puhuri_sync_ignore_if_disabled_when_enabled(mock_puhuri_synchronize, arg):
+    """Should call puhuri.cynchronize when --ignore-if-disabled is passed as an argument"""
+    puhuri_sync.main([arg])
+    mock_puhuri_synchronize.assert_called()

@@ -16,10 +16,9 @@
 # that they have been altered from the originals.
 """Collection of key-word args for the FastAPI app"""
 from contextlib import asynccontextmanager
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import pymongo
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI
 
 import settings
