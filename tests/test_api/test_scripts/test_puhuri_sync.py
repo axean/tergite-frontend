@@ -25,13 +25,16 @@ from tests._utils.fixtures import load_json_fixture
 from tests._utils.json import to_json
 from tests._utils.mongodb import find_in_collection, insert_in_collection
 from tests._utils.records import order_by, pop_field
+from tests._utils.waldur import MockCall
 
 _PUHURI_PENDING_ORDERS = load_json_fixture("puhuri_pending_orders.json")
+_PUHURI_UPDATED_PROJECTS = load_json_fixture("puhuri_updated_project_list.json")
 _JOB_TIMESTAMPED_UPDATES = load_json_fixture("job_timestamped_updates.json")
 _INTERNAL_RESOURCE_USAGES = load_json_fixture("internal_resource_usages.json")
 _JOBS_LIST = load_json_fixture("job_list.json")
 _JOBS_COLLECTION = "jobs"
 _INTERNAL_USAGE_COLLECTION = "internal_resource_usages"
+_PROJECTS_COLLECTION = "auth_projects"
 _EXCLUDED_FIELDS = ["_id", "id"]
 
 
@@ -107,7 +110,9 @@ def test_post_resource_usages(db, mock_puhuri_sync_calls):
 
     got = []
     while not mock_puhuri_sync_calls.empty():
-        got.append(mock_puhuri_sync_calls.get())
+        mock_call: MockCall = mock_puhuri_sync_calls.get()
+        if mock_call["method"] == "create_component_usages":
+            got.append(mock_call["kwargs"].copy())
 
     expected = [
         {
@@ -139,9 +144,41 @@ def test_post_resource_usages(db, mock_puhuri_sync_calls):
     assert order_by(got, "plan_period_uuid") == order_by(expected, "plan_period_uuid")
 
 
-def test_update_internal_project_list():
+def test_update_internal_project_list(
+    db, mock_puhuri_sync_calls, existing_puhuri_projects
+):
     """Should update internal project list with that got from Puhuri, at a given interval"""
-    assert False
+    initial_data = find_in_collection(
+        db, collection_name=_PROJECTS_COLLECTION, fields_to_exclude=[]
+    )
+
+    # wait for the script to run its tasks
+    sleep(TEST_PUHURI_POLL_INTERVAL + 1)
+
+    final_data = find_in_collection(
+        db, collection_name=_PROJECTS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+
+    order_approval_calls = []
+    while not mock_puhuri_sync_calls.empty():
+        mock_call: MockCall = mock_puhuri_sync_calls.get()
+        if mock_call["method"] == "marketplace_order_approve_by_provider":
+            order_approval_calls.extend(mock_call["args"])
+
+    assert order_by(initial_data, "ext_id") == order_by(
+        existing_puhuri_projects, "ext_id"
+    )
+    assert order_by(final_data, "ext_id") == order_by(
+        _PUHURI_UPDATED_PROJECTS, "ext_id"
+    )
+    assert order_approval_calls == [
+        "b20588bb5daf4131890fe25c2deb9fc6",
+        "df64f46f6c6a4a94be084a2493289bc9",
+        "ceb90e76c1a045cf98051eaf1a21214d",
+        "b385941c4ce84acd9827b50a796d31d3",
+        "a2e3c4d78ee64391b089ebf41cb029b5",
+        "b385941c4ce84ecd9427b50a786d31d3",
+    ]
 
 
 def test_update_internal_user_list():

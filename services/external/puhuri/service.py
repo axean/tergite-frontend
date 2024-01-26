@@ -541,6 +541,7 @@ async def initialize_db(db: AsyncIOMotorDatabase):
     await init_beanie(
         database=db,
         document_models=[
+            Project,
             PuhuriFailedRequest,
             PuhuriJobResourceUsage,
             InternalJobResourceUsage,

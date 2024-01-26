@@ -29,6 +29,7 @@ from fastapi_users.router.oauth import generate_state_token
 from httpx_oauth.clients import github, microsoft
 
 import settings
+from services.auth.projects.dtos import ProjectSource
 from services.external import puhuri
 from tests._utils.auth import (
     INVALID_CHALMERS_PROFILE,
@@ -196,6 +197,24 @@ def inserted_projects(db) -> Dict[str, Dict[str, Any]]:
     for item in PROJECT_LIST:
         projects[item["_id"]] = {**item}
         insert_if_not_exist(db, Project, {**item, "_id": PydanticObjectId(item["_id"])})
+
+    yield projects
+
+
+@pytest.fixture
+def existing_puhuri_projects(db) -> List[Dict[str, Any]]:
+    """A list of pre-existing puhuri projects"""
+    from services.auth import Project
+
+    projects = []
+    for item in PROJECT_LIST:
+        record = {
+            **item,
+            "source": ProjectSource.PUHURI.value,
+            "_id": PydanticObjectId(item["_id"]),
+        }
+        projects.append({**record})
+        insert_if_not_exist(db, Project, record)
 
     yield projects
 

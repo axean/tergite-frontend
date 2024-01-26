@@ -12,6 +12,7 @@
 """Utilities for use in the puhuri external service
 """
 import asyncio
+import logging
 from dataclasses import asdict
 from datetime import datetime, timezone
 from functools import lru_cache
@@ -71,6 +72,7 @@ async def approve_pending_orders(
 
     Raises:
         WaldurClientException: error making request
+        ValueError: no order item found for filter {kwargs}
     """
     loop = asyncio.get_event_loop()
 
@@ -80,6 +82,9 @@ async def approve_pending_orders(
         **kwargs,
     }
     order_items = await loop.run_in_executor(None, client.list_orders, filter_obj)
+    if len(order_items) == 0:
+        raise ValueError(f"no order item found for filter {kwargs}")
+
     tasks = (
         loop.run_in_executor(
             None, client.marketplace_order_approve_by_provider, order["uuid"]
