@@ -81,6 +81,7 @@ async def synchronize(
     """
     db: AsyncIOMotorDatabase = get_mongodb(url=db_url, name=db_name)
     await initialize_db(db)
+    run_long_tasks = False
 
     while not stop_event.is_set():
         await log_if_err(
@@ -93,14 +94,20 @@ async def synchronize(
             err_msg_prefix="error in update_internal_user_list",
         )
 
-        await log_if_err(
-            update_internal_resource_allocation(db_url=db_url, db_name=db_name),
-            err_msg_prefix="error in update_internal_resource_allocation",
-        )
+        if run_long_tasks:
+            # FIXME: this seems to distort some values
+            await log_if_err(
+                update_internal_resource_allocation(db_url=db_url, db_name=db_name),
+                err_msg_prefix="error in update_internal_resource_allocation",
+            )
+
         await log_if_err(
             post_resource_usages(db_url=db_url, db_name=db_name),
             err_msg_prefix="error in post_resource_usages",
         )
+
+        # toggle long tasks to run only on every second cycle
+        run_long_tasks = not run_long_tasks
 
         for _ in range(poll_interval):
             # wait but leaving room for signal to terminate
@@ -286,14 +293,15 @@ async def update_internal_user_list(
     )
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    # get the map of projects and their user emails
-    projects_user_emails_map: Dict[str, List[str]] = {}
+    # get the map of projects and their user emails.
+    # The user emails are in a dict to maintain their order
+    projects_user_emails_map: Dict[str, Dict[str, bool]] = {}
     for index, user_list in enumerate(results):
         project_id = approved_resources[index]["project_uuid"]
 
         if isinstance(user_list, list):
-            emails = projects_user_emails_map.setdefault(project_id, [])
-            emails.extend([user["email"] for user in user_list])
+            emails = projects_user_emails_map.setdefault(project_id, {})
+            emails.update({user["email"]: True for user in user_list})
 
     # update the user lists of the projects that had user emails
     await collection.bulk_write(
@@ -303,7 +311,7 @@ async def update_internal_user_list(
                     "ext_id": project_id,
                     "source": ProjectSource.PUHURI.value,
                 },
-                {"$set": {"user_emails": list(set(user_list))}},
+                {"$set": {"user_emails": list(user_list.keys())}},
             )
             for project_id, user_list in projects_user_emails_map.items()
         ]

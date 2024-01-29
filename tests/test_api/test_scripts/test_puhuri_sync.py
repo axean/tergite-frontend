@@ -144,10 +144,8 @@ def test_post_resource_usages(db, mock_puhuri_sync_calls):
     assert order_by(got, "plan_period_uuid") == order_by(expected, "plan_period_uuid")
 
 
-def test_update_internal_project_list(
-    db, mock_puhuri_sync_calls, existing_puhuri_projects
-):
-    """Should update internal project list with that got from Puhuri, at a given interval"""
+def test_update_internal_projects(db, mock_puhuri_sync_calls, existing_puhuri_projects):
+    """Should update internal projects with that got from Puhuri, at a given interval"""
     initial_data = find_in_collection(
         db, collection_name=_PROJECTS_COLLECTION, fields_to_exclude=[]
     )
@@ -171,6 +169,7 @@ def test_update_internal_project_list(
     assert order_by(final_data, "ext_id") == order_by(
         _PUHURI_UPDATED_PROJECTS, "ext_id"
     )
+
     assert order_approval_calls == [
         "b20588bb5daf4131890fe25c2deb9fc6",
         "df64f46f6c6a4a94be084a2493289bc9",
@@ -181,13 +180,8 @@ def test_update_internal_project_list(
     ]
 
 
-def test_update_internal_user_list():
-    """Should update the internal user list with that got from Puhuri, at a given interval"""
-    assert False
-
-
 def test_update_internal_resource_allocation():
-    """Should update the internal resource allocation quotas with that got from Puhuri, at a given interval"""
+    """Should update the internal resource allocation quotas with that got from Puhuri, at twice the given interval"""
     assert False
 
 

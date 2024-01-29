@@ -9,7 +9,7 @@
       "4ef2bb90009c4f43a545029d4254d1fc"
     ],
     "source": "puhuri",
-    "user_emails": ["john.doe@example.com"]
+    "user_emails": ["john.doe@example.com", "mary.doe@example.com"]
   },
   {
     "ext_id": "negative-qpu",
@@ -30,7 +30,7 @@
     "qpu_seconds": 10080000000,
     "resource_ids": ["3b33ef3e168f42979687fcc673a0a6ae"],
     "source": "puhuri",
-    "user_emails": ["john.doe@example.com"]
+    "user_emails": ["john.doe@example.com", "marcus.doe@example.com"]
   },
   {
     "ext_id": "some-project",
@@ -38,20 +38,26 @@
     "is_verified": true,
     "qpu_seconds": 5400,
     "source": "puhuri",
-    "user_emails": ["jane.doe@example.com"]
+    "user_emails": []
   },
   {
     "ext_id": "new-project",
     "is_active": false,
     "qpu_seconds": 71208,
     "resource_ids": ["e64e21f243a54d5796d248ef1f846efa"],
-    "source": "puhuri"
+    "source": "puhuri",
+    "user_emails": [
+      "derrick.doe@example.com",
+      "marcus.doe@example.com",
+      "owagonza.doe@example.com"
+    ]
   },
   {
     "ext_id": "another-new-project",
     "is_active": true,
     "qpu_seconds": 71208,
     "resource_ids": ["a64e21f243a67d5796d248ef1f846efa"],
-    "source": "puhuri"
+    "source": "puhuri",
+    "user_emails": []
   }
 ]

@@ -164,29 +164,6 @@ async def get_project_resources(
     return [PuhuriResource.parse_obj(item) for item in resource_dicts]
 
 
-# async def get_provider_offerings(
-#     client: WaldurClient, provider_uuid: str
-# ) -> List[PuhuriProviderOffering]:
-#     """Gets the provider offerings for the given provider uuid
-#
-#     Args:
-#         client: the Waldur client for accessing Puhuri
-#         provider_uuid: the provider unique ID for this app, as got from Puhuri UI
-#
-#     Raises:
-#         WaldurClientException: error making request
-#         pydantic.error_wrappers.ValidationError: {} validation error for PuhuriProviderOffering ...
-#     """
-#     loop = asyncio.get_event_loop()
-#     offering_dicts = await loop.run_in_executor(
-#         None,
-#         client.list_marketplace_provider_offerings,
-#         dict(customer_uuid=provider_uuid),
-#     )
-#
-#     return [PuhuriProviderOffering.parse_obj(item) for item in offering_dicts]
-
-
 async def get_accounting_component(
     client: WaldurClient,
     offering_uuid: str,

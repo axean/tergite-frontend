@@ -22,6 +22,7 @@ from .records import copy_records
 _PUHURI_PENDING_ORDERS = load_json_fixture("puhuri_pending_orders.json")
 _PUHURI_RESOURCES = load_json_fixture("puhuri_resources.json")
 _PUHURI_UNAPPROVED_RESOURCES = load_json_fixture("puhuri_unapproved_resources.json")
+_PUHURI_RESOURCE_TEAMS = load_json_fixture("puhuri_resource_teams.json")
 _PUHURI_OFFERINGS = load_json_fixture("puhuri_offerings.json")
 _PUHURI_PLAN_PERIODS = load_json_fixture("puhuri_plan_periods.json")
 
@@ -46,6 +47,9 @@ class MockWaldurClient(WaldurClient):
         self._orders = copy_records(_PUHURI_PENDING_ORDERS)
         self._resources = copy_records(_PUHURI_RESOURCES)
         self._unapproved_resources = copy_records(_PUHURI_UNAPPROVED_RESOURCES)
+        self._resource_teams = {
+            k: copy_records(v) for k, v in _PUHURI_RESOURCE_TEAMS.items()
+        }
         self._offerings = copy_records(_PUHURI_OFFERINGS)
         self._resource_plan_periods = {
             k: copy_records(v) for k, v in _PUHURI_PLAN_PERIODS.items()
@@ -104,6 +108,9 @@ class MockWaldurClient(WaldurClient):
             args=(),
         )
         self._mock_call_queue.put(mock_call)
+
+    def marketplace_resource_get_team(self, resource_uuid: str):
+        return self._resource_teams.get(resource_uuid, [])
 
 
 class MockCall(TypedDict):
