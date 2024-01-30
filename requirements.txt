@@ -18,7 +18,7 @@ email-validator>=2.0.0.post2
 python-waldur-client @ https://github.com/waldur/python-waldur-client/archive/master.zip
 # dev-dependencies
 isort>=5.12.0
-black>=23.7.0
+black==23.11.0
 pytest>=7.4.0
 pytest-lazy-fixture>=0.6.3
 pytest-freezegun>=0.4.2
