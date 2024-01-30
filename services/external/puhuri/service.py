@@ -128,6 +128,10 @@ async def update_internal_project_list(
 
     This is typically run in the background if puhuri synchronization is enabled via the
     `IS_PUHURI_SYNC_ENABLED` environment flag.
+    This routine looks at pending resources, and thus it might update the
+    project's data but fail to approve the resource after that. Hence sometimes it
+    leaves behind some projects that are "inactive" because the metadata they hold
+    was not approved in puhuri successfully.
 
     Args:
         api_client: Puhuri Waldur client for accessing the Puhuri Waldur server API
@@ -339,8 +343,12 @@ async def update_internal_resource_allocation(
 ):
     """Updates this app's project's resource allocation using puhuri's resource allocations
 
-    This is usually run in the background if puhuri synchronization is enabled via the
-    `IS_PUHURI_SYNC_ENABLED` environment flag.
+    This is the confirmatory check whose allocations data can be trusted, since it looks at
+    all approved/active resources.
+    The routine for updating project lists looks at pending resources, and thus it might update the
+    project's data but fail to approve the resource after that.
+    This routine however takes a snapshot of the current state in puhuri and transfers it as
+    is to our application.
 
     Args:
         api_uri: the URI to the Puhuri Waldur server API
@@ -402,7 +410,7 @@ async def update_internal_resource_allocation(
         return_exceptions=True,
     )
 
-    errors = [resp for resp in responses if not isinstance(resp, Exception)]
+    errors = [resp for resp in responses if isinstance(resp, Exception)]
     if len(errors) > 0:
         raise Exception(f"errors updating existing projects: {errors}")
 

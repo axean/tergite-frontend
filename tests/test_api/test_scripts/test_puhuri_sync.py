@@ -28,7 +28,10 @@ from tests._utils.records import order_by, pop_field
 from tests._utils.waldur import MockCall
 
 _PUHURI_PENDING_ORDERS = load_json_fixture("puhuri_pending_orders.json")
-_PUHURI_UPDATED_PROJECTS = load_json_fixture("puhuri_updated_project_list.json")
+_PUHURI_PARTIALLY_UPDATED_PROJECTS = load_json_fixture(
+    "puhuri_partially_updated_projects.json"
+)
+_PUHURI_UPDATED_PROJECTS = load_json_fixture("puhuri_updated_projects.json")
 _JOB_TIMESTAMPED_UPDATES = load_json_fixture("job_timestamped_updates.json")
 _INTERNAL_RESOURCE_USAGES = load_json_fixture("internal_resource_usages.json")
 _JOBS_LIST = load_json_fixture("job_list.json")
@@ -167,7 +170,7 @@ def test_update_internal_projects(db, mock_puhuri_sync_calls, existing_puhuri_pr
         existing_puhuri_projects, "ext_id"
     )
     assert order_by(final_data, "ext_id") == order_by(
-        _PUHURI_UPDATED_PROJECTS, "ext_id"
+        _PUHURI_PARTIALLY_UPDATED_PROJECTS, "ext_id"
     )
 
     assert order_approval_calls == [
@@ -180,9 +183,27 @@ def test_update_internal_projects(db, mock_puhuri_sync_calls, existing_puhuri_pr
     ]
 
 
-def test_update_internal_resource_allocation():
+def test_update_internal_resource_allocations(
+    db, mock_puhuri_sync_calls, existing_puhuri_projects
+):
     """Should update the internal resource allocation quotas with that got from Puhuri, at twice the given interval"""
-    assert False
+    initial_data = find_in_collection(
+        db, collection_name=_PROJECTS_COLLECTION, fields_to_exclude=[]
+    )
+
+    # wait for the script to run its longer tasks also
+    sleep((TEST_PUHURI_POLL_INTERVAL * 2) + 1)
+
+    final_data = find_in_collection(
+        db, collection_name=_PROJECTS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+    )
+
+    assert order_by(initial_data, "ext_id") == order_by(
+        existing_puhuri_projects, "ext_id"
+    )
+    assert order_by(final_data, "ext_id") == order_by(
+        _PUHURI_UPDATED_PROJECTS, "ext_id"
+    )
 
 
 def test_puhuri_sync_enabled(mock_puhuri_synchronize):
