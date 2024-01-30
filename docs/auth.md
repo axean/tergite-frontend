@@ -158,3 +158,38 @@ The Puhuri Entity Layout
 - When creating components in the puhuri UI, the 'measurement unit's
   set on the component are of the following possible values:
   'second', 'hour', 'minute', 'day', 'week', 'half_month', and 'month'.
+
+### How to Start the Puhuri Sync
+
+- Ensure that the `IS_PUHURI_SYNC_ENABLED` environment variable is set to `True` in your `.env` file
+- Ensure all other puhuri related environment variables are appropriately set in that `.env` file e.g.
+
+```shell
+# the URI to the Puhuri WALDUR server instance
+# Please contact the Puhuri team to get this.
+PUHURI_WALDUR_API_URI=<the URI to the Puhuri Waldur server>
+
+# The access token to be used in the Waldur client [https://docs.waldur.com/user-guide/] to connect to Puhuri
+# Please contact the Puhuri team on how to get this from the UI
+PUHURI_WALDUR_CLIENT_TOKEN=<API token for a puhuri user who has 'service provider manager' role for our offering on puhuri>
+
+# The unique ID for the service provider associated with this app in the Waldur Puhuri server
+# Please contact the Puhuri team on how to get this from the UI
+PUHURI_PROVIDER_UUID=<the unique ID for the service provider associated with this app in Puhuri>
+
+# the interval in seconds at which puhuri is polled. default is 900 (15 minutes)
+PUHURI_POLL_INTERVAL=<some value>
+```
+
+- If you wish to start only the puhuri synchronization script without the REST API, run in your virtual environment:
+
+```shell
+python -m api.scripts.puhuri_sync --ignore-if-disabled
+```
+
+- In order to run both the REST API and this puhuri synchronization script, run in your virtual environment:
+
+```shell
+python -m api.scripts.puhuri_sync --ignore-if-disabled & \
+  uvicorn --host 0.0.0.0 --port 8000 api.rest:app  --proxy-headers
+```

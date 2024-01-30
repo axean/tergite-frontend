@@ -35,7 +35,7 @@ def main(
         "-i",
         "--ignore-if-disabled",
         action="store_true",
-        help="don't raise any error if `IS_PUHURI_SYNC_ENABLED` enviroment variable is False",
+        help="don't raise any error if `IS_PUHURI_SYNC_ENABLED` environment variable is False",
     )
     parsed_args = parser.parse_args(args)
 
@@ -46,4 +46,5 @@ def main(
 
 
 if __name__ == "__main__":
+    # if this script is run directly
     main(sys.argv[1:])

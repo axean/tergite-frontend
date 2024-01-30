@@ -24,4 +24,4 @@ ENV DB_MACHINE_ROOT_URL="mongodb://localhost:27017"
 
 EXPOSE 80
 
-CMD uvicorn --host 0.0.0.0 --port $MSS_PORT api.rest:app --proxy-headers
+CMD python -m api.scripts.puhuri_sync --ignore-if-disabled & uvicorn --host 0.0.0.0 --port $MSS_PORT api.rest:app --proxy-headers
