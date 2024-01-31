@@ -99,8 +99,11 @@ def mock_puhuri(respx_mock):
 @pytest.fixture
 def mock_puhuri_sync_calls():
     """A mock puhuri client that initializes the puhuri sync process"""
-    queue = multiprocessing.Queue()
-    worker = multiprocessing.Process(
+    # ensure that all processes in this case are 'spawn'ed regardless
+    #   of operating system type
+    ctx = multiprocessing.get_context("spawn")
+    queue = ctx.Queue()
+    worker = ctx.Process(
         target=setup_puhuri_sync,
         args=([], queue),
     )
