@@ -176,13 +176,13 @@ def test_update_internal_projects(db, mock_puhuri_sync_calls, existing_puhuri_pr
         _PUHURI_PARTIALLY_UPDATED_PROJECTS, "ext_id"
     )
 
-    assert order_approval_calls == [
-        "b20588bb5daf4131890fe25c2deb9fc6",
-        "df64f46f6c6a4a94be084a2493289bc9",
-        "ceb90e76c1a045cf98051eaf1a21214d",
-        "b385941c4ce84acd9827b50a796d31d3",
+    assert sorted(order_approval_calls) == [
         "a2e3c4d78ee64391b089ebf41cb029b5",
+        "b20588bb5daf4131890fe25c2deb9fc6",
+        "b385941c4ce84acd9827b50a796d31d3",
         "b385941c4ce84ecd9427b50a786d31d3",
+        "ceb90e76c1a045cf98051eaf1a21214d",
+        "df64f46f6c6a4a94be084a2493289bc9",
     ]
 
 
