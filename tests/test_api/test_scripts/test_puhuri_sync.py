@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Integration tests for the Puhuri background jobs"""
+import pprint
 from datetime import datetime
 from time import sleep
 from typing import List
@@ -144,7 +145,9 @@ def test_post_resource_usages(db, mock_puhuri_sync_calls):
         },
     ]
 
-    assert order_by(got, "plan_period_uuid") == order_by(expected, "plan_period_uuid")
+    got = order_by(got, "plan_period_uuid")
+    expected = order_by(expected, "plan_period_uuid")
+    assert got == expected
 
 
 def test_update_internal_projects(db, mock_puhuri_sync_calls, existing_puhuri_projects):
