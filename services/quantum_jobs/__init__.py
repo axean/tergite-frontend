@@ -184,7 +184,7 @@ async def update_resource_usage(
     """
     try:
         qpu_seconds_used = _get_resource_usage(timestamps)
-    except TypeError:
+    except (TypeError, AttributeError):
         # no need to update resource usage is timestamps are None
         return
 
@@ -211,6 +211,8 @@ def _get_resource_usage(timestamps: JobTimestamps) -> float:
         TypeError: unsupported operand type(s) for -: 'datetime.datetime' and 'NoneType'
         TypeError: unsupported operand type(s) for -: 'NoneType' and 'datetime.datetime'
         TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType'
+        AttributeError: 'NoneType' object has no attribute 'started'
+        AttributeError: 'NoneType' object has no attribute 'finished'
     """
     return (
         timestamps.execution.finished - timestamps.execution.started

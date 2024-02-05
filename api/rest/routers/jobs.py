@@ -15,6 +15,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import logging
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
@@ -113,8 +114,15 @@ async def update_job(
     """
     try:
         await jobs_service.update_job(db, job_id=job_id, payload=payload)
+        timestamps: Optional[JobTimestamps] = None
         if "timestamps" in payload:
             timestamps = JobTimestamps.parse_obj(payload["timestamps"])
+        elif "timestamps.execution" in payload:
+            timestamps = JobTimestamps.parse_obj(
+                {"execution": payload["timestamps.execution"]}
+            )
+
+        if timestamps is not None:
             await jobs_service.update_resource_usage(
                 db,
                 project_db=project_db,

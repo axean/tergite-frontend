@@ -148,10 +148,11 @@ def test_read_jobs(db, client, nlast: int, no_qpu_app_token_header):
         assert got == expected
 
 
-@pytest.mark.parametrize("payload", _JOB_UPDATES)
-def test_update_job(db, client, payload: dict, app_token_header):
+@pytest.mark.parametrize("raw_payload", _JOB_UPDATES)
+def test_update_job(db, client, raw_payload: dict, app_token_header):
     """PUT to /jobs/{job_id} updates the job with the given object"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
+    payload = {**raw_payload}
     job_id = payload.pop("job_id")
 
     # using context manager to ensure on_startup runs
@@ -180,13 +181,14 @@ def test_update_job(db, client, payload: dict, app_token_header):
         assert timelog["RESULT"] == "foo"
 
 
-@pytest.mark.parametrize("payload", _JOB_TIMESTAMPED_UPDATES)
+@pytest.mark.parametrize("raw_payload", _JOB_TIMESTAMPED_UPDATES)
 def test_update_job_resource_usage(
-    db, client, project_id, payload: dict, app_token_header
+    db, client, project_id, raw_payload: dict, app_token_header
 ):
     """PUT to /jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps" property"""
-    job_list = [{**item, "project_id": project_id} for item in _JOBS_LIST]
+    job_list = [{**item, "project_id": str(project_id)} for item in _JOBS_LIST]
     insert_in_collection(database=db, collection_name=_COLLECTION, data=job_list)
+    payload = {**raw_payload}
     job_id = payload.pop("job_id")
     project_before_update = get_db_record(
         db, schema=Project, _filter={"ext_id": TEST_PROJECT_EXT_ID}
@@ -197,6 +199,39 @@ def test_update_job_resource_usage(
         response = client.put(
             f"/jobs/{job_id}",
             json={**payload, "timelog.RESULT": "foo"},
+            headers=app_token_header,
+        )
+        assert response.status_code == 200
+
+    project_after_update = get_db_record(
+        db, schema=Project, _filter={"ext_id": TEST_PROJECT_EXT_ID}
+    )
+    expected_resource_usage = _get_resource_usage(payload["timestamps"])
+    actual_resource_usage = round(
+        project_before_update["qpu_seconds"] - project_after_update["qpu_seconds"], 6
+    )
+
+    assert actual_resource_usage == expected_resource_usage
+
+
+@pytest.mark.parametrize("payload", _JOB_TIMESTAMPED_UPDATES)
+def test_update_job_resource_usage_advanced(
+    db, client, project_id, payload: dict, app_token_header
+):
+    """PUT to /jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps.execution" field"""
+    job_list = [{**item, "project_id": str(project_id)} for item in _JOBS_LIST]
+    insert_in_collection(database=db, collection_name=_COLLECTION, data=job_list)
+    job_id = payload.pop("job_id")
+    project_before_update = get_db_record(
+        db, schema=Project, _filter={"ext_id": TEST_PROJECT_EXT_ID}
+    )
+    update_body = {"timestamps.execution": payload["timestamps"]["execution"]}
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.put(
+            f"/jobs/{job_id}",
+            json={**update_body, "timelog.RESULT": "foo"},
             headers=app_token_header,
         )
         assert response.status_code == 200

@@ -31,8 +31,8 @@ class TimestampPair(ZEncodedBaseModel):
 class JobTimestamps(ZEncodedBaseModel):
     """Timestamps for the job"""
 
-    registration: TimestampPair
-    pre_processing: TimestampPair
-    execution: TimestampPair
-    post_processing: TimestampPair
-    final: TimestampPair
+    registration: Optional[TimestampPair] = None
+    pre_processing: Optional[TimestampPair] = None
+    execution: Optional[TimestampPair] = None
+    post_processing: Optional[TimestampPair] = None
+    final: Optional[TimestampPair] = None
