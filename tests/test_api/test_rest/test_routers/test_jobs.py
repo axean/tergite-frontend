@@ -16,6 +16,14 @@ _MEMORY_LIST = [
     [f"{index}-{v}" for v in _DEFAULT_MEMORY_LIST]
     for index, item in enumerate(_JOBS_LIST)
 ]
+_JOB_UPDATE_PAYLOADS = [
+    {
+        "result": {"memory": [f"{index}-{v}" for v in _DEFAULT_MEMORY_LIST]},
+        "status": _STATUSES[index % 3],
+        "download_url": _URLS[index % 3],
+    }
+    for index, item in enumerate(_JOBS_LIST)
+]
 _STATUS_LIST = [_STATUSES[index % 3] for index, item in enumerate(_JOBS_LIST)]
 _URL_LIST = [_URLS[index % 3] for index, item in enumerate(_JOBS_LIST)]
 _BACKENDS = ["loke", "loki", None]
@@ -254,3 +262,34 @@ def test_update_timelog_entry(
         assert got == "OK"
         assert job_after_update == expected_job
         assert is_not_older_than(timelog[event_name], seconds=30)
+
+
+@pytest.mark.parametrize("job_id, payload", zip(_JOB_IDS, _JOB_UPDATE_PAYLOADS))
+def test_update_job(db, client, job_id: str, payload: dict, app_token_header):
+    """PUT to /jobs/{job_id} updates the job with the given object"""
+    insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.put(
+            f"/jobs/{job_id}",
+            json={**payload, "timelog.RESULT": "foo"},
+            headers=app_token_header,
+        )
+        got = response.json()
+        expected_job = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
+        expected_job.update(payload)
+
+        job_after_update = find_in_collection(
+            db,
+            collection_name=_COLLECTION,
+            fields_to_exclude=_EXCLUDED_FIELDS,
+            _filter={"job_id": job_id},
+        )[0]
+        timelog = job_after_update.pop("timelog")
+
+        assert response.status_code == 200
+        assert got == "OK"
+        assert job_after_update == expected_job
+        assert is_not_older_than(timelog["LAST_UPDATED"], seconds=30)
+        assert timelog["RESULT"] == "foo"

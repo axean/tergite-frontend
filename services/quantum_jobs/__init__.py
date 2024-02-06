@@ -5,6 +5,7 @@
 #               Björn Rosengren, and Jakob Wik 2022 (BSc project)
 # (C) Copyright Fabian Forslund, Niklas Botö 2022
 # (C) Copyright Abdullah-Al Amin 2022
+# (C) Copyright Martin Ahindura 2023
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,8 +14,6 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-#
-# Refactored by Martin Ahindura on 2023-11-08
 import logging
 from typing import Any, Dict
 from uuid import UUID, uuid4
@@ -217,4 +216,26 @@ async def refresh_timelog_entry(
         db.jobs,
         _filter={"job_id": str(job_id)},
         payload={"timelog." + event_name: timestamp},
+    )
+
+
+async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: dict):
+    """Updates the job of the given job_id
+
+    Args:
+        db: the mongo database from where to get the job
+        job_id: the job id of the job
+        payload: the new payload to update in job
+
+    Returns:
+        the number of documents that were modified
+
+    Raises:
+        ValueError: server failed updating documents
+        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
+    """
+    return await mongodb_utils.update_many(
+        db.jobs,
+        _filter={"job_id": str(job_id)},
+        payload=payload,
     )
