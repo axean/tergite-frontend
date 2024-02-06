@@ -23,6 +23,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 import settings
 from utils import mongodb as mongodb_utils
+from utils.date_time import get_current_timestamp
 
 from .dtos import CreatedJobResponse, JobTimestamps
 
@@ -137,6 +138,98 @@ async def get_latest_many(db: AsyncIOMotorDatabase, limit: int = 10):
     """
     return await mongodb_utils.find_all(
         db.jobs, limit=limit, **mongodb_utils.LATEST_FIRST_SORT
+    )
+
+
+async def update_job_result(db: AsyncIOMotorDatabase, job_id: UUID, memory: list):
+    """Updates the memory part of the result of the job of the given job_id
+
+    Args:
+        db: the mongo database from where to get the job
+        job_id: the job id of the job
+        memory: the new memory data to insert into the result of job
+
+    Returns:
+        the number of documents that were modified
+
+    Raises:
+        ValueError: server failed updating documents
+        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
+    """
+    return await mongodb_utils.update_many(
+        db.jobs,
+        _filter={"job_id": str(job_id)},
+        payload={"result": {"memory": memory}},
+    )
+
+
+# FIXME: the status might be better modelled as an enum
+async def update_job_status(db: AsyncIOMotorDatabase, job_id: UUID, status: str):
+    """Updates the memory part of the result of the job of the given job_id
+
+    Args:
+        db: the mongo database from where to get the job
+        job_id: the job id of the job
+        status: the new status of the job
+
+    Returns:
+        the number of documents that were modified
+
+    Raises:
+        ValueError: server failed updating documents
+        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
+    """
+    return await mongodb_utils.update_many(
+        db.jobs,
+        _filter={"job_id": str(job_id)},
+        payload={"status": status},
+    )
+
+
+async def update_job_download_url(db: AsyncIOMotorDatabase, job_id: UUID, url: str):
+    """Updates the download_url the job of the given job_id
+
+    Args:
+        db: the mongo database from where to get the job
+        job_id: the job id of the job
+        url: the new download url of the job
+
+    Returns:
+        the number of documents that were modified
+
+    Raises:
+        ValueError: server failed updating documents
+        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
+    """
+    return await mongodb_utils.update_many(
+        db.jobs,
+        _filter={"job_id": str(job_id)},
+        payload={"download_url": url},
+    )
+
+
+async def refresh_timelog_entry(
+    db: AsyncIOMotorDatabase, job_id: UUID, event_name: str
+):
+    """Updates the timelog the job of the given job_id to the current timestamp
+
+    Args:
+        db: the mongo database from where to get the job
+        job_id: the job id of the job
+        event_name: the name of the event whose timelog is to be refreshed
+
+    Returns:
+        the number of documents that were modified
+
+    Raises:
+        ValueError: server failed updating documents
+        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
+    """
+    timestamp = get_current_timestamp()
+    return await mongodb_utils.update_many(
+        db.jobs,
+        _filter={"job_id": str(job_id)},
+        payload={"timelog." + event_name: timestamp},
     )
 
 
