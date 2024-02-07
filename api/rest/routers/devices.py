@@ -104,6 +104,12 @@ async def read_lda_parameters(
             detail=f"backend {name} lacks lda_parameters",
         )
 
+    except mongodb_utils.DocumentNotFoundError as exp:
+        logging.error(exp)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"{name} not found"
+        )
+
     return lda_parameters
 
 
@@ -119,6 +125,11 @@ async def update_lda_parameters(
         logging.error(exp)
         # FIXME: change this to an HTTPException
         return {"message": "Server failed to update the documents."}
+    except mongodb_utils.DocumentNotFoundError as exp:
+        logging.error(exp)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"{name} not found"
+        )
 
     return "OK"
 

@@ -17,8 +17,8 @@ beanie>=1.22.6
 email-validator>=2.0.0.post2
 # dev-dependencies
 isort>=5.12.0
-black>=23.7.0
-pytest>=7.4.0
+black==23.11.0
+pytest>=7.4.0,<8.0.0
 pytest-lazy-fixture>=0.6.3
 pytest-freezegun>=0.4.2
 pytest-asyncio>=0.21.1,<0.23.0

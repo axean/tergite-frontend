@@ -21,6 +21,20 @@ _JOBS_LIST = load_json_fixture("job_list.json")
 _JOB_TIMESTAMPED_UPDATES = load_json_fixture("job_timestamped_updates.json")
 _JOB_UPDATES = load_json_fixture("job_updates.json")
 _JOB_IDS = [item["job_id"] for item in _JOBS_LIST]
+_MEMORY_LIST = [
+    [f"{index}-{v}" for v in _DEFAULT_MEMORY_LIST]
+    for index, item in enumerate(_JOBS_LIST)
+]
+_JOB_UPDATE_PAYLOADS = [
+    {
+        "result": {"memory": [f"{index}-{v}" for v in _DEFAULT_MEMORY_LIST]},
+        "status": _STATUSES[index % 3],
+        "download_url": _URLS[index % 3],
+    }
+    for index, item in enumerate(_JOBS_LIST)
+]
+_STATUS_LIST = [_STATUSES[index % 3] for index, item in enumerate(_JOBS_LIST)]
+_URL_LIST = [_URLS[index % 3] for index, item in enumerate(_JOBS_LIST)]
 _BACKENDS = ["loke", "loki", None]
 _COLLECTION = "jobs"
 _EXCLUDED_FIELDS = ["_id"]
@@ -179,10 +193,124 @@ def test_read_jobs(db, client, nlast: int, no_qpu_app_token_header):
         assert got == expected
 
 
-@pytest.mark.parametrize("payload", _JOB_UPDATES)
-def test_update_job(db, client, payload: dict, app_token_header):
+@pytest.mark.parametrize("job_id, memory", zip(_JOB_IDS, _MEMORY_LIST))
+def test_update_job_result(db, client, job_id: str, memory: list, app_token_header):
+    """PUT to /jobs/{job_id}/result updates the result of the job with the given memory object"""
+    insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.put(
+            f"/jobs/{job_id}/result", json=memory, headers=app_token_header
+        )
+        got = response.json()
+        expected_job = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
+        expected_job["result"] = {"memory": memory}
+
+        job_after_update = find_in_collection(
+            db,
+            collection_name=_COLLECTION,
+            fields_to_exclude=_EXCLUDED_FIELDS,
+            _filter={"job_id": job_id},
+        )[0]
+        timelog = job_after_update.pop("timelog")
+
+        assert response.status_code == 200
+        assert got == "OK"
+        assert job_after_update == expected_job
+        assert is_not_older_than(timelog["LAST_UPDATED"], seconds=30)
+
+
+@pytest.mark.parametrize("job_id, status", zip(_JOB_IDS, _STATUS_LIST))
+def test_update_job_status(db, client, job_id: str, status: str, app_token_header):
+    """PUT to /jobs/{job_id}/status updates the status of the job of the given job id"""
+    insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.put(
+            f"/jobs/{job_id}/status", json=status, headers=app_token_header
+        )
+        got = response.json()
+        expected_job = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
+        expected_job["status"] = status
+
+        job_after_update = find_in_collection(
+            db,
+            collection_name=_COLLECTION,
+            fields_to_exclude=_EXCLUDED_FIELDS,
+            _filter={"job_id": job_id},
+        )[0]
+        timelog = job_after_update.pop("timelog")
+
+        assert response.status_code == 200
+        assert got == "OK"
+        assert job_after_update == expected_job
+        assert is_not_older_than(timelog["LAST_UPDATED"], seconds=30)
+
+
+@pytest.mark.parametrize("job_id, url", zip(_JOB_IDS, _URL_LIST))
+def test_update_job_download_url(db, client, job_id: str, url: str, app_token_header):
+    """PUT to /jobs/{job_id}/download_url updates the download_url of the job of the given job id"""
+    insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.put(
+            f"/jobs/{job_id}/download_url", json=url, headers=app_token_header
+        )
+        got = response.json()
+        expected_job = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
+        expected_job["download_url"] = url
+
+        job_after_update = find_in_collection(
+            db,
+            collection_name=_COLLECTION,
+            fields_to_exclude=_EXCLUDED_FIELDS,
+            _filter={"job_id": job_id},
+        )[0]
+        timelog = job_after_update.pop("timelog")
+
+        assert response.status_code == 200
+        assert got == "OK"
+        assert job_after_update == expected_job
+        assert is_not_older_than(timelog["LAST_UPDATED"], seconds=30)
+
+
+@pytest.mark.parametrize("job_id, event_name", zip(_JOB_IDS, _STATUS_LIST))
+def test_update_timelog_entry(
+    db, client, job_id: str, event_name: str, app_token_header
+):
+    """PUT to /jobs/{job_id}/timelog refreshes the timelog of the given event of the job of the given job id"""
+    insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.post(
+            f"/jobs/{job_id}/timelog", json=event_name, headers=app_token_header
+        )
+        got = response.json()
+        expected_job = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
+
+        job_after_update = find_in_collection(
+            db,
+            collection_name=_COLLECTION,
+            fields_to_exclude=_EXCLUDED_FIELDS,
+            _filter={"job_id": job_id},
+        )[0]
+        timelog = job_after_update.pop("timelog")
+
+        assert response.status_code == 200
+        assert got == "OK"
+        assert job_after_update == expected_job
+        assert is_not_older_than(timelog[event_name], seconds=30)
+
+
+@pytest.mark.parametrize("raw_payload", _JOB_UPDATES)
+def test_update_job(db, client, raw_payload: dict, app_token_header):
     """PUT to /jobs/{job_id} updates the job with the given object"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
+    payload = {**raw_payload}
     job_id = payload.pop("job_id")
 
     # using context manager to ensure on_startup runs
@@ -211,13 +339,14 @@ def test_update_job(db, client, payload: dict, app_token_header):
         assert timelog["RESULT"] == "foo"
 
 
-@pytest.mark.parametrize("payload", _JOB_TIMESTAMPED_UPDATES)
+@pytest.mark.parametrize("raw_payload", _JOB_TIMESTAMPED_UPDATES)
 def test_update_job_resource_usage(
-    db, client, project_id, payload: dict, app_token_header
+    db, client, project_id, raw_payload: dict, app_token_header
 ):
     """PUT to /jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps" property"""
-    job_list = [{**item, "project_id": project_id} for item in _JOBS_LIST]
+    job_list = [{**item, "project_id": str(project_id)} for item in _JOBS_LIST]
     insert_in_collection(database=db, collection_name=_COLLECTION, data=job_list)
+    payload = {**raw_payload}
     job_id = payload.pop("job_id")
     project_before_update = get_db_record(
         db, schema=Project, _filter={"ext_id": TEST_PROJECT_EXT_ID}
@@ -228,6 +357,39 @@ def test_update_job_resource_usage(
         response = client.put(
             f"/jobs/{job_id}",
             json={**payload, "timelog.RESULT": "foo"},
+            headers=app_token_header,
+        )
+        assert response.status_code == 200
+
+    project_after_update = get_db_record(
+        db, schema=Project, _filter={"ext_id": TEST_PROJECT_EXT_ID}
+    )
+    expected_resource_usage = _get_resource_usage(payload["timestamps"])
+    actual_resource_usage = round(
+        project_before_update["qpu_seconds"] - project_after_update["qpu_seconds"], 6
+    )
+
+    assert actual_resource_usage == expected_resource_usage
+
+
+@pytest.mark.parametrize("payload", _JOB_TIMESTAMPED_UPDATES)
+def test_update_job_resource_usage_advanced(
+    db, client, project_id, payload: dict, app_token_header
+):
+    """PUT to /jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps.execution" field"""
+    job_list = [{**item, "project_id": str(project_id)} for item in _JOBS_LIST]
+    insert_in_collection(database=db, collection_name=_COLLECTION, data=job_list)
+    job_id = payload.pop("job_id")
+    project_before_update = get_db_record(
+        db, schema=Project, _filter={"ext_id": TEST_PROJECT_EXT_ID}
+    )
+    update_body = {"timestamps.execution": payload["timestamps"]["execution"]}
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.put(
+            f"/jobs/{job_id}",
+            json={**update_body, "timelog.RESULT": "foo"},
             headers=app_token_header,
         )
         assert response.status_code == 200
