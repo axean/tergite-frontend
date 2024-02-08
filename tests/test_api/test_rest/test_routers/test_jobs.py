@@ -323,12 +323,14 @@ def test_update_job_resource_usage(
 
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.put(
-            f"/jobs/{job_id}",
-            json={**payload, "timelog.RESULT": "foo"},
-            headers=app_token_header,
-        )
-        assert response.status_code == 200
+        # check for idempotence
+        for _ in range(3):
+            response = client.put(
+                f"/jobs/{job_id}",
+                json={**payload, "timelog.RESULT": "foo"},
+                headers=app_token_header,
+            )
+            assert response.status_code == 200
 
     project_after_update = get_db_record(
         db, schema=Project, _filter={"ext_id": TEST_PROJECT_EXT_ID}
@@ -356,12 +358,14 @@ def test_update_job_resource_usage_advanced(
 
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.put(
-            f"/jobs/{job_id}",
-            json={**update_body, "timelog.RESULT": "foo"},
-            headers=app_token_header,
-        )
-        assert response.status_code == 200
+        # check for idempotence
+        for _ in range(3):
+            response = client.put(
+                f"/jobs/{job_id}",
+                json={**update_body, "timelog.RESULT": "foo"},
+                headers=app_token_header,
+            )
+            assert response.status_code == 200
 
     project_after_update = get_db_record(
         db, schema=Project, _filter={"ext_id": TEST_PROJECT_EXT_ID}

@@ -194,7 +194,14 @@ async def update_job(
     the timestamps have an unexpected structure
     """
     try:
-        await jobs_service.update_job(db, job_id=job_id, payload=payload)
+        old_job = await jobs_service.update_job(db, job_id=job_id, payload=payload)
+        old_timestamps: JobTimestamps = JobTimestamps.parse_obj(
+            old_job.get("timestamps", {})
+        )
+        if old_timestamps.resource_usage is not None:
+            # if job's resource usage is already set
+            return "OK"
+
         timestamps: Optional[JobTimestamps] = None
         if "timestamps" in payload:
             timestamps = JobTimestamps.parse_obj(payload["timestamps"])
