@@ -17,7 +17,7 @@ from fastapi.requests import Request
 
 
 def get_bearer_token(request: Request, raise_if_error: bool = True) -> Optional[str]:
-    """Extracts the bearer token from the request or throws a 401 exception if not exist and `raise_if_error` is False
+    """Extracts the bearer token from the request or throws a 401 exception if not exist and `raise_if_error` is True
 
     Args:
         request: the request object from FastAPI
