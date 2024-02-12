@@ -6,6 +6,8 @@ import BoxPlot from '../boxPlot/BoxPlot';
 import DatePicker from '../DatePicker';
 import { VisualizationSkeleton } from '../VisualizationSkeleton';
 import ApiRoutes from '../../utils/ApiRoutes';
+import { fetchVizualitationData } from '../../utils/apiClient';
+import ErrorAlert from '../ErrorAlert';
 
 interface GateErrorVisualizationProps {
 	backend: string | string[];
@@ -15,18 +17,22 @@ export const GateErrorVisualization: React.FC<GateErrorVisualizationProps> = ({ 
 	const [state, dispatch] = useContext(BackendContext);
 	const { setSelectionMap } = useSelectionMaps();
 
-	const { isLoading, data, error, refetch, isFetching } = useQuery('gateError', () =>
-		fetch(
-			`${
-				ApiRoutes.devices
-			}/${backend}/type3/period?from=${state.timeFrom.toISOString()}&to=${state.timeTo.toISOString()}`
-		).then((res) => res.json())
+	const { isLoading, data, error, refetch, isFetching } = useQuery(
+		'gateError',
+		async () =>
+			await fetchVizualitationData({
+				backend: `${backend}`,
+				timeFrom: state.timeFrom,
+				timeTo: state.timeTo,
+				type: 'type3'
+			})
 	);
+
 	useLayoutEffect(() => {
 		setSelectionMap(false, false);
-	}, []);
+	}, [setSelectionMap]);
 
-	if (error) return <span>Error</span>;
+	if (error) return <ErrorAlert error={error as Error} />;
 	if (isLoading || isFetching) return <VisualizationSkeleton />;
 
 	return (

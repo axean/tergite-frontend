@@ -1,4 +1,12 @@
-import { Box, Flex, Spacer } from '@chakra-ui/react';
+import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	AlertTitle,
+	Box,
+	Flex,
+	Spacer
+} from '@chakra-ui/react';
 import React, { useContext, useLayoutEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { BackendContext, MapActions, useSelectionMaps } from '../../state/BackendContext';
@@ -7,6 +15,8 @@ import Histogram from '../histogram/Histogram';
 import RadioButtons from '../RadioButtons';
 import { VisualizationSkeleton } from '../VisualizationSkeleton';
 import ApiRoutes from '../../utils/ApiRoutes';
+import { fetchVizualitationData } from '../../utils/apiClient';
+import ErrorAlert from '../ErrorAlert';
 
 interface HistogramVisualizationProps {
 	backend: string | string[];
@@ -16,12 +26,15 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 	const [state, dispatch] = useContext(BackendContext);
 	const { setSelectionMap } = useSelectionMaps();
 
-	const { isLoading, data, error, refetch, isFetching } = useQuery('histogramData', () =>
-		fetch(
-			`${
-				ApiRoutes.devices
-			}/${backend}/type2/period?from=${state.timeFrom.toISOString()}&to=${state.timeTo.toISOString()}`
-		).then((res) => res.json())
+	const { isLoading, data, error, refetch, isFetching } = useQuery(
+		'histogramData',
+		async () =>
+			await fetchVizualitationData({
+				backend: `${backend}`,
+				timeFrom: state.timeFrom,
+				timeTo: state.timeTo,
+				type: 'type2'
+			})
 	);
 
 	const [dataToVisualize, setDataToVisualize] = useState<string>('T1');
@@ -31,9 +44,9 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 		if (state.selectedNode === -1) {
 			dispatch({ type: MapActions.SELECT_NODE, payload: 0 });
 		}
-	}, []);
+	}, [setSelectionMap, dispatch, state.selectedNode]);
 
-	if (error) return <span>Error</span>;
+	if (error) return <ErrorAlert error={error as Error} />;
 
 	if (isLoading || isFetching) return <VisualizationSkeleton />;
 
@@ -51,7 +64,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 					<DatePicker refetchFunction={refetch}></DatePicker>
 				</Box>
 			</Flex>
-			{dataToVisualize === 'T1' && (
+			{dataToVisualize === 'T1' && data && (
 				<Histogram
 					data={data.qubits[state.selectedNode].qubit_T1.map((t1data) => ({
 						x: t1data.value * 1000000
