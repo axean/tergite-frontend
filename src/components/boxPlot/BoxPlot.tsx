@@ -28,6 +28,7 @@ const BoxPlot: React.FC<BoxPlotProps> = ({ data }) => {
 				text={'Qubit index'}
 				style={[{ fill: '#374151', fontSize: 12 }]}
 			/>
+			{/* @ts-expect-error */}
 			<VictoryAxis
 				tickCount={data.length}
 				crossAxis={false}
@@ -37,6 +38,7 @@ const BoxPlot: React.FC<BoxPlotProps> = ({ data }) => {
 					grid: { stroke: '#9CA3AF', strokeWidth: 1, strokeDasharray: '8' }
 				}}
 			/>
+			{/* @ts-expect-error */}
 			<VictoryAxis
 				dependentAxis
 				style={{
@@ -46,6 +48,7 @@ const BoxPlot: React.FC<BoxPlotProps> = ({ data }) => {
 				}}
 			/>
 
+			{/* @ts-expect-error */}
 			<VictoryBoxPlot
 				boxWidth={8}
 				data={data}

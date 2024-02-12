@@ -63,6 +63,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ refetchFunction }) => {
 				<PopoverContent _focus={{ outline: 'none' }}>
 					<PopoverArrow />
 					<Box>
+						{/* @ts-expect-error */}
 						<DateRange
 							editableDateInputs={true}
 							onChange={(item) => handleChange(item)}

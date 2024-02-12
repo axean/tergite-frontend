@@ -185,6 +185,7 @@ const VisxChart: React.FC<VisxChartProps> = ({
 						tickClassName={smallTicks ? 'tspan-sm' : 'tspan-md'}
 						tickFormat={(d) => (d.toString() === size.toString() ? '' : d.toString())}
 					/>
+
 					<Graph
 						graph={{
 							nodes: newData,

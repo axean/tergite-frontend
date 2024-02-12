@@ -115,7 +115,7 @@ function SidePanel({ isCollapsed, setCollapsed, MdFirstPage, backend, type }) {
 	);
 
 	const { showLinkSelectorMap, showNodeSelectorMap } = useSelectionMaps();
-	if (isLoading || error) return '';
+	if (isLoading || error) return null;
 
 	return (
 		!isCollapsed && (

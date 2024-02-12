@@ -15,13 +15,15 @@ type CustomNodeProps = {
 	onSelect?: (id: number) => void;
 	squareSize: 'small' | 'medium' | 'large';
 	hideLabels: boolean;
-	data: Nullable<{
-		allNodeData: API.ComponentData[];
-		nodeData: {
-			id: number;
-			data?: API.Property[];
-		};
-	}>;
+	data:
+		| Nullable<{
+				allNodeData: API.ComponentData[];
+				nodeData: {
+					id: number;
+					data?: API.Property[];
+				};
+		  }>
+		| any;
 };
 
 const CustomNode: React.FC<CustomNodeProps> = ({

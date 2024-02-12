@@ -4,8 +4,9 @@ import React, { useContext, useRef } from 'react';
 import { BackendContext, MapActions } from '../../state/BackendContext';
 import { useTooltip } from '@visx/tooltip';
 import { Text } from '@visx/text';
+
 type CustomLinkProps = {
-	link: Link;
+	link: any;
 	id: number;
 	onSelect?: (id: number) => void;
 	yMax: number;
