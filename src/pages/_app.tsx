@@ -15,7 +15,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 			<ChakraProvider resetCSS theme={theme}>
 				<BackendContextProvider>
 					<Layout>
-						{/* @ts-expect-error */}
+						{/* @ts-ignore-error */}
 						<Component {...pageProps} />
 					</Layout>
 				</BackendContextProvider>

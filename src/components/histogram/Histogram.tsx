@@ -20,7 +20,7 @@ const Histogram: React.FC<HistogramProps> = ({ data, label }) => {
 				text={label}
 				style={[{ fill: '#374151', fontSize: 12 }]}
 			/>
-			{/* @ts-expect-error */}
+			{/* @ts-ignore-error */}
 			<VictoryAxis
 				tickCount={7}
 				style={{
@@ -28,7 +28,7 @@ const Histogram: React.FC<HistogramProps> = ({ data, label }) => {
 					tickLabels: { fontSize: 12, padding: 5, fill: '#9CA3AF' }
 				}}
 			/>
-			{/* @ts-expect-error */}
+			{/* @ts-ignore-error */}
 			<VictoryAxis
 				dependentAxis
 				style={{
@@ -38,7 +38,7 @@ const Histogram: React.FC<HistogramProps> = ({ data, label }) => {
 				}}
 			/>
 
-			{/* @ts-expect-error */}
+			{/* @ts-ignore-error */}
 			<VictoryHistogram
 				cornerRadius={0}
 				binSpacing={3}

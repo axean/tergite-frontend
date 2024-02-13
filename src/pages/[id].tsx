@@ -1,21 +1,19 @@
-import { Box, Button, Flex, Icon, Spacer, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import React, { useContext, useEffect, useState } from 'react';
-import { MdFirstPage, MdLastPage } from 'react-icons/md';
+import React, { useEffect, useState } from 'react';
+import { MdFirstPage } from 'react-icons/md';
 import { useQuery } from 'react-query';
 import { SmallConnectivityMap } from '../components/connectivityMap/ConnectivityMap';
 import { HistogramVisualization } from '../components/visualizations/HistogramVisualization';
 import NavbarVisualizations from '../components/NavbarVisualizations';
 import QubitVisualization from '../components/visualizations/QubitVisualization';
-import CardBackend from '../components/CardBackend';
 import CityPlot from '../components/visualizations/cityplot';
-import BoxPlot from '../components/boxPlot/BoxPlot';
 import { GateErrorVisualization } from '../components/visualizations/GateErrorVisualization';
 import { useAllLayouts, useSelectionMaps } from '../state/BackendContext';
 import { facadeDeviceDetail } from '../utils/facade';
 import LineChartVisualization from '../components/visualizations/LineChartVisualization';
 import TableVisualization from '../components/visualizations/TableVisualization';
-import ApiRoutes from '../utils/ApiRoutes';
+import { ApiRoutes } from '../utils/apiClient';
 
 type VisualizationRoutes =
 	| 'Qubitmap'
@@ -28,7 +26,6 @@ type VisualizationRoutes =
 const Detail = ({ id, type }) => {
 	const [isCollapsed, setCollapsed] = useState(false);
 
-	console.log(id);
 	const { isLoading, error, data } = useQuery<API.Response.DeviceDetail>('DetailPageEEEE', () =>
 		fetch(`${ApiRoutes.devices}/${id}`).then((res) => res.json())
 	);

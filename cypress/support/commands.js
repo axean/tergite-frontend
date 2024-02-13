@@ -23,3 +23,18 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('attrStartsWith', { prevSubject: 'element' }, (subject, attr, value) => {
+	cy.get(subject)
+		.should('have.attr', attr)
+		.then((actual) => expect(actual.startsWith(value)).to.be.true);
+	return cy.get(subject);
+});
+
+Cypress.Commands.add('attr', { prevSubject: 'element' }, (subject, attr) => {
+	return cy.get(subject).invoke('attr', attr);
+});
+
+Cypress.Commands.add('startsWith', { prevSubject: true }, (subject, value) => {
+	expect(subject.startsWith(value)).to.be.true;
+});

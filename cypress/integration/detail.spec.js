@@ -1,22 +1,24 @@
-import ApiRoutes from '../../src/utils/ApiRoutes';
+import { getApiRoutes } from '../../src/utils/apiClient';
 
 describe('detail page', () => {
 	beforeEach(() => {
-		cy.intercept('GET', ApiRoutes.devices, {
+		const apiRoutes = getApiRoutes(Cypress.env('apiBaseUrl'));
+		cy.intercept('GET', apiRoutes.devices, {
 			fixture: 'devices.json'
-		});
-		cy.intercept('GET', ApiRoutes.statuses, {
+		}).as('allDeviceData');
+		cy.intercept('GET', apiRoutes.statuses, {
 			fixture: 'statuses.json'
-		});
+		}).as('allStatusData');
 
-		cy.intercept('GET', ApiRoutes.device('Luki'), {
+		cy.intercept('GET', apiRoutes.device('Luki'), {
 			fixture: 'deviceLuki.json'
-		});
-		cy.intercept('GET', ApiRoutes.type1('Luki'), {
+		}).as('lukiDeviceData');
+		cy.intercept('GET', apiRoutes.type1('Luki'), {
 			fixture: 'type1.json'
-		});
+		}).as('lukiType1Data');
 
 		cy.visit('/Luki');
+		cy.wait('@lukiDeviceData');
 	});
 
 	it('renders sidepanel', () => {
@@ -40,6 +42,7 @@ describe('detail page', () => {
 	});
 
 	it('collapses sidepanel', () => {
+		cy.wait(1000);
 		cy.get('[data-cy-collapse-button]').click();
 		cy.get('[data-cy-sidepanel]').should('not.exist');
 		cy.get('[data-cy-expand-button]').click();

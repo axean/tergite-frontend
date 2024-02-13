@@ -22,8 +22,6 @@ function parseValue(value: number, exponent: number) {
 }
 
 const QubitTable = ({ data }: QubitTableProps) => {
-	console.log(data);
-
 	return (
 		<TableContainer data-cy-qubit-table>
 			<Table variant='striped' colorScheme='teal'>

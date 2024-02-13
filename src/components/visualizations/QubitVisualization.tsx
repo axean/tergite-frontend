@@ -12,7 +12,7 @@ import {
 import { facadeType1 } from '../../utils/facade';
 import ConnectivityMap from '../connectivityMap/';
 import RadioButtons from '../RadioButtons';
-import ApiRoutes from '../../utils/ApiRoutes';
+import { ApiRoutes } from '../../utils/apiClient';
 
 type QubitVisualizationProps = {
 	isCollapsed: boolean;
@@ -26,7 +26,6 @@ const QubitVisualization: React.FC<QubitVisualizationProps> = ({ isCollapsed }) 
 	const rerenderRef = useRef(isCollapsed);
 	const [isRerendering, setIsRerendering] = useState(false);
 	const { allData, setMapData } = useMapData();
-	const [{ nodeProperty }, dispatch] = useContext(BackendContext);
 	const { setSelectionMap } = useSelectionMaps();
 
 	// this is needed due to rendering issues
@@ -135,7 +134,6 @@ const MapSelections: React.FC<MapSelectionsProps> = ({ selectType }) => {
 				defaultValue={defaultValue}
 				data-cy-dropdown={selectType}
 				onChange={(e) => {
-					console.log('onchange', e);
 					dispatch({
 						type:
 							selectType === 'node'

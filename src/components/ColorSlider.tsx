@@ -12,12 +12,7 @@ function normalizeDisplayValue(min, max, displayValue) {
 	let a = max - min;
 	let b = max - displayValue;
 	let c = b / a;
-
-	console.log(c);
-	//console.log(((0.9 - c) * 100 + 10))
 	return Math.min(c * 100 + 5, 103);
-
-	//Math.min(((0.9 - c) * 100 + 13),94)
 }
 
 const ColorSlider = ({ values, displayValue, unit }: ColorSliderProps) => {

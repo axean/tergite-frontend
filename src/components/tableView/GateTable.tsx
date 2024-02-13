@@ -11,8 +11,6 @@ function parseValue(value: number, exponent: number) {
 }
 
 const GateTable = ({ data }: GateTableProps) => {
-	console.log(data);
-
 	return (
 		<TableContainer data-cy-gate-table>
 			<Table variant='striped' colorScheme='teal'>

@@ -6,7 +6,7 @@ import CouplerTable from '../tableView/CouplerTable';
 import GateTable from '../tableView/GateTable';
 import QubitTable from '../tableView/QubitTable';
 import ResonatorTable from '../tableView/ResonatorTable';
-import ApiRoutes from '../../utils/ApiRoutes';
+import { ApiRoutes } from '../../utils/apiClient';
 
 interface TableVisualizationProps {
 	backend: string | string[];

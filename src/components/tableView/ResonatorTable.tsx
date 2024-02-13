@@ -11,8 +11,6 @@ function parseValue(value: number, exponent: number) {
 }
 
 const ResonatorTable = ({ data }: ResonatorTableProps) => {
-	console.log(data);
-
 	return (
 		<TableContainer data-cy-res-table>
 			<Table variant='striped' colorScheme='teal'>

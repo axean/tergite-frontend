@@ -5,7 +5,6 @@ import { BackendContext, useSelectionMaps } from '../../state/BackendContext';
 import BoxPlot from '../boxPlot/BoxPlot';
 import DatePicker from '../DatePicker';
 import { VisualizationSkeleton } from '../VisualizationSkeleton';
-import ApiRoutes from '../../utils/ApiRoutes';
 import { fetchVizualitationData } from '../../utils/apiClient';
 import ErrorAlert from '../ErrorAlert';
 
@@ -14,7 +13,7 @@ interface GateErrorVisualizationProps {
 }
 
 export const GateErrorVisualization: React.FC<GateErrorVisualizationProps> = ({ backend }) => {
-	const [state, dispatch] = useContext(BackendContext);
+	const [state] = useContext(BackendContext);
 	const { setSelectionMap } = useSelectionMaps();
 
 	const { isLoading, data, error, refetch, isFetching } = useQuery(
@@ -30,7 +29,7 @@ export const GateErrorVisualization: React.FC<GateErrorVisualizationProps> = ({ 
 
 	useLayoutEffect(() => {
 		setSelectionMap(false, false);
-	}, [setSelectionMap]);
+	}, []);
 
 	if (error) return <ErrorAlert error={error as Error} />;
 	if (isLoading || isFetching) return <VisualizationSkeleton />;

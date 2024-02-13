@@ -4,7 +4,7 @@ import { ParentSize } from '@visx/responsive';
 import { useEffect, useState } from 'react';
 import LineChart from '../lineChart/LineChart';
 import RadioButtons from '../RadioButtons';
-import ApiRoutes from '../../utils/ApiRoutes';
+import { ApiRoutes } from '../../utils/apiClient';
 
 export interface LineData {
 	x: number;
@@ -78,23 +78,7 @@ const LineChartVisualization = ({ backend }) => {
 	const [coDomain, setCoDomain] = useState<string[]>();
 	const [lineData, setLineData] = useState<LineData[]>();
 
-	// useEffect(() => {
-	// 	// if (coDomain) {
-	// 	// 	console.log('codomain: ', Object.keys(coDomain[Object.keys(coDomain)[0]][0])[0]);
-	// 	// }
-	// 	if (coDomTabs && coDomTabs.length > 0 && coDomain) {
-	// 		setActiveParams((oldVal) => {
-	// 			console.log('old val', oldVal);
-	// 			return {
-	// 				domain: oldVal.domain,
-	// 				coDomain: Object.keys(coDomain[coDomTabs[0]][0])[0]
-	// 			};
-	// 		});
-	// 	}
-	// }, [coDomTabs, coDomain]);
-
 	useEffect(() => {
-		console.log('second');
 		if (
 			tabDom.length > 0 &&
 			tabCo.length > 0 &&
@@ -105,17 +89,9 @@ const LineChartVisualization = ({ backend }) => {
 		) {
 			let data = [];
 			for (let i = 0; i < 5; i++) {
-				// console.log('error3', domain[tabDom]);
-				// console.log('error2', domain[tabDom][i]);
-				// console.log('error1', activeParams.domain);
-				// console.log('error', domain[tabDom][i][activeParams.domain][0]);
-				console.log('params', activeParams);
-				console.log('tabDom', tabDom);
-				console.log('tabCo', tabCo);
-
 				data.push({
-					x: domain[tabDom][i][activeParams.domain][0].value,
-					y: coDomain[tabCo][i][activeParams.coDomain][0].value
+					x: domain[tabDom][i][activeParams.domain][0]?.value,
+					y: coDomain[tabCo][i][activeParams.coDomain][0]?.value
 				});
 			}
 			setLineData(data);

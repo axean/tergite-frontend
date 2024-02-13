@@ -14,7 +14,6 @@ import DatePicker from '../DatePicker';
 import Histogram from '../histogram/Histogram';
 import RadioButtons from '../RadioButtons';
 import { VisualizationSkeleton } from '../VisualizationSkeleton';
-import ApiRoutes from '../../utils/ApiRoutes';
 import { fetchVizualitationData } from '../../utils/apiClient';
 import ErrorAlert from '../ErrorAlert';
 
@@ -44,7 +43,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 		if (state.selectedNode === -1) {
 			dispatch({ type: MapActions.SELECT_NODE, payload: 0 });
 		}
-	}, [setSelectionMap, dispatch, state.selectedNode]);
+	}, []);
 
 	if (error) return <ErrorAlert error={error as Error} />;
 
@@ -73,7 +72,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 					data-cy-histogram-t1-clicked
 				></Histogram>
 			)}
-			{dataToVisualize === 'T2' && (
+			{dataToVisualize === 'T2' && data && (
 				<Histogram
 					data={data.qubits[state.selectedNode].qubit_T2_star.map((t2data) => ({
 						x: t2data.value * 1000000
@@ -82,7 +81,7 @@ export const HistogramVisualization: React.FC<HistogramVisualizationProps> = ({ 
 					data-cy-histogram-t2-clicked
 				></Histogram>
 			)}
-			{dataToVisualize === 'T' + '\u03C6' && (
+			{dataToVisualize === 'T' + '\u03C6' && data && (
 				<Histogram
 					data={data.qubits[state.selectedNode].qubit_T_phi.map((t2data) => ({
 						x: t2data.value * 1000000

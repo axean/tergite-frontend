@@ -1,20 +1,22 @@
-import ApiRoutes from '../../src/utils/ApiRoutes';
+import { getApiRoutes } from '../../src/utils/apiClient';
 
 describe('index page', () => {
 	beforeEach(() => {
-		cy.intercept('GET', ApiRoutes.devices, {
+		const apiRoutes = getApiRoutes(Cypress.env('apiBaseUrl'));
+		cy.intercept('GET', apiRoutes.devices, {
 			fixture: 'devices.json'
-		});
-		cy.intercept('GET', ApiRoutes.statuses, {
+		}).as('allDeviceData');
+		cy.intercept('GET', apiRoutes.statuses, {
 			fixture: 'statuses.json'
-		});
+		}).as('allStatusData');
 
-		cy.intercept('GET', ApiRoutes.device('Luki'), {
+		cy.intercept('GET', apiRoutes.device('Luki'), {
 			fixture: 'deviceLuki.json'
-		});
-		cy.intercept('GET', ApiRoutes.type1('Luki'), {
+		}).as('lukiDeviceData');
+		cy.intercept('GET', apiRoutes.type1('Luki'), {
 			fixture: 'type1.json'
-		});
+		}).as('lukiType1Data');
+
 		cy.visit('/');
 		cy.wait(1000);
 	});
@@ -24,7 +26,9 @@ describe('index page', () => {
 			.find('h1')
 			.should('contain', 'WAQCT | Wallenberg Centre for Quantum Technology');
 	});
+
 	it('renders systems online', () => {
+		cy.wait('@allStatusData');
 		cy.get('[data-cy-online-statuses]').within(() => {
 			cy.get('[data-cy-circle-text]').should('contain', '100%');
 			cy.get('[data-cy-systems-online]').should('contain', '1');
@@ -32,6 +36,7 @@ describe('index page', () => {
 	});
 
 	it('renders device', () => {
+		cy.wait('@allDeviceData');
 		cy.fixture('devices.json').then((devices) => {
 			const device = devices[1];
 			cy.get('[data-cy-device]')
@@ -53,6 +58,7 @@ describe('index page', () => {
 	});
 
 	it('renders searched searched', () => {
+		cy.wait('@allDeviceData');
 		cy.get('[data-cy-devices-search]').type('Pingu');
 		cy.get('[data-cy-device]')
 			.first()
@@ -62,6 +68,7 @@ describe('index page', () => {
 	});
 
 	it('filters devices', () => {
+		cy.wait('@allDeviceData');
 		cy.get('[data-cy-filter-button]').click();
 		cy.get('[data-cy-filter-online]').click();
 		cy.get('[data-cy-device]')
@@ -72,6 +79,7 @@ describe('index page', () => {
 	});
 
 	it('sorts devices by name', () => {
+		cy.wait('@allDeviceData');
 		cy.get('[data-cy-device]')
 			.first()
 			.within(() => {
@@ -88,6 +96,8 @@ describe('index page', () => {
 	});
 
 	it('sorts devices by status', () => {
+		cy.wait('@allDeviceData');
+		cy.wait('@allStatusData');
 		cy.get('[data-cy-sort-button]').click();
 		cy.get('[data-cy-sort-status]').click();
 		cy.get('[data-cy-device]')
@@ -98,6 +108,7 @@ describe('index page', () => {
 	});
 
 	it('sorts devices by online date', () => {
+		cy.wait('@allDeviceData');
 		cy.get('[data-cy-sort-button]').click();
 		cy.get('[data-cy-sort-online-date]').click();
 		cy.get('[data-cy-device]')
@@ -108,10 +119,13 @@ describe('index page', () => {
 	});
 
 	it('navigates to detail page', () => {
+		cy.wait('@allDeviceData');
 		cy.get('[data-cy-device]').first().click();
 		cy.url().should('include', 'Luki');
 	});
+
 	it('navigates back to index page', () => {
+		cy.wait('@allDeviceData');
 		cy.get('[data-cy-device]').first().click();
 		cy.wait(3000);
 		cy.get('[data-cy-main-navbar]').get('a').first().click();

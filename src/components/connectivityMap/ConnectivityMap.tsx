@@ -150,7 +150,6 @@ const VisxChart: React.FC<VisxChartProps> = ({
 	);
 
 	if (layout === null) return <div>loading...</div>;
-	console.log('links', layout.links);
 	return (
 		maxX > 0 &&
 		maxY > 0 && (

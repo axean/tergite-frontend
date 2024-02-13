@@ -4,7 +4,7 @@ import { useQuery } from 'react-query';
 import { BackendContext, MapActions } from '../../state/BackendContext';
 import ConnectivityMap from '../connectivityMap/';
 import Graph3D from 'react-graph3d-vis';
-import ApiRoutes from '../../utils/ApiRoutes';
+import { ApiRoutes } from '../../utils/apiClient';
 
 const Cityplot: React.FC<{ backend: any }> = ({ backend }) => {
 	const data1 = [];

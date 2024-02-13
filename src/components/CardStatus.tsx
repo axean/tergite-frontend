@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, CircularProgress, CircularProgressLabel, Flex } from '@chakra-ui/react';
 import { useQuery } from 'react-query';
-import ApiRoutes from '../utils/ApiRoutes';
+import { ApiRoutes } from '../utils/apiClient';
 
 const CardStatus = () => {
 	const { isLoading, data, error } = useQuery('backendStatus', () =>
@@ -23,8 +23,6 @@ const CardStatus = () => {
 		}
 		total++;
 	});
-
-	console.log(online + ' ' + total);
 
 	return (
 		<Flex

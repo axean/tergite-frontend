@@ -1,0 +1,2724 @@
+{
+	"backend_name": "Luki",
+	"backend_version": "2.2.1",
+	"description": "5 qubit device Luki",
+	"sample_name": "sample name",
+	"n_qubits": 5,
+	"last_update_date": "2023-05-25T10:41:05.766000Z",
+	"online_date": "2022-04-13T19:50:31Z",
+	"qubits": [
+		{
+			"id": 0,
+			"x": 0,
+			"y": 0,
+			"xy_drive_line": 0,
+			"z_drive_line": 1,
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.766186Z",
+					"name": "qubit_T1",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766187Z",
+					"name": "qubit_T2_star",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766300Z",
+					"name": "qubit_T_phi",
+					"unit": "mV",
+					"value": null,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766420Z",
+					"name": "assignment_error_ge",
+					"unit": "",
+					"value": null,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766180Z",
+					"name": "read_err_prep0_meas1_ge",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766182Z",
+					"name": "read_err_prep1_meas0_ge",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766182Z",
+					"name": "read_err_prep0_meas1_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766183Z",
+					"name": "read_err_prep0_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766183Z",
+					"name": "read_err_prep0_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766184Z",
+					"name": "read_err_prep1_meas0_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766184Z",
+					"name": "read_err_prep1_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766185Z",
+					"name": "read_err_prep2_meas0_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766185Z",
+					"name": "read_err_prep2_meas1_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.762014Z",
+					"name": "frequency",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762019Z",
+					"name": "chi_shift",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762021Z",
+					"name": "g_rq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762022Z",
+					"name": "qubit_Tpurcell",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762023Z",
+					"name": "qubit_Tdrive",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.756676Z",
+					"name": "J_qc_{0,0}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.756683Z",
+					"name": "J_qc_{0,1}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.756686Z",
+					"name": "J_qc_{0,2}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.756688Z",
+					"name": "J_qc_{0,3}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.756690Z",
+					"name": "J_qc_{0,4}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.756692Z",
+					"name": "J_qc_{0,5}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.756694Z",
+					"name": "J_qc_{0,6}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.756696Z",
+					"name": "J_qc_{0,7}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			]
+		},
+		{
+			"id": 1,
+			"x": 1,
+			"y": 0,
+			"xy_drive_line": 2,
+			"z_drive_line": 3,
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.766429Z",
+					"name": "qubit_T1",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766430Z",
+					"name": "qubit_T2_star",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766540Z",
+					"name": "qubit_T_phi",
+					"unit": "mV",
+					"value": null,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766653Z",
+					"name": "assignment_error_ge",
+					"unit": "",
+					"value": null,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766423Z",
+					"name": "read_err_prep0_meas1_ge",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766424Z",
+					"name": "read_err_prep1_meas0_ge",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766424Z",
+					"name": "read_err_prep0_meas1_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766425Z",
+					"name": "read_err_prep0_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766426Z",
+					"name": "read_err_prep0_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766426Z",
+					"name": "read_err_prep1_meas0_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766427Z",
+					"name": "read_err_prep1_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766427Z",
+					"name": "read_err_prep2_meas0_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766428Z",
+					"name": "read_err_prep2_meas1_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.762416Z",
+					"name": "frequency",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762418Z",
+					"name": "chi_shift",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762418Z",
+					"name": "g_rq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762419Z",
+					"name": "qubit_Tpurcell",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762420Z",
+					"name": "qubit_Tdrive",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762222Z",
+					"name": "J_qc_{1,0}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762226Z",
+					"name": "J_qc_{1,1}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762229Z",
+					"name": "J_qc_{1,2}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762231Z",
+					"name": "J_qc_{1,3}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762232Z",
+					"name": "J_qc_{1,4}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762234Z",
+					"name": "J_qc_{1,5}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762237Z",
+					"name": "J_qc_{1,6}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762239Z",
+					"name": "J_qc_{1,7}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			]
+		},
+		{
+			"id": 2,
+			"x": 2,
+			"y": 0,
+			"xy_drive_line": 4,
+			"z_drive_line": 5,
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.766661Z",
+					"name": "qubit_T1",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766662Z",
+					"name": "qubit_T2_star",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766800Z",
+					"name": "qubit_T_phi",
+					"unit": "mV",
+					"value": null,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766900Z",
+					"name": "assignment_error_ge",
+					"unit": "",
+					"value": null,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766655Z",
+					"name": "read_err_prep0_meas1_ge",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766656Z",
+					"name": "read_err_prep1_meas0_ge",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766656Z",
+					"name": "read_err_prep0_meas1_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766657Z",
+					"name": "read_err_prep0_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766657Z",
+					"name": "read_err_prep0_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766658Z",
+					"name": "read_err_prep1_meas0_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766659Z",
+					"name": "read_err_prep1_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766659Z",
+					"name": "read_err_prep2_meas0_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766660Z",
+					"name": "read_err_prep2_meas1_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.762733Z",
+					"name": "frequency",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762734Z",
+					"name": "chi_shift",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762734Z",
+					"name": "g_rq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762735Z",
+					"name": "qubit_Tpurcell",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762736Z",
+					"name": "qubit_Tdrive",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762573Z",
+					"name": "J_qc_{2,0}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762576Z",
+					"name": "J_qc_{2,1}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762578Z",
+					"name": "J_qc_{2,2}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762579Z",
+					"name": "J_qc_{2,3}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762583Z",
+					"name": "J_qc_{2,4}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762585Z",
+					"name": "J_qc_{2,5}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762587Z",
+					"name": "J_qc_{2,6}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762589Z",
+					"name": "J_qc_{2,7}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			]
+		},
+		{
+			"id": 3,
+			"x": 1,
+			"y": 1,
+			"xy_drive_line": 6,
+			"z_drive_line": 7,
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.766907Z",
+					"name": "qubit_T1",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766907Z",
+					"name": "qubit_T2_star",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767006Z",
+					"name": "qubit_T_phi",
+					"unit": "mV",
+					"value": null,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767111Z",
+					"name": "assignment_error_ge",
+					"unit": "",
+					"value": null,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766902Z",
+					"name": "read_err_prep0_meas1_ge",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766902Z",
+					"name": "read_err_prep1_meas0_ge",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766903Z",
+					"name": "read_err_prep0_meas1_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766903Z",
+					"name": "read_err_prep0_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766904Z",
+					"name": "read_err_prep0_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766904Z",
+					"name": "read_err_prep1_meas0_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766905Z",
+					"name": "read_err_prep1_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766905Z",
+					"name": "read_err_prep2_meas0_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.766906Z",
+					"name": "read_err_prep2_meas1_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.763026Z",
+					"name": "frequency",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763027Z",
+					"name": "chi_shift",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763028Z",
+					"name": "g_rq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763028Z",
+					"name": "qubit_Tpurcell",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763029Z",
+					"name": "qubit_Tdrive",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762881Z",
+					"name": "J_qc_{3,0}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762884Z",
+					"name": "J_qc_{3,1}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762886Z",
+					"name": "J_qc_{3,2}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762888Z",
+					"name": "J_qc_{3,3}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762890Z",
+					"name": "J_qc_{3,4}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762891Z",
+					"name": "J_qc_{3,5}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762893Z",
+					"name": "J_qc_{3,6}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.762894Z",
+					"name": "J_qc_{3,7}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			]
+		},
+		{
+			"id": 4,
+			"x": 1,
+			"y": 2,
+			"xy_drive_line": 8,
+			"z_drive_line": 9,
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767123Z",
+					"name": "qubit_T1",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767123Z",
+					"name": "qubit_T2_star",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767260Z",
+					"name": "qubit_T_phi",
+					"unit": "mV",
+					"value": null,
+					"types": ["type1", "type2", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767378Z",
+					"name": "assignment_error_ge",
+					"unit": "",
+					"value": null,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767116Z",
+					"name": "read_err_prep0_meas1_ge",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767117Z",
+					"name": "read_err_prep1_meas0_ge",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767118Z",
+					"name": "read_err_prep0_meas1_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767118Z",
+					"name": "read_err_prep0_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767119Z",
+					"name": "read_err_prep0_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767120Z",
+					"name": "read_err_prep1_meas0_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767120Z",
+					"name": "read_err_prep1_meas2_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767121Z",
+					"name": "read_err_prep2_meas0_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767121Z",
+					"name": "read_err_prep2_meas1_gef",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.763297Z",
+					"name": "frequency",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763298Z",
+					"name": "chi_shift",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763298Z",
+					"name": "g_rq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763299Z",
+					"name": "qubit_Tpurcell",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763299Z",
+					"name": "qubit_Tdrive",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763164Z",
+					"name": "J_qc_{4,0}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763166Z",
+					"name": "J_qc_{4,1}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763168Z",
+					"name": "J_qc_{4,2}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763170Z",
+					"name": "J_qc_{4,3}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763172Z",
+					"name": "J_qc_{4,4}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763174Z",
+					"name": "J_qc_{4,5}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763175Z",
+					"name": "J_qc_{4,6}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763177Z",
+					"name": "J_qc_{4,7}",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			]
+		}
+	],
+	"gates": [
+		{
+			"id": 0,
+			"name": "ID_0",
+			"gate": "id",
+			"qubits": [0],
+			"qasm_def": "gate id q { U(0, 0, 0) q; }",
+			"parameters": [],
+			"static_properties": [],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767877Z",
+					"name": "pulse_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767878Z",
+					"name": "pulse_freq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767879Z",
+					"name": "pulse_drag",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767879Z",
+					"name": "pulse_detune",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767880Z",
+					"name": "qubit_pulse_length",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767881Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 1,
+			"name": "ID_1",
+			"gate": "id",
+			"qubits": [1],
+			"qasm_def": "gate id q { U(0, 0, 0) q; }",
+			"parameters": [],
+			"static_properties": [],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767882Z",
+					"name": "pulse_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767882Z",
+					"name": "pulse_freq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767883Z",
+					"name": "pulse_drag",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767883Z",
+					"name": "pulse_detune",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767884Z",
+					"name": "qubit_pulse_length",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767885Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 2,
+			"name": "ID_2",
+			"gate": "id",
+			"qubits": [2],
+			"qasm_def": "gate id q { U(0, 0, 0) q; }",
+			"parameters": [],
+			"static_properties": [],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767885Z",
+					"name": "pulse_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767886Z",
+					"name": "pulse_freq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767886Z",
+					"name": "pulse_drag",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767887Z",
+					"name": "pulse_detune",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767887Z",
+					"name": "qubit_pulse_length",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767888Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 3,
+			"name": "ID_3",
+			"gate": "id",
+			"qubits": [3],
+			"qasm_def": "gate id q { U(0, 0, 0) q; }",
+			"parameters": [],
+			"static_properties": [],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767889Z",
+					"name": "pulse_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767889Z",
+					"name": "pulse_freq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767890Z",
+					"name": "pulse_drag",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767890Z",
+					"name": "pulse_detune",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767891Z",
+					"name": "qubit_pulse_length",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767891Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 4,
+			"name": "ID_4",
+			"gate": "id",
+			"qubits": [4],
+			"qasm_def": "gate id q { U(0, 0, 0) q; }",
+			"parameters": [],
+			"static_properties": [],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767892Z",
+					"name": "pulse_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767892Z",
+					"name": "pulse_freq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767893Z",
+					"name": "pulse_drag",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767894Z",
+					"name": "pulse_detune",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767894Z",
+					"name": "qubit_pulse_length",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767895Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 5,
+			"name": "CX_0_1",
+			"gate": "cx",
+			"qubits": [0, 1],
+			"qasm_def": "gate id q { U(0, 0, 0) q; }",
+			"parameters": [],
+			"static_properties": [],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767895Z",
+					"name": "pulse_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767896Z",
+					"name": "pulse_freq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767896Z",
+					"name": "pulse_drag",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767897Z",
+					"name": "pulse_detune",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767898Z",
+					"name": "qubit_pulse_length",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767898Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 6,
+			"name": "CX_1_0",
+			"gate": "cx",
+			"qubits": [1, 0],
+			"qasm_def": "gate id q { U(0, 0, 0) q; }",
+			"parameters": [],
+			"static_properties": [],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767899Z",
+					"name": "pulse_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767899Z",
+					"name": "pulse_freq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767900Z",
+					"name": "pulse_drag",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767900Z",
+					"name": "pulse_detune",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767901Z",
+					"name": "qubit_pulse_length",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767902Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 7,
+			"name": "CX_1_2",
+			"gate": "cx",
+			"qubits": [1, 2],
+			"qasm_def": "gate id q { U(0, 0, 0) q; }",
+			"parameters": [],
+			"static_properties": [],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767902Z",
+					"name": "pulse_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767903Z",
+					"name": "pulse_freq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767903Z",
+					"name": "pulse_drag",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767904Z",
+					"name": "pulse_detune",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767904Z",
+					"name": "qubit_pulse_length",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767905Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 8,
+			"name": "CX_2_1",
+			"gate": "cx",
+			"qubits": [2, 1],
+			"qasm_def": "gate id q { U(0, 0, 0) q; }",
+			"parameters": [],
+			"static_properties": [],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767906Z",
+					"name": "pulse_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767906Z",
+					"name": "pulse_freq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767907Z",
+					"name": "pulse_drag",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767907Z",
+					"name": "pulse_detune",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767908Z",
+					"name": "qubit_pulse_length",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767908Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 9,
+			"name": "CX_1_3",
+			"gate": "cx",
+			"qubits": [1, 3],
+			"qasm_def": "gate id q { U(0, 0, 0) q; }",
+			"parameters": [],
+			"static_properties": [],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767909Z",
+					"name": "pulse_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767909Z",
+					"name": "pulse_freq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767910Z",
+					"name": "pulse_drag",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767911Z",
+					"name": "pulse_detune",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767911Z",
+					"name": "qubit_pulse_length",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767912Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 10,
+			"name": "CX_3_1",
+			"gate": "cx",
+			"qubits": [3, 1],
+			"qasm_def": "gate id q { U(0, 0, 0) q; }",
+			"parameters": [],
+			"static_properties": [],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767912Z",
+					"name": "pulse_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767913Z",
+					"name": "pulse_freq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767913Z",
+					"name": "pulse_drag",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767914Z",
+					"name": "pulse_detune",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767915Z",
+					"name": "qubit_pulse_length",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767915Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 11,
+			"name": "CX_3_4",
+			"gate": "cx",
+			"qubits": [3, 4],
+			"qasm_def": "gate id q { U(0, 0, 0) q; }",
+			"parameters": [],
+			"static_properties": [],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767916Z",
+					"name": "pulse_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767916Z",
+					"name": "pulse_freq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767917Z",
+					"name": "pulse_drag",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767917Z",
+					"name": "pulse_detune",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767918Z",
+					"name": "qubit_pulse_length",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767918Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 12,
+			"name": "CX_4_3",
+			"gate": "cx",
+			"qubits": [4, 3],
+			"qasm_def": "gate id q { U(0, 0, 0) q; }",
+			"parameters": [],
+			"static_properties": [],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767919Z",
+					"name": "pulse_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767920Z",
+					"name": "pulse_freq",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767920Z",
+					"name": "pulse_drag",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767921Z",
+					"name": "pulse_detune",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767921Z",
+					"name": "qubit_pulse_length",
+					"unit": "s",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767922Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		}
+	],
+	"resonators": [
+		{
+			"id": 0,
+			"x": 0,
+			"y": 1,
+			"readout_line": 33,
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767483Z",
+					"name": "read_length",
+					"unit": "s",
+					"value": null,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767484Z",
+					"name": "read_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767485Z",
+					"name": "read_mod",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.763537Z",
+					"name": "frequency",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763538Z",
+					"name": "frequency_ge",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763539Z",
+					"name": "frequency_gef",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763540Z",
+					"name": "Q_i",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763541Z",
+					"name": "Q_c",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763541Z",
+					"name": "kappa",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			]
+		},
+		{
+			"id": 1,
+			"x": 0,
+			"y": 2,
+			"readout_line": 33,
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767612Z",
+					"name": "read_length",
+					"unit": "s",
+					"value": null,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767614Z",
+					"name": "read_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767615Z",
+					"name": "read_mod",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.763776Z",
+					"name": "frequency",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763777Z",
+					"name": "frequency_ge",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763778Z",
+					"name": "frequency_gef",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763779Z",
+					"name": "Q_i",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763779Z",
+					"name": "Q_c",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.763780Z",
+					"name": "kappa",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			]
+		},
+		{
+			"id": 2,
+			"x": 1,
+			"y": 2,
+			"readout_line": 33,
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767725Z",
+					"name": "read_length",
+					"unit": "s",
+					"value": null,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767727Z",
+					"name": "read_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767728Z",
+					"name": "read_mod",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.764017Z",
+					"name": "frequency",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764018Z",
+					"name": "frequency_ge",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764018Z",
+					"name": "frequency_gef",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764019Z",
+					"name": "Q_i",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764020Z",
+					"name": "Q_c",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764020Z",
+					"name": "kappa",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			]
+		},
+		{
+			"id": 3,
+			"x": 2,
+			"y": 2,
+			"readout_line": 33,
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767801Z",
+					"name": "read_length",
+					"unit": "s",
+					"value": null,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767802Z",
+					"name": "read_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767803Z",
+					"name": "read_mod",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.764255Z",
+					"name": "frequency",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764256Z",
+					"name": "frequency_ge",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764257Z",
+					"name": "frequency_gef",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764258Z",
+					"name": "Q_i",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764258Z",
+					"name": "Q_c",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764259Z",
+					"name": "kappa",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			]
+		},
+		{
+			"id": 4,
+			"x": 2,
+			"y": 3,
+			"readout_line": 33,
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767869Z",
+					"name": "read_length",
+					"unit": "s",
+					"value": null,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767870Z",
+					"name": "read_amp",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767871Z",
+					"name": "read_mod",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.764461Z",
+					"name": "frequency",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764462Z",
+					"name": "frequency_ge",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764462Z",
+					"name": "frequency_gef",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764463Z",
+					"name": "Q_i",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764464Z",
+					"name": "Q_c",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764464Z",
+					"name": "kappa",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				}
+			]
+		}
+	],
+	"couplers": [
+		{
+			"id": 0,
+			"z_drive_line": 0,
+			"qubits": [0, 1],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767872Z",
+					"name": "bias_V",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.764587Z",
+					"name": "freq_max",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764588Z",
+					"name": "coupler_V0",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764588Z",
+					"name": "asymetry",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764573Z",
+					"name": "xtalk_{0,1}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764576Z",
+					"name": "xtalk_{0,2}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764578Z",
+					"name": "xtalk_{0,3}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764580Z",
+					"name": "xtalk_{0,4}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764582Z",
+					"name": "xtalk_{0,5}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764584Z",
+					"name": "xtalk_{0,6}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764586Z",
+					"name": "xtalk_{0,7}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				}
+			]
+		},
+		{
+			"id": 1,
+			"z_drive_line": 1,
+			"qubits": [1, 0],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767873Z",
+					"name": "bias_V",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.764605Z",
+					"name": "freq_max",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764606Z",
+					"name": "coupler_V0",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764607Z",
+					"name": "asymetry",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764593Z",
+					"name": "xtalk_{1,0}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764595Z",
+					"name": "xtalk_{1,2}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764597Z",
+					"name": "xtalk_{1,3}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764599Z",
+					"name": "xtalk_{1,4}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764600Z",
+					"name": "xtalk_{1,5}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764602Z",
+					"name": "xtalk_{1,6}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764604Z",
+					"name": "xtalk_{1,7}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				}
+			]
+		},
+		{
+			"id": 2,
+			"z_drive_line": 2,
+			"qubits": [1, 2],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767873Z",
+					"name": "bias_V",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.764621Z",
+					"name": "freq_max",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764622Z",
+					"name": "coupler_V0",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764622Z",
+					"name": "asymetry",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764609Z",
+					"name": "xtalk_{2,0}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764611Z",
+					"name": "xtalk_{2,1}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764613Z",
+					"name": "xtalk_{2,3}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764614Z",
+					"name": "xtalk_{2,4}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764616Z",
+					"name": "xtalk_{2,5}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764618Z",
+					"name": "xtalk_{2,6}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764620Z",
+					"name": "xtalk_{2,7}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				}
+			]
+		},
+		{
+			"id": 3,
+			"z_drive_line": 3,
+			"qubits": [2, 1],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767874Z",
+					"name": "bias_V",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.764636Z",
+					"name": "freq_max",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764637Z",
+					"name": "coupler_V0",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764637Z",
+					"name": "asymetry",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764624Z",
+					"name": "xtalk_{3,0}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764626Z",
+					"name": "xtalk_{3,1}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764628Z",
+					"name": "xtalk_{3,2}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764630Z",
+					"name": "xtalk_{3,4}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764631Z",
+					"name": "xtalk_{3,5}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764633Z",
+					"name": "xtalk_{3,6}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764635Z",
+					"name": "xtalk_{3,7}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				}
+			]
+		},
+		{
+			"id": 4,
+			"z_drive_line": 4,
+			"qubits": [1, 3],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767875Z",
+					"name": "bias_V",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.764651Z",
+					"name": "freq_max",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764652Z",
+					"name": "coupler_V0",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764652Z",
+					"name": "asymetry",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764639Z",
+					"name": "xtalk_{4,0}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764641Z",
+					"name": "xtalk_{4,1}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764643Z",
+					"name": "xtalk_{4,2}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764644Z",
+					"name": "xtalk_{4,3}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764646Z",
+					"name": "xtalk_{4,5}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764648Z",
+					"name": "xtalk_{4,6}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764650Z",
+					"name": "xtalk_{4,7}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				}
+			]
+		},
+		{
+			"id": 5,
+			"z_drive_line": 5,
+			"qubits": [3, 1],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767875Z",
+					"name": "bias_V",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.764667Z",
+					"name": "freq_max",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764668Z",
+					"name": "coupler_V0",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764668Z",
+					"name": "asymetry",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764656Z",
+					"name": "xtalk_{5,0}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764657Z",
+					"name": "xtalk_{5,1}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764659Z",
+					"name": "xtalk_{5,2}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764661Z",
+					"name": "xtalk_{5,3}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764663Z",
+					"name": "xtalk_{5,4}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764664Z",
+					"name": "xtalk_{5,6}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764666Z",
+					"name": "xtalk_{5,7}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				}
+			]
+		},
+		{
+			"id": 6,
+			"z_drive_line": 6,
+			"qubits": [3, 4],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767876Z",
+					"name": "bias_V",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.764682Z",
+					"name": "freq_max",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764683Z",
+					"name": "coupler_V0",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764683Z",
+					"name": "asymetry",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764670Z",
+					"name": "xtalk_{6,0}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764672Z",
+					"name": "xtalk_{6,1}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764674Z",
+					"name": "xtalk_{6,2}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764675Z",
+					"name": "xtalk_{6,3}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764677Z",
+					"name": "xtalk_{6,4}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764679Z",
+					"name": "xtalk_{6,5}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764681Z",
+					"name": "xtalk_{6,7}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				}
+			]
+		},
+		{
+			"id": 7,
+			"z_drive_line": 7,
+			"qubits": [4, 3],
+			"dynamic_properties": [
+				{
+					"date": "2023-05-25T10:41:05.767876Z",
+					"name": "bias_V",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1", "type4_codomain"]
+				}
+			],
+			"static_properties": [
+				{
+					"date": "2023-05-25T10:41:05.764697Z",
+					"name": "freq_max",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764697Z",
+					"name": "coupler_V0",
+					"unit": "V",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764698Z",
+					"name": "asymetry",
+					"unit": "",
+					"value": 0,
+					"types": ["type1"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764685Z",
+					"name": "xtalk_{7,0}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764686Z",
+					"name": "xtalk_{7,1}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764688Z",
+					"name": "xtalk_{7,2}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764690Z",
+					"name": "xtalk_{7,3}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764691Z",
+					"name": "xtalk_{7,4}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764693Z",
+					"name": "xtalk_{7,5}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.764695Z",
+					"name": "xtalk_{7,6}",
+					"unit": "",
+					"value": 0,
+					"types": ["type1", "type5"]
+				}
+			]
+		}
+	]
+}

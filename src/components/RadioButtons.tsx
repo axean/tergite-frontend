@@ -36,6 +36,7 @@ const RadioButtons = ({ setTab, tabs, defaultTab, dataAttribute, id }: RadioButt
 				<TabList>
 					{tabs.map((item, index) => (
 						<Tab
+							data-cy-index={index}
 							key={index}
 							_selected={{ color: 'white', bg: '#38B2AC', boxShadow: 'none' }}
 						>

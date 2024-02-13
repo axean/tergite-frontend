@@ -11,8 +11,6 @@ function parseValue(value: number, exponent: number) {
 }
 
 const CouplerTable = ({ data }: CouplerTableProps) => {
-	console.log(data);
-
 	return (
 		<TableContainer data-cy-coupler-table>
 			<Table variant='striped' colorScheme='teal'>

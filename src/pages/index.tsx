@@ -7,7 +7,7 @@ import Sort from '../components/Sort';
 import { WacqtInfoCard } from '../components/WacqtInfoCard';
 import { useQuery } from 'react-query';
 import GridBackends from '../components/GridBackends';
-import ApiRoutes from '../utils/ApiRoutes';
+import { ApiRoutes } from '../utils/apiClient';
 
 const Index = () => {
 	// Just use setBackends and data when backend fixed the cors errors
