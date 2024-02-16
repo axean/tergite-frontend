@@ -14,10 +14,13 @@
 # Refactored by Martin Ahindura 2023-11-08
 """Utilities specific to models"""
 from datetime import datetime
+from typing import Any, Dict, Optional, Type, TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from utils.date_time import datetime_to_zulu
+
+T = TypeVar("T", bound=BaseModel)
 
 
 class ZEncodedBaseModel(BaseModel):
@@ -25,3 +28,19 @@ class ZEncodedBaseModel(BaseModel):
         json_encoders = {
             datetime: datetime_to_zulu,
         }
+
+
+def try_parse_obj(cls: Type[T], obj: Dict[str, Any]) -> Optional[T]:
+    """Attempt to parse an object and return None in case of an error
+
+    Args:
+        cls: the subclass of BaseModel to parse to
+        obj: the dictionary to parse
+
+    Returns:
+        the parsed object or None in case of Validation errors
+    """
+    try:
+        return cls.parse_obj(obj)
+    except ValidationError:
+        return None

@@ -88,11 +88,13 @@ async def synchronize(
             update_internal_project_list(db_url=db_url, db_name=db_name),
             err_msg_prefix="error in update_internal_project_list",
         )
+        logging.info("finished updating internal project list")
 
         await log_if_err(
             update_internal_user_list(db_url=db_url, db_name=db_name),
             err_msg_prefix="error in update_internal_user_list",
         )
+        logging.info("finished updating internal user list")
 
         if run_long_tasks:
             # FIXME: this seems to distort some values
@@ -100,11 +102,13 @@ async def synchronize(
                 update_internal_resource_allocation(db_url=db_url, db_name=db_name),
                 err_msg_prefix="error in update_internal_resource_allocation",
             )
+            logging.info("finished updating internal resource allocation")
 
         await log_if_err(
             post_resource_usages(db_url=db_url, db_name=db_name),
             err_msg_prefix="error in post_resource_usages",
         )
+        logging.info("finished posting resource usages")
 
         # toggle long tasks to run only on every second cycle
         run_long_tasks = not run_long_tasks
@@ -663,6 +667,8 @@ async def _prepare_resource_usages(
                         component_type=comp_type,
                         cache=components_cache,
                     )
+                    if component is None:
+                        continue
 
                     unit_value = component.measured_unit.to_seconds()
                     limit_in_seconds = comp_amount * unit_value

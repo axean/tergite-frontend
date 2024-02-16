@@ -45,7 +45,7 @@
         "type": "test",
         "name": "test",
         "description": "",
-        "measured_unit": "hour",
+        "measured_unit": "",
         "limit_period": null,
         "limit_amount": null,
         "article_code": "",

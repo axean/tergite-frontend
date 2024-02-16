@@ -12,7 +12,6 @@
 """Utilities for use in the puhuri external service
 """
 import asyncio
-import logging
 from dataclasses import asdict
 from datetime import datetime, timezone
 from functools import lru_cache
@@ -22,12 +21,11 @@ from waldur_client import ComponentUsage, WaldurClient
 
 import settings
 from utils.date_time import is_in_month
-from utils.logging import err_logger
+from utils.models import try_parse_obj
 
 from .dtos import (
     PuhuriComponent,
     PuhuriFailedRequest,
-    PuhuriOrder,
     PuhuriPlanPeriod,
     PuhuriProjectMetadata,
     PuhuriProviderOffering,
@@ -169,7 +167,7 @@ async def get_accounting_component(
     offering_uuid: str,
     component_type: str,
     cache: Optional[Dict[Tuple[str, str], PuhuriComponent]] = None,
-) -> PuhuriComponent:
+) -> Optional[PuhuriComponent]:
     """Gets the accounting component given the component type and the offering_uuid
 
     If the caches are provided, it attempts to extract the component
@@ -183,7 +181,7 @@ async def get_accounting_component(
             accessible by (offering_uuid, component_type) tuple
 
     Returns:
-        the component
+        the component or None if the component was malformed
 
     Raises:
         WaldurClientException: error making request
@@ -203,7 +201,7 @@ async def get_accounting_component(
 
         _cache.update(
             {
-                (offering_uuid, v["type"]): PuhuriComponent.parse_obj(v)
+                (offering_uuid, v["type"]): try_parse_obj(PuhuriComponent, v)
                 for v in offering["components"]
             }
         )
@@ -370,6 +368,8 @@ async def get_qpu_seconds(
                 component_type=comp_type,
                 cache=_components_cache,
             )
+            if component is None:
+                continue
 
             unit_value = component.measured_unit.to_seconds()
             net_comp_amount = comp_amount - limit_usage.get(comp_type, 0)
