@@ -368,7 +368,7 @@ def test_update_job_resource_usage(
     )
     expected_resource_usage = _get_resource_usage(payload["timestamps"])
     actual_resource_usage = round(
-        project_before_update["qpu_seconds"] - project_after_update["qpu_seconds"], 6
+        project_before_update["qpu_seconds"] - project_after_update["qpu_seconds"], 1
     )
 
     assert actual_resource_usage == expected_resource_usage

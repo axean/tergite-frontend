@@ -28,3 +28,18 @@ def is_not_older_than(timestamp_str: str, seconds: int) -> bool:
     return date_time.parse_datetime_string(timestamp_str) - datetime.now(
         tz=timezone.utc
     ) <= timedelta(seconds=seconds)
+
+
+def of_this_month(timestamp_str: str) -> str:
+    """Returns the timestamp string as one of the current month
+
+    Args:
+        timestamp_str: a timestamp string to be converted to current month's timestamp
+
+    Returns:
+        the timestamp but as one of the current month's
+    """
+    now = datetime.now(tz=timezone.utc)
+    timestamp = date_time.parse_datetime_string(timestamp_str)
+    timestamp = timestamp.replace(year=now.year, month=now.month)
+    return date_time.datetime_to_zulu(timestamp)

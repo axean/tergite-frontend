@@ -11,10 +11,12 @@
 # that they have been altered from the originals.
 """Mock Waldur client for handling calls to Puhuri in tests"""
 import multiprocessing
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Tuple, TypedDict
 
 from waldur_client import ComponentUsage, WaldurClient
 
+from .date_time import of_this_month
 from .fixtures import load_json_fixture
 from .json import to_json
 from .records import copy_records
@@ -24,7 +26,23 @@ _PUHURI_RESOURCES = load_json_fixture("puhuri_resources.json")
 _PUHURI_UNAPPROVED_RESOURCES = load_json_fixture("puhuri_unapproved_resources.json")
 _PUHURI_RESOURCE_TEAMS = load_json_fixture("puhuri_resource_teams.json")
 _PUHURI_OFFERINGS = load_json_fixture("puhuri_offerings.json")
-_PUHURI_PLAN_PERIODS = load_json_fixture("puhuri_plan_periods.json")
+_PUHURI_PLAN_PERIODS = {
+    k: [
+        {
+            **period,
+            "start": of_this_month(period["start"]),
+            "components": [
+                {
+                    **item,
+                    "date": of_this_month(item["date"]),
+                }
+                for item in period["components"]
+            ],
+        }
+        for period in periods
+    ]
+    for k, periods in load_json_fixture("puhuri_plan_periods.json").items()
+}
 
 
 class MockWaldurClient(WaldurClient):
