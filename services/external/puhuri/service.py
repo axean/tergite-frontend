@@ -97,7 +97,6 @@ async def synchronize(
         logging.info("finished updating internal user list")
 
         if run_long_tasks:
-            # FIXME: this seems to distort some values
             await log_if_err(
                 update_internal_resource_allocation(db_url=db_url, db_name=db_name),
                 err_msg_prefix="error in update_internal_resource_allocation",
@@ -394,7 +393,7 @@ async def update_internal_resource_allocation(
             collection.update_one(
                 {
                     "ext_id": project.ext_id,
-                    # a guard to ensure projects that no resource is ignored
+                    # a guard to ensure that no resource is ignored
                     # NOTE: this may fail with a Conflict Error if any of the resource_ids
                     #   does not already exist in the project i.e. it is newly allocated.
                     #   This must be resolved by the routine that extracts new resources/projects or
@@ -406,8 +405,10 @@ async def update_internal_resource_allocation(
                         "source": ProjectSource.PUHURI.value,
                         "is_active": project.is_active,
                         "qpu_seconds": project.qpu_seconds,
+                        "resource_ids": project.resource_ids,
                     },
                 },
+                upsert=True,
             )
             for project in approved_projects
         ),

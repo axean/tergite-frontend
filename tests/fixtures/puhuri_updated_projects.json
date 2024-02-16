@@ -53,6 +53,18 @@
     ]
   },
   {
+    "ext_id": "test-project-1",
+    "is_active": true,
+    "qpu_seconds": 720071208,
+    "source": "puhuri",
+    "resource_ids": [
+      "bf358a943789445288ffc48020e4fcda",
+      "e64e21f243c84d5796d248ef1f846efa",
+      "4ef2bb90009c4f43a545029d4254d1fc",
+      "788abb06091243e39ed20de15362ecfc"
+    ]
+  },
+  {
     "ext_id": "another-new-project",
     "is_active": true,
     "qpu_seconds": 71208,
