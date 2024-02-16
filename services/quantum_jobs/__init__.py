@@ -246,7 +246,7 @@ async def refresh_timelog_entry(
     )
 
 
-async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: dict):
+async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: dict) -> dict:
     """Updates the job of the given job_id
 
     Args:
@@ -255,13 +255,12 @@ async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: dict):
         payload: the new payload to update in job
 
     Returns:
-        the number of documents that were modified
+        the job document before it was modified
 
     Raises:
-        ValueError: server failed updating documents
         DocumentNotFoundError: no documents matching {"job_id": job_id} were found
     """
-    return await mongodb_utils.update_many(
+    return await mongodb_utils.update_one(
         db.jobs,
         _filter={"job_id": str(job_id)},
         payload=payload,
@@ -288,9 +287,8 @@ async def update_resource_usage(
         utils.mongodb.DocumentNotFoundError: project '{project_id}' for job '{job_id}' not found
         KeyError: 'project_id'
     """
-    try:
-        qpu_seconds_used = _get_resource_usage(timestamps)
-    except (TypeError, AttributeError):
+    qpu_seconds_used = timestamps.resource_usage
+    if qpu_seconds_used is None:
         # no need to update resource usage is timestamps are None
         return
 
@@ -303,23 +301,3 @@ async def update_resource_usage(
         raise mongodb_utils.DocumentNotFoundError(
             f"project '{project_id}' for job '{job_id}' not found"
         )
-
-
-def _get_resource_usage(timestamps: JobTimestamps) -> float:
-    """Computes the resource usage given a set of job timestamps
-
-    It raises a TypeError if any of the relevant timestamps is not a datetime
-
-    Args:
-        timestamps: the JobTimestamps collection from which resource usage is computed
-
-    Raises:
-        TypeError: unsupported operand type(s) for -: 'datetime.datetime' and 'NoneType'
-        TypeError: unsupported operand type(s) for -: 'NoneType' and 'datetime.datetime'
-        TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType'
-        AttributeError: 'NoneType' object has no attribute 'started'
-        AttributeError: 'NoneType' object has no attribute 'finished'
-    """
-    return (
-        timestamps.execution.finished - timestamps.execution.started
-    ).total_seconds()
