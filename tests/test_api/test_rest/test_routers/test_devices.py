@@ -174,6 +174,24 @@ def test_read_backend_lda_parameters(
         assert got == expected
 
 
+def test_read_non_existent_backend_lda_parameters(db, client, system_app_token_header):
+    """GET to /backends/{backend_name}/properties/lda_parameters retruns 404 if backend_name does not exist"""
+    insert_in_collection(
+        database=db, collection_name=_BACKENDS_COLLECTION, data=_BACKENDS_LIST
+    )
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.get(
+            f"/backends/foo-bar/properties/lda_parameters",
+            headers=system_app_token_header,
+        )
+        got = response.json()
+
+        assert response.status_code == 404
+        assert got == {"detail": f"foo-bar not found"}
+
+
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
 def test_create_backend(
     db, client, backend_dict: Dict[str, Any], system_app_token_header
@@ -428,6 +446,25 @@ def test_update_lda_parameters(
 
         assert original_data_in_db == [backend_dict]
         assert final_data_in_db[0] == expected
+
+
+@pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
+def test_update_lda_parameters_not_found(
+    db, client, backend_dict: Dict[str, Any], system_app_token_header
+):
+    """PUT to /backends/{backend}/properties/lda_parameters returns 404 when backend does not exist"""
+    insert_in_collection(db, collection_name=_BACKENDS_COLLECTION, data=[backend_dict])
+
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.put(
+            f"/backends/foo-bar/properties/lda_parameters",
+            json=_LDA_PARAMETERS_BODY,
+            headers=system_app_token_header,
+        )
+
+        assert response.status_code == 404
+        assert response.json() == {"detail": f"foo-bar not found"}
 
 
 def test_get_all_basic_device_data(db, client, mocker, app_token_header):

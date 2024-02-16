@@ -15,9 +15,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import logging
+from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Body, HTTPException
 from fastapi import status as http_status
 from fastapi.requests import Request
 
@@ -120,6 +121,87 @@ async def read_jobs(db: MongoDbDep, project: CurrentLaxProjectDep, nlast: int = 
     return await jobs_service.get_latest_many(db, limit=nlast)
 
 
+@router.put("/{job_id}/result", deprecated=True)
+async def update_job_result(
+    db: MongoDbDep, project: CurrentStrictProjectDep, job_id: UUID, memory: list
+):
+    """Updates the result of the job with the given memory object"""
+    try:
+        await jobs_service.update_job_result(db, job_id=job_id, memory=memory)
+    except mongodb_utils.DocumentNotFoundError as exp:
+        logging.error(exp)
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"job id {job_id} not found",
+        )
+
+    return "OK"
+
+
+@router.put("/{job_id}/status", deprecated=True)
+async def update_job_status(
+    db: MongoDbDep,
+    project: CurrentStrictProjectDep,
+    job_id: UUID,
+    status: str = Body(..., max_length=10),
+):
+    """Updates the status of the job of the given job id"""
+    try:
+        await jobs_service.update_job_status(db, job_id=job_id, status=status)
+    except mongodb_utils.DocumentNotFoundError as exp:
+        logging.error(exp)
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"job id {job_id} not found",
+        )
+
+    return "OK"
+
+
+@router.put("/{job_id}/download_url", deprecated=True)
+async def update_job_download_url(
+    db: MongoDbDep,
+    project: CurrentStrictProjectDep,
+    job_id: UUID,
+    url: str = Body(..., max_length=140),
+):
+    """Updates the download_url of the job of the given job id"""
+    try:
+        await jobs_service.update_job_download_url(db, job_id=job_id, url=url)
+    except mongodb_utils.DocumentNotFoundError as exp:
+        logging.error(exp)
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"job id {job_id} not found",
+        )
+
+    return "OK"
+
+
+# FIXME: the event name might need to be an enum
+# FIXME: the method used here probably needs to be a POST
+@router.post("/{job_id}/timelog", deprecated=True)
+async def update_timelog_entry(
+    db: MongoDbDep,
+    project: CurrentStrictProjectDep,
+    job_id: UUID,
+    event_name: str = Body(..., max_legth=10),
+):
+    """Refreshes the timelog of the given event of the job of the given job id"""
+    try:
+        await jobs_service.refresh_timelog_entry(
+            db, job_id=job_id, event_name=event_name
+        )
+    except mongodb_utils.DocumentNotFoundError as exp:
+        logging.error(exp)
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"job id {job_id} not found",
+        )
+
+    return "OK"
+
+
 @router.put("/{job_id}")
 async def update_job(
     db: MongoDbDep,
@@ -128,15 +210,29 @@ async def update_job(
     job_id: UUID,
     payload: dict,
 ):
-    """Updates the result of the job with the given memory object
+    """Updates the result of the job with the payload
 
     This may raise pydantic.error_wrappers.ValidationError in case
     the timestamps have an unexpected structure
     """
     try:
-        await jobs_service.update_job(db, job_id=job_id, payload=payload)
+        old_job = await jobs_service.update_job(db, job_id=job_id, payload=payload)
+        old_timestamps: JobTimestamps = JobTimestamps.parse_obj(
+            old_job.get("timestamps", {})
+        )
+        if old_timestamps.resource_usage is not None:
+            # if job's resource usage is already set
+            return "OK"
+
+        timestamps: Optional[JobTimestamps] = None
         if "timestamps" in payload:
             timestamps = JobTimestamps.parse_obj(payload["timestamps"])
+        elif "timestamps.execution" in payload:
+            timestamps = JobTimestamps.parse_obj(
+                {"execution": payload["timestamps.execution"]}
+            )
+
+        if timestamps is not None:
             response = await jobs_service.update_resource_usage(
                 db,
                 project_db=project_db,

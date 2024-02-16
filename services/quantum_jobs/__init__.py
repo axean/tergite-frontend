@@ -24,6 +24,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 import settings
 from services.external.bcc import BccClient
 from utils import mongodb as mongodb_utils
+from utils.date_time import get_current_timestamp
 
 from ..auth import Project
 from .dtos import CreatedJobResponse, JobTimestamps
@@ -154,13 +155,13 @@ async def get_latest_many(db: AsyncIOMotorDatabase, limit: int = 10):
     )
 
 
-async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: dict):
-    """Updates the job of the given job_id
+async def update_job_result(db: AsyncIOMotorDatabase, job_id: UUID, memory: list):
+    """Updates the memory part of the result of the job of the given job_id
 
     Args:
         db: the mongo database from where to get the job
         job_id: the job id of the job
-        payload: the new payload to update in job
+        memory: the new memory data to insert into the result of job
 
     Returns:
         the number of documents that were modified
@@ -170,6 +171,97 @@ async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: dict):
         DocumentNotFoundError: no documents matching {"job_id": job_id} were found
     """
     return await mongodb_utils.update_many(
+        db.jobs,
+        _filter={"job_id": str(job_id)},
+        payload={"result": {"memory": memory}},
+    )
+
+
+# FIXME: the status might be better modelled as an enum
+async def update_job_status(db: AsyncIOMotorDatabase, job_id: UUID, status: str):
+    """Updates the memory part of the result of the job of the given job_id
+
+    Args:
+        db: the mongo database from where to get the job
+        job_id: the job id of the job
+        status: the new status of the job
+
+    Returns:
+        the number of documents that were modified
+
+    Raises:
+        ValueError: server failed updating documents
+        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
+    """
+    return await mongodb_utils.update_many(
+        db.jobs,
+        _filter={"job_id": str(job_id)},
+        payload={"status": status},
+    )
+
+
+async def update_job_download_url(db: AsyncIOMotorDatabase, job_id: UUID, url: str):
+    """Updates the download_url the job of the given job_id
+
+    Args:
+        db: the mongo database from where to get the job
+        job_id: the job id of the job
+        url: the new download url of the job
+
+    Returns:
+        the number of documents that were modified
+
+    Raises:
+        ValueError: server failed updating documents
+        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
+    """
+    return await mongodb_utils.update_many(
+        db.jobs,
+        _filter={"job_id": str(job_id)},
+        payload={"download_url": url},
+    )
+
+
+async def refresh_timelog_entry(
+    db: AsyncIOMotorDatabase, job_id: UUID, event_name: str
+):
+    """Updates the timelog the job of the given job_id to the current timestamp
+
+    Args:
+        db: the mongo database from where to get the job
+        job_id: the job id of the job
+        event_name: the name of the event whose timelog is to be refreshed
+
+    Returns:
+        the number of documents that were modified
+
+    Raises:
+        ValueError: server failed updating documents
+        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
+    """
+    timestamp = get_current_timestamp()
+    return await mongodb_utils.update_many(
+        db.jobs,
+        _filter={"job_id": str(job_id)},
+        payload={"timelog." + event_name: timestamp},
+    )
+
+
+async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: dict) -> dict:
+    """Updates the job of the given job_id
+
+    Args:
+        db: the mongo database from where to get the job
+        job_id: the job id of the job
+        payload: the new payload to update in job
+
+    Returns:
+        the job document before it was modified
+
+    Raises:
+        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
+    """
+    return await mongodb_utils.update_one(
         db.jobs,
         _filter={"job_id": str(job_id)},
         payload=payload,
@@ -199,9 +291,8 @@ async def update_resource_usage(
         utils.mongodb.DocumentNotFoundError: project '{project_id}' for job '{job_id}' not found
         KeyError: 'project_id'
     """
-    try:
-        qpu_seconds_used = _get_resource_usage(timestamps)
-    except TypeError:
+    qpu_seconds_used = timestamps.resource_usage
+    if qpu_seconds_used is None:
         # no need to update resource usage is timestamps are None
         return None
 
@@ -215,21 +306,3 @@ async def update_resource_usage(
             f"project '{project_id}' for job '{job_id}' not found"
         )
     return project, qpu_seconds_used
-
-
-def _get_resource_usage(timestamps: JobTimestamps) -> float:
-    """Computes the resource usage given a set of job timestamps
-
-    It raises a TypeError if any of the relevant timestamps is not a datetime
-
-    Args:
-        timestamps: the JobTimestamps collection from which resource usage is computed
-
-    Raises:
-        TypeError: unsupported operand type(s) for -: 'datetime.datetime' and 'NoneType'
-        TypeError: unsupported operand type(s) for -: 'NoneType' and 'datetime.datetime'
-        TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType'
-    """
-    return (
-        timestamps.execution.finished - timestamps.execution.started
-    ).total_seconds()

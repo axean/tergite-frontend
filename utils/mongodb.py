@@ -19,6 +19,7 @@ from motor.motor_asyncio import (
     AsyncIOMotorCollection,
     AsyncIOMotorDatabase,
 )
+from pymongo import ReturnDocument
 
 from .date_time import get_current_timestamp
 
@@ -249,6 +250,40 @@ async def update_many(
         raise DocumentNotFoundError(f"no documents matching {_filter} were found")
 
     return result.modified_count
+
+
+async def update_one(
+    collection: AsyncIOMotorCollection,
+    _filter: dict,
+    payload: Dict[str, Any],
+    return_document: ReturnDocument = ReturnDocument.BEFORE,
+) -> Dict[str, Any]:
+    """Updates one document in the given collection for the given filter
+
+    Args:
+        collection: the mongo AsyncIOMotorCollection to insert the documents into
+        _filter: the filter for the documents
+        payload: the partial dict to update the documents
+        return_document:  If ReturnDocument.BEFORE (the default), returns the original document before it was updated.
+            If ReturnDocument.AFTER, returns the updated or inserted document.
+
+    Returns:
+        either the modified document or the original document
+
+    Raises:
+        DocumentNotFoundError: no documents matching {filter} were found
+    """
+    update = {"$set": {**payload, "timelog.LAST_UPDATED": get_current_timestamp()}}
+    result = await collection.find_one_and_update(
+        filter=_filter,
+        update=update,
+        return_document=return_document,
+    )
+
+    if result is None:
+        raise DocumentNotFoundError(f"no documents matching {_filter} were found")
+
+    return result
 
 
 def _get_current_timelog():

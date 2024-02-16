@@ -85,7 +85,7 @@ class ProjectDatabase:
         await project.delete()
 
     @staticmethod
-    async def increment_qpu_seconds(project_id: PydanticObjectId, qpu_seconds: float):
+    async def increment_qpu_seconds(project_id: str, qpu_seconds: float):
         """Increments the QPU seconds of the given project
 
         Args:
@@ -95,7 +95,9 @@ class ProjectDatabase:
         Returns:
             the updated document
         """
-        return await Project.find_one(Project.id == project_id).update(
+        return await Project.find_one(
+            Project.id == PydanticObjectId(project_id)
+        ).update(
             Inc({Project.qpu_seconds: qpu_seconds}),
             response_type=UpdateResponse.NEW_DOCUMENT,
         )
