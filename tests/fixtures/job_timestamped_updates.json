@@ -88,7 +88,7 @@
       "pre_processing": { "started": null, "finished": null },
       "execution": {
         "started": "2023-12-04T09:54:52.309438Z",
-        "finished": "2023-12-13T16:26:36.805403Z"
+        "finished": "2023-12-04T16:26:36.805403Z"
       },
       "post_processing": { "started": null, "finished": null },
       "final": { "started": null, "finished": null }
