@@ -36,3 +36,18 @@ class JobTimestamps(ZEncodedBaseModel):
     execution: Optional[TimestampPair] = None
     post_processing: Optional[TimestampPair] = None
     final: Optional[TimestampPair] = None
+
+    @property
+    def resource_usage(self) -> Optional[float]:
+        """the resource usage obtained from this timestamp"""
+        try:
+            return (self.execution.finished - self.execution.started).total_seconds()
+        except (TypeError, AttributeError):
+            """
+            TypeError: unsupported operand type(s) for -: 'datetime.datetime' and 'NoneType'
+            TypeError: unsupported operand type(s) for -: 'NoneType' and 'datetime.datetime'
+            TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType'
+            AttributeError: 'NoneType' object has no attribute 'started'
+            AttributeError: 'NoneType' object has no attribute 'finished'
+            """
+            return None
