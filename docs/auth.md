@@ -151,7 +151,7 @@ The Puhuri Entity Layout
 
 ### Flows
 
-More information about flows can be found on the [NordIQuEst sister repository](https://github.com/NordIQuEst/nq-iaa-stack-code)
+More information about flows can be found in the [puhuri docs folder](puhuri)
 
 
 ![Selecting resource to report on](./assets/puhuri-resource-usage-reporting-flow.png)
