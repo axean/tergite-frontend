@@ -52,8 +52,8 @@ python -m api.scripts.puhuri_sync --ignore-if-disabled &
 puhuri_script=$!
 
 # rest-api
-extra_args=$([[ $APP_SETTINGS == "production" ]] && echo "--proxy-headers" || echo "--proxy-headers --reload")
-uvicorn --host 0.0.0.0 --port "$PORT_NUMBER" api.rest:app "$extra_args" &
+extra_args=$([[ $APP_SETTINGS == "production" ]] && echo "" || echo " --reload")
+uvicorn --host 0.0.0.0 --port "$PORT_NUMBER" api.rest:app --proxy-headers$extra_args &
 uvicorn_script=$!
 
 # websocket server
