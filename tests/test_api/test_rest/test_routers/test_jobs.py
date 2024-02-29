@@ -175,6 +175,46 @@ def test_create_job_without_bcc(db, client, backend: str, app_token_header, bcc)
         assert jobs_after_creation == []
 
 
+@pytest.mark.parametrize("backend", _BACKENDS)
+def test_create_job_with_auth_disabled(mock_bcc, db, no_auth_client, backend: str):
+    """Post to /jobs/ creates a job in the given backend even when auth is disabled"""
+    query_string = "" if backend is None else f"?backend={backend}"
+    backend_param = backend if backend else "pingu"
+    jobs_before_creation = find_in_collection(
+        db,
+        collection_name=_COLLECTION,
+        fields_to_exclude=_EXCLUDED_FIELDS,
+    )
+
+    # using context manager to ensure on_startup runs
+    with no_auth_client as client:
+        response = client.post(f"/jobs/{query_string}", json={})
+        json_response = response.json()
+        new_job_id = json_response["job_id"]
+        expected_job = {
+            "project_id": None,
+            "job_id": new_job_id,
+            "backend": backend_param,
+            "status": "REGISTERING",
+        }
+        jobs_after_creation = find_in_collection(
+            db,
+            collection_name=_COLLECTION,
+            fields_to_exclude=_EXCLUDED_FIELDS,
+        )
+        timelogs = pop_field(jobs_after_creation, "timelog")
+
+        assert response.status_code == 200
+        assert response.json() == {
+            "job_id": str(new_job_id),
+            "upload_url": str(settings.BCC_MACHINE_ROOT_URL) + "/jobs",
+        }
+
+        assert jobs_before_creation == []
+        assert jobs_after_creation == [expected_job]
+        assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+
+
 @pytest.mark.parametrize("nlast", [1, 4, 6, 10, None])
 def test_read_jobs(db, client, nlast: int, no_qpu_app_token_header):
     """Get to /jobs returns the latest jobs only upto the given nlast records"""

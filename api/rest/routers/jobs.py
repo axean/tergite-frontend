@@ -101,12 +101,13 @@ async def create_job(
 ):
     """Creates a job in the given backend"""
     app_token = get_bearer_token(request, raise_if_error=settings.IS_AUTH_ENABLED)
+    project_id = None if project is None else project.id
     try:
         return await jobs_service.create_job(
             db,
             bcc_client=bcc_client,
             backend=backend,
-            project_id=project.id,
+            project_id=project_id,
             app_token=app_token,
         )
     except ServiceUnavailableError as exp:

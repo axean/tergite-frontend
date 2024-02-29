@@ -126,10 +126,11 @@ async def create_job(
     """
     job_id = f"{uuid4()}"
     logging.info(f"Creating new job with id: {job_id}")
+    project_id = str(project_id) if project_id is not None else None
 
     document = {
         "job_id": job_id,
-        "project_id": str(project_id),
+        "project_id": project_id,
         "status": "REGISTERING",
         "backend": backend,
     }
