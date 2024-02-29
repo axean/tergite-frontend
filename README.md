@@ -1,128 +1,76 @@
-# Frontend docs
+# Tergite WebGUI
 
-# Introduction
+![CI](https://github.com/tergite/tergite-webgui/actions/workflows/ci.yml/badge.svg)
 
-We use pnpm as the package manager for the project
+The Visual Interface for the QAL 9000 quantum computers.
 
-The project uses the following frameworks/libraries
+## Dependencies
 
-**[React:](https://reactjs.org/)**
+-   [Nodejs +18.12](https://nodejs.org/)
+-   [Nextjs 12.3.4](https://nextjs.org/)
+-   [Tergite MSS](https://github.com/tergite/tergite-mss)
 
-React is a modern web ui framework
+## Quick Start
 
-**[Next:](https://nextjs.org/)**
+-   Ensure you have [tergite MSS](https://github.com/tergite/tergite-mss) running.
+-   Ensure you have [Nodejs +18.12](https://nodejs.org/) installed.
+-   Clone the repo and enter its root folder
 
-Next is a server-side react framework that has built in bundling and routing among other things
-
-**[Husky:](https://github.com/typicode/husky)**
-
-Husky is a library used to get access to git hooks, we use it in tandem with prettier and eslint to ensure that the code base follows the same code style/format
-
-**[Prettier:](https://prettier.io/)**
-
-Prettier is a code formatter
-
-**[Eslint:](https://eslint.org/)**
-
-Eslint is a javascript/typescript linter, we used the integrated eslint that comes packaged with next
-
-## prerequisites
-
-[Node](https://nodejs.org/en/), [pnpm](https://pnpm.io/)
-
-### installing node
-
-[https://nodejs.org/en/download/](https://nodejs.org/en/download/)
-
-### installing pnpm
-
-```bash
-npm i -g pnpm
+```shell
+git clone git@github.com:tergite/tergite-webgui.git
+cd tergite-webgui
 ```
 
-## Usage
+-   Install the dependencies
 
-install dependencies
-
-```bash
+```shell
+npm i -g pnpm
 pnpm i
 ```
 
-Copy the `.env` file to `.env.local` and update the secret variables in `.env.local`
+-   Copy the `.env` file to `.env.local` file and update the variables in `.env.local` to the appropriate ones
 
-```
+```shell
 cp .env .env.local
 ```
 
-run dev server
+_Note: `NEXT_PUBLIC_API_BASE_URL` is the URL to the running [tergite MSS](https://github.com/tergite/tergite-mss)_
 
-```bash
+-   Run the app in development mode
+
+```shell
 pnpm run dev
 ```
 
-run tests
+-   Open your browser at [http://127.0.0.1:3000](http://127.0.0.1:3000)
 
-```bash
-pnpm run teste2e
-```
+## Contribution Guidelines
 
-run linter
+If you would like to contribute to tergite-webgui, please have a look at our
+[contribution guidelines](./CONTRIBUTING.md)
 
-```bash
-pnpm run lint
-```
+## Authors
 
-run format
+This project is a work of
+[many contributors](https://github.com/tergite/tergite-webgui/graphs/contributors).
 
-```bash
-pnpm run format
-```
+Special credit goes to the authors of this project as seen in the [CREDITS](./CREDITS.md) file.
 
-# Getting started
+## ChangeLog
 
-1. Clone the repo from [https://github.com/Chalmers-Quantum-Computer/frontend](https://github.com/Chalmers-Quantum-Computer/frontend)
-2. install dependencies
+To view the changelog for each version, have a look at
+the [CHANGELOG.md](./CHANGELOG.md) file.
 
-```bash
-pnpm i
-```
+## License
 
-1. run dev server
+[Apache 2.0 License](./LICENSE)
 
-```bash
-pnpm run dev
-```
+## Acknowledgements
 
-# Folder structure
+This project was sponsored by:
 
-In the root of the project there are two main folders, src and cypress. The src folder contains all of the source files for the application. The cypress folder contains the cypress tests. The rest of the files in the root directory are configuration files.
-
-## Src
-
-**Components**
-
-The first folder of the src directory, components, contains all of the components made.
-
-**Pages**
-
-The pages directory is a special next folder where each file/folder matches a url path.
-
-For example [localhost/test](http://localhost/test) would match /pages/test.tsx file. These files can also use url parameters see the [next docs](https://nextjs.org/docs/routing/dynamic-routes) for more information.
-
-**State**
-
-The state directory contains state related code. This is where the [react context](https://reactjs.org/docs/context.html) code is located.
-
-**Utils**
-
-This folder is used for any utility objects/functions.
-
-# Contact
-
-Vlad Dragos vladinatorr@gmail.com  
-Jamal Aldiwani plwgamaldiwani@gmail.com  
-David Andreasson daandre@student.chalmers.se  
-Karl Gunnarsson karlgunnarsson98@gmail.com  
-Alexander Jyborn alexander.jyborn@gmail.com  
-Lucas Karlsson lucaskode@gmail.com
+-   [Knut and Alice Wallenburg Foundation](https://kaw.wallenberg.org/en) under the [Wallenberg Center for Quantum Technology (WAQCT)](https://www.chalmers.se/en/centres/wacqt/) project at [Chalmers University of Technology](https://www.chalmers.se)
+-   [Nordic e-Infrastructure Collaboration (NeIC)](https://neic.no) and [NordForsk](https://www.nordforsk.org/sv) under the [NordIQuEst](https://neic.no/nordiquest/) project
+-   [European Union's Horizon Europe](https://research-and-innovation.ec.europa.eu/funding/funding-opportunities/funding-programmes-and-open-calls/horizon-europe_en) under the [OpenSuperQ](https://cordis.europa.eu/project/id/820363) project
+-   [European Union's Horizon Europe](https://research-and-innovation.ec.europa.eu/funding/funding-opportunities/funding-programmes-and-open-calls/horizon-europe_en) under the [OpenSuperQPlus](https://opensuperqplus.eu/) project
 
