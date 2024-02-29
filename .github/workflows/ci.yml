@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:node18.12.0-chrome107
+      options: --user 1001
+    strategy:
+      matrix:
+        node-version: [ "18.12", "18.13", "18.14", "18.15", "18.16" ]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Nodejs ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Lint and test
+        run: |
+          npm i -g pnpm
+          pnpm i --frozen-lockfile
+          pnpm run lint
+          pnpm run e2e
+
+  upstream:
+    name: Update upstream
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' }} && ${{ vars.SHOULD_PUSH_UPSTREAM == 'true' }}
+    needs: tests
+    steps:
+      - name: Checkout the commit
+        uses: actions/checkout@v4
+
+      - name: Push upstream
+        run: |
+          git config user.email ${{ secrets.UPSTREAM_USER }}
+          git pull -r ${{ secrets.UPSTREAM_REPO }} ${{ github.ref_name }} || echo "${{ github.ref_name }} does not exist"
+          git push ${{ secrets.UPSTREAM_REPO }} ${{ github.ref_name }} || echo "${{ github.ref_name }} already exists"
