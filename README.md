@@ -42,7 +42,7 @@ npm i -g pnpm
 
 ## Usage
 
-install dependencies 
+install dependencies
 
 ```bash
 pnpm i
@@ -54,7 +54,7 @@ Copy the `.env` file to `.env.local` and update the secret variables in `.env.lo
 cp .env .env.local
 ```
 
-run dev server 
+run dev server
 
 ```bash
 pnpm run dev
@@ -87,7 +87,7 @@ pnpm run format
 pnpm i
 ```
 
-1. run dev server 
+1. run dev server
 
 ```bash
 pnpm run dev
@@ -97,21 +97,17 @@ pnpm run dev
 
 In the root of the project there are two main folders, src and cypress. The src folder contains all of the source files for the application. The cypress folder contains the cypress tests. The rest of the files in the root directory are configuration files.
 
-![chrome_CUn0Qy04ha.png](chrome_CUn0Qy04ha.png)
-
 ## Src
-
-![chrome_RcLThJAXAx.png](chrome_RcLThJAXAx.png)
 
 **Components**
 
-The first folder of the src directory, components, contains all of the components made. 
+The first folder of the src directory, components, contains all of the components made.
 
 **Pages**
 
 The pages directory is a special next folder where each file/folder matches a url path.
 
-For example [localhost/test](http://localhost/test) would match /pages/test.tsx file. These files can also use url parameters see the [next docs](https://nextjs.org/docs/routing/dynamic-routes)  for more information.
+For example [localhost/test](http://localhost/test) would match /pages/test.tsx file. These files can also use url parameters see the [next docs](https://nextjs.org/docs/routing/dynamic-routes) for more information.
 
 **State**
 
@@ -128,4 +124,5 @@ Jamal Aldiwani plwgamaldiwani@gmail.com
 David Andreasson daandre@student.chalmers.se  
 Karl Gunnarsson karlgunnarsson98@gmail.com  
 Alexander Jyborn alexander.jyborn@gmail.com  
-Lucas Karlsson lucaskode@gmail.com  
+Lucas Karlsson lucaskode@gmail.com
+
