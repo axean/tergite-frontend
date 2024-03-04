@@ -135,7 +135,7 @@ async def create_job(
         "backend": backend,
     }
 
-    await bcc_client.save_credentials(job_id=job_id, app_token=app_token)
+    await bcc_client.save_credentials(job_id=job_id, app_token=f"{app_token}")
     await mongodb_utils.insert_one(collection=db.jobs, document=document)
 
     return {
