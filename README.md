@@ -1,66 +1,87 @@
-# Installation
+# Tergite Quantify Connector
 
-## Prerequisites
+![CI](https://github.com/tergite/tergite-mss/actions/workflows/ci.yml/badge.svg)
 
-* (optional) Use Anaconda environment. With Python 3.8.
+Translator of Qiskit Pulse schedules to Quantify schedules.
 
-## Package installation
-* cd tergite-mss
-* pip install -e .
-* create .env file with MSS configuration. See dot-env-template
+## Dependencies
 
-## Start
-### To start the Main Service Server(MSS):
-* ./start_mss.sh
+- [Python 3.8](https://www.python.org/)
+- [MongoDb](https://www.mongodb.com/)
+- [Tergite BCC](https://github.com/tergite/tergite-bcc)
 
-### (optional) To start the web socket server for webgui:
-* python3 ws_main.py
+## Quick Start
 
-## Publish Docker Manually
-
-- Ensure you have [docker](https://docs.docker.com/engine/install/) installed.
-
+- Ensure you have [conda](https://docs.anaconda.com/free/miniconda/index.html) installed. 
+ (_You could simply have python +3.8 installed instead._)
+- Ensure you have [tergite BCC](https://github.com/tergite/tergite-bcc) running.
 - Clone the repo
 
 ```shell
 git clone git@github.com:tergite/tergite-mss.git
 ```
 
-- Login to a hosted docker container registry e.g. one based on the [tergite-registry repo](https://github.com/tergite/tergite-registry)
+- Create conda environment
 
 ```shell
-# e.g. if container registry is hosted at example.com:8002
-# and username is johndoe
-# and password is password123
-CONTAINER_REGISTRY=example.com:8002
-DOCKER_USERNAME=johndoe
-# feed in password when prompted
-docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME
+conda create -n mss -y python=3.8
+conda activate mss
 ```
 
-- Create a multiplatform docker builder if you haven't already
-
-```shell
-docker buildx create --name multi-platform-builder --bootstrap --use
-```
-
-- Build and push the docker image
+- Install dependencies
 
 ```shell
 cd tergite-mss
-docker buildx build --platform linux/amd64,linux/arm64 \
-  -t ${CONTAINER_REGISTRY}/tergite-mss:local --push .
-docker pull ${CONTAINER_REGISTRY}/tergite-mss:local
+pip install -r requirements.txt
 ```
 
-- To run a container based on that image, do
+- Copy the `dot-env-template.txt` file to `.env` and 
+  update the environment variables there appropriately.
 
 ```shell
-docker run -p 8002:80 \
-  --name mss-local \
-  -e BCC_MACHINE_ROOT_URL="http://0.0.0.0:8000" \
-  -e DB_MACHINE_ROOT_URL="mongodb://production-db.se" \
-  ${CONTAINER_REGISTRY}/tergite-mss:local
+cp dot-env-template.txt .env
 ```
 
-- Open your browser at http://localhost:8002/docs and see the docs for mss running.
+- Run start script
+
+```shell
+./start_mss.sh
+```
+
+- You can optionally run the websocket server also in another terminal for [tergite WebGUI](https://github.com/tergite/tergite-webgui)
+
+```shell
+python ws_main.py
+```
+
+- Open your browser at [http://localhost:8002/docs](http://localhost:8002/docs) to see the interactive API docs
+
+## Contribution Guidelines
+
+If you would like to contribute, please have a look at our
+[contribution guidelines](./CONTRIBUTING.md)
+
+## Authors
+
+This project is a work of
+[many contributors](https://github.com/tergite/tergite-mss/graphs/contributors).
+
+Special credit goes to the authors of this project as seen in the [CREDITS](./CREDITS.md) file.
+
+## ChangeLog
+
+To view the changelog for each version, have a look at
+the [CHANGELOG.md](./CHANGELOG.md) file.
+
+## License
+
+[Apache 2.0 License](./LICENSE.txt)
+
+## Acknowledgements
+
+This project was sponsored by:
+
+-   [Knut and Alice Wallenburg Foundation](https://kaw.wallenberg.org/en) under the [Wallenberg Center for Quantum Technology (WAQCT)](https://www.chalmers.se/en/centres/wacqt/) project at [Chalmers University of Technology](https://www.chalmers.se)
+-   [Nordic e-Infrastructure Collaboration (NeIC)](https://neic.no) and [NordForsk](https://www.nordforsk.org/sv) under the [NordIQuEst](https://neic.no/nordiquest/) project
+-   [European Union's Horizon Europe](https://research-and-innovation.ec.europa.eu/funding/funding-opportunities/funding-programmes-and-open-calls/horizon-europe_en) under the [OpenSuperQ](https://cordis.europa.eu/project/id/820363) project
+-   [European Union's Horizon Europe](https://research-and-innovation.ec.europa.eu/funding/funding-opportunities/funding-programmes-and-open-calls/horizon-europe_en) under the [OpenSuperQPlus](https://opensuperqplus.eu/) project

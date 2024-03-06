@@ -12,17 +12,45 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+from pathlib import Path
 
-from setuptools import find_packages, setup
+import setuptools
 
-with open("requirements.txt", mode="r") as _file:
-    REQUIREMENTS = _file.readlines()
+_ROOT_DIRECTORY = Path(__file__).parent
 
-setup(
+with open(_ROOT_DIRECTORY / "requirements.txt", mode="r") as _f:
+    _ALL_REQUIREMENTS = _f.readlines()
+
+    # extract non-dev dependencies
+    _DEV_DEPS_START = len(_ALL_REQUIREMENTS)
+    try:
+        _DEV_DEPS_START = _ALL_REQUIREMENTS.index("# dev-dependencies")
+    except ValueError:
+        pass
+
+    REQUIREMENTS = _ALL_REQUIREMENTS[:_DEV_DEPS_START]
+
+_README = (_ROOT_DIRECTORY / "README.md").read_text()
+
+
+setuptools.setup(
     name="tergite-mss",
-    author_emails="dobsicek@chalmers.se",
-    license="Apache 2.0",
-    packages=find_packages(),
-    install_requires=REQUIREMENTS,
+    version="2023.12.0",
+    author="Miroslav Dobsicek",
+    maintainer="Martin Ahindura",
+    maintainer_email="martin.ahindura@chalmers.se",
+    author_email="dobsicek@chalmers.se",
+    description="Main Service Server - the public API for the QAL 9000 - Like Quantum Computers",
+    long_description=_README,
+    long_description_content_type="text/markdown",
+    url="https://github.com/tergite/tergite-mss",
+    packages=setuptools.find_packages(exclude=["archive*", "dev*", "docs*", "tests*"]),
     python_requires=">=3.8",
+    include_package_data=True,
+    license="Apache 2.0",
+    install_requires=REQUIREMENTS,
+    classifiers=[
+        "Programming Language :: Python :: 3.8",
+        "Operating System :: OS Independent",
+    ],
 )
