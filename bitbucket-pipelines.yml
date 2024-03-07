@@ -34,7 +34,7 @@ pipelines:
             - mongo
 
   tags:
-    "*v":
+    "v*":
       - step:
           name: Lint and test
           caches:
