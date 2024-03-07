@@ -42,11 +42,11 @@ openid_configuration_endpoint = "https://proxy.acc.puhuri.eduteams.org/.well-kno
 ```
 
 - Update the [Landing page](https://github.com/tergite/tergite-landing-page) to include this provider also.
-  The instructions are found in the [auth docs](https://github.com/tergite/tergite-landing-page/src/main/docs/auth.md)
+  The instructions are found in the [auth docs](https://github.com/tergite/tergite-landing-page/blob/main/docs/auth.md)
 - Start MSS.
   Instructions are on the [README.md](../README.md)
 - Start the landing page.
-  Instructions are on its [README.md](https://github.com/tergite/tergite-landing-page/src/main/README.md)
+  Instructions are on its [README.md](https://github.com/tergite/tergite-landing-page/blob/main/README.md)
 
 ## Authorization
 

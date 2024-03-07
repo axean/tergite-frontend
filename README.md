@@ -56,6 +56,10 @@ python ws_main.py
 
 - Open your browser at [http://localhost:8002/docs](http://localhost:8002/docs) to see the interactive API docs
 
+## Documentation
+
+Find more documentation in the [docs folder](./docs)
+
 ## Contribution Guidelines
 
 If you would like to contribute, please have a look at our

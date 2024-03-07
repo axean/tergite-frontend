@@ -18,7 +18,6 @@
 from contextlib import asynccontextmanager
 from typing import Any, Dict
 
-import pymongo
 from fastapi import FastAPI
 
 import settings
@@ -45,9 +44,6 @@ def get_app_kwargs() -> Dict[str, Any]:
         kwargs["openapi_url"] = None
 
     return kwargs
-
-
-pymongo.MongoClient()
 
 
 @asynccontextmanager
