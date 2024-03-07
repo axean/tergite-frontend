@@ -35,7 +35,7 @@ _README = (_ROOT_DIRECTORY / "README.md").read_text()
 
 setuptools.setup(
     name="tergite-mss",
-    version="2023.12.0",
+    version="2024.02.0",
     author="Miroslav Dobsicek",
     maintainer="Martin Ahindura",
     maintainer_email="martin.ahindura@chalmers.se",
