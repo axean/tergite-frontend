@@ -53,7 +53,7 @@ puhuri_script=$!
 
 # rest-api
 extra_args=$([[ $APP_SETTINGS == "production" ]] && echo "" || echo " --reload")
-uvicorn --host 0.0.0.0 --port "$PORT_NUMBER" api.rest:app --proxy-headers$extra_args &
+python -m uvicorn --host 0.0.0.0 --port "$PORT_NUMBER" api.rest:app --proxy-headers$extra_args &
 uvicorn_script=$!
 
 # websocket server
