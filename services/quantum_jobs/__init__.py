@@ -302,7 +302,7 @@ async def update_resource_usage(
     project = await project_db.increment_qpu_seconds(
         project_id=project_id, qpu_seconds=-qpu_seconds_used
     )
-    if project is None:
+    if project is None and project_id is not None:
         raise mongodb_utils.DocumentNotFoundError(
             f"project '{project_id}' for job '{job_id}' not found"
         )
