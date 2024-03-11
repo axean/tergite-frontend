@@ -1,8 +1,8 @@
-# Tergite Quantify Connector
+# Tergite MSS
 
 ![CI](https://github.com/tergite/tergite-mss/actions/workflows/ci.yml/badge.svg)
 
-Translator of Qiskit Pulse schedules to Quantify schedules.
+The Main Service Server or the Public API to the QAL 9000 Quantum Computers.
 
 ## Dependencies
 
