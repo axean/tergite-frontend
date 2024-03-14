@@ -1,5 +1,7 @@
 # tergite-landing-page
 
+![CI](https://github.com/tergite/tergite-webgui/actions/workflows/ci.yml/badge.svg)
+
 This is the static home page for the qal9000 project that will be the landing page for all qal9000-related projects
 
 ## Dependencies
@@ -25,7 +27,7 @@ npm install
 ```
 
 -   Copy the `auth_config.example.toml` to `auth_config.toml` and update the configuration there.  
-    Make sure it is the same being used by the [MSS](https://github.com/tergite/tergite-mss/src/main/)connected to this app
+    Make sure it is the same being used by the [MSS](https://github.com/tergite/tergite-mss)connected to this app
 
 ```shell
 cp auth_config.example.toml auth_config.toml
@@ -46,64 +48,33 @@ npm run dev
 
 -   Checkout the site at [http://localhost:3000](http://localhost:3000) in your browser
 
-## Publish Docker Manually
+## Contribution Guidelines
 
--   Ensure you have [docker](https://docs.docker.com/engine/install/) installed.
+If you would like to contribute to tergite-webgui, please have a look at our
+[contribution guidelines](./CONTRIBUTING.md)
 
--   Clone the repo
+## Authors
 
-```shell
-git clone git@github.com:tergite/tergite-landing-page.git
-```
+This project is a work of
+[many contributors](https://github.com/tergite/tergite-webgui/graphs/contributors).
 
--   Login to a hosted docker container registry e.g. one based on the [tergite-registry repo](https://github.com/tergite/tergite-registry)
+Special credit goes to the authors of this project as seen in the [CREDITS](./CREDITS.md) file.
 
-```shell
-# e.g. if container registry is hosted at example.com:8002
-# and username is johndoe
-# and password is password123
-CONTAINER_REGISTRY=example.com:8002
-DOCKER_USERNAME=johndoe
-# feed in password when prompted
-docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME
-```
+## ChangeLog
 
--   Create a multiplatform docker builder if you haven't already
-
-```shell
-docker buildx create --name multi-platform-builder --bootstrap --use
-```
-
--   Build and push the docker image
-
-```shell
-cd tergite-landing-page
-docker buildx build --platform linux/amd64,linux/arm64 -t ${CONTAINER_REGISTRY}/tergite-landing-page:local --push .
-docker pull ${CONTAINER_REGISTRY}/tergite-landing-page:local
-```
-
--   To run a container based on that image, do
-
-```shell
-docker run -p 3000:80 --name landing-page \
-    -e WEBGUI_ENDPOINT="https://gui.example.com" \
-    -e MSS_ENDPOINT="https://api.example.com" \
-    -e API_BASE_URL="http://127.0.0.1:8002" \
-    -e OAUTH_REDIRECT_URI="http://127.0.0.1:3000" \
-    -e AUTH_CONFIG_FILE="/path/to/your/auth_config.toml"
-    ${CONTAINER_REGISTRY}/tergite-landing-page:local
-```
-
-## TODO
-
--   [ ] Add autocomplete for projects when generating tokens
--   [ ] Implementation and tests for search capability on project list page
--   [ ] Implementation and tests for search capability on tokens list page
--   [ ] Implementation and tests for pagination on project list page
--   [ ] Implementation and tests for pagination on tokens list page
+To view the changelog for each version, have a look at
+the [CHANGELOG.md](./CHANGELOG.md) file.
 
 ## License
 
-Licensed under the [Apache 2.0 License](./LICENSE)
-Contributors can be found in the [CONTRIBUTING.md](./CONTRIBUTING.md) file.
+[Apache 2.0 License](./LICENSE)
+
+## Acknowledgements
+
+This project was sponsored by:
+
+-   [Knut and Alice Wallenburg Foundation](https://kaw.wallenberg.org/en) under the [Wallenberg Center for Quantum Technology (WAQCT)](https://www.chalmers.se/en/centres/wacqt/) project at [Chalmers University of Technology](https://www.chalmers.se)
+-   [Nordic e-Infrastructure Collaboration (NeIC)](https://neic.no) and [NordForsk](https://www.nordforsk.org/sv) under the [NordIQuEst](https://neic.no/nordiquest/) project
+-   [European Union's Horizon Europe](https://research-and-innovation.ec.europa.eu/funding/funding-opportunities/funding-programmes-and-open-calls/horizon-europe_en) under the [OpenSuperQ](https://cordis.europa.eu/project/id/820363) project
+-   [European Union's Horizon Europe](https://research-and-innovation.ec.europa.eu/funding/funding-opportunities/funding-programmes-and-open-calls/horizon-europe_en) under the [OpenSuperQPlus](https://opensuperqplus.eu/) project
 

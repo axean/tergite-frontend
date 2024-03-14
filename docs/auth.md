@@ -1,7 +1,7 @@
 # Authentication and Authorization
 
 This is a brief description of the authentication and authorization.
-It is a continuation of the documentation of the same from [the tergite-mss repo](https://github.com/tergite/tergite-mss/src/main/docs/auth.md)
+It is a continuation of the documentation of the same from [the tergite-mss repo](https://github.com/tergite/tergite-mss/tree/main/docs/auth.md)
 
 ## Authentication
 
@@ -30,11 +30,11 @@ const oauth2Providers: API.Oauth2ProviderInfo[] = [
 ];
 ```
 
--   Do note that this provider must already be set up in MSS, as seen in the intructions in [MSS auth docs](https://github.com/tergite/tergite-mss/src/main/docs/auth.md), and the names should match.
+-   Do note that this provider must already be set up in MSS, as seen in the intructions in [MSS auth docs](https://github.com/tergite/tergite-mss/tree/main/docs/auth.md), and the names should match.
 -   As you have noticed, there is an option of adding a logo for the given provider. You can add the logo in the [`public/img`](../public/img/) folder.
 
 -   Start MSS.
-    Instructions are on the [README.md](https://github.com/tergite/tergite-mss/src/main/README.md)
+    Instructions are on the [README.md](https://github.com/tergite/tergite-mss/tree/main/README.md)
 -   Start the landing page.
     Instructions are on its [README.md](../README.md)
 
