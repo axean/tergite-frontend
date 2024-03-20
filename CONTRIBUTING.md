@@ -88,6 +88,101 @@ pnpm i
 pnpm run e2e
 ```
 
+## Publish Docker Manually
+
+-   Ensure you have [docker](https://docs.docker.com/engine/install/) installed.
+
+-   Clone the repo
+
+```shell
+git clone git@github.com:tergite/tergite-webgui.git
+```
+
+-   Build the nextjs application
+
+```shell
+yarn install --production --frozen-lockfile
+NEXT_TELEMETRY_DISABLED=1 yarn build
+```
+
+-   Login to a hosted docker container registry e.g. one based on the [tergite-registry repo](https://github.com/tergite/tergite-registry)
+
+```shell
+# e.g. if container registry is hosted at example.com:8002
+# and username is johndoe
+# and password is password123
+CONTAINER_REGISTRY=example.com:8002
+DOCKER_USERNAME=johndoe
+# feed in password when prompted
+docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME
+```
+
+-   Create a multiplatform docker builder if you haven't already
+
+```shell
+docker buildx create --name multi-platform-builder --bootstrap --use
+```
+
+-   Build and push the docker image
+
+```shell
+cd tergite-webgui
+docker buildx build --platform linux/amd64,linux/arm64 -t ${CONTAINER_REGISTRY}/tergite-webgui:local --push .
+docker pull ${CONTAINER_REGISTRY}/tergite-webgui:local
+```
+
+-   To run a container based on that image, do
+
+```shell
+docker run -p 3000:3000 --name webgui -e API_BASE_URL="https://mssdomain.com/v2" ${CONTAINER_REGISTRY}/tergite-webgui:local
+```
+
+## Folder structure
+
+In an attempt to clean up the code to make it easier to follow, a proper folder structure with the following rules has been set up.
+
+-   All components specific to a given page must be in one folder within the pages folder
+
+-   All files that are to be exposed as either API routes or client side pages must end either with page.tsx or page.ts. This change makes the previous point implementable.
+
+-   Every component is defined within a folder, with it actual code being found in the index.tsx (or ...page.tsx for pages) in that folder.
+
+-   No file should have a definition of more than one component.
+
+-   All utility functions specific to a given component are put in utils.ts in the folder of that given component.
+
+-   The child components specific to a given components are nested in that component under the ‘components’ folder.
+
+-   Hooks to be defined in the hooks folder in the src folder.
+
+-   Usual naming rules apply i.e. component folders are named in ‘CamelCase’, hooks in format ‘useThisAndThat’, etc.
+
+-   The home page is defined in the \_ folder in the pages folder so that we can have a components folder for it also.
+
+-   It is important for child components to mimic the actual visible layout of a given component e.g. if a screen has a sidebar, a navbar, a toolbar, and a content area, the components folder of that screen should have only those four components (Sidebar, Navbar, Toolbar, ContentArea ). This makes it easier to follow.
+
+### Example Component
+
+```
+Component/
+    ├── components/
+    │   ├── Component1/
+    │   │   ├── components/
+    │   │   │   ├── Component11/
+    │   │   │   │   └── index.tsx
+    │   │   │   └── Component12/
+    │   │   │       └── index.tsx
+    │   │   └── index.tsx
+    │   └── Component2/
+    │       ├── components/
+    │       │   ├── Component21/
+    │       │   │   └── index.tsx
+    │       │   └── Component22/
+    │       │       └── index.tsx
+    │       └── index.tsx
+    └── index.tsx
+```
+
 ## References
 
 This document was adapted from [a gist by Brian A. Danielak](https://gist.github.com/briandk/3d2e8b3ec8daf5a27a62) which

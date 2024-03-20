@@ -1,0 +1,23 @@
+[
+	{
+		"statusCode": 200,
+		"body": {
+			"id": "5ddc8d9fb69602723cd3c38f",
+			"roles": ["admin", "user"]
+		}
+	},
+	{
+		"statusCode": 200,
+		"body": {
+			"id": "1fdce4933169db9c76ba0a98",
+			"roles": ["user"]
+		}
+	},
+	{
+		"statusCode": 403,
+		"body": {
+			"detail": "UNAUTHENTICATED"
+		}
+	}
+]
+

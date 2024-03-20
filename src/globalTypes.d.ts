@@ -18,8 +18,8 @@ namespace Application {
 	type Id = number;
 
 	type DeviceLayout = {
-		nodes: OneOf<DeviceDetailNodes>;
-		links: OneOf<DeviceDetailLinks>;
+		nodes: OneOf<DeviceDetailNodes> | undefined;
+		links: OneOf<DeviceDetailLinks> | undefined;
 	};
 	type Type1 = {
 		nodes: Type1Nodes;
@@ -74,9 +74,58 @@ namespace API {
 		online_date: string;
 		sample_name: string;
 	};
+
+	type QubitProperty = {
+		index: number;
+		frequency: number;
+		pulse_type: string;
+		pi_pulse_amplitude: number;
+		pi_pulse_duration: number;
+		t1_decoherence: number;
+		t2_decoherence: number;
+	};
+	type ResonatorProperty = {
+		index: number;
+		acq_delay: number;
+		acq_integration_time: number;
+		frequency: number;
+		pulse_type: string;
+		pulse_amplitude: number;
+		pulse_delay: number;
+		pulse_duration: number;
+	};
+	type CouplerProperty = { [key: string]: any };
+	type DeviceCalibration = {
+		qubit: QubitProperty[];
+		readout_resonator: ResonatorProperty[];
+		coupler: CouplerProperty[];
+	};
+	type TimeLog = {
+		REGISTERED: string;
+	};
+	type ClassificationMeasurement = {
+		I: number;
+		Q: number;
+		state: number;
+	};
+	type PiPulseAmplitude = {
+		qubit_name: string;
+		value: number;
+	};
+	enum MLResult {
+		RED = 'red',
+		BLUE = 'blue'
+	}
+	type MLPoint = { x: number; y: number; result: MLResult };
+	enum TaskStatus {
+		PENDING = 'pending',
+		FAILED = 'failed',
+		SUCCESS = 'success'
+	}
+
 	namespace Response {
-		type Devices = Device[];
-		type DeviceDetail = Device & {
+		type Devices = API.Device[];
+		type DeviceDetail = API.Device & {
 			description: string;
 			qubits: Qubit[];
 			gates: Gate[];
@@ -100,7 +149,74 @@ namespace API {
 		type Type4Codomain = Omit<Type1, 'qubits'>;
 
 		type Type5 = {};
+
+		type Device = {
+			name: string;
+			characterized: boolean;
+			open_pulse: boolean;
+			timelog: TimeLog;
+			version: string;
+			num_qubits: number;
+			num_couplers: number;
+			num_resonators: number;
+			dt: number;
+			dtm: number;
+			coupling_map: number[][];
+			meas_map: number[][];
+			device_properties: DeviceCalibration;
+			meas_lo_freq: number[];
+			qubit_lo_freq: number[];
+			is_online: boolean;
+		};
+		type Calibration = {
+			name: string;
+			job_id: string;
+			is_online: boolean;
+			pi_pulse_amplitude: PiPulseAmplitude[];
+			timelog: TimeLog;
+		};
+		type Classification = {
+			name: string;
+			job_id: string;
+			is_online: boolean;
+			timelog: TimeLog;
+			classification: { [key: string]: ClassificationMeasurement[] };
+		};
+		type Configs = {
+			mssBaseUrl: string;
+			landingPageUrl: string;
+			webguiBaseUrl: string;
+			correctMLExperimentID: string;
+		};
+		type RemoteTaskResponse = {
+			status: TaskStatus;
+			job_id: string;
+		};
+		type MLExperiment = {
+			experiment_id: string;
+			timelog: TimeLog;
+			results: MLPoint[];
+		};
+		interface CryostatTempDataPoint {
+			temperature: number;
+			datetime: string;
+		}
+		interface ParsedCryostatTempDataPoint extends CryostatTempDataPoint {
+			datetime: number;
+		}
 	}
+
+	type StatusMessage = { message: string };
+
+	type User = {
+		id: string;
+		roles: UserRole[];
+	};
+
+	/**
+	 * An error object that has some extra information useful in handling it
+	 */
+	type EnhancedError = Error & { status?: number; detail?: string };
 
 	type ComponentData = { [key: string]: Property[] | number };
 
@@ -118,6 +234,8 @@ namespace API {
 		y: number;
 		xy_drive_line: number;
 		z_drive_line: number;
+		dynamic_properties: Property[];
+		static_properties: Property[];
 	};
 
 	type Gate = {
@@ -125,17 +243,33 @@ namespace API {
 		name: string;
 		gate: string;
 		qubits: [number, number] | [number];
+		dynamic_properties: Property[];
+		static_properties: Property[];
 	};
 	type Resonator = {
 		id: number;
 		x: number;
 		y: number;
 		readout_line: number;
+		dynamic_properties: Property[];
+		static_properties: Property[];
 	};
 
 	type Coupler = {
 		id: number;
 		z_drive_line: number;
 		qubits: [number, number];
+		dynamic_properties: Property[];
+		static_properties: Property[];
+	};
+}
+
+namespace Next {
+	type PageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+		getLayout?: (page: ReactElement) => ReactNode;
+	};
+
+	type AppPropsWithLayout = AppProps & {
+		Component: NextPageWithLayout;
 	};
 }

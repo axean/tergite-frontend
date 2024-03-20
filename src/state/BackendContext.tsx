@@ -87,7 +87,7 @@ function reducer(
 			return { ...state, timeTo: action.payload };
 	}
 }
-const BackendContext = React.createContext<BackendContextProps>(null);
+const BackendContext = React.createContext<BackendContextProps>({} as BackendContextProps);
 
 type BackendContextProviderProps = {
 	children: ReactNode;
