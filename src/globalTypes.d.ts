@@ -277,6 +277,6 @@ namespace Next {
 declare namespace Cypress {
 	interface Chainable<Subject = any> {
 		attr(name: string): Chainable<any>;
-		startsWith(value: string): Chainable<any>;
+		isCloseTo(value: number, errorMargin: number);
 	}
 }

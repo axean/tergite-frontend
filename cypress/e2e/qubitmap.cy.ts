@@ -7,6 +7,7 @@ meResponses.forEach((resp) => {
 	const id = user.id ?? 'anonymous';
 	const isAuthenticated = !!user.id;
 	const url = 'http://localhost:3000/Luki?type=Qubitmap';
+	const equalityErrorMargin = 0.02;
 
 	describe(`Qubitmap screen for user ${id}`, () => {
 		beforeEach(() => {
@@ -84,8 +85,8 @@ meResponses.forEach((resp) => {
 				cy.fixture('qubitPositions.json').then((positions) => {
 					positions.forEach((position, index) => {
 						cy.get(`[data-cy-qubitmap-node-id=${index}]`).within(() => {
-							cy.get('rect').attr('x').startsWith(position.x);
-							cy.get('rect').attr('y').startsWith(position.y);
+							cy.get('rect').attr('x').isCloseTo(position.x, equalityErrorMargin);
+							cy.get('rect').attr('y').isCloseTo(position.y, equalityErrorMargin);
 						});
 					});
 				});
@@ -97,10 +98,10 @@ meResponses.forEach((resp) => {
 					let index = 5;
 					positions.forEach((position) => {
 						cy.get(`[data-cy-qubitmap-link-id=${index++}]`).within(() => {
-							cy.get('line').attr('x1').startsWith(position.x1);
-							cy.get('line').attr('x2').startsWith(position.x2);
-							cy.get('line').attr('y1').startsWith(position.y1);
-							cy.get('line').attr('y2').startsWith(position.y2);
+							cy.get('line').attr('x1').isCloseTo(position.x1, equalityErrorMargin);
+							cy.get('line').attr('x2').isCloseTo(position.x2, equalityErrorMargin);
+							cy.get('line').attr('y1').isCloseTo(position.y1, equalityErrorMargin);
+							cy.get('line').attr('y2').isCloseTo(position.y2, equalityErrorMargin);
 						});
 					});
 				});

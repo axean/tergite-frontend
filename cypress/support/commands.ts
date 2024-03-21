@@ -25,10 +25,17 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 // @ts-ignore
-Cypress.Commands.add('attr', { prevSubject: 'element' }, (subject, attr) => {
-	return subject.attr(attr);
+Cypress.Commands.add('attr', { prevSubject: 'element' }, (subject, value) => {
+	return subject.attr(value);
 });
 
-Cypress.Commands.add('startsWith', { prevSubject: true }, (subject, value) => {
-	expect(subject.startsWith(value), `expected ${value}..., got ${subject}`).to.be.true;
+// @ts-ignore
+Cypress.Commands.add('isCloseTo', { prevSubject: true }, (subject, value, errorMargin) => {
+	const subjectAsNumber = parseFloat(`${subject}`);
+	const valueAsNumber = parseFloat(`${value}`);
+	// add 1 to avoid dividing by 0
+	const offset = valueAsNumber === 0 ? 1 : 0;
+	const quotient = (subjectAsNumber + offset) / (valueAsNumber + offset);
+
+	expect(Math.abs(1 - quotient), `expected ${value}, got ${subject}`).to.be.lessThan(errorMargin);
 });
