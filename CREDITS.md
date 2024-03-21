@@ -23,3 +23,7 @@ The first version of the tergite-webgui
 ## Lucas Karlsson <lucaskode@gmail.com>
 
 The first version of the tergite-webgui
+
+## Martin Ahindura
+
+-   Authentication
