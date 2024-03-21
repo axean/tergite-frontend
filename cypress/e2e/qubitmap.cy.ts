@@ -16,7 +16,6 @@ meResponses.forEach((resp) => {
 			const apiRoutes = getApiRoutes(baseUrl);
 
 			cy.viewport('macbook-15');
-
 			cy.intercept('GET', `${apiRoutes.internalApi}/me`).as('me-request');
 
 			cy.intercept('GET', `${landingPageUrl}/**`, (req) => {
@@ -80,7 +79,6 @@ meResponses.forEach((resp) => {
 				cy.get('[data-cy-dropdown="node"]').should('exist');
 			});
 
-		// FIXME: the values seem to be consistently off. Could it be due to new version of cypress or and issue with cy.viewport('macbook-15');?
 		isAuthenticated &&
 			it('renders qubits in the correct positions', () => {
 				cy.fixture('qubitPositions.json').then((positions) => {
@@ -93,7 +91,6 @@ meResponses.forEach((resp) => {
 				});
 			});
 
-		// FIXME: the values seem to be consistently off. Could it be due to new version of cypress or and issue with cy.viewport('macbook-15');?
 		isAuthenticated &&
 			it('renders gates in the correct positions', () => {
 				cy.fixture('gatePositions.json').then((positions) => {

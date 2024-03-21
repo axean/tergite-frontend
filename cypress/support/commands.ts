@@ -30,5 +30,5 @@ Cypress.Commands.add('attr', { prevSubject: 'element' }, (subject, attr) => {
 });
 
 Cypress.Commands.add('startsWith', { prevSubject: true }, (subject, value) => {
-	expect(subject.startsWith(value)).to.be.true;
+	expect(subject.startsWith(value), `expected ${value}..., got ${subject}`).to.be.true;
 });
