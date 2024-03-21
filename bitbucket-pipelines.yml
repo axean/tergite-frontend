@@ -10,6 +10,7 @@ definitions:
         script:
           - npm i -g pnpm
           - pnpm i --frozen-lockfile
+          - echo "EQUALITY_ERROR_MARGIN=$EQUALITY_ERROR_MARGIN" >> .env.test
           - pnpm run lint
           - pnpm run e2e
         artifacts:

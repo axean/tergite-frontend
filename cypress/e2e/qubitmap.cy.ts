@@ -7,10 +7,14 @@ meResponses.forEach((resp) => {
 	const id = user.id ?? 'anonymous';
 	const isAuthenticated = !!user.id;
 	const url = 'http://localhost:3000/Luki?type=Qubitmap';
-	const equalityErrorMargin = 0.02;
+	let equalityErrorMargin = 0.01;
 
 	describe(`Qubitmap screen for user ${id}`, () => {
 		beforeEach(() => {
+			const equalityErrorMarginStr =
+				Cypress.env('EQUALITY_ERROR_MARGIN') || `${equalityErrorMargin}`;
+			equalityErrorMargin = parseFloat(equalityErrorMarginStr);
+
 			const baseUrl = Cypress.env('API_BASE_URL');
 			const oauthConfigFile = Cypress.env('AUTH_CONFIG_FILE');
 			const landingPageUrl = Cypress.env('LANDING_ENDPOINT');
