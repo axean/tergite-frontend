@@ -11,7 +11,7 @@ import CityPlotTab from './components/CityPlotTab';
 
 export default function MainView({ isFullscreen, onFullScreenToggleBtnClick, tab, device }: Props) {
 	const allTabNames = useMemo(() => Object.values(Tabs).filter((k) => isNaN(Number(k))), []);
-	const tabName = allTabNames.includes(tab) ? tab : Tabs.TABLE_VIEW;
+	const tabName = allTabNames.includes(tab) ? tab : Tabs.QUBIT_MAP;
 	const deviceName = device?.backend_name;
 
 	return (
@@ -40,13 +40,13 @@ interface Props {
 }
 
 export enum Tabs {
-	TABLE_VIEW = 'table-view',
+	TABLE_VIEW = 'Tableview',
 	CRYOSTAT_TEMP = 'cryostat-temperature',
-	QUBIT_MAP = 'qubit-map',
-	HISTOGRAM = 'histogram',
-	BOX_PLOT = 'box-plot',
-	LINE_GRAPH = 'line-graph',
-	CITY_PLOT = 'city-plot'
+	QUBIT_MAP = 'Qubitmap',
+	HISTOGRAM = 'Histogram',
+	BOX_PLOT = 'Boxplot',
+	LINE_GRAPH = 'Linegraph',
+	CITY_PLOT = 'Cityplot'
 }
 
 const TAB_LABELS: Array<TabbarItemConfig> = [

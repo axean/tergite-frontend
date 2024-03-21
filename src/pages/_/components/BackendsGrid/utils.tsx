@@ -3,7 +3,7 @@
  * @param item - the current device
  * @returns 'online' or 'offline'
  */
-export function filterParser(item: API.Response.Device): string {
+export function filterParser(item: API.Response.DeviceDetail): string {
 	return item.is_online ? 'online' : 'offline';
 }
 

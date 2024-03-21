@@ -5,7 +5,7 @@ import DefaultSkeleton from '../../../../../../components/primitives/DefaultSkel
 import { getAllDevices } from '../../../../../../utils/api';
 
 export default function StatusCard() {
-	const { isLoading, data, error } = useQuery<API.Response.Device[]>(
+	const { isLoading, data, error } = useQuery<API.Response.DeviceDetail[]>(
 		'getAllDevices',
 		getAllDevices
 	);

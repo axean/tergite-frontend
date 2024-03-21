@@ -2,7 +2,10 @@ import { Flex, Text } from '@chakra-ui/react';
 import React, { useMemo } from 'react';
 
 export default function InfoItem({ label, value }: Props) {
-	const extraProps = useMemo(() => ({ [`data-cy-${value}`.toLowerCase()]: true }), [value]);
+	const extraProps = useMemo(
+		() => ({ [`data-cy-${label}`.toLowerCase().replace(/\s/g, '-')]: true }),
+		[value]
+	);
 
 	return (
 		<Flex>

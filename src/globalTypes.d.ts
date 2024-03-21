@@ -273,3 +273,10 @@ namespace Next {
 		Component: NextPageWithLayout;
 	};
 }
+
+declare namespace Cypress {
+	interface Chainable<Subject = any> {
+		attr(name: string): Chainable<any>;
+		startsWith(value: string): Chainable<any>;
+	}
+}

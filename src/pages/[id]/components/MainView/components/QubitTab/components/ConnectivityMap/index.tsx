@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react';
 import { ParentSize } from '@visx/responsive';
 import React from 'react';
 
-import VisxChart from './components/VisxChart/VisxChart';
+import VisxChart from './components/VisxChart';
 
 export default function ConnectivityMap(props: Props) {
 	return (

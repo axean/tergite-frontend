@@ -1,15 +1,17 @@
 import { Flex, Text, Box } from '@chakra-ui/react';
 import { useMemo } from 'react';
-import OnlineStatus from '../../../../../../components/primitives/OnlineStatus';
+import OnlineStatus from '@/components/primitives/OnlineStatus';
 
-const BackendCard: React.FC<API.Response.Device> = ({
-	name,
-	version,
-	num_qubits,
+export default function BackendCard({
+	backend_name,
+	backend_version,
+	n_qubits,
 	is_online,
-	timelog
-}) => {
-	const timestamp = useMemo(() => timelog.REGISTERED.split('T')[0], [timelog]);
+	last_update_date,
+	online_date
+}: API.Response.DeviceDetail) {
+	const last_update_date_str = useMemo(() => last_update_date.split('T')[0], [last_update_date]);
+	const online_date_str = useMemo(() => online_date.split('T')[0], [online_date]);
 
 	return (
 		<Box
@@ -19,13 +21,13 @@ const BackendCard: React.FC<API.Response.Device> = ({
 			borderRadius='md'
 			boxShadow='lg'
 			color={is_online ? 'black' : 'gray.500'}
-			data-cy-device
+			data-cy-device={backend_name}
 		>
 			<Flex justify='space-between'>
 				{' '}
 				<Text fontSize='xl' fontWeight='extrabold' data-cy-device-name>
 					{' '}
-					{name}
+					{backend_name}
 				</Text>{' '}
 				<OnlineStatus isOnline={is_online} />
 			</Flex>
@@ -34,7 +36,7 @@ const BackendCard: React.FC<API.Response.Device> = ({
 					version:
 				</Text>
 				<Text fontWeight='bold' data-cy-device-version>
-					{version}
+					{backend_version}
 				</Text>
 			</Flex>
 			<Flex>
@@ -42,7 +44,7 @@ const BackendCard: React.FC<API.Response.Device> = ({
 					qubits:
 				</Text>
 				<Text fontWeight='bold' data-cy-device-n-qubits>
-					{num_qubits}
+					{n_qubits}
 				</Text>
 			</Flex>
 			<Flex>
@@ -50,15 +52,14 @@ const BackendCard: React.FC<API.Response.Device> = ({
 					last update:
 				</Text>
 				<Text fontWeight='bold' data-cy-device-last-update>
-					{timestamp}
+					{last_update_date_str}
 				</Text>
 			</Flex>
 			<Text fontWeight='bold' fontSize='sm' mt='2' color={is_online ? 'gray.700' : 'inherit'}>
 				{' '}
 				{is_online ? `Online since` : `Last seen`}
 			</Text>
-			<Text fontWeight='bold'>{timestamp}</Text>
+			<Text fontWeight='bold'>{is_online ? online_date_str : last_update_date_str}</Text>
 		</Box>
 	);
-};
-export default BackendCard;
+}

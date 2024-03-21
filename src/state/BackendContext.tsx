@@ -87,7 +87,9 @@ function reducer(
 			return { ...state, timeTo: action.payload };
 	}
 }
-const BackendContext = React.createContext<BackendContextProps>({} as BackendContextProps);
+
+// @ts-expect-error
+export const BackendContext = React.createContext<BackendContextProps>(null);
 
 type BackendContextProviderProps = {
 	children: ReactNode;
@@ -115,10 +117,10 @@ const BackendContextProvider: React.FC<BackendContextProviderProps> = ({ childre
 };
 
 /** This function is used to get and set the qubitmap layouts */
-function useAllLayouts(): {
+export const useAllLayouts = (): {
 	deviceLayouts: Nullable<Application.DeviceLayouts>;
 	setDeviceLayouts: (layouts: Application.DeviceLayouts) => void;
-} {
+} => {
 	const [{ deviceLayouts }, dispatch] = useContext(BackendContext);
 
 	const setDeviceLayouts = (layouts: Application.DeviceLayouts) => {
@@ -126,11 +128,11 @@ function useAllLayouts(): {
 	};
 
 	return { deviceLayouts, setDeviceLayouts };
-}
+};
 /** This function returns the layout of the selected components */
-function useSelectedComponentLayout(): {
+export const useSelectedComponentLayout = (): {
 	layout: Nullable<Application.DeviceLayout>;
-} {
+} => {
 	const [{ deviceLayouts, nodeComponent, linkComponent }, _] = useContext(BackendContext);
 
 	return {
@@ -139,9 +141,9 @@ function useSelectedComponentLayout(): {
 			links: deviceLayouts?.linkLayouts[linkComponent]
 		}
 	};
-}
+};
 /** This function returns the type1 data, the selected component data and the selected component property data and a modifier function */
-function useMapData() {
+export function useMapData() {
 	const [{ type1Data, nodeComponent, linkComponent, nodeProperty, linkProperty }, dispatch] =
 		useContext(BackendContext);
 	const setMapData = (mapData) => {
@@ -168,7 +170,7 @@ function useMapData() {
 	return { allData: type1Data, selectedComponentData, selectedComponentPropertyData, setMapData };
 }
 /** This fuction is used to controll the side panel */
-function useSelectionMaps() {
+export const useSelectionMaps = () => {
 	const [{ showLinkSelectorMap, showNodeSelectorMap }, dispatch] = useContext(BackendContext);
 
 	const setSelectionMap = (showLinkSelectorMap: boolean, showNodeSelectorMap: boolean) => {
@@ -179,7 +181,6 @@ function useSelectionMaps() {
 	};
 
 	return { showLinkSelectorMap, showNodeSelectorMap, setSelectionMap };
-}
+};
 
 export default BackendContextProvider;
-export { BackendContext, useSelectedComponentLayout, useAllLayouts, useMapData, useSelectionMaps };

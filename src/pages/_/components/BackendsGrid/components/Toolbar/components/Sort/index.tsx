@@ -14,11 +14,8 @@ import React, { memo } from 'react';
 import { MdOutlineSort } from 'react-icons/md';
 
 //name, online date, online or offline status
-interface SortMenuProps {
-	sort: { order: string; option: string };
-	setSort: React.Dispatch<React.SetStateAction<{ order: string; option: string }>>;
-}
-const Sort: React.FC<SortMenuProps> = ({ sort: { order, option }, setSort }) => {
+
+export default function Sort({ sort: { order, option }, setSort }: Props) {
 	return (
 		<Menu closeOnSelect={false}>
 			<MenuButton data-cy-sort-button as={Button} leftIcon={<MdOutlineSort />}>
@@ -47,10 +44,10 @@ const Sort: React.FC<SortMenuProps> = ({ sort: { order, option }, setSort }) => 
 					type='radio'
 					onChange={(e) => setSort({ order, option: e as string })}
 				>
-					<MenuItemOption data-cy-sort-name value='name'>
+					<MenuItemOption data-cy-sort-name value='backend_name'>
 						Name
 					</MenuItemOption>
-					<MenuItemOption data-cy-sort-online-date value='timelog.REGISTERED'>
+					<MenuItemOption data-cy-sort-online-date value='online_date'>
 						Online date
 					</MenuItemOption>
 					<MenuItemOption data-cy-sort-status value='is_online'>
@@ -60,6 +57,9 @@ const Sort: React.FC<SortMenuProps> = ({ sort: { order, option }, setSort }) => 
 			</MenuList>
 		</Menu>
 	);
-};
+}
 
-export default memo(Sort);
+interface Props {
+	sort: { order: string; option: string };
+	setSort: React.Dispatch<React.SetStateAction<{ order: string; option: string }>>;
+}

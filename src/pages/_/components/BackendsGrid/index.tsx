@@ -10,26 +10,26 @@ import { filterParser, getValueAtPath } from './utils';
 
 export default function BackendsGrid({ title }: Props) {
 	const [search, setSearch] = useState('');
-	const [sort, setSort] = useState({ order: 'asc', option: 'name' });
+	const [sort, setSort] = useState({ order: 'asc', option: 'backend_name' });
 	const [filter, setFilter] = useState(['online', 'offline']);
 
 	const {
 		isLoading,
 		data: backends,
 		error
-	} = useQuery<API.Response.Device[]>(
+	} = useQuery<API.Response.DeviceDetail[]>(
 		'getAllDevices',
 		getAllDevices,
 		{ refetchInterval: 60_000 } // refetch every minute
 	);
 
 	const searchFilterAndSortDevices = useCallback(
-		(list) => {
+		(list: API.Response.DeviceDetail[]) => {
 			if (isLoading || error || !list) return [];
 
 			const searchRegex = new RegExp(search, 'i');
 			const filtered = list.filter(
-				(item) => filter.includes(filterParser(item)) && searchRegex.test(item.name)
+				(item) => filter.includes(filterParser(item)) && searchRegex.test(item.backend_name)
 			);
 
 			const sortCoefficient = sort.order === 'asc' ? 1 : -1;
@@ -47,7 +47,7 @@ export default function BackendsGrid({ title }: Props) {
 	);
 
 	const sortedBackends = useMemo(() => {
-		return searchFilterAndSortDevices(backends);
+		return searchFilterAndSortDevices(backends || []);
 	}, [backends, searchFilterAndSortDevices]);
 
 	return (
@@ -64,8 +64,10 @@ export default function BackendsGrid({ title }: Props) {
 			<DefaultSkeleton isLoading={isLoading} error={error}>
 				<SimpleGrid columns={4} gap='8' mb='4' data-cy-devices>
 					{sortedBackends.map((backend, index) => (
-						<NextLink href={`/${backend.name}`} key={index}>
-							<BackendCard key={index} {...backend} />
+						<NextLink href={`/${backend.backend_name}`} key={index}>
+							<a>
+								<BackendCard key={index} {...backend} />
+							</a>
 						</NextLink>
 					))}
 				</SimpleGrid>

@@ -27,9 +27,7 @@ let apiRoutes: IApiRoutes;
 /**
  Gets the Api Routes given a particular baseUrl
 */
-export function getApiRoutes(
-	baseUrl: string = process.env.NEXT_PUBLIC_API_BASE_URL as string
-): IApiRoutes {
+export function getApiRoutes(baseUrl: string): IApiRoutes {
 	return {
 		devices: `${baseUrl}/devices`,
 		statuses: `${baseUrl}/devices/online_statuses`,
@@ -194,7 +192,7 @@ export async function triggerTuneUp(backend: string): Promise<API.Response.Remot
 /**
  * Gets all the devices that are available from the API
  */
-export async function getAllDevices(): Promise<API.Response.Device[]> {
+export async function getAllDevices(): Promise<API.Response.DeviceDetail[]> {
 	await setApiRoutesIfUndefined();
 	return await fetcher(`${apiRoutes.devices}/`);
 }

@@ -3,12 +3,11 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useQuery } from 'react-query';
 import Sidebar from './components/Sidebar';
 import MainView, { Tabs } from './components/MainView';
-import FullScreenLayout from '../../components/layouts/FullScreenLayout';
-import DefaultSkeleton from '../../components/primitives/DefaultSkeleton';
-import { getDevice } from '../../utils/api';
+import FullScreenLayout from '@/components/layouts/FullScreenLayout';
+import DefaultSkeleton from '@/components/primitives/DefaultSkeleton';
+import { getDevice } from '@/utils/api';
 import { useAllLayouts } from '@/state/BackendContext';
 import { facadeDeviceDetail } from '@/utils/facade';
-import Detail from '../[id]';
 
 export default function DeviceDetail({ id, tab }: Props) {
 	const [isFullScreen, setSetFullScreen] = useState(false);
@@ -65,7 +64,7 @@ interface Props {
 
 DeviceDetail.getInitialProps = async (ctx) => ({
 	id: await ctx.query.id,
-	tab: await ctx.query.tab
+	tab: await ctx.query.type
 });
 
 DeviceDetail.getLayout = function (page) {

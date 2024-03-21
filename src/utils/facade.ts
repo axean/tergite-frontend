@@ -25,44 +25,55 @@ function facadeDeviceDetail(device: API.Response.DeviceDetail): Application.Devi
 	newData['one_qubit_gates'] = newData.gates.filter((gate) => gate.qubits.length === 1);
 	newData['two_qubit_gates'] = newData.gates.filter((gate) => gate.qubits.length === 2);
 
-	const two_qubit_gates: Application.TwoQubitGate[] = newData.two_qubit_gates.map(
-		({ id, gate, qubits, name }) => {
+	const two_qubit_gates: Application.TwoQubitGate[] = newData.two_qubit_gates
+		.map(({ id, gate, qubits, name }) => {
 			let fromId = (qubits as [number, number])[0];
 			let toId = (qubits as [number, number])[1];
 			let fromQubit = newData.qubits.find((qubit) => qubit.id === fromId);
 			let toQubit = newData.qubits.find((qubit) => qubit.id === toId);
-			return fixDirections({
-				id,
-				gate,
-				name,
-				from: fromQubit,
-				to: toQubit,
-				vertical: false
-			}) as Application.TwoQubitGate;
-		}
-	);
-	const couplers: Application.Coupler[] = newData.couplers.map(({ id, qubits, z_drive_line }) => {
-		let fromId = qubits[0];
-		let toId = qubits[1];
-		let fromQubit = newData.qubits.find((qubit) => qubit.id === fromId);
-		let toQubit = newData.qubits.find((qubit) => qubit.id === toId);
-		return fixDirections({
-			id,
-			z_drive_line,
-			from: fromQubit,
-			to: toQubit,
-			vertical: false
-		}) as Application.Coupler;
-	});
+			return (
+				fromQubit &&
+				toQubit &&
+				(fixDirections({
+					id,
+					gate,
+					name,
+					from: fromQubit,
+					to: toQubit,
+					vertical: false
+				}) as Application.TwoQubitGate)
+			);
+		})
+		.filter((value): value is Application.TwoQubitGate => !!value);
 
-	const one_qubit_gates: Application.OneQubitGate[] = newData.one_qubit_gates.map(
-		({ id, name, gate, qubits }) => {
+	const couplers: Application.Coupler[] = newData.couplers
+		.map(({ id, qubits, z_drive_line }) => {
+			let fromId = qubits[0];
+			let toId = qubits[1];
+			let fromQubit = newData.qubits.find((qubit) => qubit.id === fromId);
+			let toQubit = newData.qubits.find((qubit) => qubit.id === toId);
+			return (
+				fromQubit &&
+				toQubit &&
+				(fixDirections({
+					id,
+					z_drive_line,
+					from: fromQubit,
+					to: toQubit,
+					vertical: false
+				}) as Application.Coupler)
+			);
+		})
+		.filter((value): value is Application.Coupler => !!value);
+
+	const one_qubit_gates: Application.OneQubitGate[] = newData.one_qubit_gates
+		.map(({ id, name, gate, qubits }) => {
 			let qubitId = (qubits as [number])[0];
 			let qubit = newData.qubits.find((qubit) => qubit.id === qubitId);
 
-			return { id, name, gate, x: qubit.x, y: qubit.y };
-		}
-	);
+			return qubit && { id, name, gate, x: qubit.x, y: qubit.y };
+		})
+		.filter((value): value is Application.OneQubitGate => !!value);
 
 	return {
 		nodeLayouts: {
@@ -89,7 +100,8 @@ function facadeType1(
 	newData['two_qubit_gates'] = newData.gates.filter((e) =>
 		device.linkLayouts.two_qubit_gates.some((qubit) => qubit.id === e.id)
 	);
-	delete newData.gates;
+	// there seemed no need to delete newData.gates
+	// delete newData.gates;
 	return {
 		nodes: {
 			one_qubit_gates: newData.one_qubit_gates,

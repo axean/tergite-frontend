@@ -11,7 +11,7 @@ import { getType1DeviceData } from '@/utils/api';
 export default function QubitTab({ isCollapsed }: Props) {
 	const router = useRouter();
 	const { isLoading, error, data } = useQuery<API.Response.Type1>('QubitVisualizationType1', () =>
-		getType1DeviceData(`${router.query.id}/type1`)
+		getType1DeviceData(`${router.query.id}`)
 	);
 	const { deviceLayouts } = useAllLayouts();
 	const rerenderRef = useRef(isCollapsed);

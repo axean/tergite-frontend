@@ -7,7 +7,7 @@ export const DeviceDescription = ({ device }: Props) => (
 			Description
 		</Text>
 		<Text fontSize='lg' color='black' data-cy-description>
-			{device?.backend_name}
+			{device?.description}
 		</Text>
 	</>
 );
