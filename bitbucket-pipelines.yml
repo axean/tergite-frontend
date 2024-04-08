@@ -44,6 +44,7 @@ pipelines:
                       - docker
                   script:
                       - if [ -f Dockerfile ]; then printf "building docker image"; else printf "no Dockerfile found"; exit; fi
+                      - if [ "${SHOULD_PUBLISH}" != "true" ]; then printf "publishing not enabled"; exit; fi
                       # using the self-hosted container registry provided by https://github.com/tergite/tergite-registry
                       # its domain is saved in CONTAINER_REGISTRY workspace secret variable in format domain.com:port
                       # $DOCKER_USERNAME and $DOCKER_PASSWORD are also workspace secret variables
