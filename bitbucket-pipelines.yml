@@ -30,6 +30,30 @@ pipelines:
             - if [ "${SHOULD_PUSH_DOWNSTREAM}" != "true" ]; then printf "downstream push not enabled"; exit; fi
             - git pull -r $DOWNSTREAM_REPO $BITBUCKET_TAG || echo "tag $BITBUCKET_TAG does not exist"
             - git push $DOWNSTREAM_REPO $BITBUCKET_TAG || echo "tag $BITBUCKET_TAG already exists"
+      - step:
+          name: Build nextjs app
+          image: node:18-alpine
+          script:
+            - apk add --no-cache libc6-compat
+            - yarn global add pnpm
+            - pnpm i --frozen-lockfile
+            - NEXT_TELEMETRY_DISABLED=1 pnpm run build
+          artifacts:
+            - .next/**
+      - step:
+          name: Publish docker image
+          image: ubuntu:latest
+          services:
+            - docker
+          script:
+            - if [ -f Dockerfile ]; then printf "building docker image"; else printf "no Dockerfile found"; exit; fi
+            - if [ "${SHOULD_PUBLISH}" != "true" ]; then printf "publishing not enabled"; exit; fi
+            # using the self-hosted container registry provided by https://github.com/tergite/tergite-registry
+            # its domain is saved in CONTAINER_REGISTRY workspace secret variable in format domain.com:port
+            # $DOCKER_USERNAME and $DOCKER_PASSWORD are also workspace secret variables
+            - docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+            - docker build -t ${CONTAINER_REGISTRY}/tergite-webgui:$BITBUCKET_TAG .
+            - docker push ${CONTAINER_REGISTRY}/tergite-webgui:$BITBUCKET_TAG
 
   branches:
     main:
