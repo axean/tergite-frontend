@@ -1,0 +1,19 @@
+[
+  {
+    "ext_id": "normal",
+    "user_emails": ["john.doe@example.com"],
+    "qpu_seconds": 54000
+  },
+  {
+    "qpu_seconds": -189
+  },
+  {
+    "ext_id": "zero-qpu",
+    "user_emails": ["john.doe@example.com"],
+    "qpu_seconds": 0
+  },
+  {
+    "user_emails": ["john.doe@example.com", "jane.doe@example.com"],
+    "qpu_seconds": 5400
+  }
+]

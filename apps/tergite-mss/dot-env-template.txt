@@ -1,0 +1,61 @@
+# Copy this file to a .env file in the tergite-mss folder.
+# The .env file is a simple list of keys and values. It is also known as the INI file on MS Windows. 
+# Fill in the necessary values.
+
+
+# keep as it is
+DB_NAME=milestone1
+
+# this has to be set
+BCC_MACHINE_ROOT_URL=http://host:port
+DB_MACHINE_ROOT_URL=mongodb://user:pass@host:port
+MSS_PORT=num
+WS_PORT=num
+
+# APP_SETTINGS reflect which environment the app is to run in.
+# Options
+#  - development
+#  - production
+#  - staging
+#  - test
+# Default: production
+APP_SETTINGS=production
+
+# the test BCC connection
+TEST_BCC_MACHINE_ROOT_URL=http://localhost:8000
+# the test mongodb connection. Ensure mongo is running
+TEST_DB_MACHINE_ROOT_URL=mongodb://localhost:27017
+
+# For datetime precisions; number of additional components of the time to include
+# See https://docs.python.org/3/library/datetime.html#datetime.datetime.isoformat
+# DATETIME_PRECISION=<any of 'milliseconds', 'auto', 'microseconds', 'seconds', 'minutes', 'hours'>
+
+# the host the uvicorn runs on.
+# During testing auth on 127.0.0.1, set this to "127.0.0.1". default: "0.0.0.0"
+MSS_HOST="0.0.0.0"
+
+# Auth config
+# Path to the configuration of auth. Default: "auth_config.toml"
+AUTH_CONFIG_FILE=<path-to-auth-config-file>
+
+# Puhuri synchronization
+# ======================
+# Puhuri is a resource management platform for HPC systems, that is also to be used for Quantum Computer's
+
+# Flag to turn puhuri synchronization on or off, defaults to True
+IS_PUHURI_SYNC_ENABLED=True
+
+# the URI to the Puhuri WALDUR server instance
+# Please contact the Puhuri team to get this.
+PUHURI_WALDUR_API_URI=<the URI to the Puhuri Waldur server>
+
+# The access token to be used in the Waldur client [https://docs.waldur.com/user-guide/] to connect to Puhuri
+# Please contact the Puhuri team on how to get this from the UI
+PUHURI_WALDUR_CLIENT_TOKEN=<API token for a puhuri user who has 'service provider manager' role for our offering on puhuri>
+
+# The unique ID for the service provider associated with this app in the Waldur Puhuri server
+# Please contact the Puhuri team on how to get this from the UI
+PUHURI_PROVIDER_UUID=<the unique ID for the service provider associated with this app in Puhuri>
+
+# the interval in seconds at which puhuri is polled. default is 900 (15 minutes)
+PUHURI_POLL_INTERVAL=<some value>
