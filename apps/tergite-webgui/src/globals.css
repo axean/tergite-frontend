@@ -1,0 +1,10 @@
+.tspan-sm > svg > text {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+.tspan-md > svg > text {
+	font-size: 2em;
+	font-weight: bold;
+}
+

@@ -1,0 +1,2802 @@
+{
+	"qubits": [],
+	"gates": [
+		{
+			"id": 0,
+			"gate_err": [
+				{
+					"date": "2022-09-13T09:05:28.960481Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005417986663583222,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T09:43:49.059060Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002452500985427537,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T10:46:54.864224Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002874775993207343,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T11:56:50.566216Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008562322013856143,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:36:40.715607Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00943655802420886,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:49:47.622293Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002668334702748829,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T11:03:25.312566Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0027680861410656903,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T12:29:45.064030Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0010832023161744708,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T10:01:16.724781Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00892223822454837,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T13:34:07.678131Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005728389724933678,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:31:17.421713Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005040884723201087,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:36:07.601143Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006586691202902204,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T13:01:22.588082Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005365776272370631,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T15:10:25.172326Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008252465878405552,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T08:57:03.205706Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005789134264893262,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T09:51:36.489997Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00864612989621894,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:07:36.313913Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006365709290473925,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:29:51.905478Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005907106806447466,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:43:33.002081Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:51:04.891984Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:01:03.611592Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:06:34.762377Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:22:19.164421Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:29:06.629082Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:33:30.093134Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:41:10.618344Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:52:38.625303Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:58:50.295911Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T13:01:39.971659Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767881Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 1,
+			"gate_err": [
+				{
+					"date": "2022-09-13T09:05:28.960490Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0072595053108172524,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T09:43:49.059080Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005980800658669778,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T10:46:54.864233Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00915270875110122,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T11:56:50.566225Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007001060785041607,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:36:40.715616Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006066298002249563,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:49:47.622309Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007252584959935023,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T11:03:25.312575Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007161485526575382,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T12:29:45.064039Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002235542930196521,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T10:01:16.724792Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009914790645688835,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T13:34:07.678142Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005917689770668814,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:31:17.421722Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00512995336723135,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:36:07.601156Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004286589977314397,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T13:01:22.588092Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009847329929202947,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T15:10:25.172337Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007531046983713396,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T08:57:03.205719Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009172798158731019,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T09:51:36.490010Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00315380439495773,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:07:36.313928Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0008324849395694272,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:29:51.905487Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.003840455399084163,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:43:33.002093Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:51:04.891992Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:01:03.611600Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:06:34.762385Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:22:19.164430Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:29:06.629091Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:33:30.093142Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:41:10.618357Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:52:38.625311Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:58:50.295919Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T13:01:39.971668Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767885Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 2,
+			"gate_err": [
+				{
+					"date": "2022-09-13T09:05:28.960498Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0017251662190754626,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T09:43:49.059093Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0003035274348065812,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T10:46:54.864241Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00997049795825333,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T11:56:50.566233Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004776362077596153,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:36:40.715625Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004791554096118498,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:49:47.622330Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007270446652685173,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T11:03:25.312583Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004798558679142134,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T12:29:45.064050Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007459944714060998,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T10:01:16.724800Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00036970550611897964,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T13:34:07.678151Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006298428322012396,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:31:17.421733Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004167248353409979,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:36:07.601167Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005671053105334078,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T13:01:22.588103Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00724667969193622,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T15:10:25.172345Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0018608019234266973,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T08:57:03.205727Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009174396765367713,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T09:51:36.490018Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0026460747896243477,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:07:36.313944Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004128747568801017,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:29:51.905498Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0058944073728696535,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:43:33.002105Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:51:04.892000Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:01:03.611607Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:06:34.762392Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:22:19.164437Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:29:06.629098Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:33:30.093149Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:41:10.618368Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:52:38.625319Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:58:50.295927Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T13:01:39.971676Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767888Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 3,
+			"gate_err": [
+				{
+					"date": "2022-09-13T09:05:28.960509Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.001275457004046699,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T09:43:49.059110Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008072056072727204,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T10:46:54.864253Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006618356053738112,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T11:56:50.566251Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008372882356718786,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:36:40.715635Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006356106024316643,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:49:47.622346Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007066710013186855,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T11:03:25.312596Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002270185204344746,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T12:29:45.064061Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0067629284584290305,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T10:01:16.724808Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007355680926267556,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T13:34:07.678159Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007896512559615095,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:31:17.421741Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004581715069685765,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:36:07.601176Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0030416091690707945,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T13:01:22.588111Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0023660530330372846,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T15:10:25.172353Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.001602017502380595,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T08:57:03.205735Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00852084726295977,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T09:51:36.490027Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00810734530724103,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:07:36.313960Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009993568323189784,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:29:51.905506Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002882807270110684,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:43:33.002117Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:51:04.892007Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:01:03.611615Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:06:34.762400Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:22:19.164444Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:29:06.629106Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:33:30.093157Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:41:10.618380Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:52:38.625327Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:58:50.295934Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T13:01:39.971684Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767891Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 4,
+			"gate_err": [
+				{
+					"date": "2022-09-13T09:05:28.960517Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0043412516808923815,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T09:43:49.059144Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0018885962297580865,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T10:46:54.864261Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0006223621435603522,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T11:56:50.566259Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0007628464936612882,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:36:40.715644Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0013293032138053551,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:49:47.622361Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0023295916004382983,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T11:03:25.312606Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009683638822454627,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T12:29:45.064069Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005074455077901663,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T10:01:16.724816Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008161894260966586,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T13:34:07.678166Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002940346755338099,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:31:17.421749Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002613590512191843,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:36:07.601185Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009571594129212529,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T13:01:22.588119Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0008091265624987501,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T15:10:25.172361Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004086434332436765,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T08:57:03.205743Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0037784004050200872,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T09:51:36.490035Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00787721264204111,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:07:36.313977Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005450686178275261,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:29:51.905514Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0033017512591517616,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:43:33.002130Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:51:04.892015Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:01:03.611622Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:06:34.762407Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:22:19.164452Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:29:06.629113Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:33:30.093164Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:41:10.618391Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:52:38.625334Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:58:50.295942Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T13:01:39.971693Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767895Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 5,
+			"gate_err": [
+				{
+					"date": "2022-09-13T09:05:28.960525Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006909721570845103,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T09:43:49.059152Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009002671139544772,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T10:46:54.864269Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0026439949624239988,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T11:56:50.566267Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0005705129280984073,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:36:40.715652Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007665881468818991,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:49:47.622376Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0009559101812843737,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T11:03:25.312615Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0005691450338100273,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T12:29:45.064078Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00230430740144141,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T10:01:16.724828Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009247525886282902,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T13:34:07.678175Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006119143913243311,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:31:17.421817Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00029871429575252024,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:36:07.601267Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009677371241218478,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T13:01:22.588193Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008559653594553846,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T15:10:25.172374Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004372568640262019,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T08:57:03.205755Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0031502043069915886,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T09:51:36.490046Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004441100426712485,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:07:36.314004Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0004437122635642253,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:29:51.905587Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007859529200251176,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:43:33.002142Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:51:04.892022Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:01:03.611630Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:06:34.762414Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:22:19.164459Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:29:06.629122Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:33:30.093171Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:41:10.618403Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:52:38.625342Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:58:50.295950Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T13:01:39.971701Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767898Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 6,
+			"gate_err": [
+				{
+					"date": "2022-09-13T09:05:28.960534Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00845453224074652,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T09:43:49.059161Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00567800565607913,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T10:46:54.864277Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004515920524094702,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T11:56:50.566275Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0035519311388655123,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:36:40.715660Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005537757931809321,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:49:47.622391Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0020889871395026118,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T11:03:25.312623Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0027310545314514134,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T12:29:45.064086Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0041818105344356956,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T10:01:16.724836Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005879659169392469,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T13:34:07.678187Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005145207937874018,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:31:17.421827Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0020418927243178345,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:36:07.601278Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006059776438977068,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T13:01:22.588206Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0007379770953766326,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T15:10:25.172382Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002901959900008916,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T08:57:03.205764Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.003003191278831811,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T09:51:36.490056Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002659058911307044,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:07:36.314021Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0018798873259006975,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:29:51.905597Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005703872324957082,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:43:33.002154Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:51:04.892030Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:01:03.611637Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:06:34.762421Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:22:19.164466Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:29:06.629129Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:33:30.093178Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:41:10.618414Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:52:38.625349Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:58:50.295957Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T13:01:39.971708Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767902Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 7,
+			"gate_err": [
+				{
+					"date": "2022-09-13T09:05:28.960546Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008199530432417043,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T09:43:49.059171Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007885860644353966,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T10:46:54.864289Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009436378618958182,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T11:56:50.566289Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009070963042689102,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:36:40.715671Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0026545810633255233,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:49:47.622419Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002609267121488929,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T11:03:25.312633Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0034016054452196813,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T12:29:45.064101Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009453364975133514,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T10:01:16.724844Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008067643478886326,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T13:34:07.678197Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009035685819797554,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:31:17.421840Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008406341726074273,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:36:07.601291Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006242122926565887,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T13:01:22.588216Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0011225722888729742,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T15:10:25.172390Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0013626996643735468,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T08:57:03.205772Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.003784739738655264,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T09:51:36.490065Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004367962116782046,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:07:36.314029Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00876914395344294,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:29:51.905608Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004414647711542805,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:43:33.002167Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:51:04.892037Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:01:03.611644Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:06:34.762428Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:22:19.164473Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:29:06.629136Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:33:30.093186Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:41:10.618426Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:52:38.625356Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:58:50.295964Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T13:01:39.971716Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767905Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 8,
+			"gate_err": [
+				{
+					"date": "2022-09-13T09:05:28.960564Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006523065326356344,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T09:43:49.059182Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.001152934953626792,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T10:46:54.864297Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005389858124978237,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T11:56:50.566299Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0015400310060080546,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:36:40.715681Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00040377861103000213,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:49:47.622436Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002240252759317725,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T11:03:25.312645Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009261946601708615,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T12:29:45.064109Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002175264271243801,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T10:01:16.724854Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0074762442327785715,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T13:34:07.678205Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006260216969809138,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:31:17.421848Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0018368101688661087,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:36:07.601299Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008103772030355652,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T13:01:22.588227Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00689300224344665,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T15:10:25.172400Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007483372667507852,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T08:57:03.205781Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0013840690721706305,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T09:51:36.490075Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008732883934900251,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:07:36.314039Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0013309580624985139,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:29:51.905618Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006370930821842048,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:43:33.002178Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:51:04.892044Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:01:03.611652Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:06:34.762436Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:22:19.164481Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:29:06.629143Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:33:30.093193Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:41:10.618437Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:52:38.625363Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:58:50.295972Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T13:01:39.971723Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767908Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 9,
+			"gate_err": [
+				{
+					"date": "2022-09-13T09:05:28.960573Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00696506138984727,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T09:43:49.059190Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007613382630524515,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T10:46:54.864305Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007391310156234205,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T11:56:50.566307Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0017388493839085178,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:36:40.715692Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009480651674865495,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:49:47.622451Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004667609954596706,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T11:03:25.312653Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006832593116898761,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T12:29:45.064117Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0011478105154274962,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T10:01:16.724862Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005421170221105394,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T13:34:07.678213Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009755084382983337,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:31:17.421856Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008487702707784588,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:36:07.601310Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0022194393195549803,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T13:01:22.588235Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0002527937673716703,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T15:10:25.172408Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0034811825884256374,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T08:57:03.205790Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0034921311803468276,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T09:51:36.490083Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00452851891451997,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:07:36.314048Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002557673587544254,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:29:51.905627Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0005191083167322762,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:43:33.002190Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:51:04.892052Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:01:03.611660Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:06:34.762443Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:22:19.164488Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:29:06.629150Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:33:30.093200Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:41:10.618448Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:52:38.625370Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:58:50.295979Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T13:01:39.971731Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767912Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 10,
+			"gate_err": [
+				{
+					"date": "2022-09-13T09:05:28.960581Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0012643368540994646,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T09:43:49.059202Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008084427919236588,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T10:46:54.864314Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004303376518240584,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T11:56:50.566315Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009360573999485587,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:36:40.715701Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006549387069445568,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:49:47.622466Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008395654222723955,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T11:03:25.312662Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006919677379700101,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T12:29:45.064126Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0010470423561485995,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T10:01:16.724873Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008634751452501954,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T13:34:07.678224Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008470897734818367,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:31:17.421865Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00309391464179705,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:36:07.601319Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0028803995737317297,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T13:01:22.588244Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004135105343992222,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T15:10:25.172419Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004519125061293371,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T08:57:03.205800Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006598041849034182,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T09:51:36.490094Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005056920970491717,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:07:36.314058Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0010172511989889894,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:29:51.905636Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.002875520386215171,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:43:33.002203Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:51:04.892063Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:01:03.611667Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:06:34.762450Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:22:19.164495Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:29:06.629157Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:33:30.093207Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:41:10.618459Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:52:38.625378Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:58:50.295987Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T13:01:39.971739Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767915Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 11,
+			"gate_err": [
+				{
+					"date": "2022-09-13T09:05:28.960589Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0024890821969149493,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T09:43:49.059210Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00875398745851585,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T10:46:54.864321Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0018856077587342335,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T11:56:50.566323Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0062487086552122095,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:36:40.715709Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005066263722294108,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:49:47.622483Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00563362824798759,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T11:03:25.312669Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004729799924197493,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T12:29:45.064137Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0016171909953364497,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T10:01:16.724881Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.003451127339377277,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T13:34:07.678232Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007150237924453491,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:31:17.421876Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009520299099488316,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:36:07.601329Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004329592566293383,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T13:01:22.588254Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0008820074554392685,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T15:10:25.172426Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.000522864907532205,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T08:57:03.205808Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009394033883641326,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T09:51:36.490102Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0015804997400061516,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:07:36.314066Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0026271993029271094,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:29:51.905646Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.009120743582589083,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:43:33.002215Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:51:04.892075Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:01:03.611674Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:06:34.762457Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:22:19.164502Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:29:06.629165Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:33:30.093214Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:41:10.618470Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:52:38.625385Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:58:50.295995Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T13:01:39.971746Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767918Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		},
+		{
+			"id": 12,
+			"gate_err": [
+				{
+					"date": "2022-09-13T09:05:28.960600Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0027648244382211524,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T09:43:49.059221Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0026418936449382887,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T10:46:54.864333Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007569399338236869,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T11:56:50.566339Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.006407193815366435,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:36:40.715720Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0013459566140565605,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-13T12:49:47.622500Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0025981023686675615,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T11:03:25.312679Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007288621728970217,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-15T12:29:45.064147Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.004828997677938535,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T10:01:16.724889Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005857300909963822,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-09-16T13:34:07.678240Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0019701416823502045,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:31:17.421900Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00043943141524377817,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T12:36:07.601337Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.005665449837107417,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T13:01:22.588262Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0023533645820981858,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-16T15:10:25.172434Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0019565999238365566,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T08:57:03.205815Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.0026253333105784407,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T09:51:36.490110Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.00586613985755535,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:07:36.314074Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.008722086777995491,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:29:51.905654Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0.007817350347319781,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:43:33.002228Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": null,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T10:51:04.892082Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:01:03.611681Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:06:34.762464Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:22:19.164509Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:29:06.629172Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:33:30.093221Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:41:10.618480Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:52:38.625392Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T12:58:50.296002Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2022-11-17T13:01:39.971754Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				},
+				{
+					"date": "2023-05-25T10:41:05.767922Z",
+					"name": "gate_err",
+					"unit": "Hz",
+					"value": 0,
+					"types": ["type1", "type3", "type4_domain"]
+				}
+			]
+		}
+	],
+	"resonators": [],
+	"couplers": []
+}
