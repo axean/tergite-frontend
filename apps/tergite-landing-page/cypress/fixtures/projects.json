@@ -1,0 +1,24 @@
+[
+	{
+		"id": "653a81b2e736d76276597a6b",
+		"ext_id": "test1",
+		"user_emails": ["jane.doe@example.com", "paul.doe@example.com"],
+		"qpu_seconds": 54000,
+		"is_active": true
+	},
+	{
+		"id": "653a8f19e736d76276597a6c",
+		"ext_id": "test2",
+		"user_emails": ["jane.doe@example.com", "john.doe@example.com", "paul.doe@example.com"],
+		"qpu_seconds": 54000,
+		"is_active": true
+	},
+	{
+		"id": "653aabd880cd1f9fab6196d2",
+		"ext_id": "test3",
+		"user_emails": ["david.doe@example.com", "paul.doe@example.com"],
+		"qpu_seconds": 54000,
+		"is_active": true
+	}
+]
+

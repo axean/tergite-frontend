@@ -1,0 +1,54 @@
+{
+	"name": "tergite-landing-page",
+	"version": "2024.02.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint",
+		"format": "prettier --write \"{src,cypress}/**/*.{js,jsx,ts,tsx}\"",
+		"mock-server": "node mocks/server.js",
+		"start-test": "NODE_ENV=test next start",
+		"mock-server-start-app": "start-server-and-test mock-server http://0.0.0.0:8002 -- \"start-test\"",
+		"build-and-start-test-server": "NODE_ENV=test npm run build && start-server-and-test mock-server-start-app http://0.0.0.0:3000",
+		"e2e": "npm run build-and-start-test-server -- \"cypress run\"",
+		"visual-e2e": "npm run build-and-start-test-server -- \"cypress open\""
+	},
+	"dependencies": {
+		"@iarna/toml": "^2.2.5",
+		"@types/node": "20.5.4",
+		"@types/react": "18.2.21",
+		"@types/react-dom": "18.2.7",
+		"autoprefixer": "10.4.15",
+		"axios": "^1.6.0",
+		"jose": "^4.15.4",
+		"moment": "^2.29.4",
+		"next": "13.4.19",
+		"postcss": "8.4.28",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
+		"sharp": "^0.32.6",
+		"swr": "^2.2.4",
+		"tailwindcss": "3.3.3",
+		"typescript": "5.1.6"
+	},
+	"devDependencies": {
+		"@types/iarna__toml": "^2.0.5",
+		"@types/jsonwebtoken": "^9.0.4",
+		"body-parser": "^1.20.2",
+		"cookie-parser": "^1.4.6",
+		"cors": "^2.8.5",
+		"cypress": "^13.3.2",
+		"cypress-real-events": "^1.10.3",
+		"eslint": "8.47.0",
+		"eslint-config-next": "13.4.19",
+		"eslint-config-prettier": "^9.0.0",
+		"eslint-plugin-cypress": "^2.15.1",
+		"express": "^4.18.2",
+		"prettier": "^3.0.2",
+		"serve": "^14.2.1",
+		"start-server-and-test": "^2.0.0"
+	}
+}
+
