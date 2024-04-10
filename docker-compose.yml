@@ -4,18 +4,22 @@ version: "3"
 services:
   landing-page:
     restart: always
+    depends_on:
+      - mss
 ***REMOVED***
     logging:
       driver: ${LOGGING_DRIVER}
     ports:
       - "8030:80"
     environment:
-      - API_BASE_URL=${MSS_ENDPOINT}
+      - API_BASE_URL=http://mss
       - AUTH_CONFIG_FILE=/app/auth_config.toml
     volumes:
       - ./auth_config.toml:/app/auth_config.toml:ro
     env_file:
       - .env
+    networks:
+      - tergite-frontend
 
   mss:
     restart: always
@@ -30,21 +34,28 @@ services:
       - ./auth_config.toml:/code/auth_config.toml:ro
     env_file:
       - .env
+    networks:
+      - tergite-frontend
 
-  web-gui:
+  webgui:
     restart: always
+    depends_on:
+      - mss
+    # yes, we can build from the Dockerfiles but we might need to run frontend from pre-built images
 ***REMOVED***
     logging:
       driver: ${LOGGING_DRIVER}
     ports:
       - "3000:3000"
     environment:
-      - API_BASE_URL=${MSS_ENDPOINT}/v2
+      - API_BASE_URL=http://mss
       - AUTH_CONFIG_FILE=/app/auth_config.toml
     volumes:
       - ./auth_config.toml:/app/auth_config.toml:ro
     env_file:
       - .env
+    networks:
+      - tergite-frontend
 
   loki-promtail:
     restart: always
@@ -58,3 +69,8 @@ services:
     command: "-config.expand-env=true -config.file=/etc/promtail/config.yaml"
     env_file:
       - .env
+    networks:
+      - tergite-frontend
+
+networks:
+  tergite-frontend:
