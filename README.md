@@ -142,7 +142,30 @@ When docker is installed, it adds its own `iptables` rules which open all ports 
 
 You can add other rules in the same DOCKER-USER chain, carefully :-)
 
+## Contribution Guidelines
+
+If you would like to contribute to tergite-webgui, please have a look at our [contribution guidelines](./CONTRIBUTING.md)
+
+## Authors
+
+This project is a work of
+[many contributors](https://github.com/tergite/tergite-webgui/graphs/contributors).
+
+Special credit goes to the authors of this project as seen in the [CREDITS](./CREDITS.md) file.
+
+## ChangeLog
+
+To view the changelog for each version, have a look at the [CHANGELOG.md](./CHANGELOG.md) file.
+
 ## License
 
-Licensed under the [Apache 2.0 License](./LICENSE)
-Contributors can be found in the [CONTRIBUTING.md](./CONTRIBUTING.md) file.
+[Apache 2.0 License](./LICENSE)
+
+## Acknowledgements
+
+This project was sponsored by:
+
+- [Knut and Alice Wallenburg Foundation](https://kaw.wallenberg.org/en) under the [Wallenberg Center for Quantum Technology (WAQCT)](https://www.chalmers.se/en/centres/wacqt/) project at [Chalmers University of Technology](https://www.chalmers.se)
+- [Nordic e-Infrastructure Collaboration (NeIC)](https://neic.no) and [NordForsk](https://www.nordforsk.org/sv) under the [NordIQuEst](https://neic.no/nordiquest/) project
+- [European Union's Horizon Europe](https://research-and-innovation.ec.europa.eu/funding/funding-opportunities/funding-programmes-and-open-calls/horizon-europe_en) under the [OpenSuperQ](https://cordis.europa.eu/project/id/820363) project
+- [European Union's Horizon Europe](https://research-and-innovation.ec.europa.eu/funding/funding-opportunities/funding-programmes-and-open-calls/horizon-europe_en) under the [OpenSuperQPlus](https://opensuperqplus.eu/) project

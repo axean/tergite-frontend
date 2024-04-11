@@ -8,9 +8,9 @@ We love your input! We want to make contributing to this project as easy and tra
 - Proposing new features
 - Becoming a maintainer
 
-## We Develop with Bitbucket
+## We Develop with Github
 
-We use bitbucket to host code, to track issues and feature requests, as well as accept pull requests.
+We use Github to host code, to track issues and feature requests, as well as accept pull requests.
 
 ## But We Use [Github Flow](https://docs.github.com/en/get-started/quickstart/github-flow), So All Code Changes Happen Through Pull Requests
 
@@ -30,7 +30,7 @@ requests:
 In short, when you submit code changes, your submissions are understood to be under the
 same [Apache 2.0 License](./LICENSE) that covers the project. Feel free to contact the maintainers if that's a concern.
 
-## Report bugs using Bitbucket's [issues](https://github.com/tergite/tergite-frontend/issues)
+## Report bugs using Github's [issues](https://github.com/tergite/tergite-frontend/issues)
 
 We use Bibucket issues to track bugs. Report a bug
 by [opening a new issue](https://github.com/tergite/tergite-frontend/issues); it's that easy!
@@ -52,9 +52,13 @@ Here's [another example from Craig Hockenberry](http://www.openradar.me/11905408
 
 People _love_ thorough bug reports. I'm not even kidding.
 
-## Use a Consistent Coding Style
+## How to Contribute to a Single App
 
-- Use [eslint](https://eslint.org/)
+Please refer to the `CONTRIBUTING.md` file of the app in question.
+
+- [./apps/tergite-landing-page/CONTRIBUTING.md](./apps/tergite-landing-page/CONTRIBUTING.md)
+- [./apps/tergite-mss/CONTRIBUTING.md](./apps/tergite-mss/CONTRIBUTING.md)
+- [./apps/tergite-webgui/CONTRIBUTING.md](./apps/tergite-webgui/CONTRIBUTING.md)
 
 ## License
 
@@ -62,7 +66,7 @@ By contributing, you agree that your contributions will be licensed under its Ap
 
 ### Contributors
 
-- Martin Ahindura 2023
+- Martin Ahindura 2023, 2024
 
 ## References
 

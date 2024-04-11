@@ -1,6 +1,6 @@
 # Credits
 
-## Martin Ahindura <martin.ahindura@chalmers.se>
+## [Martin Ahindura](https://github.com/ch-ahindura)
 
 The first version of the tergite-landing-page
 
