@@ -39,10 +39,10 @@ requests:
 In short, when you submit code changes, your submissions are understood to be under the
 same [Apache 2.0 License](./LICENSE) that covers the project. Feel free to contact the maintainers if that's a concern.
 
-## Report bugs using Github's [issues](https://github.com/tergite/tergite-webgui/issues)
+## Report bugs using Github's [issues](https://github.com/tergite/tergite-frontend/issues)
 
 We use Github issues to track bugs. Report a bug
-by [opening a new issue](https://github.com/tergite/tergite-webgui/issues); it's that easy!
+by [opening a new issue](https://github.com/tergite/tergite-frontend/issues) and adding the label 'webgui' to it; it's that easy!
 
 ## Write bug reports with detail, background, and sample code
 
@@ -71,8 +71,8 @@ By contributing, you agree that your contributions will be licensed under its Ap
 -   Clone the repo and enter its root folder
 
 ```shell
-git clone git@github.com:tergite/tergite-webgui.git
-cd tergite-webgui
+git clone git@github.com:tergite/tergite-frontend.git
+cd tergite-frontend/apps/tergite-webgui
 ```
 
 -   Install the dependencies
@@ -95,7 +95,7 @@ pnpm run e2e
 -   Clone the repo
 
 ```shell
-git clone git@github.com:tergite/tergite-webgui.git
+git clone git@github.com:tergite/tergite-frontend.git
 ```
 
 -   Build the nextjs application
@@ -126,7 +126,7 @@ docker buildx create --name multi-platform-builder --bootstrap --use
 -   Build and push the docker image
 
 ```shell
-cd tergite-webgui
+cd tergite-frontend/apps/tergite-webgui
 docker buildx build --platform linux/amd64,linux/arm64 -t ${CONTAINER_REGISTRY}/tergite-webgui:local --push .
 docker pull ${CONTAINER_REGISTRY}/tergite-webgui:local
 ```

@@ -7,6 +7,14 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+- Moved tergite-landing-page to the tergite-frontend monorepo
+
+### Fixed
+
 ## [2024.02.0] - 2024-03-14
 
 This is the 2024 March patch 0 release. It introduces authentication, authorization and accounting to the
@@ -28,8 +36,3 @@ tergite stack
 ### Changed
 
 ### Fixed
-
-### Contributors
-
--   Martin Ahindura <martin.ahindura@chalmers.se>
-

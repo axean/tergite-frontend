@@ -16,18 +16,18 @@ This is the static home page for the qal9000 project that will be the landing pa
 -   Clone the repo
 
 ```shell
-git clone git@github.com:tergite/tergite-landing-page.git
+git clone git@github.com:tergite/tergite-frontend.git
 ```
 
 -   Install dependencies
 
 ```shell
-cd tergite-landing-page
+cd tergite-frontend/apps/tergite-landing-page
 npm install
 ```
 
 -   Copy the `auth_config.example.toml` to `auth_config.toml` and update the configuration there.  
-    Make sure it is the same being used by the [MSS](https://github.com/tergite/tergite-mss)connected to this app
+    Make sure it is the same being used by the [tergite-mss](../tergite-mss/) instance connected to this app
 
 ```shell
 cp auth_config.example.toml auth_config.toml
@@ -55,8 +55,7 @@ If you would like to contribute to tergite-webgui, please have a look at our
 
 ## Authors
 
-This project is a work of
-[many contributors](https://github.com/tergite/tergite-webgui/graphs/contributors).
+This project is a work of [many contributors](https://github.com/tergite/tergite-frontend/graphs/contributors).
 
 Special credit goes to the authors of this project as seen in the [CREDITS](./CREDITS.md) file.
 

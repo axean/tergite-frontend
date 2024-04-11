@@ -18,7 +18,7 @@ The Main Service Server or the Public API to the QAL 9000 Quantum Computers.
 - Clone the repo
 
 ```shell
-git clone git@github.com:tergite/tergite-mss.git
+git clone git@github.com:tergite/tergite-frontend.git
 ```
 
 - Create conda environment
@@ -31,7 +31,7 @@ conda activate mss
 - Install dependencies
 
 ```shell
-cd tergite-mss
+cd tergite-frontend/apps/tergite-mss
 pip install -r requirements.txt
 ```
 
@@ -68,7 +68,7 @@ If you would like to contribute, please have a look at our
 ## Authors
 
 This project is a work of
-[many contributors](https://github.com/tergite/tergite-mss/graphs/contributors).
+[many contributors](https://github.com/tergite/tergite-frontend/graphs/contributors).
 
 Special credit goes to the authors of this project as seen in the [CREDITS](./CREDITS.md) file.
 

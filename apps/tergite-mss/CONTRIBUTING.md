@@ -6,11 +6,11 @@
 
 We love your input! We want to make contributing to this project as easy and transparent as possible, whether it's:
 
--   Reporting a bug
--   Discussing the current state of the code
--   Submitting a fix
--   Proposing new features
--   Becoming a maintainer
+- Reporting a bug
+- Discussing the current state of the code
+- Submitting a fix
+- Proposing new features
+- Becoming a maintainer
 
 ## Versioning
 
@@ -39,10 +39,9 @@ requests:
 In short, when you submit code changes, your submissions are understood to be under the
 same [Apache 2.0 License](./LICENSE.txt) that covers the project. Feel free to contact the maintainers if that's a concern.
 
-## Report bugs using Github's [issues](https://github.com/tergite/tergite-mss/issues)
+## Report bugs using Github's [issues](https://github.com/tergite/tergite-frontend/issues)
 
-We use Github issues to track bugs. Report a bug
-by [opening a new issue](https://github.com/tergite/tergite-mss/issues); it's that easy!
+We use Github issues to track bugs. Report a bug by [opening a new issue](https://github.com/tergite/tergite-frontend/issues) and adding the label 'mss' to it; it's that easy!
 
 ## Write bug reports with detail, background, and sample code
 
@@ -51,13 +50,13 @@ Here's [another example from Craig Hockenberry](http://www.openradar.me/11905408
 
 **Great Bug Reports** tend to have:
 
--   A quick summary and/or background
--   Steps to reproduce
-    -   Be specific!
-    -   Give sample code if you can.
--   What you expected would happen
--   What actually happens
--   Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
+- A quick summary and/or background
+- Steps to reproduce
+  - Be specific!
+  - Give sample code if you can.
+- What you expected would happen
+- What actually happens
+- Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
 
 People _love_ thorough bug reports. I'm not even kidding.
 
@@ -67,12 +66,12 @@ By contributing, you agree that your contributions will be licensed under its Ap
 
 ## How to Test
 
--   Make sure you have [conda](https://docs.anaconda.com/free/miniconda/index.html) installed.
--   Clone the repo and enter its root folder
+- Make sure you have [conda](https://docs.anaconda.com/free/miniconda/index.html) installed.
+- Clone the repo and enter its root folder
 
 ```shell
-git clone git@github.com:tergite/tergite-mss.git
-cd tergite-mss
+git clone git@github.com:tergite/tergite-frontend.git
+cd tergite-frontend/apps/tergite-mss
 ```
 
 - Create the conda environment
@@ -81,14 +80,14 @@ cd tergite-mss
 conda create -n mss python=3.8
 ```
 
--   Install dependencies
+- Install dependencies
 
 ```shell
 conda activate mss
 pip install -r requirements.txt
 ```
 
--   Run the tests commands
+- Run the tests commands
 
 ```shell
 pytest
@@ -101,7 +100,7 @@ pytest
 - Clone the repo
 
 ```shell
-git clone git@github.com:tergite/tergite-mss.git
+git clone git@github.com:tergite/tergite-frontend.git
 ```
 
 - Login to a hosted docker container registry e.g. one based on the [tergite-registry repo](https://github.com/tergite/tergite-registry)
@@ -125,7 +124,7 @@ docker buildx create --name multi-platform-builder --bootstrap --use
 - Build and push the docker image
 
 ```shell
-cd tergite-mss
+cd tergite-frontend/apps/tergite-mss
 docker buildx build --platform linux/amd64,linux/arm64 \
   -t ${CONTAINER_REGISTRY}/tergite-mss:local --push .
 docker pull ${CONTAINER_REGISTRY}/tergite-mss:local
@@ -143,10 +142,8 @@ docker run -p 8002:80 \
 
 - Open your browser at http://localhost:8002/docs and see the docs for mss running.
 
-
 ## References
 
 This document was adapted from [a gist by Brian A. Danielak](https://gist.github.com/briandk/3d2e8b3ec8daf5a27a62) which
 was originally adapted from the open-source contribution guidelines
 for [Facebook's Draft](https://github.com/facebook/draft-js/blob/a9316a723f9e918afde44dea68b5f9f39b7d9b00/CONTRIBUTING.md)
-

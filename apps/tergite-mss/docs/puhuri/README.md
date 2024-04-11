@@ -18,8 +18,8 @@ conda activate plg
 - Clone this repo and install dependencies
 
 ```shell
-git clone git@github.com:tergite/tergite-mss.git
-cd tergite-mss/docs/puhuri
+git clone git@github.com:tergite/tergite-frontend.git
+cd tergite-frontend/apps/tergite-mss/docs/puhuri
 pip install -r requirements.txt
 ```
 

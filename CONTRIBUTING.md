@@ -1,5 +1,9 @@
 # Contributing to tergite-frontend
 
+**This project is currently not accepting pull requests from the general public yet.**
+
+**It is currently being developed by the core developers only.**
+
 We love your input! We want to make contributing to this project as easy and transparent as possible, whether it's:
 
 - Reporting a bug

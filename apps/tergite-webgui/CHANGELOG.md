@@ -7,6 +7,14 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+- Moved tergite-webgui to the tergite-frontend monorepo
+
+### Fixed
+
 ## [2024.02.0] - 2024-03-21
 
 This is part of the tergite release v2024.02 that introduces authentication, authorization and accounting

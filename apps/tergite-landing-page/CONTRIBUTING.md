@@ -39,10 +39,10 @@ requests:
 In short, when you submit code changes, your submissions are understood to be under the
 same [Apache 2.0 License](./LICENSE) that covers the project. Feel free to contact the maintainers if that's a concern.
 
-## Report bugs using Github's [issues](https://github.com/tergite/tergite-landing-page/issues)
+## Report bugs using Github's [issues](https://github.com/tergite/tergite-frontend/issues)
 
-We use Github issues to track bugs. Report a bug
-by [opening a new issue](https://github.com/tergite/tergite-landing-page/issues); it's that easy!
+We use Github issues to track bugs. 
+Report a bug by [opening a new issue](https://github.com/tergite/tergite-frontend/issues) and adding the label 'landing-page' to it; it's that easy!
 
 ## Write bug reports with detail, background, and sample code
 
@@ -68,11 +68,11 @@ By contributing, you agree that your contributions will be licensed under its Ap
 ## How to Test
 
 -   Make sure you have [nodejs +18.16.0](https://nodejs.org/) installed.
--   Clone the repo and enter its root folder
+-   Clone the repo and enter the `apps/tergite-landing-page` folder
 
 ```shell
-git clone git@github.com:tergite/tergite-landing-page.git
-cd tergite-landing-page
+git clone git@github.com:tergite/tergite-frontend.git
+cd tergite-frontend/apps/tergite-landing-page
 ```
 
 -   Install the dependencies
@@ -100,7 +100,7 @@ npm run e2e
 -   Clone the repo
 
 ```shell
-git clone git@github.com:tergite/tergite-landing-page.git
+git clone git@github.com:tergite/tergite-frontend.git
 ```
 
 -   Login to a hosted docker container registry e.g. one based on the [tergite-registry repo](https://github.com/tergite/tergite-registry)
@@ -124,7 +124,7 @@ docker buildx create --name multi-platform-builder --bootstrap --use
 -   Build and push the docker image
 
 ```shell
-cd tergite-landing-page
+cd tergite-frontend/apps/tergite-landing-page
 docker buildx build --platform linux/amd64,linux/arm64 -t ${CONTAINER_REGISTRY}/tergite-landing-page:local --push .
 docker pull ${CONTAINER_REGISTRY}/tergite-landing-page:local
 ```

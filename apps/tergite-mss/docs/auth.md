@@ -4,22 +4,22 @@ This is how MSS authenticates its users and controls their access to the quantum
 
 ## Authentication
 
-- It uses [Oauth2](https://oauth.net/2/), a standard similar to HTTP in the sense that for any system, 
- also called an **Oauth2 client**, to allow its users to authenticate with another system, 
- called an **Oauth2 provider**, all that is needed are two strings:
+- It uses [Oauth2](https://oauth.net/2/), a standard similar to HTTP in the sense that for any system,
+  also called an **Oauth2 client**, to allow its users to authenticate with another system,
+  called an **Oauth2 provider**, all that is needed are two strings:
   - `CLIENT_ID`
   - `CLIENT_SECRET`
 - The two strings are unique to this system, but are given by the Oauth2 provider
 - Common Oauth2 providers include Google, Github, Microsoft, Chalmers (which uses Microsoft)
 - Organizations which have a sort of ActiveDirectory can automatically be Oauth2 providers.
-- We also use [OpenID Connect]() which is a flavour of Oauth2 that requires a third string, a   
- `OPENID_CONFIGURATION_ENDPOINT`, from where to get the configuration of the openID provider.
+- We also use [OpenID Connect]() which is a flavour of Oauth2 that requires a third string, a  
+  `OPENID_CONFIGURATION_ENDPOINT`, from where to get the configuration of the openID provider.
 
 ### How to Set Up a New Oauth2 Provider
 
 - Let's say we want some 'Ericsson' users to have access to MSS.
 - Copy the `auth_config.example.toml` to `auth_config.toml`, and update the configs therein.  
-  Note: You could also create a new toml file based on `auth_config.example.toml`   
+  Note: You could also create a new toml file based on `auth_config.example.toml`  
   and set the `AUTH_CONFIG_FILE` environment variable to point to that file.
 - Add the new client:
 
@@ -81,7 +81,7 @@ is_enabled = false
 
 #### - How do we ensure that in production, authentication is always turned on?
 
-On startup, we raise a ValueError when `is_enabled = false` in the `auth_config.toml` file yet   
+On startup, we raise a ValueError when `is_enabled = false` in the `auth_config.toml` file yet  
 environment variable `APP_SETTINGS=production` and log it.
 
 #### - How do we allow other qal9000 services (e.g. BCC or calibration workers) to access MSS, without user intervention?
@@ -94,7 +94,7 @@ If you are in development mode, you can just switch of authentication altogether
 
 #### How do I log in?
 
-- You need to run both [MSS](https://github.com/tergite/tergite-mss/) and the [landing page](https://github.com/tergite/tergite-landing-page/).
+- You need to run both [MSS](../) and the [landing page](../../tergite-landing-page/).
 - **Make sure that your `.env` files have all variables filled appropriately** for example, both applications should have the same `JWT_SECRET`.
 - The landing page, when running, has appropriate links, say in the navbar, to direct you on how to the authentication screens.
 - However, you can also log in without running the landing page app first. See the next FAQ.
@@ -152,7 +152,6 @@ The Puhuri Entity Layout
 ### Flows
 
 More information about flows can be found in the [puhuri docs folder](puhuri)
-
 
 ![Selecting resource to report on](./assets/puhuri-resource-usage-reporting-flow.png)
 
