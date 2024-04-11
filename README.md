@@ -1,4 +1,4 @@
-# tergite-qal9000
+# tergite-frontend
 
 This is the collection of services that collectively are made available via the qal9000.se domain
 
@@ -19,7 +19,7 @@ This is the collection of services that collectively are made available via the 
 - Clone the repo
 
 ```shell
-git clone git@github.com:tergite/tergite-qal9000.git
+git clone git@github.com:tergite/tergite-frontend.git
 ```
 
 - Login to a hosted docker container registry e.g. one based on the [tergite-registry repo](https://github.com/tergite/tergite-registry)
@@ -37,7 +37,7 @@ docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME
 - Copy the `auth_config.example.toml` to `auth_config.toml` and update the configuration there.
 
 ```shell
-cd tergite-qal9000
+cd tergite-frontend
 cp auth_config.example.toml auth_config.toml
 ```
 
@@ -93,13 +93,13 @@ To add a new user, run the following steps.
 - Clone the repo
 
 ```shell
-git clone git@github.com:tergite/tergite-qal9000.git
+git clone git@github.com:tergite/tergite-frontend.git
 ```
 
 - Make the add-auth-user script executable
 
 ```shell
-cd tergite-qal9000
+cd tergite-frontend
 sudo chmod +x scripts/add-auth-user.sh
 ```
 
