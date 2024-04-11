@@ -48,10 +48,16 @@ cp auth_config.example.toml auth_config.toml
 cp .env.example .env
 ```
 
-- Run the services
+- To rebuild and run the services, use the `fresh.yml`
 
 ```shell
-docker compose up -d
+docker compose up -d -f fresh-docker-compose.yml
+```
+
+- To use prebuilt images to run the services, use the `prebuilt.yml`
+
+```shell
+docker compose up -d -f prebuilt-docker-compose.yml
 ```
 
 - Open your browser at
