@@ -1,4 +1,4 @@
-name: CI
+name: Landing Page CI
 
 on:
   push:
@@ -6,7 +6,11 @@ on:
       - main
     tags:
       - "v*"
+    paths:
+      - "apps/tergite-landing-page/**"
   pull_request:
+    paths:
+      - "apps/tergite-landing-page/**"
 
 jobs:
   tests:
@@ -16,7 +20,7 @@ jobs:
       options: --user 1001
     strategy:
       matrix:
-        node-version: [ "18.16", "18.17", "18.18", "18.19" ]
+        node-version: ["18.16", "18.17", "18.18", "18.19"]
 
     steps:
       - uses: actions/checkout@v4

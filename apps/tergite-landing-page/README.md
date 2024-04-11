@@ -1,6 +1,6 @@
 # tergite-landing-page
 
-![CI](https://github.com/tergite/tergite-webgui/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/tergite/tergite-frontend/actions/workflows/landing-page-ci.yml/badge.svg)
 
 This is the static home page for the qal9000 project that will be the landing page for all qal9000-related projects
 

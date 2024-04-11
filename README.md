@@ -1,16 +1,24 @@
 # tergite-frontend
 
-This is the collection of services that collectively are made available via the qal9000.se domain
+This is a monorepo of all the services that collectively act as the public facing interface for the quantum computers they manage.
+
+## Services
+
+- [Tergite Landing Page](./apps/tergite-landing-page/) ![CI](https://github.com/tergite/tergite-frontend/actions/workflows/landing-page-ci.yml/badge.svg)  
+  The website that welcomes all users by default
+- [Tergite Main Service Server or MSS](./apps/tergite-mss/) ![CI](https://github.com/tergite/tergite-frontend/actions/workflows/mss-ci.yml/badge.svg)  
+  The server that controls all services on this frontend.  
+  It also exposes the REST API through which other clients like [tergite-qiskit-connector](https://github.com/tergite/tergite-qiskit-connector) communicate with the quantum computers.
+- [Tergite WebGUI](./apps/tergite-webgui/) ![CI](https://github.com/tergite/tergite-frontend/actions/workflows/landing-page-ci.yml/badge.svg)  
+  The website that welcomes all users by default
 
 ## Dependencies
 
-- Linux kernel.
-
-  - This app is expected to be run on linux because of the logging type required. [journald is only for Linux](https://forums.docker.com/t/docker-for-windows-logging-failed-to-initialize-logging-driver-journald-is-not-enabled-on-this-host/68690/4).
-  - Using the default `json-file` logging driver would quickly fill up your disk space after some time. See [here](https://docs.docker.com/config/containers/logging/configure/).
-  - While the `local` logging driver should not be used by external tools like promtail, our logging aggregator client. See [here](https://docs.docker.com/config/containers/logging/local/)
-
 - [docker +v23.0.5](https://www.docker.com/products/docker-desktop/)
+- [docker compose](https://docs.docker.com/compose/)
+- Linux OS if the `LOGGING_DRIVER` variable in `.env` is set to 'journald' (**recommended**) since [journald is only for Linux](https://forums.docker.com/t/docker-for-windows-logging-failed-to-initialize-logging-driver-journald-is-not-enabled-on-this-host/68690/4).  
+  _One could use the default `json-file` logging driver but this would quickly fill up one's disk space after some time. See [here](https://docs.docker.com/config/containers/logging/configure/)_.  
+  _One could also use the `local` logging driver but external tools like promtail, our logging aggregator client, cannot work with it. See [here](https://docs.docker.com/config/containers/logging/local/)_
 
 ## Getting Started
 
@@ -113,8 +121,6 @@ sudo chmod +x scripts/add-auth-user.sh
 ```
 
 Note: you might have to run this with sudo permissions.
-
--
 
 ## FAQ
 

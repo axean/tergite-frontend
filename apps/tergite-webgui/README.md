@@ -1,6 +1,6 @@
 # Tergite WebGUI
 
-![CI](https://github.com/tergite/tergite-webgui/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/tergite/tergite-frontend/actions/workflows/webgui-ci.yml/badge.svg)
 
 The Visual Interface for the QAL 9000 quantum computers.
 

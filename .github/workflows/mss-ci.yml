@@ -1,4 +1,4 @@
-name: CI
+name: MSS CI
 
 on:
   push:
@@ -6,14 +6,18 @@ on:
       - main
     tags:
       - "v*"
+    paths:
+      - "apps/tergite-mss/**"
   pull_request:
+    paths:
+      - "apps/tergite-mss/**"
 
 jobs:
   tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.8" ]
+        python-version: ["3.8"]
 
     services:
       mongodb:
