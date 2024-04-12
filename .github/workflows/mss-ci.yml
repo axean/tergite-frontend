@@ -71,7 +71,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./apps/tergite-mss
-          platforms: linux/amd64,linux/arm64,linux/arm64/v7,linux/arm64/v8
+          platforms: ${{ vars.DOCKER_IMAGE_PLATFORMS }}
           file: ./apps/tergite-mss/Dockerfile
           push: true
           tags: ${{ secrets.STAGING_CONTAINER_REGISTRY }}/tergite-mss:${{ github.ref_name }}
@@ -102,7 +102,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./apps/tergite-mss
-          platforms: linux/amd64,linux/arm64,linux/arm64/v7,linux/arm64/v8
+          platforms: ${{ vars.DOCKER_IMAGE_PLATFORMS }}
           file: ./apps/tergite-mss/Dockerfile
           push: true
           tags: ${{ secrets.CONTAINER_REGISTRY }}/tergite-mss:${{ github.ref_name }}
