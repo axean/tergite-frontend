@@ -139,3 +139,6 @@ start_mss.py
 
 # auth config
 auth_config.toml
+
+# sequencial tests
+.semaphore.lock

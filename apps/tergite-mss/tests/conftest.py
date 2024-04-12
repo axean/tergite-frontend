@@ -26,6 +26,7 @@ import pytest
 from beanie import PydanticObjectId
 from fastapi.testclient import TestClient
 from fastapi_users.router.oauth import generate_state_token
+from filelock import FileLock
 from httpx_oauth.clients import github, microsoft
 
 import settings
@@ -101,20 +102,21 @@ def mock_puhuri_sync_calls():
     """A mock puhuri client that initializes the puhuri sync process"""
     # ensure that all processes in this case are 'spawn'ed regardless
     #   of operating system type
-    ctx = multiprocessing.get_context("spawn")
-    queue = ctx.Queue()
-    worker = ctx.Process(
-        target=setup_puhuri_sync,
-        args=([], queue),
-    )
-    worker.start()
+    with FileLock(".semaphore.lock"):
+        ctx = multiprocessing.get_context("spawn")
+        queue = ctx.Queue()
+        worker = ctx.Process(
+            target=setup_puhuri_sync,
+            args=([], queue),
+        )
+        worker.start()
 
-    yield queue
+        yield queue
 
-    # clean up
-    worker.terminate()
-    worker.join()
-    worker.close()
+        # clean up
+        worker.terminate()
+        worker.join()
+        worker.close()
 
 
 @pytest.fixture
