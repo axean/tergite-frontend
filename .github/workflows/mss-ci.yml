@@ -39,6 +39,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run tests
         run: |
+          cd apps/tergite-mss
           pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           black --check .
@@ -69,10 +70,10 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./apps/tergite-mss
+          file: ./apps/tergite-mss/Dockerfile
           push: true
-          tags: ${{ secrets.STAGING_CONTAINER_REGISTRY }}/${{ github.event.repository.name }}:${{ github.ref_name }}
+          tags: ${{ secrets.STAGING_CONTAINER_REGISTRY }}/tergite-mss:${{ github.ref_name }}
 
   release-production:
     name: Release Production
@@ -99,10 +100,10 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./apps/tergite-mss
+          file: ./apps/tergite-mss/Dockerfile
           push: true
-          tags: ${{ secrets.CONTAINER_REGISTRY }}/${{ github.event.repository.name }}:${{ github.ref_name }}
+          tags: ${{ secrets.CONTAINER_REGISTRY }}/tergite-mss:${{ github.ref_name }}
 
   upstream:
     name: Update upstream

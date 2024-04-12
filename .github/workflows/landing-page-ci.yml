@@ -30,6 +30,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Lint and test
         run: |
+          cd apps/tergite-landing-page
           npm ci
           npm run lint
           npm run e2e
@@ -40,19 +41,20 @@ jobs:
     needs: tests
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Nodejs ${{ matrix.node-version }}
+      - name: Set up Nodejs 18.16
         uses: actions/setup-node@v4
         with:
           node-version: "18.16"
       - name: build nextjs app
         run: |
+          cd apps/tergite-landing-page
           npm ci
           NEXT_TELEMETRY_DISABLED=1 npm run build
       - name: archive artifacts
         uses: actions/upload-artifact@v4
         with:
           name: tergite-landing-page-dist
-          path: .next
+          path: ./apps/tergite-landing-page/.next
 
   release-staging:
     name: Release Staging
@@ -80,15 +82,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tergite-landing-page-dist
-          path: .next
+          path: ./apps/tergite-landing-page/.next
 
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./apps/tergite-landing-page
+          file: ./apps/tergite-landing-page/Dockerfile
           push: true
-          tags: ${{ secrets.STAGING_CONTAINER_REGISTRY }}/${{ github.event.repository.name }}:${{ github.ref_name }}
+          tags: ${{ secrets.STAGING_CONTAINER_REGISTRY }}/tergite-landing-page:${{ github.ref_name }}
 
   release-production:
     name: Release Production
@@ -116,15 +118,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tergite-landing-page-dist
-          path: .next
+          path: ./apps/tergite-landing-page/.next
 
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./apps/tergite-landing-page
+          file: ./apps/tergite-landing-page/Dockerfile
           push: true
-          tags: ${{ secrets.CONTAINER_REGISTRY }}/${{ github.event.repository.name }}:${{ github.ref_name }}
+          tags: ${{ secrets.CONTAINER_REGISTRY }}/tergite-landing-page:${{ github.ref_name }}
 
   upstream:
     name: Update upstream

@@ -30,6 +30,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Lint and test
         run: |
+          cd apps/tergite-webgui
           npm i -g pnpm
           pnpm i --frozen-lockfile
           echo "EQUALITY_ERROR_MARGIN=${{ vars.EQUALITY_ERROR_MARGIN }}" >> .env.test
@@ -48,6 +49,7 @@ jobs:
           node-version: "18.16"
       - name: build nextjs app
         run: |
+          cd apps/tergite-webgui
           npm i -g pnpm
           pnpm i --frozen-lockfile
           NEXT_TELEMETRY_DISABLED=1 pnpm run build
@@ -55,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tergite-webgui-dist
-          path: .next
+          path: ./apps/tergite-webgui/.next
 
   release-staging:
     name: Release Staging
@@ -83,15 +85,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tergite-webgui-dist
-          path: .next
+          path: ./apps/tergite-webgui/.next
 
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./apps/tergite-webgui
+          file: ./apps/tergite-webgui/Dockerfile
           push: true
-          tags: ${{ secrets.STAGING_CONTAINER_REGISTRY }}/${{ github.event.repository.name }}:${{ github.ref_name }}
+          tags: ${{ secrets.STAGING_CONTAINER_REGISTRY }}/tergite-webgui:${{ github.ref_name }}
 
   release-production:
     name: Release Production
@@ -119,15 +121,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tergite-webgui-dist
-          path: .next
+          path: ./apps/tergite-webgui/.next
 
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./apps/tergite-webgui
+          file: ./apps/tergite-webgui/Dockerfile
           push: true
-          tags: ${{ secrets.CONTAINER_REGISTRY }}/${{ github.event.repository.name }}:${{ github.ref_name }}
+          tags: ${{ secrets.CONTAINER_REGISTRY }}/tergite-webgui:${{ github.ref_name }}
 
   upstream:
     name: Update upstream
