@@ -83,6 +83,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tergite-webgui-dist
+          path: .next
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -118,6 +119,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tergite-webgui-dist
+          path: .next
 
       - name: Build and push
         uses: docker/build-push-action@v5
