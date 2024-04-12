@@ -18,8 +18,6 @@ services:
       - ./auth_config.toml:/app/auth_config.toml:ro
     env_file:
       - .env
-    networks:
-      - tergite-frontend
 
   mss:
     restart: always
@@ -34,8 +32,6 @@ services:
       - ./auth_config.toml:/code/auth_config.toml:ro
     env_file:
       - .env
-    networks:
-      - tergite-frontend
 
   webgui:
     restart: always
@@ -53,8 +49,6 @@ services:
       - ./auth_config.toml:/app/auth_config.toml:ro
     env_file:
       - .env
-    networks:
-      - tergite-frontend
 
   loki-promtail:
     restart: always
@@ -68,8 +62,3 @@ services:
     command: "-config.expand-env=true -config.file=/etc/promtail/config.yaml"
     env_file:
       - .env
-    networks:
-      - tergite-frontend
-
-networks:
-  tergite-frontend:
