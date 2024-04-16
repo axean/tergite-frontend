@@ -9,7 +9,7 @@ services:
     image: "tergite/tergite-landing-page:${LANDING_PAGE_VERSION:-v0.1.1}"
     build:
       context: apps/tergite-landing-page
-      dockerfile: apps/tergite-landing-page/Dockerfile
+      dockerfile: Dockerfile
     logging:
       driver: ${LOGGING_DRIVER}
     ports:
@@ -27,7 +27,7 @@ services:
     image: "tergite/tergite-mss:${MSS_VERSION:-v0.4.0}"
     build:
       context: apps/tergite-mss
-      dockerfile: apps/tergite-mss/Dockerfile
+      dockerfile: Dockerfile
     logging:
       driver: ${LOGGING_DRIVER}
     ports:
@@ -46,7 +46,7 @@ services:
     image: "tergite/tergite-webgui:${WEBGUI_VERSION:-v0.0.4}"
     build:
       context: apps/tergite-webgui
-      dockerfile: apps/tergite-webgui/Dockerfile
+      dockerfile: Dockerfile
     logging:
       driver: ${LOGGING_DRIVER}
     ports:

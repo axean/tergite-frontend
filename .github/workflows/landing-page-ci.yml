@@ -20,8 +20,11 @@ jobs:
       options: --user 1001
     strategy:
       matrix:
-        node-version: ["18.16", "18.17", "18.18", "18.19"]
-
+        node-version:
+          - "18.16"
+          - "18.17"
+          - "18.18"
+          - "18.19"
     steps:
       - uses: actions/checkout@v4
       - name: Set up Nodejs ${{ matrix.node-version }}
@@ -35,35 +38,19 @@ jobs:
           npm run lint
           npm run e2e
 
-  build:
-    runs-on: ubuntu-latest
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    needs: tests
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Nodejs 18.16
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18.16"
-      - name: build nextjs app
-        run: |
-          cd apps/tergite-landing-page
-          npm ci
-          NEXT_TELEMETRY_DISABLED=1 npm run build
-      - name: archive artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: tergite-landing-page-dist
-          path: ./apps/tergite-landing-page/.next
-
   release-staging:
     name: Release Staging
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/tags/') && vars.SHOULD_PUBLISH_TO_STAGING == 'true' }}
-    needs: build
+    needs: tests
     steps:
       - name: Checkout the commit
         uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platform: ${{ vars.QEMU_PLATFORMS }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -78,29 +65,35 @@ jobs:
           username: ${{ secrets.STAGING_DOCKER_USERNAME }}
           password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
+      - name: Set up Nodejs 18.16
+        uses: actions/setup-node@v4
         with:
-          name: tergite-landing-page-dist
-          path: ./apps/tergite-landing-page/.next
+          node-version: "18.16"
 
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: ./apps/tergite-landing-page
-          platforms: ${{ vars.DOCKER_IMAGE_PLATFORMS }}
-          file: ./apps/tergite-landing-page/Dockerfile
-          push: true
-          tags: ${{ secrets.STAGING_CONTAINER_REGISTRY }}/tergite-landing-page:${{ github.ref_name }}
+      - name: Build app
+        run: |
+          cd apps/tergite-landing-page
+          npm ci
+          NEXT_TELEMETRY_DISABLED=1 npm run build
+
+      - name: Publish
+        run: |
+          docker buildx create --name multi-platform-builder --bootstrap --use
+          docker buildx build --platform ${{ vars.DOCKER_IMAGE_PLATFORMS }} -t ${{ secrets.STAGING_CONTAINER_REGISTRY }}/tergite-landing-page:${{ github.ref_name }} --push .
 
   release-production:
     name: Release Production
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/tags/') && vars.SHOULD_PUBLISH_TO_PROD == 'true' }}
-    needs: build
+    needs: tests
     steps:
       - name: Checkout the commit
         uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platform: ${{ vars.QEMU_PLATFORMS }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -115,32 +108,18 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
+      - name: Set up Nodejs 18.16
+        uses: actions/setup-node@v4
         with:
-          name: tergite-landing-page-dist
-          path: ./apps/tergite-landing-page/.next
+          node-version: "18.16"
 
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: ./apps/tergite-landing-page
-          platforms: ${{ vars.DOCKER_IMAGE_PLATFORMS }}
-          file: ./apps/tergite-landing-page/Dockerfile
-          push: true
-          tags: ${{ secrets.CONTAINER_REGISTRY }}/tergite-landing-page:${{ github.ref_name }}
-
-  upstream:
-    name: Update upstream
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' }} && ${{ vars.SHOULD_PUSH_UPSTREAM == 'true' }}
-    needs: tests
-    steps:
-      - name: Checkout the commit
-        uses: actions/checkout@v4
-
-      - name: Push upstream
+      - name: Build app
         run: |
-          git config user.email ${{ secrets.UPSTREAM_USER }}
-          git pull -r ${{ secrets.UPSTREAM_REPO }} ${{ github.ref_name }} || echo "${{ github.ref_name }} does not exist"
-          git push ${{ secrets.UPSTREAM_REPO }} ${{ github.ref_name }} || echo "${{ github.ref_name }} already exists"
+          cd apps/tergite-landing-page
+          npm ci
+          NEXT_TELEMETRY_DISABLED=1 npm run build
+
+      - name: Publish
+        run: |
+          docker buildx create --name multi-platform-builder --bootstrap --use
+          docker buildx build --platform ${{ vars.DOCKER_IMAGE_PLATFORMS }} -t ${{ secrets.CONTAINER_REGISTRY }}/tergite-landing-page:${{ github.ref_name }} --push .
