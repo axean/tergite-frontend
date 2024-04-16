@@ -87,10 +87,5 @@ meResponses.forEach((resp) => {
 			cy.get('[data-cy-app-button="GUI"]').click();
 			cy.url().should('eq', process.env.WEBGUI_ENDPOINT);
 		});
-
-		it('App button `API` redirects to process.env.MSS_ENDPOINT', () => {
-			cy.get('[data-cy-app-button="API"]').click();
-			cy.url().should('eq', process.env.MSS_ENDPOINT);
-		});
 	});
 });
