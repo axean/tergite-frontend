@@ -1,15 +1,17 @@
 # tergite-frontend
 
+[![Frontend CI](https://github.com/tergite/tergite-frontend/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/tergite/tergite-frontend/actions/workflows/frontend-ci.yml)
+
 This is a monorepo of all the services that collectively act as the public facing interface for the quantum computers they manage.
 
 ## Services
 
-- [Tergite Landing Page](./apps/tergite-landing-page/) ![CI](https://github.com/tergite/tergite-frontend/actions/workflows/landing-page-ci.yml/badge.svg)  
+- [Tergite Landing Page](./apps/tergite-landing-page/) [![Landing Page CI](https://github.com/tergite/tergite-frontend/actions/workflows/landing-page-ci.yml/badge.svg)](https://github.com/tergite/tergite-frontend/actions/workflows/landing-page-ci.yml)  
   The website that welcomes all users by default
-- [Tergite Main Service Server or MSS](./apps/tergite-mss/) ![CI](https://github.com/tergite/tergite-frontend/actions/workflows/mss-ci.yml/badge.svg)  
+- [Tergite Main Service Server or MSS](./apps/tergite-mss/) [![MSS CI](https://github.com/tergite/tergite-frontend/actions/workflows/mss-ci.yml/badge.svg)](https://github.com/tergite/tergite-frontend/actions/workflows/mss-ci.yml)  
   The server that controls all services on this frontend.  
   It also exposes the REST API through which other clients like [tergite-qiskit-connector](https://github.com/tergite/tergite-qiskit-connector) communicate with the quantum computers.
-- [Tergite WebGUI](./apps/tergite-webgui/) ![CI](https://github.com/tergite/tergite-frontend/actions/workflows/landing-page-ci.yml/badge.svg)  
+- [Tergite WebGUI](./apps/tergite-webgui/) [![WebGUI CI](https://github.com/tergite/tergite-frontend/actions/workflows/webgui-ci.yml/badge.svg)](https://github.com/tergite/tergite-frontend/actions/workflows/webgui-ci.yml)  
   The website that welcomes all users by default
 
 ## Dependencies
