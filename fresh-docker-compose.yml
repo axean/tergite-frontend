@@ -9,7 +9,7 @@ services:
     image: "tergite/tergite-landing-page:${LANDING_PAGE_VERSION:-v0.1.1}"
     build:
       context: apps/tergite-landing-page
-      dockerfile: Dockerfile
+      dockerfile: FullDockerfile
     logging:
       driver: ${LOGGING_DRIVER}
     ports:
@@ -46,7 +46,7 @@ services:
     image: "tergite/tergite-webgui:${WEBGUI_VERSION:-v0.0.4}"
     build:
       context: apps/tergite-webgui
-      dockerfile: Dockerfile
+      dockerfile: FullDockerfile
     logging:
       driver: ${LOGGING_DRIVER}
     ports:
