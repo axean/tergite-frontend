@@ -13,7 +13,9 @@ Please refer to the `CHANGELOG.md` file of the app in question.
 - [./apps/tergite-mss/CHANGELOG.md](./apps/tergite-mss/CHANGELOG.md)
 - [./apps/tergite-webgui/CHANGELOG.md](./apps/tergite-webgui/CHANGELOG.md)
 
-## [Unreleased]
+## [unreleased]
+
+## [2024.04.0] - 2024-04-16
 
 ### Added
 
