@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
  * @returns the config for client-side only components to access some process env variables
  */
 export async function GET(request: Request) {
-	const baseUrl = process.env.API_BASE_URL || '';
+	const baseUrl = process.env.MSS_ENDPOINT || '';
 	const appBaseUrl = process.env.LANDING_ENDPOINT;
 	const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
 
