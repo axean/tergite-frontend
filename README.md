@@ -146,12 +146,12 @@ You can add other rules in the same DOCKER-USER chain, carefully :-)
 
 ## Contribution Guidelines
 
-If you would like to contribute to tergite-webgui, please have a look at our [contribution guidelines](./CONTRIBUTING.md)
+If you would like to contribute to tergite-frontend, please have a look at our [contribution guidelines](./CONTRIBUTING.md)
 
 ## Authors
 
 This project is a work of
-[many contributors](https://github.com/tergite/tergite-webgui/graphs/contributors).
+[many contributors](https://github.com/tergite/tergite-frontend/graphs/contributors).
 
 Special credit goes to the authors of this project as seen in the [CREDITS](./CREDITS.md) file.
 
