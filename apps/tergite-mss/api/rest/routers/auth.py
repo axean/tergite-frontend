@@ -21,9 +21,9 @@ from services.auth import (
     JWT_AUTH,
     JWT_COOKIE_BACKEND,
     JWT_HEADER_BACKEND,
-    Oauth2ClientConfig,
     register_oauth2_client,
 )
+from utils.config import Oauth2ClientConfig
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

@@ -39,13 +39,12 @@ from .service import (
     register_oauth2_client,
 )
 from .users.dtos import (
-    Oauth2ClientConfig,
     User,
     UserCreate,
     UserRead,
-    UserRole,
     UserUpdate,
 )
+from utils.config import UserRole, Oauth2ClientConfig
 
 __all__ = [
     # DTOs

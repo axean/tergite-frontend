@@ -30,7 +30,8 @@ import settings
 from . import exc, routers
 from .authenticator import UserAuthenticator
 from .database import UserDatabase
-from .dtos import ID, UP, CurrentUserDependency, OAuthAccount, User, UserRole
+from .dtos import ID, UP, CurrentUserDependency, OAuthAccount, User
+from utils.config import UserRole
 from .manager import UserManager
 from .strategy import CustomJWTStrategy
 from .validators import EmailRegexValidator, Validator

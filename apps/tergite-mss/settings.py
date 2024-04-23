@@ -1,7 +1,7 @@
 # This code is part of Tergite
 #
 # (C) Copyright Miroslav Dobsicek 2021
-# (C) Copyright Martin Ahindura 2023
+# (C) Copyright Martin Ahindura 2023, 2024
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,76 +11,40 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import logging
-from pathlib import Path
-from typing import Any, Dict, List
+import os
 
-import tomli
-from starlette.config import Config
-from starlette.datastructures import URL
+from utils.config import AppConfig
 
-# NOTE: shell env variables take precedence over the configuration file
-config = Config(".env")
+_CONFIG_FILE = os.environ.get("CONFIG_FILE", default="config.toml")
+CONFIG = AppConfig.from_toml(_CONFIG_FILE)
 
-APP_SETTINGS = config("APP_SETTINGS", cast=str, default="production")
+_is_production = CONFIG.environment == "production"
+_is_auth_enabled = CONFIG.auth.is_enabled
+_is_puhuri_enabled = CONFIG.puhuri.is_enabled
 
-# auth
-AUTH_CONFIG_FILE = config("AUTH_CONFIG_FILE", cast=str, default="auth_config.toml")
-with Path(AUTH_CONFIG_FILE).open(mode="rb") as auth_conf_file:
-    _AUTH_CONFIG = tomli.load(auth_conf_file)
-# auth clients
-OAUTH2_CLIENTS_CONFS: List[Dict[str, Any]] = _AUTH_CONFIG.get("clients", [])
-# auth general config
-_GENERAL_AUTH_CONFIG = _AUTH_CONFIG.get("general", {})
-IS_AUTH_ENABLED = _GENERAL_AUTH_CONFIG.get("is_enabled", True)
-JWT_SECRET = _GENERAL_AUTH_CONFIG.get("jwt_secret", None)
-JWT_TTL = _GENERAL_AUTH_CONFIG.get("jwt_ttl", 3600)
-COOKIE_DOMAIN = _GENERAL_AUTH_CONFIG.get("cookie_domain", None)
-COOKIE_NAME = _GENERAL_AUTH_CONFIG.get("cookie_name", "tergiteauth")
-
-_logger_level = logging.DEBUG
-_bcc_machine_root_url_env = "BCC_MACHINE_ROOT_URL"
-_db_machine_root_url_env = "DB_MACHINE_ROOT_URL"
-_is_production = APP_SETTINGS == "production"
-
-if not IS_AUTH_ENABLED and _is_production:
-    raise ValueError(
-        "'IS_AUTH_ENABLED' environment variable has been set to false in production."
-    )
-
-if _is_production:
-    _logger_level = logging.INFO
-
-if APP_SETTINGS == "test":
-    _bcc_machine_root_url_env = "TEST_BCC_MACHINE_ROOT_URL"
-    _db_machine_root_url_env = "TEST_DB_MACHINE_ROOT_URL"
-
-BCC_MACHINE_ROOT_URL = config(_bcc_machine_root_url_env, cast=URL)
-DB_MACHINE_ROOT_URL = config(_db_machine_root_url_env, cast=URL)
-DB_NAME = config("DB_NAME", cast=str)
-WS_PORT = config("WS_PORT", cast=int)
-MSS_PORT = config("MSS_PORT", cast=int)
-DATETIME_PRECISION = config("DATETIME_PRECISION", cast=str, default="auto")
+# Logger
+_logger_level = logging.INFO if _is_production else logging.DEBUG
 root_logger = logging.getLogger()
 root_logger.setLevel(_logger_level)
 
+# raise errors in case of wrong settings
+if not _is_auth_enabled and _is_production:
+    raise ValueError(
+        "'auth.is_enabled' has been set to false in production."
+    )
+
 # PUHURI synchronization
-IS_PUHURI_SYNC_ENABLED = config("IS_PUHURI_SYNC_ENABLED", cast=bool, default=True)
-PUHURI_POLL_INTERVAL = config("PUHURI_POLL_INTERVAL", cast=int, default=900)
-
-PUHURI_WALDUR_API_URI = config("PUHURI_WALDUR_API_URI", cast=str, default="")
-if IS_PUHURI_SYNC_ENABLED and not PUHURI_WALDUR_API_URI:
+if _is_puhuri_enabled and not CONFIG.puhuri.waldur_api_uri:
     raise ValueError(
-        "'PUHURI_WALDUR_API_URI' environment variable must be set if 'IS_PUHURI_SYNC_ENABLED' is True."
+        "'puhuri.waldur_api_uri' config variable must be set if 'puhuri.is_enabled' is true."
     )
 
-PUHURI_WALDUR_CLIENT_TOKEN = config("PUHURI_WALDUR_CLIENT_TOKEN", cast=str, default="")
-if IS_PUHURI_SYNC_ENABLED and not PUHURI_WALDUR_CLIENT_TOKEN:
+if _is_puhuri_enabled and not CONFIG.puhuri.waldur_client_token:
     raise ValueError(
-        "'PUHURI_WALDUR_CLIENT_TOKEN' environment variable must be set if 'IS_PUHURI_SYNC_ENABLED' is True."
+        "'puhuri.waldur_client_token' environment variable must be set if 'puhuri.is_enabled' is true."
     )
 
-PUHURI_PROVIDER_UUID = config("PUHURI_PROVIDER_UUID", cast=str, default="")
-if IS_PUHURI_SYNC_ENABLED and not PUHURI_PROVIDER_UUID:
+if _is_puhuri_enabled and not CONFIG.puhuri.provider_uuid:
     raise ValueError(
-        "'PUHURI_PROVIDER_UUID' environment variable must be set if 'IS_PUHURI_SYNC_ENABLED' is True."
+        "'puhuri.provider_uuid' config variable must be set if 'puhuri.is_enabled' is true."
     )

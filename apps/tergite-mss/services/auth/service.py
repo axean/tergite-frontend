@@ -22,7 +22,8 @@ from fastapi_users.authentication import AuthenticationBackend
 import settings
 
 from . import app_tokens, projects, users
-from .users.dtos import Oauth2ClientConfig, UserRole
+from utils.config import UserRole, Oauth2ClientConfig
+from .utils import get_oauth2_client
 
 # JWT-based authentication
 JWT_HEADER_BACKEND = users.get_jwt_header_backend(
@@ -97,7 +98,7 @@ def register_oauth2_client(
         conf: the configuration for the oauth2 client
         tags: the list of tags to add to the routes of this client
     """
-    client = conf.get_client()
+    client = get_oauth2_client(conf)
 
     router.include_router(
         controller.get_oauth_router(

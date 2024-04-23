@@ -15,7 +15,8 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence
 
 from fastapi_users_db_beanie import BeanieUserDatabase
 
-from ..users.dtos import OAuthAccount, User, UserRole
+from ..users.dtos import OAuthAccount, User
+from utils.config import UserRole
 
 
 class UserDatabase(BeanieUserDatabase):

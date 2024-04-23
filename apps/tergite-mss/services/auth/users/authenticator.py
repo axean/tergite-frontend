@@ -21,7 +21,8 @@ from fastapi_users.authentication.authenticator import (
 )
 from makefun import with_signature
 
-from .dtos import ID, UP, UserRole
+from .dtos import ID, UP
+from utils.config import UserRole
 from .strategy import CustomJWTStrategy
 
 

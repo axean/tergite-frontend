@@ -26,7 +26,8 @@ import settings
 
 from ..projects.dtos import Project
 from ..projects.manager import ProjectAppTokenManager, ProjectManagerDependency
-from ..users.dtos import User, UserRole
+from ..users.dtos import User
+from utils.config import UserRole
 from .auth_backend import AppTokenAuthenticationBackend
 from .strategy import AppTokenStrategy
 

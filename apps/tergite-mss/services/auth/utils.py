@@ -11,12 +11,28 @@
 # that they have been altered from the originals.
 
 """Common utility functions for the auth service"""
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Type
 
 from fastapi import HTTPException, status
+from httpx_oauth.clients.github import GitHubOAuth2
+from httpx_oauth.clients.google import GoogleOAuth2
+from httpx_oauth.clients.microsoft import MicrosoftGraphOAuth2
+from httpx_oauth.clients.okta import OktaOAuth2
+from httpx_oauth.clients.openid import OpenID
+from httpx_oauth.oauth2 import BaseOAuth2
+
+from utils.config import Oauth2ClientType, Oauth2ClientConfig
 
 # https://www.mongodb.com/docs/manual/reference/operator/query/in/#syntax
 MAX_LIST_QUERY_LEN = 99
+
+_OAUTH2_CLIENT_CLASS_MAP: Dict[Oauth2ClientType, Type[BaseOAuth2]] = {
+    Oauth2ClientType.GITHUB: GitHubOAuth2,
+    Oauth2ClientType.GOOGLE: GoogleOAuth2,
+    Oauth2ClientType.MICROSOFT: MicrosoftGraphOAuth2,
+    Oauth2ClientType.OPENID: OpenID,
+    Oauth2ClientType.OKTA: OktaOAuth2,
+}
 
 
 class TooManyListQueryParams(HTTPException):
@@ -39,3 +55,10 @@ class TooManyListQueryParams(HTTPException):
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST, detail=message, headers=headers
         )
+
+
+def get_oauth2_client(conf: Oauth2ClientConfig):
+    """Gets the Oauth2 client from this configuration"""
+    client_constructor = _OAUTH2_CLIENT_CLASS_MAP[conf.client_type]
+    kwargs = conf.dict(exclude_none=True, exclude=conf._non_client_fields)
+    return client_constructor(**kwargs)
