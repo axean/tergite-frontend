@@ -1,5 +1,7 @@
 #!/bin/bash
 
+config_file=$([[ -z "$CONFIG_FILE" ]] && echo "config.toml" || echo "$CONFIG_FILE")
+
 exit_with_error () {
   echo "$1"
   exit 1
@@ -7,8 +9,8 @@ exit_with_error () {
 
 extract_env_var () {
   local env_name="$1"
-  local res=$(grep "^[[:space:]]*${env_name}=" .env | grep -v '^[[:space:]]*#' | sed "s/^[[:space:]]*${env_name}=//" | head -n 1)
-  [[ -z "$res" ]]  &&  exit_with_error "Config Error: Use ${env_name}=<value> in the .env file."
+  local res=$(grep "^[[:space:]]*${env_name}=" "$config_file" | grep -v '^[[:space:]]*#' | sed "s/^[[:space:]]*${env_name}=//" | head -n 1)
+  [[ -z "$res" ]]  &&  exit_with_error "Config Error: Use ${env_name}=<value> in the $config_file file."
   echo $res
 }
 
@@ -42,8 +44,11 @@ wait_for_process()
 
 # port handling
 PORT_NUMBER=$([[ "$MSS_PORT" ]] && echo $MSS_PORT || echo $(extract_env_var "MSS_PORT"))
-[[ ! "$PORT_NUMBER" =~ ^[0-9]+$ ]]  &&  exit_with_error "Port configuration failed. Use MSS_PORT=<int> in the .env file."
+[[ ! "$PORT_NUMBER" =~ ^[0-9]+$ ]]  &&  exit_with_error "Port configuration failed. Use MSS_PORT=<int> in the $config_file file."
 
+# app settings
+APP_SETTINGS=$(echo $(extract_env_var "environment"))
+[[ -z "$APP_SETTINGS" ]]  &&  exit_with_error "Port configuration failed. Use environment=<string> in the $config_file file."
 
 set_sigterm_handler
 
