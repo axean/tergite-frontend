@@ -1,10 +1,10 @@
 from tests._utils.env import (
-    TEST_AUTH_CONFIG_FILE,
-    TEST_BCC_URL,
+    TEST_APP_CONFIG,
+    TEST_BACKENDS,
+    TEST_CONFIG_FILE,
     TEST_DB_NAME,
     TEST_JWT_SECRET,
-    TEST_MONGODB_URL,
-    TEST_NO_AUTH_CONFIG_FILE,
+    TEST_PROD_NO_AUTH_CONFIG_FILE,
     TEST_PUHURI_CONFIG_ENDPOINT,
     setup_test_env,
 )
@@ -122,7 +122,7 @@ def mock_puhuri_sync_calls():
 @pytest.fixture
 def db(mock_puhuri) -> pymongo.database.Database:
     """The mongo db instance for testing"""
-    mongo_client = pymongo.MongoClient(TEST_MONGODB_URL)
+    mongo_client = pymongo.MongoClient(TEST_APP_CONFIG.TEST_MONGODB_URL)
     database = mongo_client[TEST_DB_NAME]
 
     yield database
@@ -181,7 +181,7 @@ def client(db) -> TestClient:
 @pytest.fixture
 def no_auth_client(db) -> TestClient:
     """A test client for fast api without auth"""
-    environ["AUTH_CONFIG_FILE"] = TEST_NO_AUTH_CONFIG_FILE
+    environ["AUTH_CONFIG_FILE"] = TEST_PROD_NO_AUTH_CONFIG_FILE
     importlib.reload(settings)
     from api.rest import app
 
@@ -189,7 +189,7 @@ def no_auth_client(db) -> TestClient:
     yield TestClient(app)
 
     # reset
-    environ["AUTH_CONFIG_FILE"] = TEST_AUTH_CONFIG_FILE
+    environ["AUTH_CONFIG_FILE"] = TEST_CONFIG_FILE
     importlib.reload(settings)
 
 
@@ -390,9 +390,10 @@ def invalid_chalmers_user(respx_mock):
 @pytest.fixture
 def mock_bcc(respx_mock):
     """A mock BCC service"""
-    respx_mock.post(f"{TEST_BCC_URL}/auth").mock(
-        return_value=httpx.Response(status_code=200, json={"message": "ok"})
-    )
+    for backend in TEST_BACKENDS:
+        respx_mock.post(f"{backend['url']}/auth").mock(
+            return_value=httpx.Response(status_code=200, json={"message": "ok"})
+        )
 
     yield respx_mock
 
@@ -400,7 +401,8 @@ def mock_bcc(respx_mock):
 @pytest.fixture
 def mock_unavailable_bcc(respx_mock):
     """A mock BCC service that is unavailable"""
-    respx_mock.post(f"{TEST_BCC_URL}/auth").mock(side_effect=httpx.ConnectError)
+    for backend in TEST_BACKENDS:
+        respx_mock.post(f"{backend['url']}/auth").mock(side_effect=httpx.ConnectError)
 
     yield respx_mock
 
@@ -408,7 +410,9 @@ def mock_unavailable_bcc(respx_mock):
 @pytest.fixture
 def mock_timed_out_bcc(respx_mock):
     """A mock BCC service that times out"""
-    respx_mock.post(f"{TEST_BCC_URL}/auth").mock(side_effect=httpx.ConnectTimeout)
+    for backend in TEST_BACKENDS:
+        respx_mock.post(f"{backend['url']}/auth").mock(side_effect=httpx.ConnectTimeout)
+
     yield respx_mock
 
 

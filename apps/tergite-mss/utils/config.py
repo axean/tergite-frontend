@@ -2,7 +2,7 @@
 import enum
 from functools import cached_property
 from pathlib import Path
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
 import tomli
 from pydantic import BaseModel, Extra

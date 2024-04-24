@@ -32,9 +32,10 @@ cp bcc_config.example.toml bcc_config.toml
 
 ## TODO
 
-- [ ] Replace `.env` file with `config.toml`
-- [ ] Update the `start_mss.sh` script to read env variables from the path pointed to by `CONFIG_FILE`
-- [ ] Update `auth_config.toml` to be read from `config.toml` in MSS
+- [x] Replace `.env` file with `config.toml`
+- [x] Update the `start_mss.sh` script to read env variables from the path pointed to by `CONFIG_FILE`
+- [x] Update `auth_config.toml` to be read from `config.toml` in MSS
+- [ ] Update MSS tests to use the `config.toml` file
 - [ ] Update `auth_config.toml` to be read from `config.toml` in webgui
 - [ ] Update `auth_config.toml` to be read from `config.toml` in landing page
 - [ ] Add `config.toml` in test server

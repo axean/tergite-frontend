@@ -10,7 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Integration tests for the Puhuri background jobs"""
-import pprint
 from datetime import datetime
 from time import sleep
 from typing import List
