@@ -67,9 +67,9 @@ from .utils import (
 
 async def synchronize(
     stop_event: asyncio.Event,
-    poll_interval: int = settings.PUHURI_POLL_INTERVAL,
-    db_url: str = f"{settings.DB_MACHINE_ROOT_URL}",
-    db_name: str = settings.DB_NAME,
+    poll_interval: int = settings.CONFIG.puhuri.poll_interval,
+    db_url: str = f"{settings.CONFIG.database.url}",
+    db_name: str = settings.CONFIG.database.name,
 ):
     """Runs the tasks for synchronizing with the puhuri service
 
@@ -120,12 +120,12 @@ async def synchronize(
 
 async def update_internal_project_list(
     api_client: Optional[WaldurClient] = None,
-    api_uri: str = settings.PUHURI_WALDUR_API_URI,
-    api_access_token: str = settings.PUHURI_WALDUR_CLIENT_TOKEN,
-    db_url: str = f"{settings.DB_MACHINE_ROOT_URL}",
-    db_name: str = settings.DB_NAME,
+    api_uri: str = settings.CONFIG.puhuri.waldur_api_uri,
+    api_access_token: str = settings.CONFIG.puhuri.waldur_client_token,
+    db_url: str = f"{settings.CONFIG.database.url}",
+    db_name: str = settings.CONFIG.database.name,
     db_collection: str = PROJECT_DB_COLLECTION,
-    provider_uuid: str = settings.PUHURI_PROVIDER_UUID,
+    provider_uuid: str = settings.CONFIG.puhuri.provider_uuid,
 ):
     """Updates the projects list in this app with the latest projects in puhuri
 
@@ -255,12 +255,12 @@ async def update_internal_project_list(
 
 
 async def update_internal_user_list(
-    api_uri: str = settings.PUHURI_WALDUR_API_URI,
-    api_access_token: str = settings.PUHURI_WALDUR_CLIENT_TOKEN,
-    db_url: str = f"{settings.DB_MACHINE_ROOT_URL}",
-    db_name: str = settings.DB_NAME,
+    api_uri: str = settings.CONFIG.puhuri.waldur_api_uri,
+    api_access_token: str = settings.CONFIG.puhuri.waldur_client_token,
+    db_url: str = f"{settings.CONFIG.database.url}",
+    db_name: str = settings.CONFIG.database.name,
     db_collection: str = PROJECT_DB_COLLECTION,
-    provider_uuid: str = settings.PUHURI_PROVIDER_UUID,
+    provider_uuid: str = settings.CONFIG.puhuri.provider_uuid,
 ):
     """Updates the user email list in each project in this app using the user list in puhuri
 
@@ -337,12 +337,12 @@ async def update_internal_user_list(
 
 
 async def update_internal_resource_allocation(
-    api_uri: str = settings.PUHURI_WALDUR_API_URI,
-    api_access_token: str = settings.PUHURI_WALDUR_CLIENT_TOKEN,
-    db_url: str = f"{settings.DB_MACHINE_ROOT_URL}",
-    db_name: str = settings.DB_NAME,
+    api_uri: str = settings.CONFIG.puhuri.waldur_api_uri,
+    api_access_token: str = settings.CONFIG.puhuri.waldur_client_token,
+    db_url: str = f"{settings.CONFIG.database.url}",
+    db_name: str = settings.CONFIG.database.name,
     db_collection: str = PROJECT_DB_COLLECTION,
-    provider_uuid: str = settings.PUHURI_PROVIDER_UUID,
+    provider_uuid: str = settings.CONFIG.puhuri.provider_uuid,
 ):
     """Updates this app's project's resource allocation using puhuri's resource allocations
 
@@ -455,15 +455,15 @@ async def save_job_resource_usage(
 
 
 async def post_resource_usages(
-    api_uri: str = settings.PUHURI_WALDUR_API_URI,
-    api_access_token: str = settings.PUHURI_WALDUR_CLIENT_TOKEN,
-    db_url: str = f"{settings.DB_MACHINE_ROOT_URL}",
-    db_name: str = settings.DB_NAME,
+    api_uri: str = settings.CONFIG.puhuri.waldur_api_uri,
+    api_access_token: str = settings.CONFIG.puhuri.waldur_client_token,
+    db_url: str = f"{settings.CONFIG.database.url}",
+    db_name: str = settings.CONFIG.database.name,
     raw_usages_collection: str = INTERNAL_USAGE_COLLECTION,
     usages_collection: str = PUHURI_USAGE_COLLECTION,
     failures_collection: str = REQUEST_FAILURES_COLLECTION,
     projects_collection: str = PROJECT_DB_COLLECTION,
-    provider_uuid: str = settings.PUHURI_PROVIDER_UUID,
+    provider_uuid: str = settings.CONFIG.puhuri.provider_uuid,
     update_projects: bool = False,
 ):
     """Sends the resource usages for the current month over to Puhuri

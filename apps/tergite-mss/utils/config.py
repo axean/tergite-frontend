@@ -1,7 +1,8 @@
 """Utility for loading configurations for the app"""
 import enum
+from functools import cached_property
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import tomli
 from pydantic import BaseModel, Extra
@@ -13,6 +14,7 @@ class DatetimePrecision(str, enum.Enum):
 
     See https://docs.python.org/3/library/datetime.html#datetime.datetime.isoformat
     """
+
     MILLISECONDS = "milliseconds"
     AUTO = "auto"
     MICROSECONDS = "microseconds"
@@ -23,6 +25,7 @@ class DatetimePrecision(str, enum.Enum):
 
 class AppConfig(BaseModel, extra=Extra.allow):
     """Configuration for the entire app"""
+
     mss_port: int = 8002
     # the port on which the websocket is running
     ws_port: int = 6532
@@ -55,6 +58,11 @@ class AppConfig(BaseModel, extra=Extra.allow):
     # configration for puhuri
     puhuri: "PuhuriConfig"
 
+    @cached_property
+    def backends_dict(self) -> Dict[str, "BccConfig"]:
+        """A map of the available BCC instances"""
+        return {item.name: item for item in self.backends}
+
     @classmethod
     def from_toml(cls, file_path: str):
         """Parse a config.toml file into an AppConfig instance"""
@@ -67,12 +75,14 @@ class AppConfig(BaseModel, extra=Extra.allow):
 
 class DatabaseConfig(BaseModel):
     """Configuration for the database"""
+
     name: str
     url: URL
 
 
 class BccConfig(BaseModel):
     """Configuration for a single instance of BCC"""
+
     # the name of the backend computer that will be accessible from tergite.qiskit and from webGUI
     name: str
     # the URL where this backend is running
@@ -83,6 +93,7 @@ class BccConfig(BaseModel):
 
 class PuhuriConfig(BaseModel):
     """Configuration for Puhuri, a resource management platform for HPC systems and Quantum Computers"""
+
     # turn puhuri synchronization OFF or ON, default=true
     is_enabled: bool = True
 
@@ -104,6 +115,7 @@ class PuhuriConfig(BaseModel):
 
 class AuthConfig(BaseModel):
     """Configration for auth"""
+
     # turn auth OFF or ON, default=true
     is_enabled: bool = True
 
@@ -126,6 +138,7 @@ class AuthConfig(BaseModel):
 
 class UserRole(str, enum.Enum):
     """The possible roles a user can have"""
+
     USER = "user"
     RESEARCHER = "researcher"
     ADMIN = "admin"

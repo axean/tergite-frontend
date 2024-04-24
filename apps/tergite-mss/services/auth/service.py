@@ -20,23 +20,23 @@ from fastapi_users import FastAPIUsers
 from fastapi_users.authentication import AuthenticationBackend
 
 import settings
+from utils.config import Oauth2ClientConfig, UserRole
 
 from . import app_tokens, projects, users
-from utils.config import UserRole, Oauth2ClientConfig
 from .utils import get_oauth2_client
 
 # JWT-based authentication
 JWT_HEADER_BACKEND = users.get_jwt_header_backend(
     login_url="/auth/jwt/login",
-    jwt_secret=settings.JWT_SECRET,
-    lifetime_seconds=settings.JWT_TTL,
+    jwt_secret=settings.CONFIG.auth.jwt_secret,
+    lifetime_seconds=settings.CONFIG.auth.jwt_ttl,
 )
 
 JWT_COOKIE_BACKEND = users.get_jwt_cookie_backend(
-    jwt_secret=settings.JWT_SECRET,
-    cookie_max_age=settings.JWT_TTL,
-    cookie_name=settings.COOKIE_NAME,
-    cookie_domain=settings.COOKIE_DOMAIN,
+    jwt_secret=settings.CONFIG.auth.jwt_secret,
+    cookie_max_age=settings.CONFIG.auth.jwt_ttl,
+    cookie_name=settings.CONFIG.auth.cookie_name,
+    cookie_domain=settings.CONFIG.auth.cookie_domain,
 )
 
 JWT_AUTH = users.UserBasedAuth[users.dtos.User, PydanticObjectId](

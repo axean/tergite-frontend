@@ -29,9 +29,7 @@ root_logger.setLevel(_logger_level)
 
 # raise errors in case of wrong settings
 if not _is_auth_enabled and _is_production:
-    raise ValueError(
-        "'auth.is_enabled' has been set to false in production."
-    )
+    raise ValueError("'auth.is_enabled' has been set to false in production.")
 
 # PUHURI synchronization
 if _is_puhuri_enabled and not CONFIG.puhuri.waldur_api_uri:

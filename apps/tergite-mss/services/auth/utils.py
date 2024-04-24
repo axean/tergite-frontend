@@ -21,7 +21,7 @@ from httpx_oauth.clients.okta import OktaOAuth2
 from httpx_oauth.clients.openid import OpenID
 from httpx_oauth.oauth2 import BaseOAuth2
 
-from utils.config import Oauth2ClientType, Oauth2ClientConfig
+from utils.config import Oauth2ClientConfig, Oauth2ClientType
 
 # https://www.mongodb.com/docs/manual/reference/operator/query/in/#syntax
 MAX_LIST_QUERY_LEN = 99

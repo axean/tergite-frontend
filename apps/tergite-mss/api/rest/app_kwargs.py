@@ -38,7 +38,7 @@ def get_app_kwargs() -> Dict[str, Any]:
     )
 
     # hide the docs if not in development
-    if settings.APP_SETTINGS.lower() != "development":
+    if settings.CONFIG.environment.lower() != "development":
         kwargs["docs_url"] = None
         kwargs["redoc_url"] = None
         kwargs["openapi_url"] = None
@@ -49,7 +49,7 @@ def get_app_kwargs() -> Dict[str, Any]:
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     # on startup
-    await bcc.create_client(base_url=f"{settings.BCC_MACHINE_ROOT_URL}")
+    await bcc.create_clients(configs=settings.CONFIG.backends)
     await device_info_service.on_startup()
     db = await get_default_mongodb()
     await auth_service.on_startup(db)
@@ -57,4 +57,4 @@ async def lifespan(_app: FastAPI):
 
     yield
     # on shutdown
-    await bcc.close_client()
+    await bcc.close_clients()

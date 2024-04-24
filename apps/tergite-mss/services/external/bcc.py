@@ -12,46 +12,55 @@
 """Clients for accessing certain HTTP services"""
 import logging
 from json import JSONDecodeError
-from typing import Optional
+from typing import Dict, List, Optional
 
 import httpx
 import requests
 
 import settings
+from utils.config import BccConfig
 from utils.exc import ServiceUnavailableError
 
-_BCC_CLIENT: Optional["BccClient"] = None
+_BCC_CLIENTS: Dict[str, "BccClient"] = {}
 
 
-async def create_client(base_url: str):
-    """Creates the Bcc client for the given base_url
+async def create_clients(configs: List[BccConfig]):
+    """Creates the Bcc clients for the given BCC configs
 
     Args:
-        base_url: the base url of BCC
+        configs: the configs for the BCC's
     """
-    global _BCC_CLIENT
-    await close_client()
-    _BCC_CLIENT = BccClient(base_url=base_url)
+    global _BCC_CLIENTS
+    await close_clients()
+    _BCC_CLIENTS = {item.name: BccClient(base_url=f"{item.url}") for item in configs}
 
 
-async def close_client():
-    """Closes the Bcc client"""
-    global _BCC_CLIENT
-    if _BCC_CLIENT:
-        await _BCC_CLIENT.close()
-        _BCC_CLIENT = None
+async def close_clients():
+    """Closes the Bcc clients"""
+    global _BCC_CLIENTS
+    for client in _BCC_CLIENTS.values():
+        await client.close()
+
+    _BCC_CLIENTS.clear()
 
 
-def get_client() -> "BccClient":
-    """Get Bcc Client.
+def get_client_map() -> Dict[str, "BccClient"]:
+    """Get the map of Bcc Clients, where the key is the name of the BCC instance
 
     This is quite useful as a dependency injector
     """
-    return _BCC_CLIENT
+    return _BCC_CLIENTS
 
 
 class BccClient:
+    """A client for making requests to a Backend Control Computer (BCC) Instance
+
+    Attributes:
+        base_url: the base URL for the given BCC instance
+    """
+
     def __init__(self, base_url: str):
+        self.base_url = base_url
         self._client = httpx.AsyncClient(base_url=base_url)
 
     async def save_credentials(self, job_id: str, app_token: str):

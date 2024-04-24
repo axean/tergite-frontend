@@ -9,6 +9,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+from utils.config import Oauth2ClientConfig, UserRole
+
 from .app_tokens.dtos import (
     AppToken,
     AppTokenCreate,
@@ -38,13 +40,7 @@ from .service import (
     on_startup,
     register_oauth2_client,
 )
-from .users.dtos import (
-    User,
-    UserCreate,
-    UserRead,
-    UserUpdate,
-)
-from utils.config import UserRole, Oauth2ClientConfig
+from .users.dtos import User, UserCreate, UserRead, UserUpdate
 
 __all__ = [
     # DTOs

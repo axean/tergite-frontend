@@ -145,7 +145,7 @@ def test_create_job(
         assert response.status_code == 200
         assert response.json() == {
             "job_id": str(new_job_id),
-            "upload_url": str(settings.BCC_MACHINE_ROOT_URL) + "/jobs",
+            "upload_url": str(client.base_url) + "/jobs",
         }
 
         assert jobs_before_creation == []
@@ -207,7 +207,7 @@ def test_create_job_with_auth_disabled(mock_bcc, db, no_auth_client, backend: st
         assert response.status_code == 200
         assert response.json() == {
             "job_id": str(new_job_id),
-            "upload_url": str(settings.BCC_MACHINE_ROOT_URL) + "/jobs",
+            "upload_url": str(client.base_url) + "/jobs",
         }
 
         assert jobs_before_creation == []

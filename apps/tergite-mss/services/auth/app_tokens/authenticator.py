@@ -23,11 +23,11 @@ from fastapi_users.authentication.authenticator import (
 from makefun import with_signature
 
 import settings
+from utils.config import UserRole
 
 from ..projects.dtos import Project
 from ..projects.manager import ProjectAppTokenManager, ProjectManagerDependency
 from ..users.dtos import User
-from utils.config import UserRole
 from .auth_backend import AppTokenAuthenticationBackend
 from .strategy import AppTokenStrategy
 
@@ -78,7 +78,7 @@ class AppTokenAuthenticator:
         async def current_project_dependency(*args, **options):
             project, _ = await self._authenticate(
                 *args,
-                optional=(not settings.IS_AUTH_ENABLED),
+                optional=(not settings.CONFIG.auth.is_enabled),
                 active=active,
                 ignore_qpu_seconds=ignore_qpu_seconds,
                 user_roles=user_roles,

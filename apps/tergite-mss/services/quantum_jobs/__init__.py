@@ -140,7 +140,7 @@ async def create_job(
 
     return {
         "job_id": job_id,
-        "upload_url": f"{settings.BCC_MACHINE_ROOT_URL}/jobs",
+        "upload_url": f"{bcc_client.base_url}/jobs",
     }
 
 

@@ -21,8 +21,8 @@ from pymongo import collection, database, errors
 from services.auth.app_tokens.dtos import AppToken
 from services.auth.projects.dtos import Project
 from services.auth.users.dtos import User
-from utils.config import UserRole
 from tests._utils.env import TEST_JWT_SECRET
+from utils.config import UserRole
 
 TEST_PROJECT_ID = "bf4876d01e60f05ebc9fac9e"
 TEST_NO_QPU_PROJECT_ID = "fd530427c7141f2693aa850b"

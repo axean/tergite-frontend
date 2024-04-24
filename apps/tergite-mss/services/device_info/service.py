@@ -567,7 +567,7 @@ async def append_latest_device_info(
         db_data_collection: the collection in mongo db that has data
         host_address: the URL address where the device is running
     """
-    response = await fetch_data(f'{host_address}/web-gui')
+    response = await fetch_data(f"{host_address}/web-gui")
     if response is not None:
         await insert_backend_data_in_db(db_data_collection, response, False)
 

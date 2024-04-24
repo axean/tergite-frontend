@@ -24,7 +24,7 @@ from fastapi.requests import Request
 
 import settings
 from api.rest.dependencies import (
-    BccClientDep,
+    BccClientsMapDep,
     CurrentLaxProjectDep,
     CurrentStrictProjectDep,
     MongoDbDep,
@@ -95,13 +95,23 @@ async def read_job_download_url(
 async def create_job(
     request: Request,
     db: MongoDbDep,
-    bcc_client: BccClientDep,
+    bcc_clients_map: BccClientsMapDep,
     project: CurrentStrictProjectDep,
     backend: str = "pingu",
 ):
     """Creates a job in the given backend"""
-    app_token = get_bearer_token(request, raise_if_error=settings.IS_AUTH_ENABLED)
+    app_token = get_bearer_token(
+        request, raise_if_error=settings.CONFIG.auth.is_enabled
+    )
     project_id = None if project is None else project.id
+    try:
+        bcc_client = bcc_clients_map[backend]
+    except KeyError:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail=f"Unknown backend '{backend}'",
+        )
+
     try:
         return await jobs_service.create_job(
             db,
@@ -241,7 +251,7 @@ async def update_job(
                 timestamps=timestamps,
             )
 
-            if settings.IS_PUHURI_SYNC_ENABLED and response and response[0]:
+            if settings.CONFIG.puhuri.is_enabled and response and response[0]:
                 project, qpu_seconds = response
                 await puhuri_service.save_job_resource_usage(
                     db,
