@@ -13,7 +13,7 @@
 
 
 from datetime import datetime, timezone
-from typing import Optional, Tuple
+from typing import Tuple
 
 from fastapi import HTTPException
 

@@ -21,7 +21,6 @@ from uuid import UUID, uuid4
 from beanie import PydanticObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-import settings
 from services.external.bcc import BccClient
 from utils import mongodb as mongodb_utils
 from utils.date_time import get_current_timestamp

@@ -17,7 +17,7 @@ def test_no_auth_prod():
     try:
         with pytest.raises(
             ValueError,
-            match="'auth.is_enabled' config variable has been set to false in production",
+            match="'auth.is_enabled' has been set to false in production",
         ):
             environ["CONFIG_FILE"] = TEST_PROD_NO_AUTH_CONFIG_FILE
             importlib.reload(settings)

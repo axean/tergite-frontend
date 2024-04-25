@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 from typing import Sequence
 
-from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends
 from fastapi_users.authentication import BearerTransport
 

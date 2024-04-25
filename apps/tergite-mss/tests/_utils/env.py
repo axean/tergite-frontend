@@ -13,10 +13,9 @@
 """Test utilities for environment variables"""
 from os import environ
 from pathlib import Path
-from typing import List, TypedDict
+from typing import Dict, List, TypedDict
 
 import tomli
-from starlette.datastructures import URL
 
 from .fixtures import get_fixture_path
 
@@ -32,6 +31,8 @@ from .fixtures import get_fixture_path
 
 TEST_CONFIG_FILE = get_fixture_path("config.test.toml")
 TEST_PROD_NO_AUTH_CONFIG_FILE = get_fixture_path("prod_config_with_no_auth.test.toml")
+TEST_NO_AUTH_CONFIG_FILE = get_fixture_path("config_with_no_auth.test.toml")
+TEST_DISABLED_PUHURI_CONFIG_FILE = get_fixture_path("disabled_puhuri_config.test.toml")
 with Path(TEST_CONFIG_FILE).open(mode="rb") as _oauth_conf_file:
     TEST_APP_CONFIG = tomli.load(_oauth_conf_file)
 
@@ -43,6 +44,9 @@ TEST_DB_NAME: str = TEST_APP_CONFIG["database"]["name"]
 TEST_MONGODB_URL: str = TEST_APP_CONFIG["database"]["url"]
 TEST_JWT_SECRET: str = TEST_APP_CONFIG["auth"]["jwt_secret"]
 TEST_BACKENDS: List["BackendConfDict"] = TEST_APP_CONFIG["backends"]
+TEST_BACKENDS_MAP: Dict[str, "BackendConfDict"] = {
+    item["name"]: item for item in TEST_BACKENDS
+}
 TEST_PUHURI_POLL_INTERVAL: int = TEST_APP_CONFIG["puhuri"]["poll_interval"]
 
 # Puhuri sync

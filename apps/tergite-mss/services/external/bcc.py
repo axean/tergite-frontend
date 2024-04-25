@@ -12,12 +12,10 @@
 """Clients for accessing certain HTTP services"""
 import logging
 from json import JSONDecodeError
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import httpx
-import requests
 
-import settings
 from utils.config import BccConfig
 from utils.exc import ServiceUnavailableError
 

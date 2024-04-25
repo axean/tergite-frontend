@@ -26,7 +26,6 @@ from fastapi_users_db_beanie import BeanieUserDatabase
 from httpx_oauth.oauth2 import BaseOAuth2
 
 import settings
-from utils.config import UserRole
 
 from . import exc, routers
 from .authenticator import UserAuthenticator
@@ -37,12 +36,11 @@ from .strategy import CustomJWTStrategy
 from .validators import EmailRegexValidator, Validator
 
 _AUTH_EMAIL_REGEX_MAP: Dict[str, Tuple[str, Union[re.RegexFlag, int]]] = {
-    f"{client['name']}": (client.get("email_regex", ".*"), 0)
-    for client in settings.CONFIG.auth.clients
+    f"{client.name}": (client.email_regex, 0) for client in settings.CONFIG.auth.clients
 }
 
 _AUTH_ROLES_MAP: Dict[str, Optional[Sequence[str]]] = {
-    client["name"]: client.get("roles", None) for client in settings.CONFIG.auth.clients
+    client.name: client.roles for client in settings.CONFIG.auth.clients
 }
 
 

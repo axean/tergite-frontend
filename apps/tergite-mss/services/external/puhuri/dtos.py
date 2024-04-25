@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Union
 
 import pymongo
 from beanie import Document
-from pydantic import BaseModel, Extra
+from pydantic import Extra
 from pymongo import IndexModel
 from waldur_client import ComponentUsage
 

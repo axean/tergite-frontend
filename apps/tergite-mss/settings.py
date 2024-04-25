@@ -16,7 +16,7 @@ import os
 from utils.config import AppConfig
 
 _CONFIG_FILE = os.environ.get("CONFIG_FILE", default="config.toml")
-CONFIG = AppConfig.from_toml(_CONFIG_FILE)
+CONFIG: AppConfig = AppConfig.from_toml(_CONFIG_FILE)
 
 _is_production = CONFIG.environment == "production"
 _is_auth_enabled = CONFIG.auth.is_enabled

@@ -1,12 +1,10 @@
 """Utility for loading configurations for the app"""
 import enum
-from functools import cached_property
 from pathlib import Path
 from typing import Dict, List, Optional
 
 import tomli
-from pydantic import BaseModel, Extra
-from starlette.datastructures import URL
+from pydantic import AnyHttpUrl, BaseModel, Extra, MongoDsn
 
 
 class DatetimePrecision(str, enum.Enum):
@@ -23,61 +21,11 @@ class DatetimePrecision(str, enum.Enum):
     HOURS = "hours"
 
 
-class AppConfig(BaseModel, extra=Extra.allow):
-    """Configuration for the entire app"""
-
-    mss_port: int = 8002
-    # the port on which the websocket is running
-    ws_port: int = 6532
-    # the host the uvicorn runs on.
-    # During testing auth on 127.0.0.1, set this to "127.0.0.1". default: "0.0.0.0"
-    mss_host: str = "0.0.0.0"
-    # environment reflect which environment the app is to run in.
-    # Options
-    #  - development
-    #  - production
-    #  - staging
-    #  - test
-    # Default: production
-    environment: str = "production"
-
-    # For datetime precisions; number of additional components of the time to include
-    # See https://docs.python.org/3/library/datetime.html#datetime.datetime.isoformat
-    # <any of 'milliseconds', 'auto', 'microseconds', 'seconds', 'minutes', 'hours'>; default = auto
-    datetime_precision: "DatetimePrecision" = DatetimePrecision.AUTO
-
-    # configuration for one database; it might become possible to add multiple databases
-    database: "DatabaseConfig"
-
-    # the BCC instances connected to this MSS instance
-    backends: List["BccConfig"]
-
-    # configuration for authentication
-    auth: "AuthConfig"
-
-    # configration for puhuri
-    puhuri: "PuhuriConfig"
-
-    @cached_property
-    def backends_dict(self) -> Dict[str, "BccConfig"]:
-        """A map of the available BCC instances"""
-        return {item.name: item for item in self.backends}
-
-    @classmethod
-    def from_toml(cls, file_path: str):
-        """Parse a config.toml file into an AppConfig instance"""
-        with Path(file_path).open(mode="rb") as file:
-            conf = tomli.load(file)
-
-        conf.update(conf.pop("general", {}))
-        return cls.parse_obj(conf)
-
-
 class DatabaseConfig(BaseModel):
     """Configuration for the database"""
 
     name: str
-    url: URL
+    url: MongoDsn
 
 
 class BccConfig(BaseModel):
@@ -86,7 +34,7 @@ class BccConfig(BaseModel):
     # the name of the backend computer that will be accessible from tergite.qiskit and from webGUI
     name: str
     # the URL where this backend is running
-    url: URL = "http://127.0.0.1:8002"
+    url: AnyHttpUrl = "http://127.0.0.1:8002"
     # request timeout in seconds beyond which a timeout error is raised; default = 10
     timeout: int = 10
 
@@ -111,29 +59,6 @@ class PuhuriConfig(BaseModel):
 
     # the interval in seconds at which puhuri is polled. default is 900 (15 minutes)
     poll_interval: int = 900
-
-
-class AuthConfig(BaseModel):
-    """Configration for auth"""
-
-    # turn auth OFF or ON, default=true
-    is_enabled: bool = True
-
-    # Secret for signing JWT tokens. https://jwt.io/introduction
-    jwt_secret: str = "some hidden secret"
-
-    # Time-to-live for the JWT tokens created by this app, default=3600
-    jwt_ttl: int = 3600
-
-    # domain to be set in the cookie, to limit its use to only that domain.
-    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
-    cookie_domain: str
-
-    # name of the cookie to be used when authenticating' default=tergiteauth
-    cookie_name: str = "tergiteauth"
-
-    # list of Oauth2 client config
-    clients: List["Oauth2ClientConfig"] = []
 
 
 class UserRole(str, enum.Enum):
@@ -200,3 +125,81 @@ class Oauth2ClientConfig(BaseModel, extra=Extra.allow):
 
     # config fields that are not used to create the client
     _non_client_fields = {"client_type", "redirect_url", "email_regex", "roles"}
+
+
+class AuthConfig(BaseModel):
+    """Configration for auth"""
+
+    # turn auth OFF or ON, default=true
+    is_enabled: bool = True
+
+    # Secret for signing JWT tokens. https://jwt.io/introduction
+    jwt_secret: str = "some hidden secret"
+
+    # Time-to-live for the JWT tokens created by this app, default=3600
+    jwt_ttl: int = 3600
+
+    # domain to be set in the cookie, to limit its use to only that domain.
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
+    cookie_domain: str = ""
+
+    # name of the cookie to be used when authenticating' default=tergiteauth
+    cookie_name: str = "tergiteauth"
+
+    # list of Oauth2 client config
+    clients: List[Oauth2ClientConfig] = []
+
+
+class AppConfig(BaseModel, extra=Extra.allow):
+    """Configuration for the entire app"""
+
+    mss_port: int = 8002
+    # the port on which the websocket is running
+    ws_port: int = 6532
+    # the host the uvicorn runs on.
+    # During testing auth on 127.0.0.1, set this to "127.0.0.1". default: "0.0.0.0"
+    mss_host: str = "0.0.0.0"
+    # environment reflect which environment the app is to run in.
+    # Options
+    #  - development
+    #  - production
+    #  - staging
+    #  - test
+    # Default: production
+    environment: str = "production"
+
+    # For datetime precisions; number of additional components of the time to include
+    # See https://docs.python.org/3/library/datetime.html#datetime.datetime.isoformat
+    # <any of 'milliseconds', 'auto', 'microseconds', 'seconds', 'minutes', 'hours'>; default = auto
+    datetime_precision: DatetimePrecision = DatetimePrecision.AUTO
+
+    # configuration for one database; it might become possible to add multiple databases
+    database: DatabaseConfig
+
+    # the BCC instances connected to this MSS instance
+    backends: List[BccConfig]
+
+    # configuration for authentication
+    auth: AuthConfig
+
+    # configration for puhuri
+    puhuri: PuhuriConfig
+
+    # cache for the backends dict
+    _backends_dict: Dict[str, BccConfig] = None
+
+    @property
+    def backends_dict(self) -> Dict[str, BccConfig]:
+        """A map of the available BCC instances"""
+        if self._backends_dict is None:
+            self._backends_dict = {item.name: item for item in self.backends}
+        return self._backends_dict
+
+    @classmethod
+    def from_toml(cls, file_path: str):
+        """Parse a config.toml file into an AppConfig instance"""
+        with Path(file_path).open(mode="rb") as file:
+            conf = tomli.load(file)
+
+        conf.update(conf.pop("general", {}))
+        return cls.parse_obj(conf)

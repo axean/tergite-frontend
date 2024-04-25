@@ -56,8 +56,4 @@ roles = ["user"]
 openid_configuration_endpoint = "http://puhuri.example.org/.well-known/openid-configuration"
 
 [puhuri]
-is_enabled = true
-waldur_api_uri = "http://puhuri.example.com"
-waldur_client_token = "some-test-token"
-provider_uuid = "some-test-provider-uuid"
-poll_interval = 2
+is_enabled = false

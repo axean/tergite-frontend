@@ -1,9 +1,11 @@
 from tests._utils.env import (
-    TEST_APP_CONFIG,
     TEST_BACKENDS,
     TEST_CONFIG_FILE,
     TEST_DB_NAME,
+    TEST_DISABLED_PUHURI_CONFIG_FILE,
     TEST_JWT_SECRET,
+    TEST_MONGODB_URL,
+    TEST_NO_AUTH_CONFIG_FILE,
     TEST_PROD_NO_AUTH_CONFIG_FILE,
     TEST_PUHURI_CONFIG_ENDPOINT,
     setup_test_env,
@@ -76,15 +78,15 @@ def mock_puhuri_synchronize(mocker) -> Mock:
 def disabled_puhuri_sync():
     """Disables PUHURI synchronization"""
     original_env = {
-        "IS_PUHURI_SYNC_ENABLED": environ.get("IS_PUHURI_SYNC_ENABLED", "True"),
+        "CONFIG_FILE": environ.get("CONFIG_FILE", "config.toml"),
     }
 
-    environ["IS_PUHURI_SYNC_ENABLED"] = "False"
+    environ["CONFIG_FILE"] = TEST_DISABLED_PUHURI_CONFIG_FILE
     importlib.reload(settings)
     yield
 
     # reset
-    environ["IS_PUHURI_SYNC_ENABLED"] = original_env["IS_PUHURI_SYNC_ENABLED"]
+    environ["CONFIG_FILE"] = original_env["CONFIG_FILE"]
     importlib.reload(settings)
 
 
@@ -122,7 +124,7 @@ def mock_puhuri_sync_calls():
 @pytest.fixture
 def db(mock_puhuri) -> pymongo.database.Database:
     """The mongo db instance for testing"""
-    mongo_client = pymongo.MongoClient(TEST_APP_CONFIG.TEST_MONGODB_URL)
+    mongo_client = pymongo.MongoClient(TEST_MONGODB_URL)
     database = mongo_client[TEST_DB_NAME]
 
     yield database
@@ -181,7 +183,7 @@ def client(db) -> TestClient:
 @pytest.fixture
 def no_auth_client(db) -> TestClient:
     """A test client for fast api without auth"""
-    environ["AUTH_CONFIG_FILE"] = TEST_PROD_NO_AUTH_CONFIG_FILE
+    environ["CONFIG_FILE"] = TEST_NO_AUTH_CONFIG_FILE
     importlib.reload(settings)
     from api.rest import app
 
@@ -189,7 +191,7 @@ def no_auth_client(db) -> TestClient:
     yield TestClient(app)
 
     # reset
-    environ["AUTH_CONFIG_FILE"] = TEST_CONFIG_FILE
+    environ["CONFIG_FILE"] = TEST_CONFIG_FILE
     importlib.reload(settings)
 
 

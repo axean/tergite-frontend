@@ -12,7 +12,7 @@
 
 """Definition of the FastAPIUsers-specific Database adapter for app tokens"""
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Mapping, Optional
+from typing import Any, List, Mapping, Optional
 
 from beanie import PydanticObjectId
 from fastapi_users_db_beanie.access_token import BeanieAccessTokenDatabase
