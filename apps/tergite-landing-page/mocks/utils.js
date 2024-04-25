@@ -224,14 +224,14 @@ function clearObj(obj) {
  * @returns {Promise<string>} the value for the Set-Cookie header
  */
 async function createCookieHeader(user) {
-	const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
-	const oauthConfig = await readToml(oauthConfigFile);
-	const generalConfig = oauthConfig.general || {};
+	const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+	const mssConfig = await readToml(mssConfigFile);
+	const authConfig = mssConfig.auth || {};
 
-	const cookieName = generalConfig.cookie_name;
-	const cookieDomain = generalConfig.cookie_domain;
+	const cookieName = authConfig.cookie_name;
+	const cookieDomain = authConfig.cookie_domain;
 
-	const jwtToken = await generateJwt(user, oauthConfig);
+	const jwtToken = await generateJwt(user, mssConfig);
 	const expiryTimestamp = new Date().getTime() + 7_200_000; // 2 hours in future
 	const expiry = new Date(expiryTimestamp).toUTCString();
 

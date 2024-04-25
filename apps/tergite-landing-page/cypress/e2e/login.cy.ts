@@ -25,11 +25,11 @@ users.forEach((user) => {
 				});
 
 				beforeEach(() => {
-					const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
-					cy.task('readToml', oauthConfigFile).then((oauthConfig) => {
-						const generalConfig = (oauthConfig as Record<string, any>).general || {};
+					const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+					cy.task('readToml', mssConfigFile).then((mssConfig) => {
+						const authConfig = (mssConfig as Record<string, any>).auth || {};
 						const cookieName = process.env.USER_ID_COOKIE_NAME as string;
-						const domain = generalConfig.cookie_domain;
+						const domain = authConfig.cookie_domain;
 
 						cy.setCookie(cookieName, user.id, {
 							domain,
@@ -60,14 +60,13 @@ users.forEach((user) => {
 				});
 
 				it(`automatically redirects to next page if already logged in`, () => {
-					const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
+					const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
 
-					cy.task('readToml', oauthConfigFile).then((oauthConfig) => {
-						cy.wrap(utils.generateJwt(user, oauthConfig as any)).then((jwtToken) => {
-							const generalConfig =
-								(oauthConfig as Record<string, any>).general || {};
-							const cookieName = generalConfig.cookie_name;
-							const domain = generalConfig.cookie_domain;
+					cy.task('readToml', mssConfigFile).then((mssConfig) => {
+						cy.wrap(utils.generateJwt(user, mssConfig as any)).then((jwtToken) => {
+							const authConfig = (mssConfig as Record<string, any>).auth || {};
+							const cookieName = authConfig.cookie_name;
+							const domain = authConfig.cookie_domain;
 
 							cy.setCookie(cookieName, jwtToken as string, {
 								domain,

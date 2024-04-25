@@ -9,15 +9,15 @@ import { readToml, verifyJwtToken } from '../../../../utils';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-	const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
-	const oauthConfig = await readToml(oauthConfigFile);
+	const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+	const mssConfig = await readToml(mssConfigFile);
 
-	const generalConfig = oauthConfig.general || {};
-	const cookieName = generalConfig.cookie_name;
+	const authConfig = mssConfig.auth || {};
+	const cookieName = authConfig.cookie_name;
 	const token = getAccessToken(cookieName);
 
 	try {
-		const result = token && (await verifyJwtToken(token, oauthConfig));
+		const result = token && (await verifyJwtToken(token, mssConfig));
 		const resp =
 			result && ({ id: result.payload.sub, roles: result.payload.roles } as API.User);
 		return NextResponse.json(resp);

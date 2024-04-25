@@ -8,11 +8,11 @@ import { readToml } from '../../../../utils';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
-	const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
-	const oauthConfig = await readToml(oauthConfigFile);
+	const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+	const mssConfig = await readToml(mssConfigFile);
 
-	const generalConfig = oauthConfig.general || {};
-	const cookieName = generalConfig.cookie_name;
+	const authConfig = mssConfig.auth || {};
+	const cookieName = authConfig.cookie_name;
 	logout(cookieName);
 	const resp = { message: 'LOGGED OUT' } as API.StatusMessage;
 	return NextResponse.json(resp);

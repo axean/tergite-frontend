@@ -44,11 +44,11 @@ DOCKER_USERNAME=johndoe
 docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME
 ```
 
-- Copy the `auth_config.example.toml` to `auth_config.toml` and update the configuration there.
+- Copy the `config.example.toml` to `config.toml` and update the configuration there.
 
 ```shell
 cd tergite-frontend
-cp auth_config.example.toml auth_config.toml
+cp config.example.toml config.toml
 ```
 
 - Create a `.env` file basing on the `.env.example` file.

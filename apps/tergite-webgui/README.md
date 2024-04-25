@@ -40,11 +40,11 @@ _Note: `API_BASE_URL` is the URL to the running [tergite MSS](../tergite-mss)_
 _Note: `LANDING_ENDPOINT` is the URL to the running [tergite landing page](../tergite-landing-page)_
 _Note: `WEBGUI_ENDPOINT` is the URL where this application is to be accessed_
 
--   Copy the `auth_config.example.toml` file to `auth_config.toml` file and update the variables in `auth_config.toml`
-    that are the same as those in the `auth_config.toml` of the running [tergite MSS](../tergite-mss)
+-   Copy the `config.example.toml` file to `config.toml` file and update the variables in `config.toml`
+    that are the same as those in the `config.toml` of the running [tergite MSS](../tergite-mss)
 
 ```shell
-cp auth_config.example.toml auth_config.toml
+cp config.example.toml config.toml
 ```
 
 _You can check the [MSS auth docs](../tergite-mss/docs/auth.md) for guidance_

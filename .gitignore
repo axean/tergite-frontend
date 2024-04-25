@@ -2,3 +2,5 @@
 .data/
 auth_config.toml
 .DS_Store
+.idea/
+config.toml

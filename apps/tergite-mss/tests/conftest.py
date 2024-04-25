@@ -6,7 +6,6 @@ from tests._utils.env import (
     TEST_JWT_SECRET,
     TEST_MONGODB_URL,
     TEST_NO_AUTH_CONFIG_FILE,
-    TEST_PROD_NO_AUTH_CONFIG_FILE,
     TEST_PUHURI_CONFIG_ENDPOINT,
     setup_test_env,
 )

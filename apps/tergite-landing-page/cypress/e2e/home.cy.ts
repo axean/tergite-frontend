@@ -18,12 +18,12 @@ meResponses.forEach((resp) => {
 			cy.intercept('GET', '/api/config').as('configRequest');
 
 			if (user.id) {
-				const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
-				cy.task('readToml', oauthConfigFile).then((oauthConfig) => {
-					cy.wrap(utils.generateJwt(user, oauthConfig as any)).then((jwtToken) => {
-						const generalConfig = (oauthConfig as Record<string, any>).general || {};
-						const cookieName = generalConfig.cookie_name;
-						const domain = generalConfig.cookie_domain;
+				const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+				cy.task('readToml', mssConfigFile).then((mssConfig) => {
+					cy.wrap(utils.generateJwt(user, mssConfig as any)).then((jwtToken) => {
+						const authConfig = (mssConfig as Record<string, any>).auth || {};
+						const cookieName = authConfig.cookie_name;
+						const domain = authConfig.cookie_domain;
 
 						cy.setCookie(cookieName, jwtToken as string, {
 							domain,

@@ -13,9 +13,9 @@ services:
       - "8030:80"
     environment:
       - API_BASE_URL=http://mss
-      - AUTH_CONFIG_FILE=/app/auth_config.toml
+      - CONFIG_FILE=/app/config.toml
     volumes:
-      - ./auth_config.toml:/app/auth_config.toml:ro
+      - ./config.toml:/app/config.toml:ro
     env_file:
       - .env
 
@@ -27,9 +27,9 @@ services:
     ports:
       - "8002:80"
     environment:
-      - AUTH_CONFIG_FILE=/code/auth_config.toml
+      - CONFIG_FILE=/code/config.toml
     volumes:
-      - ./auth_config.toml:/code/auth_config.toml:ro
+      - ./config.toml:/code/config.toml:ro
     env_file:
       - .env
 
@@ -44,9 +44,9 @@ services:
       - "3000:3000"
     environment:
       - API_BASE_URL=http://mss
-      - AUTH_CONFIG_FILE=/app/auth_config.toml
+      - CONFIG_FILE=/app/config.toml
     volumes:
-      - ./auth_config.toml:/app/auth_config.toml:ro
+      - ./config.toml:/app/config.toml:ro
     env_file:
       - .env
 

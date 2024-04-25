@@ -26,11 +26,11 @@ cd tergite-frontend/apps/tergite-landing-page
 npm install
 ```
 
--   Copy the `auth_config.example.toml` to `auth_config.toml` and update the configuration there.  
+-   Copy the `config.example.toml` to `config.toml` and update the configuration there.  
     Make sure it is the same being used by the [tergite-mss](../tergite-mss/) instance connected to this app
 
 ```shell
-cp auth_config.example.toml auth_config.toml
+cp config.example.toml config.toml
 ```
 
 -   To update the environment variables, you also need to copy the `.env` file to `.env.local` and
