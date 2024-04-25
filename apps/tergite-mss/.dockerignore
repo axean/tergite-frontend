@@ -126,6 +126,7 @@ dmypy.json
 
 # Project config file
 config.ini
+config.toml
 
 # nohup
 nohup.out

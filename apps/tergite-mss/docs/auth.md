@@ -71,7 +71,7 @@ Here is an interaction diagram of QAL9000 auth showcasing authentication via [My
 
 #### - How do we bypass authentication in development?
 
-We use feature flag `is_enabled` property in the `auth_config.toml` file, setting it to `false`
+We use feature flag `auth.is_enabled` property in the `config.toml` file, setting it to `false`
 
 ```toml
 is_enabled = false
@@ -81,7 +81,7 @@ is_enabled = false
 
 #### - How do we ensure that in production, authentication is always turned on?
 
-On startup, we raise a ValueError when `is_enabled = false` in the `auth_config.toml` file yet  
+On startup, we raise a ValueError when `auth.is_enabled = false` in the `config.toml` file yet  
 config variable `environment = production` and log it.
 
 #### - How do we allow other qal9000 services (e.g. BCC or calibration workers) to access MSS, without user intervention?
