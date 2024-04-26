@@ -58,13 +58,13 @@ cp mss-config.example.toml mss-config.toml
 cp .env.example .env
 ```
 
-- To rebuild and run the services, use the `fresh.yml`
+- To rebuild and run the services, use the `fresh-docker-compose.yml`
 
 ```shell
 docker compose up -f fresh-docker-compose.yml up -d
 ```
 
-- To use prebuilt images to run the services, use the `prebuilt.yml`
+- To use prebuilt images to run the services, use the `prebuilt-docker-compose.yml`
 
 ```shell
 docker compose -f prebuilt-docker-compose.yml up -d
