@@ -9,7 +9,7 @@ export default async function handler(
 		res.status(405).json({ detail: 'METHOD NOT ALLOWED' });
 		return;
 	}
-	const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+	const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
 	const mssConfig = await readToml(mssConfigFile);
 
 	const authConfig = mssConfig.auth || {};

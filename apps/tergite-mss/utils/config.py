@@ -197,7 +197,7 @@ class AppConfig(BaseModel, extra=Extra.allow):
 
     @classmethod
     def from_toml(cls, file_path: str):
-        """Parse a config.toml file into an AppConfig instance"""
+        """Parse a mss-config.toml file into an AppConfig instance"""
         with Path(file_path).open(mode="rb") as file:
             conf = tomli.load(file)
 

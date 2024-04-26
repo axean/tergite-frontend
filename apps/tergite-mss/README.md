@@ -35,11 +35,11 @@ cd tergite-frontend/apps/tergite-mss
 pip install -r requirements.txt
 ```
 
-- Copy the `config.example.toml` file to `config.toml` and
+- Copy the `mss-config.example.toml` file to `mss-config.toml` and
   update the variables there appropriately.
 
 ```shell
-cp config.example.toml config.toml
+cp mss-config.example.toml mss-config.toml
 ```
 
 - Run start script

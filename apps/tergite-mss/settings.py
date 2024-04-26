@@ -15,8 +15,8 @@ import os
 
 from utils.config import AppConfig
 
-_CONFIG_FILE = os.environ.get("CONFIG_FILE", default="config.toml")
-CONFIG: AppConfig = AppConfig.from_toml(_CONFIG_FILE)
+_MSS_CONFIG_FILE = os.environ.get("MSS_CONFIG_FILE", default="mss-config.toml")
+CONFIG: AppConfig = AppConfig.from_toml(_MSS_CONFIG_FILE)
 
 _is_production = CONFIG.environment == "production"
 _is_auth_enabled = CONFIG.auth.is_enabled

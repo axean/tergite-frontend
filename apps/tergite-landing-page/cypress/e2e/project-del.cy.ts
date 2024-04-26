@@ -35,11 +35,11 @@ meResponses.forEach((resp) => {
 				cy.request(`http://localhost:8002/refreshed-db`);
 
 				if (user.id) {
-					const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+					const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
 
 					cy.task('readToml', mssConfigFile).then((mssConfig) => {
 						cy.wrap(utils.generateJwt(user, mssConfig as any)).then((jwtToken) => {
-							const authConfig = (mssConfig as Record<string, any>).general || {};
+							const authConfig = (mssConfig as Record<string, any>).auth || {};
 							const cookieName = authConfig.cookie_name;
 							const domain = authConfig.cookie_domain;
 

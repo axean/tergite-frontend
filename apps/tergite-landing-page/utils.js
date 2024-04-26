@@ -48,13 +48,13 @@ function loadEnvFromString(data) {
 /**
  * Generate a valid test JWT for the given user
  * @param {{id: string, roles: string[]}} user - the user for whom the JWT is generated
- * @param {Record<string,any>} oauthConfig - the auth config got from the auth config file
+ * @param {Record<string,any>} mssConfig - the config got from the MSS config file
  * @returns {Promise<string>} the JSON web token
  */
-async function generateJwt(user, oauthConfig) {
+async function generateJwt(user, mssConfig) {
 	const payload = { sub: user.id, roles: [...user.roles] };
-	const generalConfig = oauthConfig.general || {};
-	const jwtSecret = generalConfig.jwt_secret || '';
+	const authConfig = mssConfig.auth || {};
+	const jwtSecret = authConfig.jwt_secret || '';
 	const secret = new TextEncoder().encode(jwtSecret);
 
 	const alg = 'HS256';
@@ -71,12 +71,12 @@ async function generateJwt(user, oauthConfig) {
 /**
  * Verified a given JWT token
  * @param {string} token - the token to be verified
- * @param {Record<string,any>} oauthConfig - the auth config got from the auth config file
+ * @param {Record<string,any>} mssConfig - the MSS config got from the mss-config file
  * @returns  {Promise<JWTVerifyResult>} - the verifiration result including the claims stored  in the payload
  */
-async function verifyJwtToken(token, oauthConfig) {
-	const generalConfig = oauthConfig.general || {};
-	const jwtSecret = generalConfig.jwt_secret || '';
+async function verifyJwtToken(token, mssConfig) {
+	const authConfig = mssConfig.auth || {};
+	const jwtSecret = authConfig.jwt_secret || '';
 	const audience = 'fastapi-users:auth';
 	const algorithms = ['HS256'];
 	const secret = new TextEncoder().encode(jwtSecret);

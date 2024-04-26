@@ -16,7 +16,7 @@ meResponses.forEach((resp) => {
 			equalityErrorMargin = parseFloat(equalityErrorMarginStr);
 
 			const baseUrl = Cypress.env('API_BASE_URL');
-			const mssConfigFile = Cypress.env('CONFIG_FILE');
+			const mssConfigFile = Cypress.env('MSS_CONFIG_FILE');
 			const landingPageUrl = Cypress.env('LANDING_ENDPOINT');
 			const apiRoutes = getApiRoutes(baseUrl);
 

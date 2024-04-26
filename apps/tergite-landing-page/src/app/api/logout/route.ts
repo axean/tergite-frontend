@@ -8,7 +8,7 @@ import { readToml } from '../../../../utils';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
-	const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+	const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
 	const mssConfig = await readToml(mssConfigFile);
 
 	const authConfig = mssConfig.auth || {};

@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
 	const baseUrl = process.env.MSS_ENDPOINT || '';
 	const appBaseUrl = process.env.LANDING_ENDPOINT;
-	const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+	const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
 
 	// FIXME: In future, these configurations could be even got from a redis instance
 	// or MSS or whatever

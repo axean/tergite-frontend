@@ -224,7 +224,7 @@ function clearObj(obj) {
  * @returns {Promise<string>} the value for the Set-Cookie header
  */
 async function createCookieHeader(user) {
-	const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+	const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
 	const mssConfig = await readToml(mssConfigFile);
 	const authConfig = mssConfig.auth || {};
 

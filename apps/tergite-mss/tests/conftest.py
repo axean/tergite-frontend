@@ -1,11 +1,11 @@
 from tests._utils.env import (
     TEST_BACKENDS,
-    TEST_CONFIG_FILE,
+    TEST_MSS_CONFIG_FILE,
     TEST_DB_NAME,
-    TEST_DISABLED_PUHURI_CONFIG_FILE,
+    TEST_DISABLED_PUHURI_MSS_CONFIG_FILE,
     TEST_JWT_SECRET,
     TEST_MONGODB_URL,
-    TEST_NO_AUTH_CONFIG_FILE,
+    TEST_NO_AUTH_MSS_CONFIG_FILE,
     TEST_PUHURI_CONFIG_ENDPOINT,
     setup_test_env,
 )
@@ -77,15 +77,15 @@ def mock_puhuri_synchronize(mocker) -> Mock:
 def disabled_puhuri_sync():
     """Disables PUHURI synchronization"""
     original_env = {
-        "CONFIG_FILE": environ.get("CONFIG_FILE", "config.toml"),
+        "MSS_CONFIG_FILE": environ.get("MSS_CONFIG_FILE", "mss-config.toml"),
     }
 
-    environ["CONFIG_FILE"] = TEST_DISABLED_PUHURI_CONFIG_FILE
+    environ["MSS_CONFIG_FILE"] = TEST_DISABLED_PUHURI_MSS_CONFIG_FILE
     importlib.reload(settings)
     yield
 
     # reset
-    environ["CONFIG_FILE"] = original_env["CONFIG_FILE"]
+    environ["MSS_CONFIG_FILE"] = original_env["MSS_CONFIG_FILE"]
     importlib.reload(settings)
 
 
@@ -182,7 +182,7 @@ def client(db) -> TestClient:
 @pytest.fixture
 def no_auth_client(db) -> TestClient:
     """A test client for fast api without auth"""
-    environ["CONFIG_FILE"] = TEST_NO_AUTH_CONFIG_FILE
+    environ["MSS_CONFIG_FILE"] = TEST_NO_AUTH_MSS_CONFIG_FILE
     importlib.reload(settings)
     from api.rest import app
 
@@ -190,7 +190,7 @@ def no_auth_client(db) -> TestClient:
     yield TestClient(app)
 
     # reset
-    environ["CONFIG_FILE"] = TEST_CONFIG_FILE
+    environ["MSS_CONFIG_FILE"] = TEST_MSS_CONFIG_FILE
     importlib.reload(settings)
 
 

@@ -25,7 +25,7 @@ users.forEach((user) => {
 				});
 
 				beforeEach(() => {
-					const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+					const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
 					cy.task('readToml', mssConfigFile).then((mssConfig) => {
 						const authConfig = (mssConfig as Record<string, any>).auth || {};
 						const cookieName = process.env.USER_ID_COOKIE_NAME as string;
@@ -60,7 +60,7 @@ users.forEach((user) => {
 				});
 
 				it(`automatically redirects to next page if already logged in`, () => {
-					const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+					const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
 
 					cy.task('readToml', mssConfigFile).then((mssConfig) => {
 						cy.wrap(utils.generateJwt(user, mssConfig as any)).then((jwtToken) => {

@@ -10,7 +10,7 @@ export default async function handler(
 		return;
 	}
 
-	const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+	const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
 	const mssConfig = await readToml(mssConfigFile);
 
 	const authConfig = mssConfig.auth || {};

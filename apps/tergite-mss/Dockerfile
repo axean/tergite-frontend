@@ -17,7 +17,7 @@ RUN chmod +x /code/start_mss.sh
 LABEL org.opencontainers.image.licenses=APACHE-2.0
 LABEL org.opencontainers.image.description="Public REST API for Quantum Computers in Chalmers University"
 
-# ENV CONFIG_FILE=
+# ENV MSS_CONFIG_FILE=
 
 EXPOSE 80
 

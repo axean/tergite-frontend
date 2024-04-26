@@ -137,7 +137,7 @@ docker run -p 3000:80 --name landing-page \
     -e MSS_ENDPOINT="https://api.example.com" \
     -e API_BASE_URL="http://127.0.0.1:8002" \
     -e OAUTH_REDIRECT_URI="http://127.0.0.1:3000" \
-    -e CONFIG_FILE="/path/to/your/config.toml"
+    -e MSS_CONFIG_FILE="/path/to/your/mss-config.toml"
     ${CONTAINER_REGISTRY}/tergite-landing-page:local
 ```
 

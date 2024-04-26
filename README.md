@@ -44,11 +44,11 @@ DOCKER_USERNAME=johndoe
 docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME
 ```
 
-- Copy the `config.example.toml` to `config.toml` and update the configuration there.
+- Copy the `mss-config.example.toml` to `mss-config.toml` and update the configuration there.
 
 ```shell
 cd tergite-frontend
-cp config.example.toml config.toml
+cp mss-config.example.toml mss-config.toml
 ```
 
 - Create a `.env` file basing on the `.env.example` file.

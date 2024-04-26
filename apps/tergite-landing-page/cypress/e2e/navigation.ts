@@ -29,7 +29,7 @@ export const testNavigation = (
 				cy.intercept('GET', '/api/me').as('currentUserRequest');
 
 				if (user.id) {
-					const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+					const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
 
 					cy.task('readToml', mssConfigFile).then((mssConfig) => {
 						cy.wrap(utils.generateJwt(user, mssConfig as any)).then((jwtToken) => {

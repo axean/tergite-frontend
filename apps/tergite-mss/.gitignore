@@ -138,7 +138,7 @@ start_mss.py
 .DS_Store
 
 # config
-config.toml
+mss-config.toml
 
 # sequencial tests
 .semaphore.lock

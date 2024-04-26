@@ -3,4 +3,4 @@
 auth_config.toml
 .DS_Store
 .idea/
-config.toml
+mss-config.toml

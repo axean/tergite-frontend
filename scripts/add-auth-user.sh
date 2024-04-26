@@ -47,7 +47,7 @@
 while [[ $# -gt 0 ]]; do
   case $1 in
     -c|--config-file)
-      CONFIG_FILE="$2"
+      MSS_CONFIG_FILE="$2"
       shift # past argument
       shift # past value
       ;;
@@ -63,8 +63,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [ ! -f "$CONFIG_FILE" ]; then
-    echo "ERROR: nginx config file $CONFIG_FILE not found.";
+if [ ! -f "$MSS_CONFIG_FILE" ]; then
+    echo "ERROR: nginx config file $MSS_CONFIG_FILE not found.";
     exit 2;
 fi
 
@@ -92,11 +92,11 @@ else
 fi
 
 # Update the NGINX config file
-AUTH_CONFIG_EXISTS="`grep "auth_basic_user_file $HTPASSWD_FILE;" $CONFIG_FILE`";
+AUTH_CONFIG_EXISTS="`grep "auth_basic_user_file $HTPASSWD_FILE;" $MSS_CONFIG_FILE`";
 if [ -z "$AUTH_CONFIG_EXISTS" ]; then
-    echo "Updating $CONFIG_FILE. Note this works best on GNU Linux as it uses GNU sed.";
+    echo "Updating $MSS_CONFIG_FILE. Note this works best on GNU Linux as it uses GNU sed.";
     AUTH_CONFIG="auth_basic "Authentication";\nauth_basic_user_file $HTPASSWD_FILE;";
-    sed -i "/server\s*{/a $AUTH_CONFIG" $CONFIG_FILE;
+    sed -i "/server\s*{/a $AUTH_CONFIG" $MSS_CONFIG_FILE;
 else
     echo "Skipping update to config file as auth is already setup.";
 fi

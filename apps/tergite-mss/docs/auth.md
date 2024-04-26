@@ -18,9 +18,9 @@ This is how MSS authenticates its users and controls their access to the quantum
 ### How to Set Up a New Oauth2 Provider
 
 - Let's say we want some 'Ericsson' users to have access to MSS.
-- Copy the `config.example.toml` to `config.toml`, and update the configs therein.  
-  Note: You could also create a new toml file based on `config.example.toml`  
-  and set the `CONFIG_FILE` environment variable to point to that file.
+- Copy the `mss-config.example.toml` to `mss-config.toml`, and update the configs therein.  
+  Note: You could also create a new toml file based on `mss-config.example.toml`  
+  and set the `MSS_CONFIG_FILE` environment variable to point to that file.
 - Add the new client:
 
 ```toml
@@ -71,7 +71,7 @@ Here is an interaction diagram of QAL9000 auth showcasing authentication via [My
 
 #### - How do we bypass authentication in development?
 
-We use feature flag `auth.is_enabled` property in the `config.toml` file, setting it to `false`
+We use feature flag `auth.is_enabled` property in the `mss-config.toml` file, setting it to `false`
 
 ```toml
 is_enabled = false
@@ -81,7 +81,7 @@ is_enabled = false
 
 #### - How do we ensure that in production, authentication is always turned on?
 
-On startup, we raise a ValueError when `auth.is_enabled = false` in the `config.toml` file yet  
+On startup, we raise a ValueError when `auth.is_enabled = false` in the `mss-config.toml` file yet  
 config variable `environment = production` and log it.
 
 #### - How do we allow other qal9000 services (e.g. BCC or calibration workers) to access MSS, without user intervention?
@@ -95,14 +95,14 @@ If you are in development mode, you can just switch of authentication altogether
 #### How do I log in?
 
 - You need to run both [MSS](../) and the [landing page](../../tergite-landing-page/).
-- **Make sure that your `config.toml` files have all variables filled appropriately** for example, both applications should have the same `jwt_secret`.
+- **Make sure that your `mss-config.toml` files have all variables filled appropriately** for example, both applications should have the same `jwt_secret`.
 - The landing page, when running, has appropriate links, say in the navbar, to direct you on how to the authentication screens.
 - However, you can also log in without running the landing page app first. See the next FAQ.
 
 #### How do I log in without having to run the landing page?
 
-- **Make sure that your `config.toml` file has all variables filled appropriately**.
-  The `config.example.toml` is a good template to copy from, but it must all placeholder (`<some-stuff>`) must be replaced in the actual `config.toml` file.
+- **Make sure that your `mss-config.toml` file has all variables filled appropriately**.
+  The `mss-config.example.toml` is a good template to copy from, but it must all placeholder (`<some-stuff>`) must be replaced in the actual `mss-config.toml` file.
 - Run the application
 
 ```shell
@@ -112,7 +112,7 @@ If you are in development mode, you can just switch of authentication altogether
 - Visit the http://localhost:8002/auth/github/authorize endpoint in your browser if you are running on local host.
 - Copy the “authorization_url” from the response and paste it in another tab in your browser. Follow any prompts the browser gives you.
 - After you are redirected back to http://localhost:8002/auth/github/callback, you should see an “access_token”. Copy it to your clipboard.  
-  If you run into any errors, ensure that the `client_id` and `client_secret` for the `client` table with `name = tergite` in your `config.toml` file are appropriately set.
+  If you run into any errors, ensure that the `client_id` and `client_secret` for the `client` table with `name = tergite` in your `mss-config.toml` file are appropriately set.
 - You can then try to create an app token or anything auth related using `curl` or [postman](https://www.postman.com/).  
   To authenticate those requests, you must always pass an "Authorization" header of format `Bearer <access_token>`.  
   **Do note that this auth token can only be used on `/auth/...` endpoints. It will return 401/403 errors on all other endpoints**.
@@ -163,8 +163,8 @@ More information about flows can be found in the [puhuri docs folder](puhuri)
 
 ### How to Start the Puhuri Sync
 
-- Ensure that the `is_enabled = true` in the `[puhuri]` table in your `config.toml` file
-- Ensure all other variables in the `[puhuri]` table in your `config.toml` file are appropriately set e.g.
+- Ensure that the `is_enabled = true` in the `[puhuri]` table in your `mss-config.toml` file
+- Ensure all other variables in the `[puhuri]` table in your `mss-config.toml` file are appropriately set e.g.
 
 ```toml
 [puhuri]

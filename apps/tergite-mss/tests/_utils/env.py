@@ -19,11 +19,15 @@ import tomli
 
 from .fixtures import get_fixture_path
 
-TEST_CONFIG_FILE = get_fixture_path("config.test.toml")
-TEST_PROD_NO_AUTH_CONFIG_FILE = get_fixture_path("prod_config_with_no_auth.test.toml")
-TEST_NO_AUTH_CONFIG_FILE = get_fixture_path("disabled_auth_config.test.toml")
-TEST_DISABLED_PUHURI_CONFIG_FILE = get_fixture_path("disabled_puhuri_config.test.toml")
-with Path(TEST_CONFIG_FILE).open(mode="rb") as _oauth_conf_file:
+TEST_MSS_CONFIG_FILE = get_fixture_path("config.test.toml")
+TEST_PROD_NO_AUTH_MSS_CONFIG_FILE = get_fixture_path(
+    "prod_config_with_no_auth.test.toml"
+)
+TEST_NO_AUTH_MSS_CONFIG_FILE = get_fixture_path("disabled_auth_config.test.toml")
+TEST_DISABLED_PUHURI_MSS_CONFIG_FILE = get_fixture_path(
+    "disabled_puhuri_config.test.toml"
+)
+with Path(TEST_MSS_CONFIG_FILE).open(mode="rb") as _oauth_conf_file:
     TEST_APP_CONFIG = tomli.load(_oauth_conf_file)
 
 
@@ -45,7 +49,7 @@ def setup_test_env():
 
     It should be run before any imports
     """
-    environ["CONFIG_FILE"] = TEST_CONFIG_FILE
+    environ["MSS_CONFIG_FILE"] = TEST_MSS_CONFIG_FILE
 
 
 class BackendConfDict(TypedDict):

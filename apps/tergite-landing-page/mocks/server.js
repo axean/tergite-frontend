@@ -31,7 +31,7 @@ app.use('/auth/projects*', (req, res, next) => {
 	if (req.method === 'OPTIONS') {
 		next();
 	}
-	const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+	const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
 	readToml(mssConfigFile)
 		.then((mssConfig) => {
 			const authConfig = mssConfig.auth || {};
@@ -64,7 +64,7 @@ app.use('/auth/me/*', (req, res, next) => {
 		next();
 	}
 
-	const mssConfigFile = process.env.CONFIG_FILE || 'config.toml';
+	const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
 	readToml(mssConfigFile)
 		.then((mssConfig) => {
 			const authConfig = mssConfig.auth || {};
