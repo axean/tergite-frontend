@@ -19,24 +19,13 @@ url = "http://127.0.0.1:8002"
 ```
 
 ```shell
-cp bcc_mss-config.example.toml bcc_mss-config.toml
+cp mss-config.example.toml mss-config.toml
 ```
 
-- Update the values in the `bcc_mss-config.toml` file. It should have comments describing what each value signifies.
+- Update the values in the `mss-config.toml` file. It should have comments describing what each value signifies.
 
 - Start your MSS
 
 ```shell
 ./start_mss
 ```
-
-## TODO
-
-- [x] Replace `.env` file with `mss-config.toml`
-- [x] Update the `start_mss.sh` script to read env variables from the path pointed to by `MSS_CONFIG_FILE`
-- [x] Update `auth_mss-config.toml` to be read from `mss-config.toml` in MSS
-- [x] Update MSS tests to use the `mss-config.toml` file
-- [x] Update `auth_mss-config.toml` to be read from `mss-config.toml` in webgui
-- [x] Update `auth_mss-config.toml` to be read from `mss-config.toml` in landing page
-- [ ] Add `mss-config.toml` in test server
-- [ ] Update CHANGELOG to show a breaking change
