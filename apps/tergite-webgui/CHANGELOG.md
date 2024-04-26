@@ -11,7 +11,9 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 ### Changed
 
-- Moved tergite-webgui to the tergite-frontend monorepo
+-   Moved tergite-webgui to the tergite-frontend monorepo
+-   Replaced the `auth_config.toml` file with the `mss-config.toml` file.
+-   Replaced `AUTH_CONFIG_FILE` environment variable to `MSS_CONFIG_FILE`
 
 ### Fixed
 

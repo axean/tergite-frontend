@@ -36,7 +36,7 @@ cp bcc_mss-config.example.toml bcc_mss-config.toml
 - [x] Update the `start_mss.sh` script to read env variables from the path pointed to by `MSS_CONFIG_FILE`
 - [x] Update `auth_mss-config.toml` to be read from `mss-config.toml` in MSS
 - [x] Update MSS tests to use the `mss-config.toml` file
-- [ ] Update `auth_mss-config.toml` to be read from `mss-config.toml` in webgui
-- [ ] Update `auth_mss-config.toml` to be read from `mss-config.toml` in landing page
+- [x] Update `auth_mss-config.toml` to be read from `mss-config.toml` in webgui
+- [x] Update `auth_mss-config.toml` to be read from `mss-config.toml` in landing page
 - [ ] Add `mss-config.toml` in test server
 - [ ] Update CHANGELOG to show a breaking change
