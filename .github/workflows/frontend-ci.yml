@@ -10,6 +10,7 @@ on:
   pull_request:
 
 jobs:
+  # TODO: Add a stage for testing the docker compose loading
   upstream:
     name: Update upstream
     runs-on: ubuntu-latest
