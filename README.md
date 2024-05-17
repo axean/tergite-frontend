@@ -61,7 +61,7 @@ cp .env.example .env
 - To rebuild and run the services, use the `fresh-docker-compose.yml`
 
 ```shell
-docker compose up -f fresh-docker-compose.yml up -d
+docker compose -f fresh-docker-compose.yml up -d
 ```
 
 - To use prebuilt images to run the services, use the `prebuilt-docker-compose.yml`

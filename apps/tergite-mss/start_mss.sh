@@ -9,7 +9,7 @@ exit_with_error () {
 
 extract_env_var () {
   local env_name="$1"
-  local res=$(grep "^[[:space:]]*${env_name}=" "$MSS_CONFIG_FILE" | grep -v '^[[:space:]]*#' | sed "s/^[[:space:]]*${env_name}=//" | head -n 1)
+  local res=$(grep "^[[:space:]]*${env_name}[[:space:]]*=" "$MSS_CONFIG_FILE" | grep -v '^[[:space:]]*#' | sed "s/^[[:space:]]*${env_name}[[:space:]]*=[[:space:]]*//" | head -n 1)
   [[ -z "$res" ]]  &&  exit_with_error "Config Error: Use ${env_name}=<value> in the $MSS_CONFIG_FILE file."
   echo $res
 }
@@ -43,8 +43,8 @@ wait_for_process()
 }
 
 # port handling
-PORT_NUMBER=$([[ "$MSS_PORT" ]] && echo $MSS_PORT || echo $(extract_env_var "MSS_PORT"))
-[[ ! "$PORT_NUMBER" =~ ^[0-9]+$ ]]  &&  exit_with_error "Port configuration failed. Use MSS_PORT=<int> in the $MSS_CONFIG_FILE file."
+PORT_NUMBER=$([[ "$MSS_PORT" ]] && echo $MSS_PORT || echo $(extract_env_var "mss_port"))
+[[ ! "$PORT_NUMBER" =~ ^[0-9]+$ ]]  &&  exit_with_error "Port configuration failed. Use mss_port=<int> in the $MSS_CONFIG_FILE file."
 
 # app settings
 APP_SETTINGS=$(echo $(extract_env_var "environment"))
