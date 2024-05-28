@@ -2,19 +2,27 @@
 
 ![CI](https://github.com/tergite/tergite-frontend/actions/workflows/mss-ci.yml/badge.svg)
 
-The Main Service Server or the Public API to the QAL 9000 Quantum Computers.
+The Main Service Server (MSS) or the Public API in the [Tergite software stack](https://tergite.github.io/) of the Swedish quantum computer.
+
+**This project is developed by a core group of collaborators.**  
+**Chalmers Next Labs AB (CNL) takes on the role of managing and maintaining this project.**
+
+## Version Control
+
+The tergite stack is developed on a separate version control system and mirrored on Github.
+If you are reading this on GitHub, then you are looking at a mirror.
 
 ## Dependencies
 
 - [Python 3.8](https://www.python.org/)
 - [MongoDb](https://www.mongodb.com/)
-- [Tergite BCC](https://github.com/tergite/tergite-bcc)
+- [Tergite Backend](https://github.com/tergite/tergite-backend)
 
 ## Quick Start
 
 - Ensure you have [conda](https://docs.anaconda.com/free/miniconda/index.html) installed.
   (_You could simply have python +3.8 installed instead._)
-- Ensure you have [tergite BCC](https://github.com/tergite/tergite-bcc) running.
+- Ensure you have [tergite backend](https://github.com/tergite/tergite-backend) running.
 - Clone the repo
 
 ```shell

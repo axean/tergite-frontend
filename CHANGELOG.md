@@ -15,6 +15,16 @@ Please refer to the `CHANGELOG.md` file of the app in question.
 
 ## [unreleased]
 
+## [2024.04.1] - 2024-05-28
+
+### Added
+
+### Changed
+
+- Updated the contribution guidelines and government model statements
+
+### Fixed
+
 ## [2024.04.0] - 2024-04-16
 
 ### Added

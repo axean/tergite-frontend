@@ -7,6 +7,18 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 ## [Unreleased]
 
+## [2024.04.1] - 2024-05-28
+
+### Added
+
+### Changed
+
+-   Updated the contributions guidelines and the government model
+
+### Fixed
+
+## [2024.04.0] - 2024-04-16
+
 ### Added
 
 ### Changed

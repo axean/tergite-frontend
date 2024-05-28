@@ -2,7 +2,15 @@
 
 [![Frontend CI](https://github.com/tergite/tergite-frontend/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/tergite/tergite-frontend/actions/workflows/frontend-ci.yml)
 
-This is a monorepo of all the services that collectively act as the public facing interface for the quantum computers they manage.
+The Frontend in the [Tergite software stack](https://tergite.github.io/) of the Swedish quantum computer.
+
+**This project is developed by a core group of collaborators.**
+**Chalmers Next Labs AB (CNL) takes on the role of managing and maintaining this project.**
+
+## Version Control
+
+The tergite stack is developed on a separate version control system and mirrored on Github.
+If you are reading this on GitHub, then you are looking at a mirror.
 
 ## Services
 

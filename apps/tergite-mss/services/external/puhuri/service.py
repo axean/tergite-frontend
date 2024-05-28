@@ -16,10 +16,10 @@ See: https://puhuri.neic.no/SDK%20guide/allocation-management-sp/#getting-a-list
 polling is to be done in a loop at a given interval
 
 This client is useful to enable the following user stories
-- Puhuri project admin can create new projects that have QAL 9000 offering indirectly in MSS (polling every few minutes or so)
-- Puhuri project admin can add new users to a project indirectly in QAL 9000 if that project has a QAL 9000 offering
-- Puhuri project admin can order for new QPU seconds for the QAL 9000 and be allocated the same extra QPU seconds in QAL 9000 indirectly
-- Puhuri project admin can view the QPU seconds left in their project since QAL 9000 updates Puhuri of per-project 
+- Puhuri project admin can create new projects that have the Swedish quantum computer offering indirectly in MSS (polling every few minutes or so)
+- Puhuri project admin can add new users to a project indirectly in the Swedish quantum computer if that project has a the Swedish quantum computer offering
+- Puhuri project admin can order for new QPU seconds for the the Swedish quantum computer and be allocated the same extra QPU seconds in the Swedish quantum computer indirectly
+- Puhuri project admin can view the QPU seconds left in their project since the Swedish quantum computer updates Puhuri of per-project 
     resource usage at a given interval or the moment an experiment is done
 """
 import asyncio

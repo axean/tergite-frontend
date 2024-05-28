@@ -12,9 +12,25 @@ We love your input! We want to make contributing to this project as easy and tra
 - Proposing new features
 - Becoming a maintainer
 
-## We Develop with Github
+## Government Model
 
-We use Github to host code, to track issues and feature requests, as well as accept pull requests.
+[Chalmers Next Labs AB (CNL)](https://chalmersnextlabs.se) manages and maintains this project on behalf of all contributors.
+
+## Version Control
+
+Tergite is developed on a separate version control system and mirrored on Github.
+If you are reading this on GitHub, then you are looking at a mirror.
+
+## Versioning
+
+When versioning we follow the format `{year}.{month}.{patch_number}` e.g. `2023.12.0`.
+
+## Contacting the Tergite Developers
+
+Since the Github repositories are only mirrors, no Github pull requests or Github issue/bug reports
+are looked. Please get in touch via email <quantum.nextlabs@chalmers.se> instead.
+
+Take note that the maintainers may not answer every email.
 
 ## But We Use [Github Flow](https://docs.github.com/en/get-started/quickstart/github-flow), So All Code Changes Happen Through Pull Requests
 
@@ -34,11 +50,6 @@ requests:
 In short, when you submit code changes, your submissions are understood to be under the
 same [Apache 2.0 License](./LICENSE) that covers the project. Feel free to contact the maintainers if that's a concern.
 
-## Report bugs using Github's [issues](https://github.com/tergite/tergite-frontend/issues)
-
-We use Bibucket issues to track bugs. Report a bug
-by [opening a new issue](https://github.com/tergite/tergite-frontend/issues); it's that easy!
-
 ## Write bug reports with detail, background, and sample code
 
 [This is an example](http://stackoverflow.com/q/12488905/180626).
@@ -56,6 +67,25 @@ Here's [another example from Craig Hockenberry](http://www.openradar.me/11905408
 
 People _love_ thorough bug reports. I'm not even kidding.
 
+## License
+
+By contributing, you agree that your contributions will be licensed under its Apache 2.0 License.
+
+## Contributor Licensing Agreement
+
+Before you can submit any code, all contributors must sign a
+contributor license agreement (CLA). By signing a CLA, you're attesting
+that you are the author of the contribution, and that you're freely
+contributing it under the terms of the Apache-2.0 license.
+
+"The [individual CLA](https://tergite.github.io/contributing/icla.pdf) document is available for review as a PDF.
+
+Please note that if your contribution is part of your employment or
+your contribution is the property of your employer,
+you will also most likely need to sign a [corporate CLA](https://tergite.github.io/contributing/ccla.pdf).
+
+All signed CLAs are emails to us at <quantum.nextlabs@chalmers.se>."
+
 ## How to Contribute to a Single App
 
 Please refer to the `CONTRIBUTING.md` file of the app in question.
@@ -67,10 +97,6 @@ Please refer to the `CONTRIBUTING.md` file of the app in question.
 ## License
 
 By contributing, you agree that your contributions will be licensed under its Apache 2.0 License.
-
-### Contributors
-
-- Martin Ahindura 2023, 2024
 
 ## References
 
