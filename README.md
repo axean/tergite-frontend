@@ -102,36 +102,6 @@ docker compose stop
 docker compose down
 ```
 
-## How to Add a Basic Auth User
-
-FOr the start, authentication is being done using [basic authentication via Nginx](https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-http-basic-authentication/).
-
-To add a new user, run the following steps.
-
-- Clone the repo
-
-```shell
-git clone git@github.com:tergite/tergite-frontend.git
-```
-
-- Make the add-auth-user script executable
-
-```shell
-cd tergite-frontend
-sudo chmod +x scripts/add-auth-user.sh
-```
-
-- Run the start script
-
-```shell
-# It will prompt you for a password
-./scripts/add-auth-user.sh \
-   --config-file /path/to/Nginx/config/for/domain/example.com \
-   --username johndoe
-```
-
-Note: you might have to run this with sudo permissions.
-
 ## FAQ
 
 ### Why can't I access the service?
