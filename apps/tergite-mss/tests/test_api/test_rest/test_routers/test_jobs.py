@@ -10,6 +10,7 @@ import settings
 from services.auth import Project
 from tests._utils.auth import TEST_PROJECT_EXT_ID, get_db_record
 from tests._utils.date_time import is_not_older_than
+from tests._utils.env import TEST_BACKENDS, TEST_BACKENDS_MAP
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection
 from tests._utils.records import order_by, pop_field
@@ -116,6 +117,7 @@ def test_create_job(
     """Post to /jobs/ creates a job in the given backend"""
     query_string = "" if backend is None else f"?backend={backend}"
     backend_param = backend if backend else "pingu"
+    expected_bcc_base_url = TEST_BACKENDS_MAP[backend_param]["url"]
     jobs_before_creation = find_in_collection(
         db,
         collection_name=_COLLECTION,
@@ -145,7 +147,7 @@ def test_create_job(
         assert response.status_code == 200
         assert response.json() == {
             "job_id": str(new_job_id),
-            "upload_url": str(settings.BCC_MACHINE_ROOT_URL) + "/jobs",
+            "upload_url": f"{expected_bcc_base_url}/jobs",
         }
 
         assert jobs_before_creation == []
@@ -180,6 +182,7 @@ def test_create_job_with_auth_disabled(mock_bcc, db, no_auth_client, backend: st
     """Post to /jobs/ creates a job in the given backend even when auth is disabled"""
     query_string = "" if backend is None else f"?backend={backend}"
     backend_param = backend if backend else "pingu"
+    expected_bcc_base_url = TEST_BACKENDS_MAP[backend_param]["url"]
     jobs_before_creation = find_in_collection(
         db,
         collection_name=_COLLECTION,
@@ -207,7 +210,7 @@ def test_create_job_with_auth_disabled(mock_bcc, db, no_auth_client, backend: st
         assert response.status_code == 200
         assert response.json() == {
             "job_id": str(new_job_id),
-            "upload_url": str(settings.BCC_MACHINE_ROOT_URL) + "/jobs",
+            "upload_url": f"{expected_bcc_base_url}/jobs",
         }
 
         assert jobs_before_creation == []

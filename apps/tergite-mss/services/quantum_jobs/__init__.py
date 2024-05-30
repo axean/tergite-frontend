@@ -21,7 +21,6 @@ from uuid import UUID, uuid4
 from beanie import PydanticObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-import settings
 from services.external.bcc import BccClient
 from utils import mongodb as mongodb_utils
 from utils.date_time import get_current_timestamp
@@ -138,9 +137,11 @@ async def create_job(
     await bcc_client.save_credentials(job_id=job_id, app_token=f"{app_token}")
     await mongodb_utils.insert_one(collection=db.jobs, document=document)
 
+    upload_url = _without_special_docker_host_domain(f"{bcc_client.base_url}/jobs")
+
     return {
         "job_id": job_id,
-        "upload_url": f"{settings.BCC_MACHINE_ROOT_URL}/jobs",
+        "upload_url": upload_url,
     }
 
 
@@ -307,3 +308,18 @@ async def update_resource_usage(
             f"project '{project_id}' for job '{job_id}' not found"
         )
     return project, qpu_seconds_used
+
+
+def _without_special_docker_host_domain(url: str) -> str:
+    """Removes the docker host's URL special domain 'host.docker.internal'
+
+    This is useful when the url is to be used by an application outside
+    the docker instance on which this frontend is running
+
+    Args:
+        url: the URL that might contain the docker host's special domain
+
+    Returns:
+        the URL updated with the special 'host.docker.internal' removed
+    """
+    return url.replace("host.docker.internal", "127.0.0.1")

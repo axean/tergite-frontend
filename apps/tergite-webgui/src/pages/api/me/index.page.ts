@@ -10,14 +10,14 @@ export default async function handler(
 		return;
 	}
 
-	const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
-	const oauthConfig = await readToml(oauthConfigFile);
+	const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
+	const mssConfig = await readToml(mssConfigFile);
 
-	const generalConfig = oauthConfig.general || {};
-	const cookieName = generalConfig.cookie_name;
+	const authConfig = mssConfig.auth || {};
+	const cookieName = authConfig.cookie_name;
 	const token = getAccessToken(req, cookieName);
 	try {
-		const result = token && (await verifyJwtToken(token, oauthConfig));
+		const result = token && (await verifyJwtToken(token, mssConfig));
 		const resp =
 			result && ({ id: result.payload.sub, roles: result.payload.roles } as API.User);
 		if (!resp) {

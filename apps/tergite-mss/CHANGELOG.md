@@ -9,9 +9,13 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 ### Added
 
+- Added ability to handle multiple BCC's
+
 ### Changed
 
 - Moved tergite-mss to the tergite-frontend monorepo
+- Changed configuration control to use `mss-config.toml` not `.env`
+- Removed the `auth_config.toml` file
 
 ### Fixed
 

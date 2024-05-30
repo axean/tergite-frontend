@@ -10,7 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Integration tests for the Puhuri background jobs"""
-import pprint
 from datetime import datetime
 from time import sleep
 from typing import List
@@ -217,16 +216,16 @@ def test_update_internal_resource_allocations(
 
 
 def test_puhuri_sync_enabled(mock_puhuri_synchronize):
-    """Should start puhuri synchronizer if 'IS_PUHURI_SYNC_ENABLED' environment variable is True"""
+    """Should start puhuri synchronizer if 'puhuri.is_enabled' config variable is true"""
     puhuri_sync.main([])
     mock_puhuri_synchronize.assert_called()
 
 
 def test_puhuri_sync_disabled(disabled_puhuri_sync, mock_puhuri_synchronize):
-    """Should not start puhuri synchronizer if 'IS_PUHURI_SYNC_ENABLED' environment variable is False"""
+    """Should not start puhuri synchronizer if 'puhuri.is_enabled' config variable is false"""
     with pytest.raises(
         ValueError,
-        match="environment variable 'IS_PUHURI_SYNC_ENABLED' is False",
+        match="'puhuri.is_enabled' config variable is false",
     ):
         puhuri_sync.main([])
 

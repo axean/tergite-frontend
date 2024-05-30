@@ -20,7 +20,7 @@ from fastapi_users import exceptions, schemas
 from fastapi_users.router.common import ErrorModel
 from pydantic import EmailStr
 
-from ..users.dtos import CurrentSuperUserDependency, CurrentUserIdDependency, User
+from ..users.dtos import CurrentSuperUserDependency, CurrentUserIdDependency
 from ..users.manager import UserManager, UserManagerDependency
 from ..utils import MAX_LIST_QUERY_LEN, TooManyListQueryParams
 from . import exc

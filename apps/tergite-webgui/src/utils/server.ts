@@ -32,12 +32,12 @@ export function logout(req: NextApiRequest, res: NextApiResponse, cookieName: st
 /**
  * Verified a given JWT token
  * @param token - the token to be verified
- * @param oauthConfig - the auth config got from the auth config file
+ * @param mssConfig - the MSS config got from the mss-config file
  * @returns - the verifiration result including the claims stored  in the payload
  */
-export async function verifyJwtToken(token: string, oauthConfig: Record<string, any>) {
-	const generalConfig = oauthConfig.general || {};
-	const jwtSecret = generalConfig.jwt_secret || '';
+export async function verifyJwtToken(token: string, mssConfig: Record<string, any>) {
+	const authConfig = mssConfig.auth || {};
+	const jwtSecret = authConfig.jwt_secret || '';
 	const audience = 'fastapi-users:auth';
 	const algorithms = ['HS256'];
 	const secret = new TextEncoder().encode(jwtSecret);
@@ -84,3 +84,4 @@ export async function readToml(file: string, refresh: boolean = false) {
 
 	return cachedFile;
 }
+

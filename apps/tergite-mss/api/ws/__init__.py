@@ -24,6 +24,7 @@ from motor.motor_asyncio import AsyncIOMotorCollection as MotorCollection
 from websockets.server import WebSocketServerProtocol
 from websockets.server import serve as WebSocketServer
 
+import settings
 from api.ws.utils import get_polling_time, parse_fileargs
 from services.device_info import (
     append_latest_device_config,
@@ -33,7 +34,6 @@ from services.device_info import (
     is_address_online,
 )
 from services.device_info.config import app_config
-from settings import DB_MACHINE_ROOT_URL, DB_NAME
 
 
 async def main():
@@ -45,8 +45,8 @@ async def main():
     loop = asyncio.get_event_loop()
 
     # MongoDB Setup.
-    mongodb_uri = str(DB_MACHINE_ROOT_URL)
-    db_name = str(DB_NAME)
+    mongodb_uri = str(settings.CONFIG.database.url)
+    db_name = str(settings.CONFIG.database.name)
     db_data_collection = "data"
     db_config_collection = "config"
 

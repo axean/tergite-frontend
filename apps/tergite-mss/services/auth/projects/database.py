@@ -17,7 +17,6 @@ from beanie import PydanticObjectId, UpdateResponse
 from beanie.odm.operators.update.general import Inc
 from fastapi_users.models import ID
 
-from ..users.dtos import User
 from .dtos import Project
 
 

@@ -16,7 +16,7 @@ meResponses.forEach((resp) => {
 			equalityErrorMargin = parseFloat(equalityErrorMarginStr);
 
 			const baseUrl = Cypress.env('API_BASE_URL');
-			const oauthConfigFile = Cypress.env('AUTH_CONFIG_FILE');
+			const mssConfigFile = Cypress.env('MSS_CONFIG_FILE');
 			const landingPageUrl = Cypress.env('LANDING_ENDPOINT');
 			const apiRoutes = getApiRoutes(baseUrl);
 
@@ -44,11 +44,11 @@ meResponses.forEach((resp) => {
 			}).as('luki-type1-request');
 
 			if (user.id) {
-				cy.task('readToml', oauthConfigFile).then((oauthConfig: Record<string, any>) => {
-					cy.wrap(generateJwt(user, oauthConfig)).then((jwtToken: string) => {
-						const generalConfig = oauthConfig.general || {};
-						const cookieName = generalConfig.cookie_name;
-						const domain = generalConfig.cookie_domain;
+				cy.task('readToml', mssConfigFile).then((mssConfig: Record<string, any>) => {
+					cy.wrap(generateJwt(user, mssConfig)).then((jwtToken: string) => {
+						const authConfig = mssConfig.auth || {};
+						const cookieName = authConfig.cookie_name;
+						const domain = authConfig.cookie_domain;
 
 						cy.setCookie(cookieName, jwtToken, {
 							domain,

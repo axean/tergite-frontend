@@ -35,14 +35,14 @@ def main(
         "-i",
         "--ignore-if-disabled",
         action="store_true",
-        help="don't raise any error if `IS_PUHURI_SYNC_ENABLED` environment variable is False",
+        help="don't raise any error if `puhuri.is_enabled` is false",
     )
     parsed_args = parser.parse_args(args)
 
-    if settings.IS_PUHURI_SYNC_ENABLED:
+    if settings.CONFIG.puhuri.is_enabled:
         asyncio.run(puhuri.synchronize(stop_event))
     elif not parsed_args.ignore_if_disabled:
-        raise ValueError("environment variable 'IS_PUHURI_SYNC_ENABLED' is False")
+        raise ValueError("'puhuri.is_enabled' config variable is false")
 
 
 if __name__ == "__main__":

@@ -35,11 +35,11 @@ cd tergite-frontend/apps/tergite-mss
 pip install -r requirements.txt
 ```
 
-- Copy the `dot-env-template.txt` file to `.env` and
-  update the environment variables there appropriately.
+- Copy the `mss-config.example.toml` file to `mss-config.toml` and
+  update the variables there appropriately.
 
 ```shell
-cp dot-env-template.txt .env
+cp mss-config.example.toml mss-config.toml
 ```
 
 - Run start script

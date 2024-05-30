@@ -44,11 +44,11 @@ DOCKER_USERNAME=johndoe
 docker login ${CONTAINER_REGISTRY} -u $DOCKER_USERNAME
 ```
 
-- Copy the `auth_config.example.toml` to `auth_config.toml` and update the configuration there.
+- Copy the `mss-config.example.toml` to `mss-config.toml` and update the configuration there.
 
 ```shell
 cd tergite-frontend
-cp auth_config.example.toml auth_config.toml
+cp mss-config.example.toml mss-config.toml
 ```
 
 - Create a `.env` file basing on the `.env.example` file.
@@ -58,13 +58,13 @@ cp auth_config.example.toml auth_config.toml
 cp .env.example .env
 ```
 
-- To rebuild and run the services, use the `fresh.yml`
+- To rebuild and run the services, use the `fresh-docker-compose.yml`
 
 ```shell
-docker compose up -f fresh-docker-compose.yml up -d
+docker compose -f fresh-docker-compose.yml up -d
 ```
 
-- To use prebuilt images to run the services, use the `prebuilt.yml`
+- To use prebuilt images to run the services, use the `prebuilt-docker-compose.yml`
 
 ```shell
 docker compose -f prebuilt-docker-compose.yml up -d

@@ -39,3 +39,4 @@ cypress/screenshots/**/*
 .env.local
 
 auth_config.toml
+mss-config.toml

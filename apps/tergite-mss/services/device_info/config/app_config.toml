@@ -1,6 +1,6 @@
-[REST_API_MAP]
-web-gui = "/web-gui"
-device_config = "/web-gui/config"
+#[REST_API_MAP]
+#web-gui = "/web-gui"
+#device_config = "/web-gui/config"
 
 [PORTS]
 WS_PORT = 6532
@@ -10,10 +10,10 @@ pingu = "http://localhost:9090"
 loke = "http://localhost:9000"
 lokea = "http://localhost:8090"
 
-[SERVER]
-WS_HOST = "ws://localhost:"
+#[SERVER]
+#WS_HOST = "ws://localhost:"
 
 
 [TIMEOUTS]
-REQUEST_TIMEOUT = 10
+#REQUEST_TIMEOUT = 10
 ENDPOINT_FETCH_TIMEOUT = 10

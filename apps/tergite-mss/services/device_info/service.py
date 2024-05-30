@@ -567,8 +567,7 @@ async def append_latest_device_info(
         db_data_collection: the collection in mongo db that has data
         host_address: the URL address where the device is running
     """
-    url = f'{host_address}{app_config["REST_API_MAP"]["web-gui"]}'
-    response = await fetch_data(url)
+    response = await fetch_data(f"{host_address}/web-gui")
     if response is not None:
         await insert_backend_data_in_db(db_data_collection, response, False)
 
@@ -582,8 +581,7 @@ async def append_latest_device_config(
         db_config_collection: the collection in mongo db that has the configs
         host_address: the URL address where the device is running
     """
-    config_addr = host_address + app_config["REST_API_MAP"]["device_config"]
-    response = await fetch_data(config_addr)
+    response = await fetch_data(f"{host_address}/web-gui/config")
     if response is not None:
         await _insert_config(db_config_collection, response)
 

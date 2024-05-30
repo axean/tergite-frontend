@@ -36,8 +36,8 @@ from .exc import ComponentNotFoundError, PlanPeriodNotFoundError
 
 @lru_cache()
 def get_client(
-    uri: str = settings.PUHURI_WALDUR_API_URI,
-    access_token: str = settings.PUHURI_WALDUR_CLIENT_TOKEN,
+    uri: str = settings.CONFIG.puhuri.waldur_api_uri,
+    access_token: str = settings.CONFIG.puhuri.waldur_client_token,
 ) -> WaldurClient:
     """Retrieves the client used to access Puhuri
 

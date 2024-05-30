@@ -1,10 +1,11 @@
 from tests._utils.env import (
-    TEST_AUTH_CONFIG_FILE,
-    TEST_BCC_URL,
+    TEST_BACKENDS,
+    TEST_MSS_CONFIG_FILE,
     TEST_DB_NAME,
+    TEST_DISABLED_PUHURI_MSS_CONFIG_FILE,
     TEST_JWT_SECRET,
     TEST_MONGODB_URL,
-    TEST_NO_AUTH_CONFIG_FILE,
+    TEST_NO_AUTH_MSS_CONFIG_FILE,
     TEST_PUHURI_CONFIG_ENDPOINT,
     setup_test_env,
 )
@@ -76,15 +77,15 @@ def mock_puhuri_synchronize(mocker) -> Mock:
 def disabled_puhuri_sync():
     """Disables PUHURI synchronization"""
     original_env = {
-        "IS_PUHURI_SYNC_ENABLED": environ.get("IS_PUHURI_SYNC_ENABLED", "True"),
+        "MSS_CONFIG_FILE": environ.get("MSS_CONFIG_FILE", "mss-config.toml"),
     }
 
-    environ["IS_PUHURI_SYNC_ENABLED"] = "False"
+    environ["MSS_CONFIG_FILE"] = TEST_DISABLED_PUHURI_MSS_CONFIG_FILE
     importlib.reload(settings)
     yield
 
     # reset
-    environ["IS_PUHURI_SYNC_ENABLED"] = original_env["IS_PUHURI_SYNC_ENABLED"]
+    environ["MSS_CONFIG_FILE"] = original_env["MSS_CONFIG_FILE"]
     importlib.reload(settings)
 
 
@@ -181,7 +182,7 @@ def client(db) -> TestClient:
 @pytest.fixture
 def no_auth_client(db) -> TestClient:
     """A test client for fast api without auth"""
-    environ["AUTH_CONFIG_FILE"] = TEST_NO_AUTH_CONFIG_FILE
+    environ["MSS_CONFIG_FILE"] = TEST_NO_AUTH_MSS_CONFIG_FILE
     importlib.reload(settings)
     from api.rest import app
 
@@ -189,7 +190,7 @@ def no_auth_client(db) -> TestClient:
     yield TestClient(app)
 
     # reset
-    environ["AUTH_CONFIG_FILE"] = TEST_AUTH_CONFIG_FILE
+    environ["MSS_CONFIG_FILE"] = TEST_MSS_CONFIG_FILE
     importlib.reload(settings)
 
 
@@ -390,9 +391,10 @@ def invalid_chalmers_user(respx_mock):
 @pytest.fixture
 def mock_bcc(respx_mock):
     """A mock BCC service"""
-    respx_mock.post(f"{TEST_BCC_URL}/auth").mock(
-        return_value=httpx.Response(status_code=200, json={"message": "ok"})
-    )
+    for backend in TEST_BACKENDS:
+        respx_mock.post(f"{backend['url']}/auth").mock(
+            return_value=httpx.Response(status_code=200, json={"message": "ok"})
+        )
 
     yield respx_mock
 
@@ -400,7 +402,8 @@ def mock_bcc(respx_mock):
 @pytest.fixture
 def mock_unavailable_bcc(respx_mock):
     """A mock BCC service that is unavailable"""
-    respx_mock.post(f"{TEST_BCC_URL}/auth").mock(side_effect=httpx.ConnectError)
+    for backend in TEST_BACKENDS:
+        respx_mock.post(f"{backend['url']}/auth").mock(side_effect=httpx.ConnectError)
 
     yield respx_mock
 
@@ -408,7 +411,9 @@ def mock_unavailable_bcc(respx_mock):
 @pytest.fixture
 def mock_timed_out_bcc(respx_mock):
     """A mock BCC service that times out"""
-    respx_mock.post(f"{TEST_BCC_URL}/auth").mock(side_effect=httpx.ConnectTimeout)
+    for backend in TEST_BACKENDS:
+        respx_mock.post(f"{backend['url']}/auth").mock(side_effect=httpx.ConnectTimeout)
+
     yield respx_mock
 
 

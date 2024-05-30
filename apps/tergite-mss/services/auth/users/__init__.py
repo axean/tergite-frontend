@@ -30,19 +30,17 @@ import settings
 from . import exc, routers
 from .authenticator import UserAuthenticator
 from .database import UserDatabase
-from .dtos import ID, UP, CurrentUserDependency, OAuthAccount, User, UserRole
+from .dtos import ID, UP, CurrentUserDependency, OAuthAccount, User
 from .manager import UserManager
 from .strategy import CustomJWTStrategy
 from .validators import EmailRegexValidator, Validator
 
 _AUTH_EMAIL_REGEX_MAP: Dict[str, Tuple[str, Union[re.RegexFlag, int]]] = {
-    f"{client['name']}": (client.get("email_regex", ".*"), 0)
-    for client in settings.OAUTH2_CLIENTS_CONFS
+    f"{client.name}": (client.email_regex, 0) for client in settings.CONFIG.auth.clients
 }
 
 _AUTH_ROLES_MAP: Dict[str, Optional[Sequence[str]]] = {
-    client["name"]: client.get("roles", None)
-    for client in settings.OAUTH2_CLIENTS_CONFS
+    client.name: client.roles for client in settings.CONFIG.auth.clients
 }
 
 

@@ -13,13 +13,13 @@
 
 
 from datetime import datetime, timezone
-from typing import Optional, Tuple
+from typing import Tuple
 
 from fastapi import HTTPException
 
 import settings
 
-_DATETIME_PRECISION = settings.DATETIME_PRECISION
+_DATETIME_PRECISION = settings.CONFIG.datetime_precision
 
 
 def parse_datetime_string(datetime_str: str) -> datetime:

@@ -41,7 +41,7 @@ same [Apache 2.0 License](./LICENSE) that covers the project. Feel free to conta
 
 ## Report bugs using Github's [issues](https://github.com/tergite/tergite-frontend/issues)
 
-We use Github issues to track bugs. 
+We use Github issues to track bugs.
 Report a bug by [opening a new issue](https://github.com/tergite/tergite-frontend/issues) and adding the label 'landing-page' to it; it's that easy!
 
 ## Write bug reports with detail, background, and sample code
@@ -137,7 +137,7 @@ docker run -p 3000:80 --name landing-page \
     -e MSS_ENDPOINT="https://api.example.com" \
     -e API_BASE_URL="http://127.0.0.1:8002" \
     -e OAUTH_REDIRECT_URI="http://127.0.0.1:3000" \
-    -e AUTH_CONFIG_FILE="/path/to/your/auth_config.toml"
+    -e MSS_CONFIG_FILE="/path/to/your/mss-config.toml"
     ${CONTAINER_REGISTRY}/tergite-landing-page:local
 ```
 

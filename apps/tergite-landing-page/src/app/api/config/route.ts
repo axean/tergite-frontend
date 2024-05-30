@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
 	const baseUrl = process.env.MSS_ENDPOINT || '';
 	const appBaseUrl = process.env.LANDING_ENDPOINT;
-	const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
+	const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
 
 	// FIXME: In future, these configurations could be even got from a redis instance
 	// or MSS or whatever
@@ -29,8 +29,8 @@ export async function GET(request: Request) {
 	];
 	// when compiled, width and height are essential; when in dev, chaos arises with both fill and width on Image
 	const extraProps = process.env.NODE_ENV === 'production' ? { height: 410, width: 1000 } : {};
-	const oauthConfig = await readToml(oauthConfigFile);
-	const oauthClients = oauthConfig.clients as { name: string }[];
+	const mssConfig = await readToml(mssConfigFile);
+	const oauthClients = mssConfig.auth.clients as { name: string }[];
 
 	const oauth2Providers: API.Oauth2ProviderInfo[] = oauthClients.map((v) =>
 		OAUTH2_LOGOS[v.name]

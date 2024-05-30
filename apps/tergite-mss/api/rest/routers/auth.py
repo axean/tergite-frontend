@@ -21,9 +21,9 @@ from services.auth import (
     JWT_AUTH,
     JWT_COOKIE_BACKEND,
     JWT_HEADER_BACKEND,
-    Oauth2ClientConfig,
     register_oauth2_client,
 )
+from utils.config import Oauth2ClientConfig
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -46,13 +46,13 @@ router.include_router(
 )
 
 # Oauth clients for authentication
-for client in settings.OAUTH2_CLIENTS_CONFS:
+for client in settings.CONFIG.auth.clients:
     register_oauth2_client(
         router,
         controller=JWT_AUTH,
         auth_header_backend=JWT_HEADER_BACKEND,
         auth_cookie_backend=JWT_COOKIE_BACKEND,
-        jwt_secret=settings.JWT_SECRET,
+        jwt_secret=settings.CONFIG.auth.jwt_secret,
         conf=Oauth2ClientConfig.parse_obj(client),
         tags=["auth"],
     )

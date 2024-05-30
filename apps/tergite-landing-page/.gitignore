@@ -40,3 +40,4 @@ cypress/screenshots/
 .vscode/
 
 auth_config.toml
+mss-config.toml

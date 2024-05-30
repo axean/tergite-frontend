@@ -137,6 +137,7 @@ docker run -p 8002:80 \
   --name mss-local \
   -e BCC_MACHINE_ROOT_URL="http://0.0.0.0:8000" \
   -e DB_MACHINE_ROOT_URL="mongodb://production-db.se" \
+  -e MSS_CONFIG_FILE="/path/to/your/mss-config.toml" \
   ${CONTAINER_REGISTRY}/tergite-mss:local
 ```
 

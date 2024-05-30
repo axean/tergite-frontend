@@ -31,14 +31,14 @@ app.use('/auth/projects*', (req, res, next) => {
 	if (req.method === 'OPTIONS') {
 		next();
 	}
-	const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
-	readToml(oauthConfigFile)
-		.then((oauthConfig) => {
-			const generalConfig = oauthConfig.general || {};
-			const cookieName = generalConfig.cookie_name;
+	const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
+	readToml(mssConfigFile)
+		.then((mssConfig) => {
+			const authConfig = mssConfig.auth || {};
+			const cookieName = authConfig.cookie_name;
 			const accessToken = req.cookies[cookieName];
 
-			verifyJwtToken(accessToken, oauthConfig)
+			verifyJwtToken(accessToken, mssConfig)
 				.then(({ payload }) => {
 					if (!payload.roles.includes('admin')) {
 						res.status(403);
@@ -64,14 +64,14 @@ app.use('/auth/me/*', (req, res, next) => {
 		next();
 	}
 
-	const oauthConfigFile = process.env.AUTH_CONFIG_FILE || 'auth_config.toml';
-	readToml(oauthConfigFile)
-		.then((oauthConfig) => {
-			const generalConfig = oauthConfig.general || {};
-			const cookieName = generalConfig.cookie_name;
+	const mssConfigFile = process.env.MSS_CONFIG_FILE || 'mss-config.toml';
+	readToml(mssConfigFile)
+		.then((mssConfig) => {
+			const authConfig = mssConfig.auth || {};
+			const cookieName = authConfig.cookie_name;
 			const accessToken = req.cookies[cookieName];
 
-			verifyJwtToken(accessToken, oauthConfig)
+			verifyJwtToken(accessToken, mssConfig)
 				.then(({ payload }) => {
 					req.user = { ...payload, id: payload.sub };
 					next();
