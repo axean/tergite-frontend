@@ -40,7 +40,8 @@ If you are reading this on GitHub, then you are looking at a mirror.
 git clone git@github.com:tergite/tergite-frontend.git
 ```
 
-- Login to a hosted docker container registry e.g. one based on the [tergite-registry repo](https://github.com/tergite/tergite-registry)
+- You might need to login to a hosted docker container registry e.g. one based on the [tergite-registry repo](https://github.com/tergite/tergite-registry), 
+  especially if you are going to use prebuilt tergite images.
 
 ```shell
 # e.g. if container registry is hosted at example.com:8002
