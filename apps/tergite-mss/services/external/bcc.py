@@ -26,7 +26,7 @@ async def create_clients(configs: List[BccConfig]):
     """Creates the Bcc clients for the given BCC configs
 
     Args:
-        configs: the configs for the BCC's
+        configs: the configs for the Tergite backends
     """
     global _BCC_CLIENTS
     await close_clients()

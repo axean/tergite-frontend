@@ -2,7 +2,7 @@
 
 A place to share code relating to the development of the IAA stack for NordIQuEst.
 
-## QAL 9000 Playground
+## The Swedish Quantum Computer Playground
 
 Find the playground in [logic jupyter notebook](logic.ipynb)
 

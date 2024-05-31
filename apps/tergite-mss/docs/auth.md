@@ -124,7 +124,7 @@ If you are in development mode, you can just switch of authentication altogether
   request is sent to `/jobs` on MSS (this app) with an `app_token` in its `Authorization` header
 - A new job entry is created in the database, together with a new unique `job_id`.
 - MSS notifies BCC of the `job_id` and its associated `app_token` by sending a `POST` request to `/auth` endpoint
-  of [BCC](https://github.com/tergite/tergite-bcc).
+  of [BCC](https://github.com/tergite/tergite-backend).
 - In the response to the client, MSS returns the `/jobs` url for the given BCC backend
 - The client then sends its experiment data to the BCC `/jobs` url, with the same `app_token` in
   its `Authorization` header and the same `job_id` in the experiment data.

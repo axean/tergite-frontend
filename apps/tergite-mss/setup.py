@@ -35,12 +35,12 @@ _README = (_ROOT_DIRECTORY / "README.md").read_text()
 
 setuptools.setup(
     name="tergite-mss",
-    version="2024.02.0",
+    version="2024.04.1",
     author="Miroslav Dobsicek",
-    maintainer="Martin Ahindura",
-    maintainer_email="martin.ahindura@chalmers.se",
+    maintainer="Chalmers Next Labs AB",
+    maintainer_email="quantum.nextlabs@chalmers.se",
     author_email="dobsicek@chalmers.se",
-    description="Main Service Server - the public API for the QAL 9000 - Like Quantum Computers",
+    description="the public API for the Swedish quantum computer",
     long_description=_README,
     long_description_content_type="text/markdown",
     url="https://github.com/tergite/tergite-mss",

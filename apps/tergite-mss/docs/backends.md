@@ -4,7 +4,7 @@ This is documentation about how we manage the different backends that connect to
 
 ## How to Add New BCC
 
-- Start your [tergite-bcc](https://github.com/tergite/tergite-bcc) instance
+- Start your [tergite-backend](https://github.com/tergite/tergite-backend) instance
 - Copy the `mss-config.example.toml` to `mss-config.toml`.  
   Note: You could also create a new toml file based on `mss-config.example.toml`  
   and set the `MSS_CONFIG_FILE` environment variable to point to that file.

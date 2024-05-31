@@ -2,7 +2,15 @@
 
 ![CI](https://github.com/tergite/tergite-frontend/actions/workflows/landing-page-ci.yml/badge.svg)
 
-This is the static home page for the qal9000 project that will be the landing page for all qal9000-related projects
+The landing page in the [Tergite software stack](https://tergite.github.io/) of the Swedish Quantum computer.
+
+**This project is developed by a core group of collaborators.**    
+**Chalmers Next Labs AB (CNL) takes on the role of managing and maintaining this project.**
+
+## Version Control
+
+The tergite stack is developed on a separate version control system and mirrored on Github.
+If you are reading this on GitHub, then you are looking at a mirror. 
 
 ## Dependencies
 

@@ -1,6 +1,6 @@
 {
 	"private": true,
-	"version": "2024.02.0",
+	"version": "2024.04.1",
 	"scripts": {
 		"postinstall": "node -e \"process.env.NODE_ENV == 'production' && process.exit()\" || husky install",
 		"prepare": "node -e \"process.env.NODE_ENV == 'production' && process.exit()\" || husky install",

@@ -2,7 +2,15 @@
 
 ![CI](https://github.com/tergite/tergite-frontend/actions/workflows/webgui-ci.yml/badge.svg)
 
-The Visual Interface for the QAL 9000 quantum computers.
+The dashboard in the [Tergite software stack](https://tergite.github.io/) of the Swedish quantum computer.
+
+**This project is developed by a core group of collaborators.**    
+**Chalmers Next Labs AB (CNL) takes on the role of managing and maintaining this project.**
+
+## Version Control
+
+The tergite stack is developed on a separate version control system and mirrored on Github.
+If you are reading this on GitHub, then you are looking at a mirror. 
 
 ## Dependencies
 

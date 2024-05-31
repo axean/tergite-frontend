@@ -1,6 +1,6 @@
 {
 	"name": "tergite-landing-page",
-	"version": "2024.02.0",
+	"version": "2024.04.1",
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
