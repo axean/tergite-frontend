@@ -12,12 +12,12 @@ This is how MSS authenticates its users and controls their access to the quantum
 - The two strings are unique to this system, but are given by the Oauth2 provider
 - Common Oauth2 providers include Google, Github, Microsoft, Chalmers (which uses Microsoft)
 - Organizations which have a sort of ActiveDirectory can automatically be Oauth2 providers.
-- We also use [OpenID Connect]() which is a flavour of Oauth2 that requires a third string, a  
+- We also use [OpenID Connect](https://openid.net/developers/how-connect-works/) which is a flavour of Oauth2 that requires a third string, a  
   `OPENID_CONFIGURATION_ENDPOINT`, from where to get the configuration of the openID provider.
 
 ### How to Set Up a New Oauth2 Provider
 
-- Let's say we want some 'Ericsson' users to have access to MSS.
+- Let's say we want some 'Company B' users to have access to MSS.
 - Copy the `mss-config.example.toml` to `mss-config.toml`, and update the configs therein.  
   Note: You could also create a new toml file based on `mss-config.example.toml`  
   and set the `MSS_CONFIG_FILE` environment variable to point to that file.
@@ -25,19 +25,19 @@ This is how MSS authenticates its users and controls their access to the quantum
 
 ```toml
 [[auth.clients]]
-# this name will appear in the URLs e.g. http://127.0.0.1:8002/auth/app/ericsson/...
-name = "ericcson"
+# this name will appear in the URLs e.g. http://127.0.0.1:8002/auth/app/company-b/...
+name = "company-b"
 client_id = "some-openid-client-id"
 client_secret = "some-openid-client-secret"
 # the URL to redirect to after user authenticates with the system.
 # It is of the format {MSS_BASE_URL}/auth/app/{provider_name}/callback
-redirect_url = "http://127.0.0.1:8002/auth/app/ericsson/callback"
+redirect_url = "http://127.0.0.1:8002/auth/app/company-b/callback"
 client_type = "openid"
 email_regex = ".*"
-# Roles that are automatically given to users who authenticate through Ericsson
+# Roles that are automatically given to users who authenticate through Company B
 # roles can be: "admin", "user", "researcher", "partner". Default is "user".
 roles = ["partner", "user"]
-# openid_configuration_endpoint is necessary if Ericsson uses OpenID Connect, otherwise ignore.
+# openid_configuration_endpoint is necessary if Company B uses OpenID Connect, otherwise ignore.
 openid_configuration_endpoint = "https://proxy.acc.puhuri.eduteams.org/.well-known/openid-configuration"
 ```
 

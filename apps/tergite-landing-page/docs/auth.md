@@ -9,32 +9,19 @@ It is a continuation of the documentation of the same from [the tergite-mss repo
 
 ### How to Add a new Oauth2 provider
 
--   Open the [`src/app/api/config/route.ts`](../src/app/api/config/route.ts) file and update its `oauth2Provider` list to include your new provider.
-
+-   Do note that this provider must already be set up in MSS, as seen in the instructions in [MSS auth docs](../../tergite-mss/docs/auth.md), and the names should match.
+-   Add the logo for the new provider in the [`public/img`](../public/img/) folder.
+-   Open the [`src/app/api/config/route.ts`](../src/app/api/config/route.ts) file and update its `OAUTH2_LOGOS` list to include your new provider's logo.
 ```typescript
-const oauth2Providers: API.Oauth2ProviderInfo[] = [
-	{
-		name: 'github',
-		logo: { src: `${appBaseUrl}/img/github-black.png`, ...extraProps }
-	},
-	{ name: 'puhuri' },
-	{
-		name: 'chalmers',
-		logo: { src: `${appBaseUrl}/img/chalmers-logo.svg`, ...extraProps }
-	},
-	// say, we are adding a new provider called 'erikson'
-	{
-		name: 'erikson',
-		logo: { src: `${appBaseUrl}/img/erikson-logo.svg`, ...extraProps }
-	}
-];
+const OAUTH2_LOGOS: { [key: string]: string } = {
+	github: '/img/github-black.png',
+	chalmers: '/img/chalmers-logo.svg',
+	ericsson: '/img/ericsson-logo.svg',
+};
 ```
 
--   Do note that this provider must already be set up in MSS, as seen in the intructions in [MSS auth docs](https://github.com/tergite/tergite-mss/tree/main/docs/auth.md), and the names should match.
--   As you have noticed, there is an option of adding a logo for the given provider. You can add the logo in the [`public/img`](../public/img/) folder.
-
 -   Start MSS.
-    Instructions are on the [README.md](https://github.com/tergite/tergite-mss/tree/main/README.md)
+    Instructions are on the [README.md](../../tergite-mss/README.md)
 -   Start the landing page.
     Instructions are on its [README.md](../README.md)
 
