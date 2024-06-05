@@ -30,7 +30,7 @@ export async function GET(request: Request) {
 	// when compiled, width and height are essential; when in dev, chaos arises with both fill and width on Image
 	const extraProps = process.env.NODE_ENV === 'production' ? { height: 410, width: 1000 } : {};
 	const mssConfig = await readToml(mssConfigFile);
-	const oauthClients = mssConfig.auth.clients as { name: string }[];
+	const oauthClients = (mssConfig?.auth?.clients || []) as { name: string }[];
 
 	const oauth2Providers: API.Oauth2ProviderInfo[] = oauthClients.map((v) =>
 		OAUTH2_LOGOS[v.name]
