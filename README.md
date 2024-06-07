@@ -2,7 +2,7 @@
 
 [![Frontend CI](https://github.com/tergite/tergite-frontend/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/tergite/tergite-frontend/actions/workflows/frontend-ci.yml)
 
-The Frontend in the [Tergite software stack](https://tergite.github.io/) of the Swedish quantum computer.
+The Frontend in the [Tergite software stack](https://tergite.github.io/) of the WACQT quantum computer.
 
 **This project is developed by a core group of collaborators.**
 **Chalmers Next Labs AB (CNL) takes on the role of managing and maintaining this project.**

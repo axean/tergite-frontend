@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/tergite/tergite-frontend/actions/workflows/webgui-ci.yml/badge.svg)
 
-The dashboard in the [Tergite software stack](https://tergite.github.io/) of the Swedish quantum computer.
+The dashboard in the [Tergite software stack](https://tergite.github.io/) of the WACQT quantum computer.
 
 **This project is developed by a core group of collaborators.**    
 **Chalmers Next Labs AB (CNL) takes on the role of managing and maintaining this project.**

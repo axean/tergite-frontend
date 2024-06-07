@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/tergite/tergite-frontend/actions/workflows/mss-ci.yml/badge.svg)
 
-The Main Service Server (MSS) or the Public API in the [Tergite software stack](https://tergite.github.io/) of the Swedish quantum computer.
+The Main Service Server (MSS) or the Public API in the [Tergite software stack](https://tergite.github.io/) of the WACQT quantum computer.
 
 **This project is developed by a core group of collaborators.**  
 **Chalmers Next Labs AB (CNL) takes on the role of managing and maintaining this project.**

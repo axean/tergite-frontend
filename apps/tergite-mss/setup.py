@@ -40,7 +40,7 @@ setuptools.setup(
     maintainer="Chalmers Next Labs AB",
     maintainer_email="quantum.nextlabs@chalmers.se",
     author_email="dobsicek@chalmers.se",
-    description="the public API for the Swedish quantum computer",
+    description="the public API for the WACQT quantum computer",
     long_description=_README,
     long_description_content_type="text/markdown",
     url="https://github.com/tergite/tergite-mss",
