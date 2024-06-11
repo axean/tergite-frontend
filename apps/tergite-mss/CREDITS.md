@@ -4,29 +4,28 @@
 
 The first version of the tergite-mss
 
-## Simon Genne
+## Chalmers University of Technology Bachelors Project
 
-Contributed to [WebGUI](../tergite-webgui/) support
+Title: "Constructing a Modular System for Storing and Serving Data from Quantum Computers"
+Supervisors: 
 
-## Arvid Holmqvist
+- **Miroslav Dobsicek**
+- **Sandro Stucki**
 
-Contributed to [WebGUI](../tergite-webgui) support
+Students:
 
-## Bashar Oumari
+- **Simon Genne**
+- **Arvid Holmqvist**
+- **Bashar Oumari**
+- **Jakob Ristner**
+- **Björn Rosengren**
+- **Jakob Wik**
 
-Contributed to [WebGUI](../tergite-webgui) support
+Integration to tergite:
 
-## Jakob Ristner
-
-Contributed to [WebGUI](../tergite-webgui) support
-
-## Björn Rosengren
-
-Contributed to [WebGUI](../tergite-webgui) support
-
-## Jakob Wik
-
-Contributed to [WebGUI](../tergite-webgui) support
+- **Abdullah-Al Amin**
+- **Nicklas Botö**
+- **Fabian Forslund**
 
 ## Martin Ahindura
 
@@ -38,3 +37,5 @@ Added the Authentication/Authorization/Accounting features
 - Project-based authorization via app tokens saved in the database
 - Project-based tracking of QPU usage in terms of durations of experiments
 - Integration with [Puhuri HPC/cloud allocation service](https://puhuri.io/)
+
+Added integration test suite plus CI/CD

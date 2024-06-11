@@ -1,29 +1,28 @@
 # Credits
 
-## Vlad Dragos <vladinatorr@gmail.com>
-
-The first version of the tergite-webgui
-
-## Jamal Aldiwani <plwgamaldiwani@gmail.com>
-
-The first version of the tergite-webgui
-
-## David Andreasson <daandre@student.chalmers.se>
-
-The first version of the tergite-webgui
-
-## Karl Gunnarsson <karlgunnarsson98@gmail.com>
-
-The first version of the tergite-webgui
-
-## Alexander Jyborn <alexander.jyborn@gmail.com>
-
-The first version of the tergite-webgui
-
-## Lucas Karlsson <lucaskode@gmail.com>
-
-The first version of the tergite-webgui
-
 ## Martin Ahindura
 
--   Authentication
+- Authentication
+
+## Chalmers University of Technology Bachelors Project
+
+Title: "Design & build a web interface for a quantum computer"  
+
+Supervisors: 
+
+- **Miroslav Dobsicek**
+- **Sandro Stucki**
+
+Students:
+
+- **Vlad Dragos**
+- **Jamal Aldiwani**
+- **David Andreasson**
+- **Karl Gunnarsson**
+- **Alexander Jyborn**
+- **Lucas Karlsson**
+
+Integration to tergite:
+
+- **Abdullah-Al Amin**
+- **Martin Ahindura**
