@@ -31,12 +31,13 @@ export default function DonutChart({
         </text>
       )}
       <circle
+        id="progress-circle"
         cx="50%"
         cy="50%"
         r="40%"
         stroke="url(#donut-stroke-linear-grad)"
         className="fill-none stroke-[10%]"
-        clip-path="url(#visible-polygon)"
+        clipPath="url(#visible-polygon)"
       />
 
       <defs>
@@ -100,9 +101,9 @@ function getVisiblePolygon(radius: number, percentFill: number): string {
     // | /
     // |/
     const deltaX = radius * Math.tan(fillInRadians);
-    return `${initialX},0 
-            ${initialX + deltaX},0 
-            ${initialX},${radius}`;
+    return `${initialX},0
+    ${initialX + deltaX},0
+    ${initialX},${radius}`;
   } else if (deg135 >= fillInRadians) {
     // a polygon like
     // ____
@@ -112,9 +113,9 @@ function getVisiblePolygon(radius: number, percentFill: number): string {
     // | /
     const deltaY = radius * Math.tan(deg90 - fillInRadians);
     return `${initialX},0
-            ${diameter},0
-            ${diameter},${radius - deltaY} 
-            ${initialX},${radius}`;
+    ${diameter},0
+    ${diameter},${radius - deltaY}
+    ${initialX},${radius}`;
   } else if (deg225 >= fillInRadians) {
     // a polygon like
     //  ____
@@ -125,10 +126,10 @@ function getVisiblePolygon(radius: number, percentFill: number): string {
     // -----
     const deltaX = radius * Math.tan(fillInRadians - deg180);
     return `${initialX},0
-            ${diameter},0
-            ${diameter},${diameter}
-            ${initialX - deltaX},${diameter} 
-            ${initialX},${radius}`;
+    ${diameter},0
+    ${diameter},${diameter}
+    ${initialX - deltaX},${diameter}
+    ${initialX},${radius}`;
   } else if (deg315 >= fillInRadians) {
     // a polygon like
     //      ____
@@ -140,11 +141,11 @@ function getVisiblePolygon(radius: number, percentFill: number): string {
     //    -------
     const deltaY = radius * Math.tan(fillInRadians - deg270);
     return `${initialX},0
-            ${diameter},0
-            ${diameter},${diameter}
-            0,${diameter}
-            0,${radius - deltaY} 
-            ${initialX},${radius}`;
+    ${diameter},0
+    ${diameter},${diameter}
+    0,${diameter}
+    0,${radius - deltaY}
+    ${initialX},${radius}`;
   } else {
     // a polygon like
     //   _   ____
@@ -155,11 +156,11 @@ function getVisiblePolygon(radius: number, percentFill: number): string {
     //    -------
     const deltaX = radius * Math.tan(deg360 - fillInRadians);
     return `${initialX},0
-            ${diameter},0
-            ${diameter},${diameter}
-            0,${diameter}
-            0,0
-            ${radius - deltaX},0 
-            ${initialX},${radius}`;
+    ${diameter},0
+    ${diameter},${diameter}
+    0,${diameter}
+    0,0
+    ${radius - deltaX},0
+    ${initialX},${radius}`;
   }
 }
