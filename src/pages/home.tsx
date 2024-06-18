@@ -82,6 +82,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
 import { Label } from "@/components/ui/label";
+import DonutChart from "@/components/ui/donut-chart";
 
 export default function Home() {
   return (
@@ -188,20 +189,14 @@ export default function Home() {
 
           <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
             <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-3">
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-                <Card x-chunk="dashboard-05-chunk-1">
-                  <CardHeader className="pb-2">
-                    <CardDescription>This Week</CardDescription>
-                    <CardTitle className="text-4xl">$1,329</CardTitle>
+              <div className="grid gap-4 sm:grid-cols-[250px_auto_auto]">
+                <Card className="grid-fit-content">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg">Devices Online</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-xs text-muted-foreground">
-                      +25% from last week
-                    </div>
+                    <DonutChart percentFill={60}></DonutChart>
                   </CardContent>
-                  <CardFooter>
-                    <Progress value={25} aria-label="25% increase" />
-                  </CardFooter>
                 </Card>
                 <Card className="sm:col-span-2" x-chunk="dashboard-05-chunk-0">
                   <CardHeader className="pb-3">
