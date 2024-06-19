@@ -192,8 +192,8 @@ export default function Home() {
           {/* /Topbar */}
 
           {/* API-token-bar */}
-          <header className="flex px-4 sm:px-6">
-            <div className="relative ml-auto flex items-center">
+          <header className="flex px-4 sm:px-6 py-4">
+            <div className="relative w-full md:w-fit md:ml-auto flex items-center">
               <Label htmlFor="api-token" className="text-sm pr-2">
                 API token
               </Label>
@@ -201,7 +201,7 @@ export default function Home() {
                 type="password"
                 id="api-token"
                 value={"some-value"}
-                className="w-full rounded-l-md rounded-r-none bg-background pr-8 md:w-[200px] lg:w-[320px]"
+                className="w-full rounded-l-md rounded-r-none bg-background pr-8  md:w-[320px]"
               />
               <Button variant="outline" className="rounded-none" size="icon">
                 <RefreshCcw className="h-4 w-4" />
@@ -229,15 +229,20 @@ export default function Home() {
                 </Card>
                 <Card className="sm:col-span-2" x-chunk="dashboard-05-chunk-0">
                   <CardHeader className="pb-3">
-                    <CardTitle className="flex justify-between">
-                      <h3 className="text-lg">Devices</h3>
+                    <div className="flex justify-between">
+                      <div className="space-y-1.5">
+                        <CardTitle>Devices</CardTitle>
+                        <CardDescription>
+                          List of available devices
+                        </CardDescription>
+                      </div>
                       <Link
                         to="/devices"
                         className="font-normal text-secondary"
                       >
                         View all
                       </Link>
-                    </CardTitle>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <Table className="table-fixed">
