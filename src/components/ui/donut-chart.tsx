@@ -3,6 +3,7 @@ import { useMemo, PropsWithChildren } from "react";
 export default function DonutChart({
   radius = 100,
   percentFill,
+  thickness = "10%",
   children,
 }: PropsWithChildren<Props>) {
   const viewBoxSize = useMemo(() => radius * 2, [radius]);
@@ -20,10 +21,12 @@ export default function DonutChart({
       xmlns="http://www.w3.org/2000/svg"
     >
       <circle
+        id="background-circle"
         cx="50%"
         cy="50%"
         r="40%"
-        className="fill-none stroke-muted stroke-[10%]"
+        strokeWidth={thickness}
+        className="fill-none stroke-muted"
       />
       {children || (
         <text x="38%" y="55%" className="fill-primary font-semibold text-2xl">
@@ -36,7 +39,8 @@ export default function DonutChart({
         cy="50%"
         r="40%"
         stroke="url(#donut-stroke-linear-grad)"
-        className="fill-none stroke-[10%]"
+        strokeWidth={thickness}
+        className="fill-none"
         clipPath="url(#visible-polygon)"
       />
 
@@ -66,6 +70,7 @@ export default function DonutChart({
 interface Props {
   radius?: number;
   percentFill: number;
+  thickness?: number | string;
 }
 
 /**

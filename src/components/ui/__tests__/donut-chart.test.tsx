@@ -102,4 +102,21 @@ describe("donut-chart", () => {
     50,50`
     );
   });
+
+  ["10%", 10, "20", 30, "50%"].forEach((thickness) => {
+    it("renders the given stroke-width", () => {
+      render(<DonutChart percentFill={60} radius={50} thickness={thickness} />);
+      const progressCircle = document.querySelector(
+        "#progress-circle"
+      ) as SVGCircleElement;
+      const backgroundCircle = document.querySelector(
+        "#background-circle"
+      ) as SVGCircleElement;
+
+      expect(progressCircle.getAttribute("stroke-width")).toBe(`${thickness}`);
+      expect(backgroundCircle.getAttribute("stroke-width")).toBe(
+        `${thickness}`
+      );
+    });
+  });
 });

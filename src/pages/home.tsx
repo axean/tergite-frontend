@@ -195,7 +195,7 @@ export default function Home() {
                     <CardTitle className="text-lg">Devices Online</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <DonutChart percentFill={60}></DonutChart>
+                    <DonutChart percentFill={60} thickness="5%"></DonutChart>
                   </CardContent>
                 </Card>
                 <Card className="sm:col-span-2" x-chunk="dashboard-05-chunk-0">
