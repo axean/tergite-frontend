@@ -84,7 +84,33 @@ import { Link } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import DonutChart from "@/components/ui/donut-chart";
 
+interface DeviceDetail {
+  name: string;
+  numberOfQubits: number;
+  lastOnline: string | null | undefined;
+  isOnline: boolean;
+}
+
+const deviceData: DeviceDetail[] = [
+  { name: "Loke", numberOfQubits: 8, isOnline: true, lastOnline: "2024-05-23" },
+  { name: "Thor", numberOfQubits: 5, isOnline: false, lastOnline: null },
+  {
+    name: "Pingu",
+    numberOfQubits: 20,
+    isOnline: true,
+    lastOnline: "2024-05-24",
+  },
+];
+
 export default function Home() {
+  const devicesOnlineRatio = React.useMemo(
+    () =>
+      Math.round(
+        (deviceData.filter((v) => v.isOnline).length / deviceData.length) * 100
+      ),
+    []
+  );
+
   return (
     <TooltipProvider>
       <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -195,20 +221,49 @@ export default function Home() {
                     <CardTitle className="text-lg">Devices Online</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <DonutChart percentFill={60} thickness="5%"></DonutChart>
+                    <DonutChart
+                      percentFill={devicesOnlineRatio}
+                      thickness="5%"
+                    ></DonutChart>
                   </CardContent>
                 </Card>
                 <Card className="sm:col-span-2" x-chunk="dashboard-05-chunk-0">
                   <CardHeader className="pb-3">
-                    <CardTitle>Your Orders</CardTitle>
-                    <CardDescription className="max-w-lg text-balance leading-relaxed">
-                      Introducing Our Dynamic Orders Dashboard for Seamless
-                      Management and Insightful Analysis.
-                    </CardDescription>
+                    <CardTitle className="flex justify-between">
+                      <h3 className="text-lg">Devices</h3>
+                      <Link
+                        to="/devices"
+                        className="font-normal text-secondary"
+                      >
+                        View all
+                      </Link>
+                    </CardTitle>
                   </CardHeader>
-                  <CardFooter>
-                    <Button>Create New Order</Button>
-                  </CardFooter>
+                  <CardContent>
+                    <Table className="table-fixed">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-1/2 lg:w-2/6">
+                            Device
+                          </TableHead>
+                          <TableHead className="hidden lg:table-cell lg:w-1/6">
+                            Qubits
+                          </TableHead>
+                          <TableHead className="text-right lg:text-left w-1/2 lg:w-1/6">
+                            Status
+                          </TableHead>
+                          <TableHead className="hidden lg:table-cell lg:text-right lg:w-2/6">
+                            Online Since
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {deviceData.map((device) => (
+                          <DeviceTableCell device={device} key={device.name} />
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
                 </Card>
               </div>
               <Tabs defaultValue="week">
@@ -514,4 +569,50 @@ function Logo() {
       </span>
     </Link>
   );
+}
+
+/** Devices Table Cell */
+
+function DeviceTableCell({ device }: DeviceTableCellProps) {
+  const onlineStatus: _OnlineStatusType = React.useMemo(
+    () =>
+      device.isOnline
+        ? { text: "Online", variant: "secondary" }
+        : { text: "Offline", variant: "outline" },
+    [device.isOnline]
+  );
+
+  return (
+    <TableRow>
+      <TableCell>
+        <div className="font-medium">{device.name}</div>
+      </TableCell>
+      <TableCell className="hidden lg:table-cell">
+        {device.numberOfQubits}
+      </TableCell>
+      <TableCell className="text-right lg:text-left lg:table-cell">
+        <Badge className="text-xs" variant={onlineStatus.variant}>
+          {onlineStatus.text}
+        </Badge>
+      </TableCell>
+      <TableCell className="hidden lg:table-cell lg:text-right">
+        {device.lastOnline || "N/A"}
+      </TableCell>
+    </TableRow>
+  );
+}
+
+interface DeviceTableCellProps {
+  device: DeviceDetail;
+}
+
+interface _OnlineStatusType {
+  text: string;
+  variant:
+    | "default"
+    | "secondary"
+    | "destructive"
+    | "outline"
+    | null
+    | undefined;
 }
