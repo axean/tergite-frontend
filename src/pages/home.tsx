@@ -80,16 +80,17 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { Link } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import DonutChart from "@/components/ui/donut-chart";
-
-interface DeviceDetail {
-  name: string;
-  numberOfQubits: number;
-  lastOnline: string | null | undefined;
-  isOnline: boolean;
-}
 
 const deviceData: DeviceDetail[] = [
   { name: "Loke", numberOfQubits: 8, isOnline: true, lastOnline: "2024-05-23" },
@@ -102,6 +103,12 @@ const deviceData: DeviceDetail[] = [
   },
 ];
 
+const projectList: ProjectDetail[] = [
+  { name: "NordIQuEst", extId: "NordIQuEst-908" },
+  { name: "OpenSuperQPlus", extId: "OpenSuperQPlus-765" },
+  { name: "WACQT General", extId: "WACQT General-6452" },
+];
+
 export default function Home() {
   const devicesOnlineRatio = React.useMemo(
     () =>
@@ -109,6 +116,10 @@ export default function Home() {
         (deviceData.filter((v) => v.isOnline).length / deviceData.length) * 100
       ),
     []
+  );
+
+  const [currentProject, setCurrentProject] = React.useState<string>(
+    projectList[0].extId
   );
 
   return (
@@ -129,7 +140,7 @@ export default function Home() {
         </aside>
         <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-48">
           {/* Topbar */}
-          <header className="sticky top-0 z-30 flex h-14 items-end gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
             <Sheet>
               <SheetTrigger asChild>
                 <Button size="icon" variant="outline" className="sm:hidden">
@@ -163,6 +174,19 @@ export default function Home() {
               </SheetContent>
             </Sheet>
             <div className="mr-auto">Dashboard</div>
+            <Select value={currentProject} onValueChange={setCurrentProject}>
+              <SelectTrigger className="w-fit">
+                <span className="hidden sm:inline text-muted-foreground pr-1">
+                  Project:{" "}
+                </span>
+                <SelectValue placeholder="Select project" />
+              </SelectTrigger>
+              <SelectContent>
+                {projectList.map((project) => (
+                  <SelectItem value={project.extId}>{project.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -578,6 +602,13 @@ function Logo() {
 
 /** Devices Table Cell */
 
+interface DeviceDetail {
+  name: string;
+  numberOfQubits: number;
+  lastOnline: string | null | undefined;
+  isOnline: boolean;
+}
+
 function DeviceTableCell({ device }: DeviceTableCellProps) {
   const onlineStatus: _OnlineStatusType = React.useMemo(
     () =>
@@ -620,4 +651,11 @@ interface _OnlineStatusType {
     | "outline"
     | null
     | undefined;
+}
+
+/** Projects Selection */
+
+interface ProjectDetail {
+  name: string;
+  extId: string;
 }
