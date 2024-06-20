@@ -91,8 +91,15 @@ import {
 import { Link } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import DonutChart from "@/components/ui/donut-chart";
+import { DateTime, Duration } from "luxon";
 
-const deviceData: DeviceDetail[] = [
+enum JobStatus {
+  PENDING = "pending",
+  SUCCESSFUL = "successful",
+  FAILED = "failed",
+}
+
+const deviceList: DeviceDetail[] = [
   { name: "Loke", numberOfQubits: 8, isOnline: true, lastOnline: "2024-05-23" },
   { name: "Thor", numberOfQubits: 5, isOnline: false, lastOnline: null },
   {
@@ -109,11 +116,57 @@ const projectList: ProjectDetail[] = [
   { name: "WACQT General", extId: "WACQT General-6452" },
 ];
 
+const jobList: JobDetail[] = [
+  {
+    jobId: "1",
+    deviceName: "Loke",
+    status: JobStatus.SUCCESSFUL,
+    durationInSecs: 400,
+    createdAt: "2024-06-20T09:12:00.733Z",
+  },
+  {
+    jobId: "2",
+    deviceName: "Loke",
+    status: JobStatus.SUCCESSFUL,
+    durationInSecs: 500,
+    createdAt: "2024-06-20T08:12:00.733Z",
+  },
+  {
+    jobId: "3",
+    deviceName: "Pingu",
+    status: JobStatus.PENDING,
+    durationInSecs: null,
+    createdAt: "2024-06-11T10:12:00.733Z",
+  },
+  {
+    jobId: "4",
+    deviceName: "Loke",
+    status: JobStatus.SUCCESSFUL,
+    durationInSecs: 400,
+    createdAt: "2024-06-20T11:12:00.733Z",
+  },
+  {
+    jobId: "5",
+    deviceName: "Pingu",
+    status: JobStatus.SUCCESSFUL,
+    durationInSecs: 800,
+    createdAt: "2024-06-19T12:12:00.733Z",
+  },
+  {
+    jobId: "6",
+    deviceName: "Thor",
+    status: JobStatus.FAILED,
+    failureReason: "device offline",
+    durationInSecs: 400,
+    createdAt: "2024-06-20T23:12:00.733Z",
+  },
+];
+
 export default function Home() {
   const devicesOnlineRatio = React.useMemo(
     () =>
       Math.round(
-        (deviceData.filter((v) => v.isOnline).length / deviceData.length) * 100
+        (deviceList.filter((v) => v.isOnline).length / deviceList.length) * 100
       ),
     []
   );
@@ -183,7 +236,9 @@ export default function Home() {
               </SelectTrigger>
               <SelectContent>
                 {projectList.map((project) => (
-                  <SelectItem value={project.extId}>{project.name}</SelectItem>
+                  <SelectItem value={project.extId} key={project.extId}>
+                    {project.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -225,6 +280,7 @@ export default function Home() {
                 type="password"
                 id="api-token"
                 value={"some-value"}
+                readOnly={true}
                 className="w-full rounded-l-md rounded-r-none bg-background pr-8  md:w-[320px]"
               />
               <Button variant="outline" className="rounded-none" size="icon">
@@ -287,7 +343,7 @@ export default function Home() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {deviceData.map((device) => (
+                        {deviceList.map((device) => (
                           <DeviceTableCell device={device} key={device.name} />
                         ))}
                       </TableBody>
@@ -295,235 +351,73 @@ export default function Home() {
                   </CardContent>
                 </Card>
               </div>
-              <Tabs defaultValue="week">
-                <div className="flex items-center">
-                  <TabsList>
-                    <TabsTrigger value="week">Week</TabsTrigger>
-                    <TabsTrigger value="month">Month</TabsTrigger>
-                    <TabsTrigger value="year">Year</TabsTrigger>
-                  </TabsList>
-                  <div className="ml-auto flex items-center gap-2">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-7 gap-1 text-sm"
-                        >
-                          <ListFilter className="h-3.5 w-3.5" />
-                          <span className="sr-only sm:not-sr-only">Filter</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuCheckboxItem checked>
-                          Fulfilled
-                        </DropdownMenuCheckboxItem>
-                        <DropdownMenuCheckboxItem>
-                          Declined
-                        </DropdownMenuCheckboxItem>
-                        <DropdownMenuCheckboxItem>
-                          Refunded
-                        </DropdownMenuCheckboxItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-7 gap-1 text-sm"
-                    >
-                      <File className="h-3.5 w-3.5" />
-                      <span className="sr-only sm:not-sr-only">Export</span>
-                    </Button>
-                  </div>
+              <div className="flex items-center">
+                <div className="ml-auto flex items-center gap-2">
+                  {/* <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 gap-1 text-sm"
+                      >
+                        <ListFilter className="h-3.5 w-3.5" />
+                        <span className="sr-only sm:not-sr-only">Filter</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuCheckboxItem checked>
+                        Fulfilled
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem>
+                        Declined
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem>
+                        Refunded
+                      </DropdownMenuCheckboxItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 gap-1 text-sm"
+                  >
+                    <File className="h-3.5 w-3.5" />
+                    <span className="sr-only sm:not-sr-only">Export</span>
+                  </Button> */}
                 </div>
-                <TabsContent value="week">
-                  <Card x-chunk="dashboard-05-chunk-3">
-                    <CardHeader className="px-7">
-                      <CardTitle>Orders</CardTitle>
-                      <CardDescription>
-                        Recent orders from your store.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Customer</TableHead>
-                            <TableHead className="hidden sm:table-cell">
-                              Type
-                            </TableHead>
-                            <TableHead className="hidden sm:table-cell">
-                              Status
-                            </TableHead>
-                            <TableHead className="hidden md:table-cell">
-                              Date
-                            </TableHead>
-                            <TableHead className="text-right">Amount</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          <TableRow className="bg-accent">
-                            <TableCell>
-                              <div className="font-medium">Liam Johnson</div>
-                              <div className="hidden text-sm text-muted-foreground md:inline">
-                                liam@example.com
-                              </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              Sale
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              <Badge className="text-xs" variant="secondary">
-                                Fulfilled
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                              2023-06-23
-                            </TableCell>
-                            <TableCell className="text-right">
-                              $250.00
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>
-                              <div className="font-medium">Olivia Smith</div>
-                              <div className="hidden text-sm text-muted-foreground md:inline">
-                                olivia@example.com
-                              </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              Refund
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              <Badge className="text-xs" variant="outline">
-                                Declined
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                              2023-06-24
-                            </TableCell>
-                            <TableCell className="text-right">
-                              $150.00
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>
-                              <div className="font-medium">Noah Williams</div>
-                              <div className="hidden text-sm text-muted-foreground md:inline">
-                                noah@example.com
-                              </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              Subscription
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              <Badge className="text-xs" variant="secondary">
-                                Fulfilled
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                              2023-06-25
-                            </TableCell>
-                            <TableCell className="text-right">
-                              $350.00
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>
-                              <div className="font-medium">Emma Brown</div>
-                              <div className="hidden text-sm text-muted-foreground md:inline">
-                                emma@example.com
-                              </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              Sale
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              <Badge className="text-xs" variant="secondary">
-                                Fulfilled
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                              2023-06-26
-                            </TableCell>
-                            <TableCell className="text-right">
-                              $450.00
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>
-                              <div className="font-medium">Liam Johnson</div>
-                              <div className="hidden text-sm text-muted-foreground md:inline">
-                                liam@example.com
-                              </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              Sale
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              <Badge className="text-xs" variant="secondary">
-                                Fulfilled
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                              2023-06-23
-                            </TableCell>
-                            <TableCell className="text-right">
-                              $250.00
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>
-                              <div className="font-medium">Olivia Smith</div>
-                              <div className="hidden text-sm text-muted-foreground md:inline">
-                                olivia@example.com
-                              </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              Refund
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              <Badge className="text-xs" variant="outline">
-                                Declined
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                              2023-06-24
-                            </TableCell>
-                            <TableCell className="text-right">
-                              $150.00
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>
-                              <div className="font-medium">Emma Brown</div>
-                              <div className="hidden text-sm text-muted-foreground md:inline">
-                                emma@example.com
-                              </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              Sale
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              <Badge className="text-xs" variant="secondary">
-                                Fulfilled
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                              2023-06-26
-                            </TableCell>
-                            <TableCell className="text-right">
-                              $450.00
-                            </TableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
+              </div>
+              <Card>
+                <CardHeader className="px-7">
+                  <CardTitle>Jobs</CardTitle>
+                  <CardDescription>The status of your jobs</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Job ID</TableHead>
+                        <TableHead className="hidden sm:table-cell">
+                          Device
+                        </TableHead>
+                        <TableHead className="hidden sm:table-cell">
+                          Duration
+                        </TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Created at
+                        </TableHead>
+                        <TableHead className="text-right">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {jobList.map((job) => (
+                        <JobTableCell job={job} key={job.jobId} />
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
             </div>
           </main>
         </div>
@@ -642,15 +536,17 @@ interface DeviceTableCellProps {
   device: DeviceDetail;
 }
 
+type BadgeVariant =
+  | "secondary"
+  | "outline"
+  | "default"
+  | "destructive"
+  | null
+  | undefined;
+
 interface _OnlineStatusType {
   text: string;
-  variant:
-    | "default"
-    | "secondary"
-    | "destructive"
-    | "outline"
-    | null
-    | undefined;
+  variant: BadgeVariant;
 }
 
 /** Projects Selection */
@@ -658,4 +554,64 @@ interface _OnlineStatusType {
 interface ProjectDetail {
   name: string;
   extId: string;
+}
+
+/** Job */
+
+interface JobDetail {
+  jobId: string;
+  deviceName: string;
+  status: JobStatus;
+  failureReason?: string;
+  durationInSecs: number | null | undefined;
+  createdAt: string;
+}
+
+interface JobTableCellProps {
+  job: JobDetail;
+}
+
+function JobTableCell({ job }: JobTableCellProps) {
+  const statusCellVariant: BadgeVariant = React.useMemo(() => {
+    switch (job.status) {
+      case JobStatus.FAILED:
+        return "destructive";
+      case JobStatus.PENDING:
+        return "outline";
+      case JobStatus.SUCCESSFUL:
+        return "secondary";
+      default:
+        return "outline";
+    }
+  }, [job.status]);
+
+  const createdAt = React.useMemo(
+    () => DateTime.fromISO(job.createdAt).toLocaleString(DateTime.DATETIME_MED),
+    [job.createdAt]
+  );
+  const duration = React.useMemo(
+    () =>
+      job.durationInSecs
+        ? Duration.fromObject({
+            seconds: job.durationInSecs,
+          }).toHuman()
+        : "N/A",
+    [job.durationInSecs]
+  );
+
+  return (
+    <TableRow>
+      <TableCell>
+        <div className="font-medium">{job.jobId}</div>
+      </TableCell>
+      <TableCell className="hidden sm:table-cell">{job.deviceName}</TableCell>
+      <TableCell className="hidden sm:table-cell">{duration}</TableCell>
+      <TableCell className="hidden md:table-cell">{createdAt}</TableCell>
+      <TableCell className="text-right">
+        <Badge className="text-xs" variant={statusCellVariant}>
+          {job.status}
+        </Badge>
+      </TableCell>
+    </TableRow>
+  );
 }
