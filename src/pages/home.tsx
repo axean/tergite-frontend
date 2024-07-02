@@ -29,6 +29,8 @@ import {
   RefreshCcw,
 } from "lucide-react";
 
+import { ColumnDef } from "@tanstack/react-table";
+
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
@@ -92,12 +94,16 @@ import { Link } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import DonutChart from "@/components/ui/donut-chart";
 import { DateTime, Duration } from "luxon";
+import { DataTable } from "@/components/ui/data-table";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
 enum JobStatus {
   PENDING = "pending",
   SUCCESSFUL = "successful",
   FAILED = "failed",
 }
+
+// FIXME: Add filtering etc.
 
 const deviceList: DeviceDetail[] = [
   { name: "Loke", numberOfQubits: 8, isOnline: true, lastOnline: "2024-05-23" },
@@ -159,6 +165,78 @@ const jobList: JobDetail[] = [
     failureReason: "device offline",
     durationInSecs: 400,
     createdAt: "2024-06-20T23:12:00.733Z",
+  },
+];
+
+const jobTableColumns: ColumnDef<JobDetail>[] = [
+  {
+    accessorKey: "jobId",
+    header: "Job ID",
+    cell: ({ row }) => (
+      <div className="font-medium">{row.getValue("jobId")}</div>
+    ),
+  },
+  {
+    accessorKey: "deviceName",
+    header: () => <div className="hidden sm:table-cell">Device</div>,
+    cell: ({ row }) => (
+      <div className="hidden sm:table-cell">{row.getValue("deviceName")}</div>
+    ),
+  },
+  {
+    accessorKey: "durationInSecs",
+    header: () => <div className="hidden sm:table-cell">Duration</div>,
+    cell: ({ row }) => {
+      const durationInSecs: number | null = row.getValue("durationInSecs");
+      const duration = durationInSecs
+        ? Duration.fromObject({
+            seconds: durationInSecs,
+          }).toHuman()
+        : "N/A";
+      return <div className="hidden sm:table-cell">{duration}</div>;
+    },
+  },
+  {
+    accessorKey: "createdAt",
+    header: ({ column }) => {
+      return (
+        <Button
+          className="hidden md:table-cell"
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Created at
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const createdAtString: string = row.getValue("createdAt");
+      const createdAt = DateTime.fromISO(createdAtString).toLocaleString(
+        DateTime.DATETIME_MED
+      );
+      return <div className="hidden md:table-cell">{createdAt}</div>;
+    },
+  },
+  {
+    accessorKey: "status",
+    header: () => <div className="text-right">Status</div>,
+    cell: ({ row }) => {
+      const status: string = row.getValue("status");
+      const statusVariantMap: { [key: string]: BadgeVariant } = {
+        [JobStatus.FAILED]: "destructive",
+        [JobStatus.PENDING]: "outline",
+        [JobStatus.SUCCESSFUL]: "secondary",
+      };
+      let statusCellVariant = statusVariantMap[status] || "outline";
+      return (
+        <div className="text-right">
+          <Badge className="text-xs" variant={statusCellVariant}>
+            {status}
+          </Badge>
+        </div>
+      );
+    },
   },
 ];
 
@@ -316,10 +394,7 @@ export default function Home() {
                           List of available devices
                         </CardDescription>
                       </div>
-                      <Link
-                        to="/devices"
-                        className="font-normal text-secondary"
-                      >
+                      <Link to="/devices" className="font-normal underline">
                         View all
                       </Link>
                     </div>
@@ -352,41 +427,7 @@ export default function Home() {
                 </Card>
               </div>
               <div className="flex items-center">
-                <div className="ml-auto flex items-center gap-2">
-                  {/* <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 gap-1 text-sm"
-                      >
-                        <ListFilter className="h-3.5 w-3.5" />
-                        <span className="sr-only sm:not-sr-only">Filter</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuCheckboxItem checked>
-                        Fulfilled
-                      </DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem>
-                        Declined
-                      </DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem>
-                        Refunded
-                      </DropdownMenuCheckboxItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 gap-1 text-sm"
-                  >
-                    <File className="h-3.5 w-3.5" />
-                    <span className="sr-only sm:not-sr-only">Export</span>
-                  </Button> */}
-                </div>
+                <div className="ml-auto flex items-center gap-2"></div>
               </div>
               <Card>
                 <CardHeader className="px-7">
@@ -394,28 +435,7 @@ export default function Home() {
                   <CardDescription>The status of your jobs</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Job ID</TableHead>
-                        <TableHead className="hidden sm:table-cell">
-                          Device
-                        </TableHead>
-                        <TableHead className="hidden sm:table-cell">
-                          Duration
-                        </TableHead>
-                        <TableHead className="hidden md:table-cell">
-                          Created at
-                        </TableHead>
-                        <TableHead className="text-right">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {jobList.map((job) => (
-                        <JobTableCell job={job} key={job.jobId} />
-                      ))}
-                    </TableBody>
-                  </Table>
+                  <DataTable columns={jobTableColumns} data={jobList} />
                 </CardContent>
               </Card>
             </div>
@@ -481,7 +501,7 @@ function Logo() {
   return (
     <Link
       to="/"
-      className="group shrink-0 items-center text-center justify-center text-lg font-semibold text-primary px-2 sm:py-4"
+      className="group shrink-0 items-center text-center justify-center text-lg font-semibold px-2 sm:py-4"
     >
       <p className="text-2xl">WACQT</p>
       <p className="font-thin text-base">
@@ -565,53 +585,4 @@ interface JobDetail {
   failureReason?: string;
   durationInSecs: number | null | undefined;
   createdAt: string;
-}
-
-interface JobTableCellProps {
-  job: JobDetail;
-}
-
-function JobTableCell({ job }: JobTableCellProps) {
-  const statusCellVariant: BadgeVariant = React.useMemo(() => {
-    switch (job.status) {
-      case JobStatus.FAILED:
-        return "destructive";
-      case JobStatus.PENDING:
-        return "outline";
-      case JobStatus.SUCCESSFUL:
-        return "secondary";
-      default:
-        return "outline";
-    }
-  }, [job.status]);
-
-  const createdAt = React.useMemo(
-    () => DateTime.fromISO(job.createdAt).toLocaleString(DateTime.DATETIME_MED),
-    [job.createdAt]
-  );
-  const duration = React.useMemo(
-    () =>
-      job.durationInSecs
-        ? Duration.fromObject({
-            seconds: job.durationInSecs,
-          }).toHuman()
-        : "N/A",
-    [job.durationInSecs]
-  );
-
-  return (
-    <TableRow>
-      <TableCell>
-        <div className="font-medium">{job.jobId}</div>
-      </TableCell>
-      <TableCell className="hidden sm:table-cell">{job.deviceName}</TableCell>
-      <TableCell className="hidden sm:table-cell">{duration}</TableCell>
-      <TableCell className="hidden md:table-cell">{createdAt}</TableCell>
-      <TableCell className="text-right">
-        <Badge className="text-xs" variant={statusCellVariant}>
-          {job.status}
-        </Badge>
-      </TableCell>
-    </TableRow>
-  );
 }
