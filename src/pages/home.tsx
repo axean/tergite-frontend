@@ -96,6 +96,16 @@ import DonutChart from "@/components/ui/donut-chart";
 import { DateTime, Duration } from "luxon";
 import { DataTable } from "@/components/ui/data-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 enum JobStatus {
   PENDING = "pending",
@@ -172,9 +182,7 @@ const jobTableColumns: ColumnDef<JobDetail>[] = [
   {
     accessorKey: "jobId",
     header: "Job ID",
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("jobId")}</div>
-    ),
+    cell: ({ row }) => <JobDetailDrawer job={row.original} />,
   },
   {
     accessorKey: "deviceName",
@@ -239,6 +247,77 @@ const jobTableColumns: ColumnDef<JobDetail>[] = [
     },
   },
 ];
+
+// FIXME: Make the entire row clickable
+function JobDetailDrawer({ job }: JobDetailDrawerProps) {
+  return (
+    <Drawer direction="right">
+      <DrawerTrigger asChild>
+        <div className="font-medium underline">{job.jobId}</div>
+      </DrawerTrigger>
+      <DrawerContent>
+        <div className="h-full w-[400px] mt-24 fixed bottom-0 right-0">
+          <DrawerHeader>
+            <DrawerTitle>Job: {job.jobId}</DrawerTitle>
+            <DrawerDescription>Details about this job.</DrawerDescription>
+          </DrawerHeader>
+          <div className="p-4 pb-0">
+            <div className="space-x-2">
+              <h4 className="text-md font-semibold mb-10">Details</h4>
+              <div className="flex">
+                <span className="mr-2">Status</span>
+                <span
+                  className={
+                    job.status === JobStatus.FAILED ? "text-destructive" : ""
+                  }
+                >
+                  {job.status}
+                </span>
+              </div>
+
+              <div className="flex">
+                <span className="mr-2">Created at</span>
+                <span>
+                  {DateTime.fromISO(job.createdAt).toLocaleString(
+                    DateTime.DATETIME_MED
+                  )}
+                </span>
+              </div>
+
+              <div className="flex">
+                <span className="mr-2">Device</span>
+                <span>{job.deviceName}</span>
+              </div>
+
+              <div className="flex">
+                <span className="mr-2">Duration</span>
+                <span>
+                  {job.durationInSecs
+                    ? Duration.fromObject({
+                        seconds: job.durationInSecs,
+                      }).toHuman()
+                    : "N/A"}
+                </span>
+              </div>
+
+              {job.failureReason && (
+                <div className="flex">
+                  <span className="mr-2">Error</span>
+                  <span>{job.failureReason}</span>
+                </div>
+              )}
+            </div>
+            <div className="mt-3"></div>
+          </div>
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
+interface JobDetailDrawerProps {
+  job: JobDetail;
+}
 
 export default function Home() {
   const devicesOnlineRatio = React.useMemo(
