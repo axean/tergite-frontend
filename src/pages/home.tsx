@@ -190,7 +190,9 @@ const jobTableColumns: ColumnDef<JobDetail>[] = [
   {
     accessorKey: "jobId",
     header: "Job ID",
-    cell: ({ row }) => <JobDetailDrawer job={row.original} />,
+    cell: ({ row }) => (
+      <div className="font-medium">{row.getValue("jobId")}</div>
+    ),
   },
   {
     accessorKey: "deviceName",
@@ -246,77 +248,6 @@ const jobTableColumns: ColumnDef<JobDetail>[] = [
     },
   },
 ];
-
-// FIXME: Make the entire row clickable
-function JobDetailDrawer({ job }: JobDetailDrawerProps) {
-  return (
-    <Drawer direction="right">
-      <DrawerTrigger asChild>
-        <div className="font-medium underline">{job.jobId}</div>
-      </DrawerTrigger>
-      <DrawerContent className="w-[500px] inset-y-0 right-0">
-        <div className="h-full w-[400px] mt-4">
-          <DrawerHeader>
-            <DrawerTitle>Job: {job.jobId}</DrawerTitle>
-            <DrawerDescription>Details about this job.</DrawerDescription>
-          </DrawerHeader>
-          <div className="p-4 pb-0">
-            <div>
-              <h4 className="text-md font-semibold mb-4">Details</h4>
-              <div className="flex">
-                <div className="mr-2 text-muted-foreground">Status: </div>
-                <div
-                  className={
-                    job.status === JobStatus.FAILED ? "text-destructive" : ""
-                  }
-                >
-                  {job.status}
-                </div>
-              </div>
-
-              <div className="flex">
-                <span className="mr-2 text-muted-foreground">Created at:</span>
-                <span>
-                  {DateTime.fromISO(job.createdAt).toLocaleString(
-                    DateTime.DATETIME_MED
-                  )}
-                </span>
-              </div>
-
-              <div className="flex">
-                <span className="mr-2 text-muted-foreground">Device:</span>
-                <span>{job.deviceName}</span>
-              </div>
-
-              <div className="flex">
-                <span className="mr-2 text-muted-foreground">Duration:</span>
-                <span>
-                  {job.durationInSecs
-                    ? Duration.fromObject({
-                        seconds: job.durationInSecs,
-                      }).toHuman()
-                    : "N/A"}
-                </span>
-              </div>
-
-              {job.failureReason && (
-                <div className="flex">
-                  <span className="mr-2 text-muted-foreground">Error:</span>
-                  <span>{job.failureReason}</span>
-                </div>
-              )}
-            </div>
-            <div className="mt-3"></div>
-          </div>
-        </div>
-      </DrawerContent>
-    </Drawer>
-  );
-}
-
-interface JobDetailDrawerProps {
-  job: JobDetail;
-}
 
 export default function Home() {
   const devicesOnlineRatio = React.useMemo(
@@ -529,7 +460,13 @@ export default function Home() {
                   <CardDescription>The status of your jobs</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <DataTable columns={jobTableColumns} data={jobList} />
+                  <DataTable
+                    columns={jobTableColumns}
+                    data={jobList}
+                    getDrawerContent={(row) => (
+                      <JobDetailDrawerContent job={row.original} />
+                    )}
+                  />
                 </CardContent>
               </Card>
             </div>
@@ -670,6 +607,63 @@ function JobStatusDiv({ status, className = "" }: JobStatusDivProps) {
 interface JobStatusDivProps {
   status: JobStatus;
   className?: string;
+}
+
+function JobDetailDrawerContent({ job }: JobDetailDrawerProps) {
+  return (
+    <div className="h-full w-[300px] md:w-[500px] lg:w-[600px] xl:w-[700px] mt-4">
+      <DrawerHeader>
+        <DrawerTitle>Job: {job.jobId}</DrawerTitle>
+        <DrawerDescription>Details about this job.</DrawerDescription>
+      </DrawerHeader>
+      <div className="p-4 pb-0">
+        <div>
+          <h4 className="text-md font-semibold mb-4">Details</h4>
+          <div className="flex">
+            <div className="mr-2 text-muted-foreground">Status: </div>
+            <JobStatusDiv status={job.status} />
+          </div>
+
+          <div className="flex">
+            <span className="mr-2 text-muted-foreground">Created at:</span>
+            <span>
+              {DateTime.fromISO(job.createdAt).toLocaleString(
+                DateTime.DATETIME_MED
+              )}
+            </span>
+          </div>
+
+          <div className="flex">
+            <span className="mr-2 text-muted-foreground">Device:</span>
+            <span>{job.deviceName}</span>
+          </div>
+
+          <div className="flex">
+            <span className="mr-2 text-muted-foreground">Duration:</span>
+            <span>
+              {job.durationInSecs
+                ? Duration.fromObject({
+                    seconds: job.durationInSecs,
+                  }).toHuman()
+                : "N/A"}
+            </span>
+          </div>
+
+          {job.failureReason && (
+            <div className="flex">
+              <span className="mr-2 text-muted-foreground">Error:</span>
+              <span>{job.failureReason}</span>
+            </div>
+          )}
+        </div>
+        <div className="mt-3"></div>
+      </div>
+    </div>
+  );
+}
+
+interface JobDetailDrawerProps {
+  job: JobDetail;
 }
 
 /** Projects Selection */

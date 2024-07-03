@@ -1,6 +1,7 @@
 import {
   ColumnDef,
   ColumnFiltersState,
+  Row,
   SortingState,
   flexRender,
   getCoreRowModel,
@@ -40,6 +41,15 @@ import {
   FormLabel,
   FormMessage,
 } from "./form";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "./drawer";
+import { cn } from "@/lib/utils";
 
 // const formSchema = z.object({
 //   username: z.string().min(2).max(50),
@@ -72,6 +82,7 @@ interface DataTableProps<TData, TValue> {
   searchAccessKey?: string;
   filterFormProps?: FilterFormProps;
   onRefreshData?: () => void;
+  getDrawerContent: (row: Row<TData>) => React.ReactElement;
 }
 
 export function DataTable<TData, TValue>({
@@ -79,6 +90,7 @@ export function DataTable<TData, TValue>({
   data,
   searchAccessKey,
   filterFormProps,
+  getDrawerContent,
   onRefreshData,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -222,19 +234,25 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
+                <DetailDrawer
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  row={row}
+                  getDrawerContent={getDrawerContent}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
+                  <TableRow
+                    className="cursor-pointer"
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </DetailDrawer>
               ))
             ) : (
               <TableRow>
@@ -271,4 +289,26 @@ export function DataTable<TData, TValue>({
       </div>
     </div>
   );
+}
+
+function DetailDrawer<TData>({
+  row,
+  drawerClassName,
+  getDrawerContent,
+  children,
+}: React.PropsWithChildren<DetailDrawerProps<TData>>) {
+  return (
+    <Drawer direction="right">
+      <DrawerTrigger asChild>{children}</DrawerTrigger>
+      <DrawerContent className={cn("inset-y-0 right-0", drawerClassName)}>
+        {getDrawerContent(row)}
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
+interface DetailDrawerProps<TData> {
+  row: Row<TData>;
+  drawerClassName?: string;
+  getDrawerContent: (row: Row<TData>) => React.ReactElement;
 }
