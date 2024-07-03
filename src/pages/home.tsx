@@ -27,7 +27,16 @@ import {
   Cpu,
   FlaskRound,
   RefreshCcw,
+  Circle,
+  CircleX,
+  CircleCheck,
+  RotateCcw,
+  ArrowDown,
+  ArrowUp,
+  CircleDashed,
 } from "lucide-react";
+
+import { ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -92,12 +101,33 @@ import { Link } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import DonutChart from "@/components/ui/donut-chart";
 import { DateTime, Duration } from "luxon";
+import {
+  DataTable,
+  DataTableFilterField,
+  DataTableFormConfig,
+} from "@/components/ui/data-table";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { cn } from "@/lib/utils";
+import { z } from "zod";
+import { Control, Controller } from "react-hook-form";
 
 enum JobStatus {
   PENDING = "pending",
   SUCCESSFUL = "successful",
   FAILED = "failed",
 }
+
+// FIXME: Add filtering etc.
 
 const deviceList: DeviceDetail[] = [
   { name: "Loke", numberOfQubits: 8, isOnline: true, lastOnline: "2024-05-23" },
@@ -161,6 +191,105 @@ const jobList: JobDetail[] = [
     createdAt: "2024-06-20T23:12:00.733Z",
   },
 ];
+
+const jobTableColumns: ColumnDef<JobDetail>[] = [
+  {
+    accessorKey: "jobId",
+    header: "Job ID",
+    cell: ({ row }) => (
+      <div className="font-medium">{row.getValue("jobId")}</div>
+    ),
+  },
+  {
+    accessorKey: "deviceName",
+    header: () => <div className="hidden sm:table-cell">Device</div>,
+    cell: ({ row }) => (
+      <div className="hidden sm:table-cell">{row.getValue("deviceName")}</div>
+    ),
+  },
+  {
+    accessorKey: "durationInSecs",
+    header: () => <div className="hidden sm:table-cell">Duration</div>,
+    cell: ({ row }) => {
+      const durationInSecs: number | null = row.getValue("durationInSecs");
+      const duration = durationInSecs
+        ? Duration.fromObject({
+            seconds: durationInSecs,
+          }).toHuman()
+        : "N/A";
+      return <div className="hidden sm:table-cell">{duration}</div>;
+    },
+  },
+  {
+    accessorKey: "createdAt",
+    header: ({ column }) => {
+      const isAscending = column.getIsSorted() === "asc";
+      return (
+        <div
+          className="hidden md:table-cell cursor-pointer"
+          onClick={() => column.toggleSorting(isAscending)}
+        >
+          <div className="flex">
+            Created at
+            {!isAscending && <ArrowDown className="ml-1 h-4 w-4" />}
+            {isAscending && <ArrowUp className="ml-1 h-4 w-4" />}
+          </div>
+        </div>
+      );
+    },
+    cell: ({ row }) => {
+      const createdAtString: string = row.getValue("createdAt");
+      const createdAt = DateTime.fromISO(createdAtString).toLocaleString(
+        DateTime.DATETIME_MED
+      );
+      return <div className="hidden md:table-cell">{createdAt}</div>;
+    },
+  },
+  {
+    accessorKey: "status",
+    header: () => <div className="text-right">Status</div>,
+    cell: ({ row }) => {
+      const status: JobStatus = row.getValue("status") || JobStatus.PENDING;
+      return <JobStatusDiv className="ml-auto" status={status} />;
+    },
+  },
+];
+
+const jobFilterFormProps: DataTableFormConfig = {
+  jobId: {
+    validation: z.string(),
+    defaultValue: "",
+    label: "Job Id",
+    getFormElement: (field: DataTableFilterField) => (
+      <Input {...field} className="" />
+    ),
+  },
+  deviceName: {
+    validation: z.string(),
+    defaultValue: "",
+    label: "Device",
+    getFormElement: (field: DataTableFilterField) => (
+      <Input {...field} className="" />
+    ),
+  },
+  status: {
+    validation: z.optional(z.nativeEnum(JobStatus)),
+    defaultValue: "",
+    label: "Status",
+    getFormElement: ({ ref, ...props }: DataTableFilterField) => (
+      <Select onValueChange={props.onChange} {...props}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={JobStatus.FAILED}>Failed</SelectItem>
+          <SelectItem value={JobStatus.SUCCESSFUL}>Successful</SelectItem>
+          <SelectItem value={JobStatus.PENDING}>Pending</SelectItem>
+        </SelectContent>
+      </Select>
+    ),
+  },
+};
 
 export default function Home() {
   const devicesOnlineRatio = React.useMemo(
@@ -316,10 +445,7 @@ export default function Home() {
                           List of available devices
                         </CardDescription>
                       </div>
-                      <Link
-                        to="/devices"
-                        className="font-normal text-secondary"
-                      >
+                      <Link to="/devices" className="font-normal underline">
                         View all
                       </Link>
                     </div>
@@ -344,7 +470,23 @@ export default function Home() {
                       </TableHeader>
                       <TableBody>
                         {deviceList.map((device) => (
-                          <DeviceTableCell device={device} key={device.name} />
+                          <TableRow key={device.name}>
+                            <TableCell>
+                              <div className="font-medium">{device.name}</div>
+                            </TableCell>
+                            <TableCell className="hidden lg:table-cell">
+                              {device.numberOfQubits}
+                            </TableCell>
+                            <TableCell>
+                              <DeviceStatusDiv
+                                className="ml-auto lg:ml-0"
+                                device={device}
+                              />
+                            </TableCell>
+                            <TableCell className="hidden lg:table-cell lg:text-right">
+                              {device.lastOnline || "N/A"}
+                            </TableCell>
+                          </TableRow>
                         ))}
                       </TableBody>
                     </Table>
@@ -352,41 +494,7 @@ export default function Home() {
                 </Card>
               </div>
               <div className="flex items-center">
-                <div className="ml-auto flex items-center gap-2">
-                  {/* <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 gap-1 text-sm"
-                      >
-                        <ListFilter className="h-3.5 w-3.5" />
-                        <span className="sr-only sm:not-sr-only">Filter</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuCheckboxItem checked>
-                        Fulfilled
-                      </DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem>
-                        Declined
-                      </DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem>
-                        Refunded
-                      </DropdownMenuCheckboxItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 gap-1 text-sm"
-                  >
-                    <File className="h-3.5 w-3.5" />
-                    <span className="sr-only sm:not-sr-only">Export</span>
-                  </Button> */}
-                </div>
+                <div className="ml-auto flex items-center gap-2"></div>
               </div>
               <Card>
                 <CardHeader className="px-7">
@@ -394,28 +502,14 @@ export default function Home() {
                   <CardDescription>The status of your jobs</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Job ID</TableHead>
-                        <TableHead className="hidden sm:table-cell">
-                          Device
-                        </TableHead>
-                        <TableHead className="hidden sm:table-cell">
-                          Duration
-                        </TableHead>
-                        <TableHead className="hidden md:table-cell">
-                          Created at
-                        </TableHead>
-                        <TableHead className="text-right">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {jobList.map((job) => (
-                        <JobTableCell job={job} key={job.jobId} />
-                      ))}
-                    </TableBody>
-                  </Table>
+                  <DataTable
+                    columns={jobTableColumns}
+                    data={jobList}
+                    filterFormProps={jobFilterFormProps}
+                    getDrawerContent={(row) => (
+                      <JobDetailDrawerContent job={row.original} />
+                    )}
+                  />
                 </CardContent>
               </Card>
             </div>
@@ -481,7 +575,7 @@ function Logo() {
   return (
     <Link
       to="/"
-      className="group shrink-0 items-center text-center justify-center text-lg font-semibold text-primary px-2 sm:py-4"
+      className="group shrink-0 items-center text-center justify-center text-lg font-semibold px-2 sm:py-4"
     >
       <p className="text-2xl">WACQT</p>
       <p className="font-thin text-base">
@@ -503,50 +597,116 @@ interface DeviceDetail {
   isOnline: boolean;
 }
 
-function DeviceTableCell({ device }: DeviceTableCellProps) {
-  const onlineStatus: _OnlineStatusType = React.useMemo(
+function DeviceStatusDiv({ device, className = "" }: DeviceStatusDivProps) {
+  return (
+    <div className={cn("flex items-center w-fit", className)}>
+      {device.isOnline ? (
+        <>
+          <Circle className={`fill-green-600 w-2 h-2 mr-1`} strokeWidth={0} />
+          Online
+        </>
+      ) : (
+        <>
+          <CircleX className="fill-destructive w-2 h-2 mr-1" strokeWidth={0} />
+          <span className="border-b border-dashed border-primary">Offline</span>
+        </>
+      )}
+    </div>
+  );
+}
+
+interface DeviceStatusDivProps {
+  device: DeviceDetail;
+  className?: string;
+}
+
+const statusIconMap: { [key: string]: React.ReactElement } = {
+  [JobStatus.FAILED]: <CircleX className="stroke-destructive w-4 h-4 mr-1" />,
+  [JobStatus.PENDING]: (
+    <CircleDashed className="stroke-muted-foreground w-4 h-4 mr-1" />
+  ),
+  [JobStatus.SUCCESSFUL]: (
+    <CircleCheck className="stroke-green-600 w-4 h-4 mr-1" />
+  ),
+};
+
+function JobStatusDiv({ status, className = "" }: JobStatusDivProps) {
+  const statusStringClass = React.useMemo(
     () =>
-      device.isOnline
-        ? { text: "Online", variant: "secondary" }
-        : { text: "Offline", variant: "outline" },
-    [device.isOnline]
+      status === JobStatus.FAILED
+        ? "border-b border-dashed border-primary ml-1"
+        : "ml-1",
+    [status]
   );
 
   return (
-    <TableRow>
-      <TableCell>
-        <div className="font-medium">{device.name}</div>
-      </TableCell>
-      <TableCell className="hidden lg:table-cell">
-        {device.numberOfQubits}
-      </TableCell>
-      <TableCell className="text-right lg:text-left lg:table-cell">
-        <Badge className="text-xs" variant={onlineStatus.variant}>
-          {onlineStatus.text}
-        </Badge>
-      </TableCell>
-      <TableCell className="hidden lg:table-cell lg:text-right">
-        {device.lastOnline || "N/A"}
-      </TableCell>
-    </TableRow>
+    <div className={cn("flex items-center w-fit", className)}>
+      {statusIconMap[status]}
+      <span className={statusStringClass}>{status}</span>
+    </div>
   );
 }
 
-interface DeviceTableCellProps {
-  device: DeviceDetail;
+interface JobStatusDivProps {
+  status: JobStatus;
+  className?: string;
 }
 
-type BadgeVariant =
-  | "secondary"
-  | "outline"
-  | "default"
-  | "destructive"
-  | null
-  | undefined;
+function JobDetailDrawerContent({ job }: JobDetailDrawerProps) {
+  return (
+    <div className="h-full w-[300px] md:w-[500px] lg:w-[600px] xl:w-[700px] mt-4">
+      <DrawerHeader>
+        <DrawerTitle>Job: {job.jobId}</DrawerTitle>
+        <DrawerDescription>Details about this job.</DrawerDescription>
+      </DrawerHeader>
+      <div className="p-4 pb-0">
+        <div>
+          <h4 className="text-md font-semibold mb-4">Details</h4>
+          <div className="flex">
+            <div className="mr-2 text-muted-foreground">Status: </div>
+            <JobStatusDiv status={job.status} />
+          </div>
 
-interface _OnlineStatusType {
-  text: string;
-  variant: BadgeVariant;
+          <div className="flex">
+            <span className="mr-2 text-muted-foreground">Created at:</span>
+            <span>
+              {DateTime.fromISO(job.createdAt).toLocaleString(
+                DateTime.DATETIME_MED
+              )}
+            </span>
+          </div>
+
+          <div className="flex">
+            <span className="mr-2 text-muted-foreground">Device:</span>
+            <span>{job.deviceName}</span>
+          </div>
+
+          <div className="flex">
+            <span className="mr-2 text-muted-foreground">Duration:</span>
+            <span>
+              {job.durationInSecs
+                ? Duration.fromObject({
+                    seconds: job.durationInSecs,
+                  }).toHuman()
+                : "N/A"}
+            </span>
+          </div>
+
+          {job.failureReason && (
+            <div className="flex">
+              <span className="mr-2 text-muted-foreground">Error:</span>
+              <span>{job.failureReason}</span>
+            </div>
+          )}
+        </div>
+        <div className="mt-3"></div>
+      </div>
+    </div>
+  );
+}
+
+interface JobDetailDrawerProps {
+  job: JobDetail;
 }
 
 /** Projects Selection */
@@ -565,53 +725,4 @@ interface JobDetail {
   failureReason?: string;
   durationInSecs: number | null | undefined;
   createdAt: string;
-}
-
-interface JobTableCellProps {
-  job: JobDetail;
-}
-
-function JobTableCell({ job }: JobTableCellProps) {
-  const statusCellVariant: BadgeVariant = React.useMemo(() => {
-    switch (job.status) {
-      case JobStatus.FAILED:
-        return "destructive";
-      case JobStatus.PENDING:
-        return "outline";
-      case JobStatus.SUCCESSFUL:
-        return "secondary";
-      default:
-        return "outline";
-    }
-  }, [job.status]);
-
-  const createdAt = React.useMemo(
-    () => DateTime.fromISO(job.createdAt).toLocaleString(DateTime.DATETIME_MED),
-    [job.createdAt]
-  );
-  const duration = React.useMemo(
-    () =>
-      job.durationInSecs
-        ? Duration.fromObject({
-            seconds: job.durationInSecs,
-          }).toHuman()
-        : "N/A",
-    [job.durationInSecs]
-  );
-
-  return (
-    <TableRow>
-      <TableCell>
-        <div className="font-medium">{job.jobId}</div>
-      </TableCell>
-      <TableCell className="hidden sm:table-cell">{job.deviceName}</TableCell>
-      <TableCell className="hidden sm:table-cell">{duration}</TableCell>
-      <TableCell className="hidden md:table-cell">{createdAt}</TableCell>
-      <TableCell className="text-right">
-        <Badge className="text-xs" variant={statusCellVariant}>
-          {job.status}
-        </Badge>
-      </TableCell>
-    </TableRow>
-  );
 }

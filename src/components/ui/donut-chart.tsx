@@ -7,7 +7,6 @@ export default function DonutChart({
   children,
 }: PropsWithChildren<Props>) {
   const viewBoxSize = useMemo(() => radius * 2, [radius]);
-  const initialX = radius;
   const visiblePolygonPoints = useMemo(
     () => getVisiblePolygon(radius, percentFill),
     [radius, percentFill]
@@ -29,7 +28,11 @@ export default function DonutChart({
         className="fill-none stroke-muted"
       />
       {children || (
-        <text x="38%" y="55%" className="fill-primary font-semibold text-2xl">
+        <text
+          x="38%"
+          y="55%"
+          className="fill-secondary-foreground font-semibold text-2xl"
+        >
           {`${percentFill}%`}
         </text>
       )}
@@ -47,16 +50,16 @@ export default function DonutChart({
       <defs>
         <linearGradient
           id="donut-stroke-linear-grad"
-          x1={initialX}
-          y1="0"
-          x2={initialX}
-          y2={viewBoxSize}
+          x1="0%"
+          y1="0%"
+          x2="0%"
+          y2="150%"
           gradientUnits="userSpaceOnUse"
         >
-          <stop style={{ stopColor: "hsl(var(--secondary))" }} />
+          <stop style={{ stopColor: "hsl(var(--primary))" }} />
           <stop
-            offset="1"
-            style={{ stopColor: "hsl(var(--secondary), 0.5)" }}
+            offset={1}
+            style={{ stopColor: "hsl(var(--primary-foreground))" }}
           />
         </linearGradient>
         <clipPath id="visible-polygon">
