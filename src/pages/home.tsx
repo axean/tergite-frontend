@@ -101,7 +101,11 @@ import { Link } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import DonutChart from "@/components/ui/donut-chart";
 import { DateTime, Duration } from "luxon";
-import { DataTable } from "@/components/ui/data-table";
+import {
+  DataTable,
+  DataTableFilterField,
+  DataTableFormConfig,
+} from "@/components/ui/data-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import {
   Drawer,
@@ -114,6 +118,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
+import { z } from "zod";
 
 enum JobStatus {
   PENDING = "pending",
@@ -248,6 +253,17 @@ const jobTableColumns: ColumnDef<JobDetail>[] = [
     },
   },
 ];
+
+const jobFilterFormProps: DataTableFormConfig = {
+  jobId: {
+    validation: z.string(),
+    defaultValue: "",
+    label: "Job Id",
+    getFormElement: (field: DataTableFilterField) => (
+      <Input {...field} className="" />
+    ),
+  },
+};
 
 export default function Home() {
   const devicesOnlineRatio = React.useMemo(
@@ -463,6 +479,7 @@ export default function Home() {
                   <DataTable
                     columns={jobTableColumns}
                     data={jobList}
+                    filterFormProps={jobFilterFormProps}
                     getDrawerContent={(row) => (
                       <JobDetailDrawerContent job={row.original} />
                     )}

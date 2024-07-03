@@ -28,7 +28,11 @@ export default function DonutChart({
         className="fill-none stroke-muted"
       />
       {children || (
-        <text x="38%" y="55%" className="fill-primary font-semibold text-2xl">
+        <text
+          x="38%"
+          y="55%"
+          className="fill-secondary-foreground font-semibold text-2xl"
+        >
           {`${percentFill}%`}
         </text>
       )}

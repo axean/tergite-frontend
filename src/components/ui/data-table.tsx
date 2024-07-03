@@ -41,23 +41,20 @@ import {
   FormLabel,
   FormMessage,
 } from "./form";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "./drawer";
+import { Drawer, DrawerContent, DrawerTrigger } from "./drawer";
 import { cn } from "@/lib/utils";
 
-// const formSchema = z.object({
-//   username: z.string().min(2).max(50),
-// });
+export type DataTableFilterField = ControllerRenderProps<
+  {
+    [x: string]: any;
+  },
+  string
+>;
 
-interface FilterFormProps {
+export interface DataTableFormConfig {
   [key: string]: {
-    validation: z.ZodAny;
+    validation: z.ZodType<any, any, any>;
+    defaultValue: any;
     label: string;
     /**
      * Generates the form field for the given key in the filter form
@@ -65,14 +62,7 @@ interface FilterFormProps {
      * @param field - the field value from the FormField for the given key
      * @returns - the react element to render for this form
      */
-    formElement: (
-      field: ControllerRenderProps<
-        {
-          [x: string]: any;
-        },
-        string
-      >
-    ) => React.ReactElement;
+    getFormElement: (field: DataTableFilterField) => React.ReactElement;
   };
 }
 
@@ -80,7 +70,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   searchAccessKey?: string;
-  filterFormProps?: FilterFormProps;
+  filterFormProps?: DataTableFormConfig;
   onRefreshData?: () => void;
   getDrawerContent: (row: Row<TData>) => React.ReactElement;
 }
@@ -97,14 +87,7 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-
-  const isFilterFormAvailable = !!filterFormProps;
-  const filterFormSchema: z.ZodObject<any, any, any> = z.object({});
-  if (isFilterFormAvailable) {
-    for (const key in filterFormProps) {
-      filterFormSchema.setKey(key, filterFormProps[key].validation);
-    }
-  }
+  const isFiltered = columnFilters.length > 0;
 
   const table = useReactTable({
     data,
@@ -121,19 +104,11 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  const defaultFilterValues: any = {};
-  for (const key in filterFormSchema) {
-    defaultFilterValues[key] = table.getColumn(key)?.getFilterValue();
-  }
+  const isFilterFormAvailable = !!filterFormProps;
 
-  const filterForm = useForm<z.infer<typeof filterFormSchema>>({
-    resolver: zodResolver(filterFormSchema),
-    defaultValues: defaultFilterValues,
-  });
-
-  const onFilterSubmit = (values: z.infer<typeof filterFormSchema>) => {
-    for (const key in values) {
-      table.getColumn(key)?.setFilterValue(values[key]);
+  const onFilterSubmit = (values: Object) => {
+    for (const [key, value] of Object.entries(values)) {
+      table.getColumn(key)?.setFilterValue(value);
     }
   };
 
@@ -162,53 +137,38 @@ export function DataTable<TData, TValue>({
         )}
         <Button
           variant="outline"
-          className="ml-auto rounded-none"
+          className={`ml-auto rounded-none ${
+            isFilterFormAvailable ? "" : "rounded-tr-md"
+          }`}
           size="icon"
           onClick={onRefreshData}
         >
           <RefreshCcw className="h-4 w-4" />
         </Button>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className="rounded-l-none rounded-br-none"
-              size="icon"
-            >
-              <Filter className="h-4 w-4" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent>
-            {isFilterFormAvailable && onFilterSubmit && (
-              <Form {...filterForm}>
-                <form
-                  onSubmit={filterForm.handleSubmit(onFilterSubmit)}
-                  className="space-y-8"
-                >
-                  {filterFormProps &&
-                    Object.keys(filterFormProps).map((fieldName) => (
-                      <FormField
-                        control={filterForm.control}
-                        name={fieldName}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>
-                              {filterFormProps[fieldName].label}
-                            </FormLabel>
-                            <FormControl>
-                              {filterFormProps[fieldName].formElement(field)}
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    ))}
-                  ;<Button type="submit">Submit</Button>
-                </form>
-              </Form>
-            )}
-          </PopoverContent>
-        </Popover>
+        {isFilterFormAvailable && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="rounded-l-none rounded-br-none"
+                size="icon"
+              >
+                <Filter
+                  className={`h-4 w-4 ${
+                    isFiltered ? "fill-secondary-foreground" : ""
+                  }`}
+                />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              <DataFilterForm
+                onSubmit={onFilterSubmit}
+                fieldsConfig={filterFormProps}
+                isFiltered={isFiltered}
+              />
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
 
       <div className="border rounded-bl-md">
@@ -289,6 +249,73 @@ export function DataTable<TData, TValue>({
       </div>
     </div>
   );
+}
+
+function DataFilterForm({
+  onSubmit,
+  fieldsConfig,
+  isFiltered,
+}: DataFilterFormProps) {
+  const [rawSchemaObj, defaultValues] = React.useMemo(
+    () =>
+      Object.entries(fieldsConfig).reduce(
+        (prev, [field, conf]) => [
+          { ...prev[0], [field]: conf.validation },
+          { ...prev[1], [field]: conf.defaultValue },
+        ],
+        [{}, {}]
+      ),
+    [fieldsConfig]
+  );
+
+  const filterForm = useForm<z.infer<z.ZodObject<any, any, any>>>({
+    resolver: zodResolver(z.object(rawSchemaObj)),
+    defaultValues,
+  });
+
+  return (
+    <Form {...filterForm}>
+      <form onSubmit={filterForm.handleSubmit(onSubmit)} className="space-y-8">
+        {Object.entries(fieldsConfig).map(([name, fieldConfig]) => (
+          <FormField
+            control={filterForm.control}
+            key={name}
+            name={name}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{fieldConfig.label}</FormLabel>
+                <FormControl>{fieldConfig.getFormElement(field)}</FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ))}
+        <div className="flex justify-between">
+          <Button
+            type="submit"
+            variant="outline"
+            disabled={!filterForm.formState.isDirty}
+          >
+            Apply
+          </Button>
+
+          <Button
+            variant="secondary"
+            disabled={!isFiltered}
+            onClick={() => filterForm.reset()}
+          >
+            Clear
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+}
+
+interface DataFilterFormProps {
+  onSubmit: (values: Object) => void;
+  fieldsConfig: DataTableFormConfig;
+  isFiltered: boolean;
 }
 
 function DetailDrawer<TData>({
