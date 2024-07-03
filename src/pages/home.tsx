@@ -273,7 +273,7 @@ const jobFilterFormProps: DataTableFormConfig = {
     ),
   },
   status: {
-    validation: z.optional(z.nativeEnum(JobStatus)),
+    validation: z.nativeEnum(JobStatus).or(z.literal("")),
     defaultValue: "",
     label: "Status",
     getFormElement: ({ ref, ...props }: DataTableFilterField) => (
