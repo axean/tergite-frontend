@@ -21,7 +21,13 @@ import {
 import React from "react";
 import { Button } from "./button";
 import { Input } from "./input";
-import { Filter, RefreshCcw, Search } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  RefreshCcw,
+  Search,
+} from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -121,7 +127,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex px-4 sm:px-6 py-4">
+      <div className="flex">
         {searchAccessKey && (
           <div className="relative ml-auto flex-1 md:grow-0">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -144,7 +150,7 @@ export function DataTable<TData, TValue>({
         )}
         <Button
           variant="outline"
-          className="rounded-none"
+          className="ml-auto rounded-none"
           size="icon"
           onClick={onRefreshData}
         >
@@ -152,7 +158,11 @@ export function DataTable<TData, TValue>({
         </Button>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="rounded-l-none" size="icon">
+            <Button
+              variant="outline"
+              className="rounded-l-none rounded-br-none"
+              size="icon"
+            >
               <Filter className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
@@ -189,7 +199,7 @@ export function DataTable<TData, TValue>({
         </Popover>
       </div>
 
-      <div className="rounded-md border">
+      <div className="border rounded-bl-md">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -239,22 +249,24 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-2">
         <Button
+          className="rounded-none rounded-bl-md"
           variant="outline"
-          size="sm"
+          size="icon"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          Previous
+          <ChevronLeft className="h-4 w-4" />
         </Button>
         <Button
           variant="outline"
-          size="sm"
+          className="rounded-none rounded-br-md"
+          size="icon"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-          Next
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>

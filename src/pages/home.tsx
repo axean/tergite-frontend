@@ -31,6 +31,9 @@ import {
   CircleX,
   CircleCheck,
   RotateCcw,
+  ArrowDown,
+  ArrowUp,
+  CircleDashed,
 } from "lucide-react";
 
 import { ColumnDef } from "@tanstack/react-table";
@@ -212,15 +215,18 @@ const jobTableColumns: ColumnDef<JobDetail>[] = [
   {
     accessorKey: "createdAt",
     header: ({ column }) => {
+      const isAscending = column.getIsSorted() === "asc";
       return (
-        <Button
-          className="hidden md:table-cell"
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        <div
+          className="hidden md:table-cell cursor-pointer"
+          onClick={() => column.toggleSorting(isAscending)}
         >
-          Created at
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+          <div className="flex">
+            Created at
+            {!isAscending && <ArrowDown className="ml-1 h-4 w-4" />}
+            {isAscending && <ArrowUp className="ml-1 h-4 w-4" />}
+          </div>
+        </div>
       );
     },
     cell: ({ row }) => {
@@ -498,7 +504,7 @@ export default function Home() {
                             <TableCell className="hidden lg:table-cell">
                               {device.numberOfQubits}
                             </TableCell>
-                            <TableCell className="text-right lg:text-left lg:table-cell">
+                            <TableCell>
                               <DeviceStatusDiv
                                 className="ml-auto lg:ml-0"
                                 device={device}
@@ -635,12 +641,12 @@ interface DeviceStatusDivProps {
 }
 
 const statusIconMap: { [key: string]: React.ReactElement } = {
-  [JobStatus.FAILED]: <CircleX className="stroke-destructive w-3 h-3 mr-1" />,
+  [JobStatus.FAILED]: <CircleX className="stroke-destructive w-4 h-4 mr-1" />,
   [JobStatus.PENDING]: (
-    <RotateCcw className="w-3 h-3 mr-1" strokeDasharray="5,5" />
+    <CircleDashed className="stroke-muted-foreground w-4 h-4 mr-1" />
   ),
   [JobStatus.SUCCESSFUL]: (
-    <CircleCheck className="stroke-green-600 w-3 h-3 mr-1" />
+    <CircleCheck className="stroke-green-600 w-4 h-4 mr-1" />
   ),
 };
 
