@@ -119,6 +119,7 @@ import {
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
+import { Control, Controller } from "react-hook-form";
 
 enum JobStatus {
   PENDING = "pending",
@@ -261,6 +262,31 @@ const jobFilterFormProps: DataTableFormConfig = {
     label: "Job Id",
     getFormElement: (field: DataTableFilterField) => (
       <Input {...field} className="" />
+    ),
+  },
+  deviceName: {
+    validation: z.string(),
+    defaultValue: "",
+    label: "Device",
+    getFormElement: (field: DataTableFilterField) => (
+      <Input {...field} className="" />
+    ),
+  },
+  status: {
+    validation: z.optional(z.nativeEnum(JobStatus)),
+    defaultValue: "",
+    label: "Status",
+    getFormElement: ({ ref, ...props }: DataTableFilterField) => (
+      <Select onValueChange={props.onChange} {...props}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={JobStatus.FAILED}>Failed</SelectItem>
+          <SelectItem value={JobStatus.SUCCESSFUL}>Successful</SelectItem>
+          <SelectItem value={JobStatus.PENDING}>Pending</SelectItem>
+        </SelectContent>
+      </Select>
     ),
   },
 };

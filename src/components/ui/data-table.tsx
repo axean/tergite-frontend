@@ -87,6 +87,14 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const currentFiltersMap: { [k: string]: any } = React.useMemo(
+    () =>
+      columnFilters.reduce(
+        (prev, curr) => ({ ...prev, [curr.id]: curr.value }),
+        {}
+      ),
+    [columnFilters]
+  );
   const isFiltered = columnFilters.length > 0;
 
   const table = useReactTable({
@@ -163,8 +171,10 @@ export function DataTable<TData, TValue>({
             <PopoverContent>
               <DataFilterForm
                 onSubmit={onFilterSubmit}
+                onReset={() => setColumnFilters([])}
                 fieldsConfig={filterFormProps}
                 isFiltered={isFiltered}
+                values={currentFiltersMap}
               />
             </PopoverContent>
           </Popover>
@@ -253,8 +263,10 @@ export function DataTable<TData, TValue>({
 
 function DataFilterForm({
   onSubmit,
+  onReset,
   fieldsConfig,
   isFiltered,
+  values,
 }: DataFilterFormProps) {
   const [rawSchemaObj, defaultValues] = React.useMemo(
     () =>
@@ -271,7 +283,13 @@ function DataFilterForm({
   const filterForm = useForm<z.infer<z.ZodObject<any, any, any>>>({
     resolver: zodResolver(z.object(rawSchemaObj)),
     defaultValues,
+    values,
   });
+
+  const resetHandler = React.useCallback(() => {
+    onReset();
+    filterForm.reset(defaultValues);
+  }, [defaultValues, filterForm, onReset]);
 
   return (
     <Form {...filterForm}>
@@ -302,7 +320,7 @@ function DataFilterForm({
           <Button
             variant="secondary"
             disabled={!isFiltered}
-            onClick={() => filterForm.reset()}
+            onClick={resetHandler}
           >
             Clear
           </Button>
@@ -314,8 +332,10 @@ function DataFilterForm({
 
 interface DataFilterFormProps {
   onSubmit: (values: Object) => void;
+  onReset: () => void;
   fieldsConfig: DataTableFormConfig;
   isFiltered: boolean;
+  values: { [k: string]: any };
 }
 
 function DetailDrawer<TData>({
