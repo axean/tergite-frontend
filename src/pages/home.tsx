@@ -27,6 +27,10 @@ import {
   Cpu,
   FlaskRound,
   RefreshCcw,
+  Circle,
+  CircleX,
+  CircleCheck,
+  RotateCcw,
 } from "lucide-react";
 
 import { ColumnDef } from "@tanstack/react-table";
@@ -106,6 +110,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { cn } from "@/lib/utils";
 
 enum JobStatus {
   PENDING = "pending",
@@ -230,20 +235,8 @@ const jobTableColumns: ColumnDef<JobDetail>[] = [
     accessorKey: "status",
     header: () => <div className="text-right">Status</div>,
     cell: ({ row }) => {
-      const status: string = row.getValue("status");
-      const statusVariantMap: { [key: string]: BadgeVariant } = {
-        [JobStatus.FAILED]: "destructive",
-        [JobStatus.PENDING]: "outline",
-        [JobStatus.SUCCESSFUL]: "secondary",
-      };
-      let statusCellVariant = statusVariantMap[status] || "outline";
-      return (
-        <div className="text-right">
-          <Badge className="text-xs" variant={statusCellVariant}>
-            {status}
-          </Badge>
-        </div>
-      );
+      const status: JobStatus = row.getValue("status") || JobStatus.PENDING;
+      return <JobStatusDiv className="ml-auto" status={status} />;
     },
   },
 ];
@@ -255,28 +248,28 @@ function JobDetailDrawer({ job }: JobDetailDrawerProps) {
       <DrawerTrigger asChild>
         <div className="font-medium underline">{job.jobId}</div>
       </DrawerTrigger>
-      <DrawerContent>
-        <div className="h-full w-[400px] mt-24 fixed bottom-0 right-0">
+      <DrawerContent className="w-[500px] inset-y-0 right-0">
+        <div className="h-full w-[400px] mt-4">
           <DrawerHeader>
             <DrawerTitle>Job: {job.jobId}</DrawerTitle>
             <DrawerDescription>Details about this job.</DrawerDescription>
           </DrawerHeader>
           <div className="p-4 pb-0">
-            <div className="space-x-2">
-              <h4 className="text-md font-semibold mb-10">Details</h4>
+            <div>
+              <h4 className="text-md font-semibold mb-4">Details</h4>
               <div className="flex">
-                <span className="mr-2">Status</span>
-                <span
+                <div className="mr-2 text-muted-foreground">Status: </div>
+                <div
                   className={
                     job.status === JobStatus.FAILED ? "text-destructive" : ""
                   }
                 >
                   {job.status}
-                </span>
+                </div>
               </div>
 
               <div className="flex">
-                <span className="mr-2">Created at</span>
+                <span className="mr-2 text-muted-foreground">Created at:</span>
                 <span>
                   {DateTime.fromISO(job.createdAt).toLocaleString(
                     DateTime.DATETIME_MED
@@ -285,12 +278,12 @@ function JobDetailDrawer({ job }: JobDetailDrawerProps) {
               </div>
 
               <div className="flex">
-                <span className="mr-2">Device</span>
+                <span className="mr-2 text-muted-foreground">Device:</span>
                 <span>{job.deviceName}</span>
               </div>
 
               <div className="flex">
-                <span className="mr-2">Duration</span>
+                <span className="mr-2 text-muted-foreground">Duration:</span>
                 <span>
                   {job.durationInSecs
                     ? Duration.fromObject({
@@ -302,7 +295,7 @@ function JobDetailDrawer({ job }: JobDetailDrawerProps) {
 
               {job.failureReason && (
                 <div className="flex">
-                  <span className="mr-2">Error</span>
+                  <span className="mr-2 text-muted-foreground">Error:</span>
                   <span>{job.failureReason}</span>
                 </div>
               )}
@@ -498,7 +491,23 @@ export default function Home() {
                       </TableHeader>
                       <TableBody>
                         {deviceList.map((device) => (
-                          <DeviceTableCell device={device} key={device.name} />
+                          <TableRow key={device.name}>
+                            <TableCell>
+                              <div className="font-medium">{device.name}</div>
+                            </TableCell>
+                            <TableCell className="hidden lg:table-cell">
+                              {device.numberOfQubits}
+                            </TableCell>
+                            <TableCell className="text-right lg:text-left lg:table-cell">
+                              <DeviceStatusDiv
+                                className="ml-auto lg:ml-0"
+                                device={device}
+                              />
+                            </TableCell>
+                            <TableCell className="hidden lg:table-cell lg:text-right">
+                              {device.lastOnline || "N/A"}
+                            </TableCell>
+                          </TableRow>
                         ))}
                       </TableBody>
                     </Table>
@@ -602,50 +611,59 @@ interface DeviceDetail {
   isOnline: boolean;
 }
 
-function DeviceTableCell({ device }: DeviceTableCellProps) {
-  const onlineStatus: _OnlineStatusType = React.useMemo(
+function DeviceStatusDiv({ device, className = "" }: DeviceStatusDivProps) {
+  return (
+    <div className={cn("flex items-center w-fit", className)}>
+      {device.isOnline ? (
+        <>
+          <Circle className={`fill-green-600 w-2 h-2 mr-1`} strokeWidth={0} />
+          Online
+        </>
+      ) : (
+        <>
+          <CircleX className="fill-destructive w-2 h-2 mr-1" strokeWidth={0} />
+          <span className="border-b border-dashed border-primary">Offline</span>
+        </>
+      )}
+    </div>
+  );
+}
+
+interface DeviceStatusDivProps {
+  device: DeviceDetail;
+  className?: string;
+}
+
+const statusIconMap: { [key: string]: React.ReactElement } = {
+  [JobStatus.FAILED]: <CircleX className="stroke-destructive w-3 h-3 mr-1" />,
+  [JobStatus.PENDING]: (
+    <RotateCcw className="w-3 h-3 mr-1" strokeDasharray="5,5" />
+  ),
+  [JobStatus.SUCCESSFUL]: (
+    <CircleCheck className="stroke-green-600 w-3 h-3 mr-1" />
+  ),
+};
+
+function JobStatusDiv({ status, className = "" }: JobStatusDivProps) {
+  const statusStringClass = React.useMemo(
     () =>
-      device.isOnline
-        ? { text: "Online", variant: "secondary" }
-        : { text: "Offline", variant: "outline" },
-    [device.isOnline]
+      status === JobStatus.FAILED
+        ? "border-b border-dashed border-primary ml-1"
+        : "ml-1",
+    [status]
   );
 
   return (
-    <TableRow>
-      <TableCell>
-        <div className="font-medium">{device.name}</div>
-      </TableCell>
-      <TableCell className="hidden lg:table-cell">
-        {device.numberOfQubits}
-      </TableCell>
-      <TableCell className="text-right lg:text-left lg:table-cell">
-        <Badge className="text-xs" variant={onlineStatus.variant}>
-          {onlineStatus.text}
-        </Badge>
-      </TableCell>
-      <TableCell className="hidden lg:table-cell lg:text-right">
-        {device.lastOnline || "N/A"}
-      </TableCell>
-    </TableRow>
+    <div className={cn("flex items-center w-fit", className)}>
+      {statusIconMap[status]}
+      <span className={statusStringClass}>{status}</span>
+    </div>
   );
 }
 
-interface DeviceTableCellProps {
-  device: DeviceDetail;
-}
-
-type BadgeVariant =
-  | "secondary"
-  | "outline"
-  | "default"
-  | "destructive"
-  | null
-  | undefined;
-
-interface _OnlineStatusType {
-  text: string;
-  variant: BadgeVariant;
+interface JobStatusDivProps {
+  status: JobStatus;
+  className?: string;
 }
 
 /** Projects Selection */
