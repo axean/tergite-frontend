@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import React from "react";
-import { Button } from "./button";
+import { Button, IconButton } from "./button";
 import { Input } from "./input";
 import {
   ChevronLeft,
@@ -143,30 +143,23 @@ export function DataTable<TData, TValue>({
             />
           </div>
         )}
-        <Button
+        <IconButton
           variant="outline"
-          className={`ml-auto rounded-none ${
+          className={`ml-auto focus:mr-[1px] rounded-none  ${
             isFilterFormAvailable ? "" : "rounded-tr-md"
           }`}
-          size="icon"
+          Icon={RefreshCcw}
           onClick={onRefreshData}
-        >
-          <RefreshCcw className="h-4 w-4" />
-        </Button>
+        />
         {isFilterFormAvailable && (
           <Popover>
             <PopoverTrigger asChild>
-              <Button
+              <IconButton
                 variant="outline"
                 className="rounded-l-none rounded-br-none"
-                size="icon"
-              >
-                <Filter
-                  className={`h-4 w-4 ${
-                    isFiltered ? "fill-secondary-foreground" : ""
-                  }`}
-                />
-              </Button>
+                Icon={Filter}
+                iconClassName={isFiltered ? "fill-secondary-foreground" : ""}
+              />
             </PopoverTrigger>
             <PopoverContent>
               <DataFilterForm

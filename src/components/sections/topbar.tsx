@@ -20,14 +20,14 @@ import {
 import { ProjectDetail } from "@/lib/types";
 
 export function Topbar({
-  currentProject,
+  currentProject = "",
   onProjectChange,
   pageTitle,
   projects,
 }: TopbarProps) {
   return (
     <>
-      <div className="mr-auto">{pageTitle}</div>
+      <div className="mr-auto capitalize">{pageTitle}</div>
       <Select value={currentProject} onValueChange={onProjectChange}>
         <SelectTrigger className="w-fit">
           <span className="hidden sm:inline text-muted-foreground pr-1">
@@ -73,7 +73,7 @@ export function Topbar({
 }
 
 export interface TopbarProps {
-  currentProject: string;
+  currentProject?: string;
   pageTitle: string;
   projects: ProjectDetail[];
   onProjectChange: (projectExtId: string) => void;
@@ -84,9 +84,9 @@ export function TopbarMenu({}: TopbarMenuProps) {
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-48 flex-col border-r bg-background sm:flex">
       <Logo />
       <nav className="flex flex-col gap-4 px-6 sm:py-4">
-        <NavItem to="/" iconClass={HomeIcon} text="Dashboard" />
-        <NavItem to="/devices" isActive={true} iconClass={Cpu} text="Devices" />
-        <NavItem to="/jobs" iconClass={FlaskRound} text="Jobs" />
+        <NavItem to="/" Icon={HomeIcon} text="Dashboard" />
+        <NavItem to="/devices" isActive={true} Icon={Cpu} text="Devices" />
+        <NavItem to="/jobs" Icon={FlaskRound} text="Jobs" />
       </nav>
     </aside>
   );

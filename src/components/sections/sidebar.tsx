@@ -16,15 +16,15 @@ export function Sidebar({}: Props) {
       <SheetContent side="left" className="sm:max-w-xs">
         <Logo />
         <nav className="grid gap-6 text-lg font-medium">
-          <NavItem to="/" iconClass={HomeIcon} text="Dashboard" isBig={true} />
+          <NavItem to="/" Icon={HomeIcon} text="Dashboard" isBig={true} />
           <NavItem
             to="/devices"
             isActive={true}
-            iconClass={Cpu}
+            Icon={Cpu}
             text="Devices"
             isBig={true}
           />
-          <NavItem to="/jobs" iconClass={FlaskRound} text="Jobs" isBig={true} />
+          <NavItem to="/jobs" Icon={FlaskRound} text="Jobs" isBig={true} />
         </nav>
       </SheetContent>
     </Sheet>

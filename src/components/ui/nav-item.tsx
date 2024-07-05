@@ -6,7 +6,7 @@ export function NavItem({
   to,
   isActive = false,
   isBig = false,
-  iconClass: IconClass,
+  Icon,
   text,
 }: Props) {
   const colorsClass = React.useMemo(
@@ -31,7 +31,7 @@ export function NavItem({
       className={`flex h-9 px-2 items-center ${colorsClass} rounded-md  transition-colors hover:text-foreground`}
     >
       <div className={`flex ${sizeClass.gap} items-center`}>
-        <IconClass className={sizeClass.icon} />
+        <Icon className={sizeClass.icon} />
         <span className={sizeClass.text}>{text}</span>
         <span className="sr-only">{text}</span>
       </div>
@@ -44,7 +44,7 @@ interface Props {
   text: string;
   isActive?: boolean;
   isBig?: boolean;
-  iconClass: React.ForwardRefExoticComponent<
+  Icon: React.ForwardRefExoticComponent<
     Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
   >;
 }

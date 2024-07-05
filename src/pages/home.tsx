@@ -39,7 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Link } from "react-router-dom";
+import { Link, LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 import DonutChart from "@/components/ui/donut-chart";
 import { DateTime, Duration } from "luxon";
 import {
@@ -54,9 +54,8 @@ import {
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
-import { DefaultLayout } from "@/components/layouts/default-layout";
-import { deviceList, projectList, jobList } from "@/lib/mock-data";
-import { JobDetail, JobStatus, DeviceDetail } from "@/lib/types";
+import { deviceList, jobList } from "@/lib/mock-data";
+import { JobDetail, JobStatus, DeviceDetail, AppState } from "@/lib/types";
 
 const jobTableColumns: ColumnDef<JobDetail>[] = [
   {
@@ -157,119 +156,107 @@ const jobFilterFormProps: DataTableFormConfig = {
   },
 };
 
-export default function Home() {
+export function Home() {
+  const { devices, jobs } = useLoaderData() as HomeData;
   const devicesOnlineRatio = React.useMemo(
     () =>
       Math.round(
-        (deviceList.filter((v) => v.isOnline).length / deviceList.length) * 100
+        (devices.filter((v) => v.isOnline).length / devices.length) * 100
       ),
-    []
-  );
-
-  const [currentProject, setCurrentProject] = React.useState<string>(
-    projectList[0].extId
+    [devices]
   );
 
   return (
-    <DefaultLayout
-      currentProject={currentProject}
-      onProjectChange={setCurrentProject}
-      projects={projectList}
-      pageTitle="Dashboard"
-    >
-      <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
-        <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-3">
-          <div className="grid gap-4 sm:grid-cols-[250px_auto_auto]">
-            <Card className="grid-fit-content">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg">Devices Online</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <DonutChart
-                  percentFill={devicesOnlineRatio}
-                  thickness="5%"
-                ></DonutChart>
-              </CardContent>
-            </Card>
-            <Card className="sm:col-span-2" x-chunk="dashboard-05-chunk-0">
-              <CardHeader className="pb-3">
-                <div className="flex justify-between">
-                  <div className="space-y-1.5">
-                    <CardTitle>Devices</CardTitle>
-                    <CardDescription>List of available devices</CardDescription>
-                  </div>
-                  <Link to="/devices" className="font-normal underline">
-                    View all
-                  </Link>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table className="table-fixed">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-1/2 lg:w-2/6">Device</TableHead>
-                      <TableHead className="hidden lg:table-cell lg:w-1/6">
-                        Qubits
-                      </TableHead>
-                      <TableHead className="text-right lg:text-left w-1/2 lg:w-1/6">
-                        Status
-                      </TableHead>
-                      <TableHead className="hidden lg:table-cell lg:text-right lg:w-2/6">
-                        Online Since
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {deviceList.map((device) => (
-                      <TableRow key={device.name}>
-                        <TableCell>
-                          <div className="font-medium">{device.name}</div>
-                        </TableCell>
-                        <TableCell className="hidden lg:table-cell">
-                          {device.numberOfQubits}
-                        </TableCell>
-                        <TableCell>
-                          <DeviceStatusDiv
-                            className="ml-auto lg:ml-0"
-                            device={device}
-                          />
-                        </TableCell>
-                        <TableCell className="hidden lg:table-cell lg:text-right">
-                          {device.lastOnline || "N/A"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </div>
-          <div className="flex items-center">
-            <div className="ml-auto flex items-center gap-2"></div>
-          </div>
-          <Card>
-            <CardHeader className="px-7">
-              <CardTitle>Jobs</CardTitle>
-              <CardDescription>The status of your jobs</CardDescription>
+    <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
+      <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-3">
+        <div className="grid gap-4 sm:grid-cols-[250px_auto_auto]">
+          <Card className="grid-fit-content">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Devices Online</CardTitle>
             </CardHeader>
             <CardContent>
-              <DataTable
-                columns={jobTableColumns}
-                data={jobList}
-                filterFormProps={jobFilterFormProps}
-                getDrawerContent={(row) => (
-                  <JobDetailDrawerContent job={row.original} />
-                )}
-              />
+              <DonutChart
+                percentFill={devicesOnlineRatio}
+                thickness="5%"
+              ></DonutChart>
+            </CardContent>
+          </Card>
+          <Card className="sm:col-span-2" x-chunk="dashboard-05-chunk-0">
+            <CardHeader className="pb-3">
+              <div className="flex justify-between">
+                <div className="space-y-1.5">
+                  <CardTitle>Devices</CardTitle>
+                  <CardDescription>List of available devices</CardDescription>
+                </div>
+                <Link to="/devices" className="font-normal underline">
+                  View all
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table className="table-fixed">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-1/2 lg:w-2/6">Device</TableHead>
+                    <TableHead className="hidden lg:table-cell lg:w-1/6">
+                      Qubits
+                    </TableHead>
+                    <TableHead className="text-right lg:text-left w-1/2 lg:w-1/6">
+                      Status
+                    </TableHead>
+                    <TableHead className="hidden lg:table-cell lg:text-right lg:w-2/6">
+                      Online Since
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {devices.map((device) => (
+                    <TableRow key={device.name}>
+                      <TableCell>
+                        <div className="font-medium">{device.name}</div>
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {device.numberOfQubits}
+                      </TableCell>
+                      <TableCell>
+                        <DeviceStatusDiv
+                          className="ml-auto lg:ml-0"
+                          device={device}
+                        />
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell lg:text-right">
+                        {device.lastOnline || "N/A"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </div>
-      </main>
-    </DefaultLayout>
+        <div className="flex items-center">
+          <div className="ml-auto flex items-center gap-2"></div>
+        </div>
+        <Card>
+          <CardHeader className="px-7">
+            <CardTitle>Jobs</CardTitle>
+            <CardDescription>The status of your jobs</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DataTable
+              columns={jobTableColumns}
+              data={jobs}
+              filterFormProps={jobFilterFormProps}
+              getDrawerContent={(row) => (
+                <JobDetailDrawerContent job={row.original} />
+              )}
+            />
+          </CardContent>
+        </Card>
+      </div>
+    </main>
   );
 }
-
-/** Logo */
 
 /** Devices Table Cell */
 
@@ -383,4 +370,15 @@ function JobDetailDrawerContent({ job }: JobDetailDrawerProps) {
 
 interface JobDetailDrawerProps {
   job: JobDetail;
+}
+
+interface HomeData {
+  devices: DeviceDetail[];
+  jobs: JobDetail[];
+}
+
+export function loader(appState: AppState) {
+  return async ({}: LoaderFunctionArgs) => {
+    return { devices: deviceList, jobs: jobList } as HomeData;
+  };
 }

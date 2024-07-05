@@ -24,3 +24,10 @@ export interface JobDetail {
   durationInSecs: number | null | undefined;
   createdAt: string;
 }
+
+export interface AppState {
+  currentProject?: string;
+  setCurrentProject: (value: string) => void;
+  apiToken?: string;
+  setApiToken: (value: string) => void;
+}
