@@ -20,8 +20,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import React from "react";
-import { Button, IconButton } from "./button";
-import { Input } from "./input";
+import { Button, IconButton } from "../button";
+import { Input } from "../input";
 import {
   ChevronLeft,
   ChevronRight,
@@ -29,60 +29,22 @@ import {
   RefreshCcw,
   Search,
 } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "./popover";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ControllerRenderProps, useForm } from "react-hook-form";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./form";
-import { Drawer, DrawerContent, DrawerTrigger } from "./drawer";
+import { Popover, PopoverContent, PopoverTrigger } from "../popover";
+import { DataFilterForm, DataTableFormConfig } from "./filter-form";
+import { DataTableRow } from "./table-row";
+import { Drawer, DrawerContent, DrawerTrigger } from "../drawer";
 import { cn } from "@/lib/utils";
-
-export type DataTableFilterField = ControllerRenderProps<
-  {
-    [x: string]: any;
-  },
-  string
->;
-
-export interface DataTableFormConfig {
-  [key: string]: {
-    validation: z.ZodType<any, any, any>;
-    defaultValue: any;
-    label: string;
-    /**
-     * Generates the form field for the given key in the filter form
-     *
-     * @param field - the field value from the FormField for the given key
-     * @returns - the react element to render for this form
-     */
-    getFormElement: (field: DataTableFilterField) => React.ReactElement;
-  };
-}
-
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  searchAccessKey?: string;
-  filterFormProps?: DataTableFormConfig;
-  onRefreshData?: () => void;
-  getDrawerContent: (row: Row<TData>) => React.ReactElement;
-}
+export type { DataTableFormConfig, DataTableFilterField } from "./filter-form";
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   searchAccessKey,
   filterFormProps,
-  getDrawerContent,
   onRefreshData,
-}: DataTableProps<TData, TValue>) {
+  onRowClick,
+  getDrawerContent,
+}: Props<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -181,7 +143,12 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      className={
+                        header.column.columnDef.meta?.headerClassName ?? ""
+                      }
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -197,25 +164,19 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <DetailDrawer
-                  key={row.id}
-                  row={row}
-                  getDrawerContent={getDrawerContent}
-                >
-                  <TableRow
-                    className="cursor-pointer"
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </DetailDrawer>
+                <>
+                  {getDrawerContent !== undefined ? (
+                    <DetailDrawer
+                      key={row.id}
+                      row={row}
+                      getDrawerContent={getDrawerContent}
+                    >
+                      <DataTableRow row={row} onClick={onRowClick} />
+                    </DetailDrawer>
+                  ) : (
+                    <DataTableRow row={row} onClick={onRowClick} />
+                  )}
+                </>
               ))
             ) : (
               <TableRow>
@@ -254,81 +215,14 @@ export function DataTable<TData, TValue>({
   );
 }
 
-function DataFilterForm({
-  onSubmit,
-  onReset,
-  fieldsConfig,
-  isFiltered,
-  values,
-}: DataFilterFormProps) {
-  const [rawSchemaObj, defaultValues] = React.useMemo(
-    () =>
-      Object.entries(fieldsConfig).reduce(
-        (prev, [field, conf]) => [
-          { ...prev[0], [field]: conf.validation },
-          { ...prev[1], [field]: conf.defaultValue },
-        ],
-        [{}, {}]
-      ),
-    [fieldsConfig]
-  );
-
-  const filterForm = useForm<z.infer<z.ZodObject<any, any, any>>>({
-    resolver: zodResolver(z.object(rawSchemaObj)),
-    defaultValues,
-    values,
-  });
-
-  const resetHandler = React.useCallback(() => {
-    onReset();
-    filterForm.reset(defaultValues);
-  }, [defaultValues, filterForm, onReset]);
-
-  return (
-    <Form {...filterForm}>
-      <form onSubmit={filterForm.handleSubmit(onSubmit)} className="space-y-8">
-        {Object.entries(fieldsConfig).map(([name, fieldConfig]) => (
-          <FormField
-            control={filterForm.control}
-            key={name}
-            name={name}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{fieldConfig.label}</FormLabel>
-                <FormControl>{fieldConfig.getFormElement(field)}</FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ))}
-        <div className="flex justify-between">
-          <Button
-            type="submit"
-            variant="outline"
-            disabled={!filterForm.formState.isDirty}
-          >
-            Apply
-          </Button>
-
-          <Button
-            variant="secondary"
-            disabled={!isFiltered}
-            onClick={resetHandler}
-          >
-            Clear
-          </Button>
-        </div>
-      </form>
-    </Form>
-  );
-}
-
-interface DataFilterFormProps {
-  onSubmit: (values: Object) => void;
-  onReset: () => void;
-  fieldsConfig: DataTableFormConfig;
-  isFiltered: boolean;
-  values: { [k: string]: any };
+interface Props<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  searchAccessKey?: string;
+  filterFormProps?: DataTableFormConfig;
+  onRefreshData?: () => void;
+  getDrawerContent?: (row: Row<TData>) => React.ReactElement;
+  onRowClick?: (row: Row<TData>) => void;
 }
 
 function DetailDrawer<TData>({

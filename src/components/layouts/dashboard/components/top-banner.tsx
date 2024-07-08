@@ -1,7 +1,7 @@
 import { Copy, RefreshCcw } from "lucide-react";
-import { Button, IconButton } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
+import { IconButton } from "../../../ui/button";
+import { Input } from "../../../ui/input";
+import { Label } from "../../../ui/label";
 import { useCallback, useContext } from "react";
 import { AppStateContext } from "@/lib/app-state";
 import { copyToClipboard } from "@/lib/utils";

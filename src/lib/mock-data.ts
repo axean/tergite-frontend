@@ -1,23 +1,28 @@
-import { DeviceDetail, ProjectDetail, JobDetail, JobStatus } from "./types";
+import { Device, Project, Job, JobStatus } from "./types";
 
-export const deviceList: DeviceDetail[] = [
-  { name: "Loke", numberOfQubits: 8, isOnline: true, lastOnline: "2024-05-23" },
-  { name: "Thor", numberOfQubits: 5, isOnline: false, lastOnline: null },
+export const deviceList: Device[] = [
+  {
+    name: "Loke",
+    numberOfQubits: 8,
+    isOnline: false,
+    lastOnline: "2024-05-23T09:12:00.733Z",
+  },
+  { name: "Thor", numberOfQubits: 5, isOnline: true, lastOnline: null },
   {
     name: "Pingu",
     numberOfQubits: 20,
-    isOnline: true,
-    lastOnline: "2024-05-24",
+    isOnline: false,
+    lastOnline: "2024-05-24T09:12:00.733Z",
   },
 ];
 
-export const projectList: ProjectDetail[] = [
+export const projectList: Project[] = [
   { name: "NordIQuEst", extId: "NordIQuEst-908" },
   { name: "OpenSuperQPlus", extId: "OpenSuperQPlus-765" },
   { name: "WACQT General", extId: "WACQT General-6452" },
 ];
 
-export const jobList: JobDetail[] = [
+export const jobList: Job[] = [
   {
     jobId: "1",
     deviceName: "Loke",

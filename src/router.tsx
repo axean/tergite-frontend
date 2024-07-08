@@ -7,7 +7,7 @@ import {
 import ErrorAlert from "./pages/error-alert";
 import LoginPage from "./pages/login";
 import { Home, loader as homeLoader } from "./pages/home";
-import Devices from "./pages/devices";
+import { Devices, loader as devicesLoader } from "./pages/devices";
 import Jobs from "./pages/jobs";
 import { AppState } from "./lib/types";
 import { useContext } from "react";
@@ -16,6 +16,10 @@ import {
   Dashboard,
   loader as dashboardLoader,
 } from "./components/layouts/dashboard";
+import {
+  DeviceDetail,
+  loader as deviceDetailLoader,
+} from "./pages/device-detail";
 
 export function AppRouter() {
   const appState = useContext(AppStateContext);
@@ -37,7 +41,6 @@ function getRouter(appState: AppState) {
           path="/"
           element={<Dashboard />}
           loader={dashboardLoader(appState)}
-          //   action={rootAction}
           errorElement={<ErrorAlert />}
         >
           <Route errorElement={<ErrorAlert />}>
@@ -45,7 +48,13 @@ function getRouter(appState: AppState) {
             <Route
               path="devices"
               element={<Devices />}
-              // loader={contactLoader}
+              loader={devicesLoader(appState)}
+              // action={contactAction}
+            />
+            <Route
+              path="devices/:deviceName"
+              element={<DeviceDetail />}
+              loader={deviceDetailLoader(appState)}
               // action={contactAction}
             />
             <Route

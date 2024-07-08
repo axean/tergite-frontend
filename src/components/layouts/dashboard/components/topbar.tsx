@@ -1,6 +1,6 @@
-import { Cpu, FlaskRound, HomeIcon } from "lucide-react";
-import { Logo } from "../ui/logo";
-import { NavItem } from "../ui/nav-item";
+import { Cpu, FlaskRound, HomeIcon, PanelLeft } from "lucide-react";
+import { Logo } from "../../../ui/logo";
+import { NavItem } from "../../../ui/nav-item";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -17,17 +17,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ProjectDetail } from "@/lib/types";
+import { Project } from "@/lib/types";
+import { Sheet, SheetContent, SheetTrigger } from "../../../ui/sheet";
+import { useLocation } from "react-router-dom";
 
 export function Topbar({
   currentProject = "",
   onProjectChange,
-  pageTitle,
   projects,
 }: TopbarProps) {
+  const location = useLocation();
+  const pageTitle = location.pathname.slice(1) || "Dashboard";
+
   return (
-    <>
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+      <MobileMenu />
+
       <div className="mr-auto capitalize">{pageTitle}</div>
+
       <Select value={currentProject} onValueChange={onProjectChange}>
         <SelectTrigger className="w-fit">
           <span className="hidden sm:inline text-muted-foreground pr-1">
@@ -68,28 +75,35 @@ export function Topbar({
           <DropdownMenuItem>Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    </>
+    </header>
   );
 }
 
-export interface TopbarProps {
+interface TopbarProps {
   currentProject?: string;
-  pageTitle: string;
-  projects: ProjectDetail[];
+  projects: Project[];
   onProjectChange: (projectExtId: string) => void;
 }
 
-export function TopbarMenu({}: TopbarMenuProps) {
+function MobileMenu({}: MobileMenuProps) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-10 hidden w-48 flex-col border-r bg-background sm:flex">
-      <Logo />
-      <nav className="flex flex-col gap-4 px-6 sm:py-4">
-        <NavItem to="/" Icon={HomeIcon} text="Dashboard" />
-        <NavItem to="/devices" isActive={true} Icon={Cpu} text="Devices" />
-        <NavItem to="/jobs" Icon={FlaskRound} text="Jobs" />
-      </nav>
-    </aside>
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button size="icon" variant="outline" className="sm:hidden">
+          <PanelLeft className="h-5 w-5" />
+          <span className="sr-only">Toggle Menu</span>
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="sm:max-w-xs">
+        <Logo />
+        <nav className="grid gap-6 text-lg font-medium">
+          <NavItem to="/" Icon={HomeIcon} text="Dashboard" isBig={true} />
+          <NavItem to="/devices" Icon={Cpu} text="Devices" isBig={true} />
+          <NavItem to="/jobs" Icon={FlaskRound} text="Jobs" isBig={true} />
+        </nav>
+      </SheetContent>
+    </Sheet>
   );
 }
 
-interface TopbarMenuProps {}
+interface MobileMenuProps {}

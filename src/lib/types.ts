@@ -4,19 +4,19 @@ export enum JobStatus {
   FAILED = "failed",
 }
 
-export interface DeviceDetail {
+export interface Device {
   name: string;
   numberOfQubits: number;
   lastOnline: string | null | undefined;
   isOnline: boolean;
 }
 
-export interface ProjectDetail {
+export interface Project {
   name: string;
   extId: string;
 }
 
-export interface JobDetail {
+export interface Job {
   jobId: string;
   deviceName: string;
   status: JobStatus;
