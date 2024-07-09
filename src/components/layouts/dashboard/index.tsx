@@ -14,9 +14,9 @@ export function Dashboard() {
 
   return (
     <TooltipProvider>
-      <div className="flex min-h-screen w-full flex-col bg-muted/40">
+      <div className="flex h-screen w-full flex-col bg-muted/40">
         <Sidebar />
-        <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-48">
+        <div className="flex flex-col sm:gap-4 h-full sm:pt-4 sm:pl-48">
           <Topbar
             currentProject={currentProject}
             onProjectChange={setCurrentProject}
