@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tergite.github.io/device.schema.json",
+  "title": "Device",
+  "description": "A quantum computing backend specification",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "The unique name of the quantum computer",
+      "type": "string"
+    },
+    "version": {
+      "description": "The revision of this quantum computer",
+      "type": "string"
+    },
+    "qubits": {
+      "description": "The calibrated properties for each qubit",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/qubit"
+      }
+    },
+    "lastCalibrated": {
+      "description": "The ISO8601 timestamp when the device was last calibrated",
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "name",
+    "version",
+    "numberOfQubits",
+    "isOnline",
+    "basisGates",
+    "isSimulator",
+    "couplingMap"
+  ],
+  "$defs": {
+    "qubit": {
+      "type": "object",
+      "required": [
+        "t1_decoherence",
+        "t2_decoherence",
+        "frequency",
+        "anharmonicity",
+        "readout_assignment_error"
+      ],
+      "properties": {
+        "t1_decoherence": {
+          "$ref": "#/$defs/calibrationValue"
+        },
+        "t2_decoherence": {
+          "$ref": "#/$defs/calibrationValue"
+        },
+        "frequency": {
+          "$ref": "#/$defs/calibrationValue"
+        },
+        "anharmonicity": {
+          "$ref": "#/$defs/calibrationValue"
+        },
+        "readout_assignment_error": {
+          "$ref": "#/$defs/calibrationValue"
+        }
+      }
+    },
+    "calibrationValue": {
+      "type": "object",
+      "required": ["date", "unit", "value"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "description": "The ISO8601 timestamp when this value was generated",
+          "format": "date-time"
+        },
+        "unit": {
+          "type": "string",
+          "description": "The unit of measurement",
+          "enum": ["us", "ns", "GHz", "MHz", ""]
+        },
+        "value": {
+          "type": "number",
+          "description": "The amount of the given property"
+        }
+      }
+    }
+  }
+}

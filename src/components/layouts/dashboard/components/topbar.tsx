@@ -1,4 +1,4 @@
-import { Cpu, FlaskRound, HomeIcon, PanelLeft } from "lucide-react";
+import { Cpu, HomeIcon, PanelLeft } from "lucide-react";
 import { Logo } from "../../../ui/logo";
 import { NavItem } from "../../../ui/nav-item";
 import { Button } from "@/components/ui/button";
@@ -19,21 +19,26 @@ import {
 } from "@/components/ui/select";
 import { Project } from "@/lib/types";
 import { Sheet, SheetContent, SheetTrigger } from "../../../ui/sheet";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { useMemo } from "react";
 
 export function Topbar({
   currentProject = "",
   onProjectChange,
   projects,
 }: TopbarProps) {
-  const location = useLocation();
-  const pageTitle = location.pathname.slice(1) || "Dashboard";
-
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <MobileMenu />
 
-      <div className="mr-auto capitalize">{pageTitle}</div>
+      <TopbarBreadcrumb />
 
       <Select value={currentProject} onValueChange={onProjectChange}>
         <SelectTrigger className="w-fit">
@@ -99,7 +104,6 @@ function MobileMenu({}: MobileMenuProps) {
         <nav className="grid gap-6 text-lg font-medium">
           <NavItem to="/" Icon={HomeIcon} text="Dashboard" isBig={true} />
           <NavItem to="/devices" Icon={Cpu} text="Devices" isBig={true} />
-          <NavItem to="/jobs" Icon={FlaskRound} text="Jobs" isBig={true} />
         </nav>
       </SheetContent>
     </Sheet>
@@ -107,3 +111,34 @@ function MobileMenu({}: MobileMenuProps) {
 }
 
 interface MobileMenuProps {}
+
+function TopbarBreadcrumb() {
+  const location = useLocation();
+  const pathParts = useMemo(
+    () => location.pathname.split("/").filter((v) => v !== ""),
+    [location.pathname]
+  );
+  return (
+    <Breadcrumb className="hidden md:flex mr-auto">
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink asChild>
+            <Link to="/">Dashboard</Link>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        {pathParts.map((part, idx, allParts) => (
+          <>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to={`/${allParts.slice(0, idx + 1).join("/")}`}>
+                  {part}
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          </>
+        ))}
+      </BreadcrumbList>
+    </Breadcrumb>
+  );
+}

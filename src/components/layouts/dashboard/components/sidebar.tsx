@@ -1,4 +1,4 @@
-import { Home as HomeIcon, Cpu, FlaskRound } from "lucide-react";
+import { Home as HomeIcon, Cpu } from "lucide-react";
 import { NavItem } from "../../../ui/nav-item";
 import { Logo } from "../../../ui/logo";
 
@@ -9,7 +9,6 @@ export function Sidebar({}: Props) {
       <nav className="flex flex-col gap-4 px-6 sm:py-4">
         <NavItem to="/" Icon={HomeIcon} text="Dashboard" />
         <NavItem to="/devices" Icon={Cpu} text="Devices" />
-        <NavItem to="/jobs" Icon={FlaskRound} text="Jobs" />
       </nav>
     </aside>
   );

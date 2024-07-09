@@ -59,46 +59,7 @@ export function Home() {
               </div>
             </CardHeader>
             <CardContent>
-              <DevicesTable data={devices} />
-              {/* <Table className="table-fixed">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-1/2 lg:w-2/6">Device</TableHead>
-                    <TableHead className="hidden lg:table-cell lg:w-1/6">
-                      Qubits
-                    </TableHead>
-                    <TableHead className="text-right lg:text-left w-1/2 lg:w-1/6">
-                      Status
-                    </TableHead>
-                    <TableHead className="hidden lg:table-cell lg:text-right lg:w-2/6">
-                      Last Seen
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {devices.map((device) => (
-                    <TableRow key={device.name}>
-                      <TableCell>
-                        <div className="font-medium">{device.name}</div>
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        {device.numberOfQubits}
-                      </TableCell>
-                      <TableCell>
-                        <DeviceStatusDiv
-                          className="ml-auto lg:ml-0"
-                          device={device}
-                        />
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell lg:text-right">
-                        {device.lastOnline
-                          ? DateTime.fromISO(device.lastOnline).toRelative()
-                          : "N/A"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table> */}
+              <DevicesTable data={devices.slice(0, 3)} />
             </CardContent>
           </Card>
         </div>
