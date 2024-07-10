@@ -4,12 +4,13 @@ export enum JobStatus {
   FAILED = "failed",
 }
 
-interface Qubit {
+export interface Qubit {
   t1_decoherence: CalibrationValue;
   t2_decoherence: CalibrationValue;
   frequency: CalibrationValue;
   anharmonicity: CalibrationValue;
   readout_assignment_error: CalibrationValue;
+  [k: string]: CalibrationValue;
 }
 
 /**
@@ -26,11 +27,13 @@ export interface DeviceCalibration {
   lastCalibrated: string;
 }
 
-interface CalibrationValue {
+export interface CalibrationValue {
   date: string;
   unit: "ns" | "us" | "GHz" | "MHz" | "";
   value: number;
 }
+
+export type AggregateValue = Omit<CalibrationValue, "date">;
 
 /**
  * Properties of the device that are more or less static
