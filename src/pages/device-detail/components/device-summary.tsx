@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/card";
 import { DeviceStatusDiv } from "@/components/ui/device-status-div";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 import {
   DeviceCalibrationMedians,
   Device,
@@ -56,8 +55,8 @@ export function DeviceSummary({
               {device.basisGates.join(", ")}
             </DetailItem>
 
-            <DetailItem label="Simulator">
-              <Switch disabled={true} defaultChecked={device.isSimulator} />
+            <DetailItem label="Type">
+              {device.isSimulator ? "simulator" : "physical"}
             </DetailItem>
           </ul>
           <Separator className="my-2" />
