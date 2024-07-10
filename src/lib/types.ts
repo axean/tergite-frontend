@@ -35,6 +35,12 @@ export interface CalibrationValue {
 
 export type AggregateValue = Omit<CalibrationValue, "date">;
 
+export interface DeviceCalibrationMedians {
+  t1_decoherence?: AggregateValue;
+  t2_decoherence?: AggregateValue;
+  readout_assignment_error?: AggregateValue;
+}
+
 /**
  * Properties of the device that are more or less static
  */

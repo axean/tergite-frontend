@@ -1,71 +1,29 @@
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
 } from "@/components/ui/card";
+import { DeviceStatusDiv } from "@/components/ui/device-status-div";
 import { Separator } from "@/components/ui/separator";
-import { deviceCalibrationData, deviceList } from "@/lib/mock-data";
+import { Switch } from "@/components/ui/switch";
 import {
-  AggregateValue,
-  AppState,
+  DeviceCalibrationMedians,
   Device,
   DeviceCalibration,
 } from "@/lib/types";
-import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
-import { DeviceStatusDiv } from "@/components/ui/device-status-div";
-import { Switch } from "@/components/ui/switch";
-import { PropsWithChildren, useMemo } from "react";
-import { cn, getCalibrationMedians } from "@/lib/utils";
+import { getCalibrationMedians, cn } from "@/lib/utils";
 import { DateTime } from "luxon";
+import { useMemo } from "react";
+import { DetailItem } from "./detail-item";
 
-export function DeviceDetail() {
-  const { device, calibrationData } = useLoaderData() as DeviceDetailData;
-  return (
-    <main className="grid auto-rows-fr flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-4">
-      <Card className="p-4 sm:px-6 lg:col-span-2 xl:col-span-3">
-        <CardHeader className="pb-4">{device.name}</CardHeader>
-        <CardContent>{device.name}</CardContent>
-      </Card>
-      <DeviceSummary
-        device={device}
-        calibrationData={calibrationData}
-        className="order-first lg:order-none"
-      />
-    </main>
-  );
-}
-
-export function loader(appState: AppState) {
-  return async ({ params }: LoaderFunctionArgs) => {
-    const device = deviceList.filter((v) => v.name === params.deviceName)[0];
-    if (device === undefined) {
-      throw new Error(`device data for ${params.deviceName} not found`);
-    }
-
-    const calibrationData = deviceCalibrationData.filter(
-      (v) => v.name === params.deviceName
-    )[0];
-    if (device === undefined) {
-      throw new Error(`calibration for ${params.deviceName} not found`);
-    }
-
-    return { device, calibrationData };
-  };
-}
-
-interface DeviceDetailData {
-  device: Device;
-  calibrationData: DeviceCalibration;
-}
-
-function DeviceSummary({
+export function DeviceSummary({
   device,
   calibrationData,
   className = "",
-}: DeviceSummaryProps) {
+}: Props) {
   const deviceMedians: DeviceCalibrationMedians = useMemo(
     () =>
       getCalibrationMedians(calibrationData.qubits, [
@@ -141,32 +99,8 @@ function DeviceSummary({
   );
 }
 
-interface DeviceSummaryProps {
+interface Props {
   device: Device;
   calibrationData: DeviceCalibration;
-  className?: string;
-}
-
-interface DeviceCalibrationMedians {
-  t1_decoherence?: AggregateValue;
-  t2_decoherence?: AggregateValue;
-  readout_assignment_error?: AggregateValue;
-}
-
-function DetailItem({
-  label,
-  children,
-  className = "",
-}: PropsWithChildren<DetailItemProps>) {
-  return (
-    <li className={cn("flex items-center justify-between", className)}>
-      <span className="text-muted-foreground">{label}</span>
-      {children}
-    </li>
-  );
-}
-
-interface DetailItemProps {
-  label: string;
   className?: string;
 }
