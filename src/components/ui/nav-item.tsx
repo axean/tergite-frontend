@@ -2,7 +2,13 @@ import * as React from "react";
 import { LucideProps } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
-export function NavItem({ to, isBig = false, Icon, text }: Props) {
+export function NavItem({
+  to,
+  isBig = false,
+  Icon,
+  text,
+  isExpanded = true,
+}: Props) {
   const location = useLocation();
   const colorsClass = React.useMemo(
     () =>
@@ -29,7 +35,7 @@ export function NavItem({ to, isBig = false, Icon, text }: Props) {
     >
       <div className={`flex ${sizeClass.gap} items-center`}>
         <Icon className={sizeClass.icon} />
-        <span className={sizeClass.text}>{text}</span>
+        {isExpanded && <span className={sizeClass.text}>{text}</span>}
         <span className="sr-only">{text}</span>
       </div>
     </Link>
@@ -40,6 +46,7 @@ interface Props {
   to: string;
   text: string;
   isBig?: boolean;
+  isExpanded?: boolean;
   Icon: React.ForwardRefExoticComponent<
     Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
   >;

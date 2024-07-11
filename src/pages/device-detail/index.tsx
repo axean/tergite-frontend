@@ -13,6 +13,7 @@ export function DeviceDetail() {
         <CardHeader className="pb-4">{device.name}</CardHeader>
         <CardContent>{device.name}</CardContent>
       </Card>
+      {/* FIXME: We probably need to add a way to reduce the size of the sidebar */}
       <DeviceSummary
         device={device}
         calibrationData={calibrationData}
