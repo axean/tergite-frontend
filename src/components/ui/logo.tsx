@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export function Logo({ isExpanded }: Props) {
+export function Logo({ isExpanded = true }: Props) {
   const className = isExpanded ? "text-2xl" : "text-md";
   return (
     <Link
@@ -23,5 +23,5 @@ export function Logo({ isExpanded }: Props) {
 }
 
 interface Props {
-  isExpanded: boolean;
+  isExpanded?: boolean;
 }

@@ -35,6 +35,7 @@ import { DataTableRow } from "./table-row";
 import { Drawer, DrawerContent, DrawerTrigger } from "../drawer";
 import { cn } from "@/lib/utils";
 export type { DataTableFormConfig, DataTableFilterField } from "./filter-form";
+export { SortHeader } from "./sort-header";
 
 export function DataTable<TData, TValue>({
   columns,
@@ -136,7 +137,7 @@ export function DataTable<TData, TValue>({
         )}
       </div>
 
-      <div className="border rounded-bl-md">
+      <div className="border rounded-l-md">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

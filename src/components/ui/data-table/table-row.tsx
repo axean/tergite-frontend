@@ -11,6 +11,7 @@ export function DataTableRow<TData>({ row, onClick }: Props<TData>) {
       {row.getVisibleCells().map((cell) => (
         <TableCell
           key={cell.id}
+          width={cell.column.columnDef.size}
           className={cell.column.columnDef.meta?.rowClassName ?? ""}
         >
           {flexRender(cell.column.columnDef.cell, cell.getContext())}

@@ -7,13 +7,13 @@ export const deviceTableColumns: ColumnDef<Device>[] = [
   {
     accessorKey: "name",
     header: "Device",
-    meta: { headerClassName: "w-1/2 lg:w-2/6", rowClassName: "font-medium" },
+    meta: { headerClassName: "", rowClassName: "font-medium" },
   },
   {
     accessorKey: "numberOfQubits",
     header: "Qubits",
     meta: {
-      headerClassName: "hidden lg:table-cell lg:w-1/6",
+      headerClassName: "hidden lg:table-cell",
       rowClassName: "hidden lg:table-cell",
     },
   },
@@ -24,7 +24,7 @@ export const deviceTableColumns: ColumnDef<Device>[] = [
       <DeviceStatusDiv className="ml-auto lg:ml-0" device={row.original} />
     ),
     meta: {
-      headerClassName: "text-right lg:text-left w-1/2 lg:w-1/6",
+      headerClassName: "text-right lg:text-left",
       rowClassName: "",
     },
   },
@@ -40,7 +40,7 @@ export const deviceTableColumns: ColumnDef<Device>[] = [
       </>
     ),
     meta: {
-      headerClassName: "hidden lg:table-cell lg:text-right lg:w-2/6",
+      headerClassName: "hidden lg:table-cell lg:text-right",
       rowClassName: "hidden lg:table-cell lg:text-right",
     },
   },

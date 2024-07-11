@@ -1,7 +1,7 @@
+import { SortHeader } from "@/components/ui/data-table";
 import { JobStatusDiv } from "@/components/ui/job-status-div";
 import { Job, JobStatus } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp } from "lucide-react";
 import { DateTime, Duration } from "luxon";
 
 export const jobTableColumns: ColumnDef<Job>[] = [
@@ -34,21 +34,13 @@ export const jobTableColumns: ColumnDef<Job>[] = [
   },
   {
     accessorKey: "createdAt",
-    header: ({ column }) => {
-      const isAscending = column.getIsSorted() === "asc";
-      return (
-        <div
-          className="hidden md:table-cell cursor-pointer"
-          onClick={() => column.toggleSorting(isAscending)}
-        >
-          <div className="flex">
-            Created at
-            {!isAscending && <ArrowDown className="ml-1 h-4 w-4" />}
-            {isAscending && <ArrowUp className="ml-1 h-4 w-4" />}
-          </div>
-        </div>
-      );
-    },
+    header: ({ column }) => (
+      <SortHeader
+        column={column}
+        label="Created at"
+        className="hidden md:table-cell "
+      />
+    ),
     cell: ({ row }) => {
       const createdAtString: string = row.getValue("createdAt");
       const createdAt = DateTime.fromISO(createdAtString).toLocaleString(
