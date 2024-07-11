@@ -71,7 +71,7 @@ interface CalibrationDataHeaderProps {
   device: Device;
 }
 
-export function loader(appState: AppState) {
+export function loader(_appState: AppState) {
   return async ({ params }: LoaderFunctionArgs) => {
     const device = deviceList.filter((v) => v.name === params.deviceName)[0];
     if (device === undefined) {

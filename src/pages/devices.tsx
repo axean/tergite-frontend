@@ -49,7 +49,7 @@ interface DeviceData {
   devices: Device[];
 }
 
-export function loader(appState: AppState) {
+export function loader(_appState: AppState) {
   return async ({}: LoaderFunctionArgs) => {
     return { devices: deviceList } as DeviceData;
   };

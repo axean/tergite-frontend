@@ -85,7 +85,7 @@ interface HomeData {
   jobs: Job[];
 }
 
-export function loader(appState: AppState) {
+export function loader(_appState: AppState) {
   return async ({}: LoaderFunctionArgs) => {
     return { devices: deviceList, jobs: jobList } as HomeData;
   };

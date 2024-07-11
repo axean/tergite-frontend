@@ -45,7 +45,7 @@ interface DashboardData {
   projects: Project[];
 }
 
-export function loader(appState: AppState) {
+export function loader(_appState: AppState) {
   return async ({}: LoaderFunctionArgs) => {
     return { projects: projectList } as DashboardData;
   };
