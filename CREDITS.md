@@ -5,7 +5,7 @@
 - System design and specifications of initial version tergite-dashboard
 - Development of initial version of tergite-dashboard
 
-## Pontus Visktål
+## Pontus Vikstål
 
 - UI/UX design of initial version of tergite-dashboard
 - Development of initial version of tergite-dashboard
