@@ -1,9 +1,14 @@
 import { Row, flexRender } from "@tanstack/react-table";
 import { TableCell, TableRow } from "@/components/ui/table";
+import React from "react";
 
-export function DataTableRow<TData>({ row, onClick }: Props<TData>) {
+export const DataTableRow = React.forwardRef(function <TData>(
+  { row, onClick }: Props<TData>,
+  ref: React.ForwardedRef<HTMLTableRowElement>
+) {
   return (
     <TableRow
+      ref={ref}
       className="cursor-pointer"
       data-state={row.getIsSelected() && "selected"}
       onClick={() => onClick && onClick(row)}
@@ -19,7 +24,9 @@ export function DataTableRow<TData>({ row, onClick }: Props<TData>) {
       ))}
     </TableRow>
   );
-}
+}) as <T>(
+  props: Props<T> & { ref?: React.ForwardedRef<HTMLTableRowElement> }
+) => React.ReactNode;
 
 interface Props<TData> {
   row: Row<TData>;

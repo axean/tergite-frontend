@@ -27,7 +27,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
 
 export function Topbar({
   currentProject = "",
@@ -127,7 +127,7 @@ function TopbarBreadcrumb() {
           </BreadcrumbLink>
         </BreadcrumbItem>
         {pathParts.map((part, idx, allParts) => (
-          <>
+          <Fragment key={idx}>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
@@ -136,7 +136,7 @@ function TopbarBreadcrumb() {
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-          </>
+          </Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>
