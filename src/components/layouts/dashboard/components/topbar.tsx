@@ -41,7 +41,7 @@ export function Topbar({
       <TopbarBreadcrumb />
 
       <Select value={currentProject} onValueChange={onProjectChange}>
-        <SelectTrigger className="w-fit">
+        <SelectTrigger className="ml-auto w-fit">
           <span className="hidden sm:inline text-muted-foreground pr-1">
             Project:{" "}
           </span>

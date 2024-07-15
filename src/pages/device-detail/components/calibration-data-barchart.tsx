@@ -1,18 +1,35 @@
-import { DeviceCalibration } from "@/lib/types";
+import { CalibrationValue, DeviceCalibration } from "@/lib/types";
 import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
-import { timeParse, timeFormat } from "@visx/vendor/d3-time-format";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Bar } from "@visx/shape";
 import { Group } from "@visx/group";
-import cityTemperature from "@visx/mock-data/lib/mocks/cityTemperature";
 import { Grid } from "@visx/grid";
 import { scaleBand, scaleLinear } from "@visx/scale";
 import { localPoint } from "@visx/event";
 import { useParentSize } from "@visx/responsive";
+import { useMemo, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-type CityName = "New York" | "San Francisco" | "Austin";
+const qubitPropsMap: { [k: string]: string } = {
+  t1_decoherence: "T1 decoherence",
+  t2_decoherence: "T2 decoherence",
+  frequency: "Frequency",
+  anharmonicity: "Anharmonicity",
+  readout_assignment_error: "Readout error",
+};
 
-type DataPoint = { date: string; value: number };
+interface DataPoint extends CalibrationValue {
+  index: number;
+}
+
+const getYValue = (item: DataPoint) => item.value;
+const getXValue = (item: DataPoint) => item.index;
 
 const tooltipStyles = {
   ...defaultStyles,
@@ -24,17 +41,37 @@ const tooltipStyles = {
 let tooltipTimeout: number;
 
 // Inspired from See https://airbnb.io/visx/barstack
-export function CalibrationDataBarChart({ data: d }: Props) {
-  const { parentRef, width, height } = useParentSize({ debounceTime: 50 });
+export function CalibrationDataBarChart({ data, minWidth }: Props) {
+  const {
+    parentRef,
+    width: _width,
+    height,
+  } = useParentSize({ debounceTime: 50 });
+
+  const width = Math.max(minWidth, _width);
   const margin = { top: 50, right: 0, bottom: 0, left: 50 };
   const xMax = Math.max(width - margin.left, 0);
   const yMax = Math.max(height - margin.top - 100, 0);
 
-  const data = cityTemperature
-    .filter((v) => v.Austin)
-    .map((v) => ({ date: v.date, value: Number(v.Austin) }))
-    .slice(0, 12);
-  const temperatureTotals = data.map((v) => v.value);
+  const [currentProp, setCurrentProp] = useState<string>("t1_decoherence");
+  const currentPropLabel = qubitPropsMap[currentProp];
+
+  const chatData: DataPoint[] = useMemo(
+    () =>
+      data.qubits.map((v, index) => ({
+        ...v[currentProp],
+        index,
+      })),
+    [data.qubits, currentProp]
+  );
+
+  const maxYValue = useMemo(
+    () => Math.max(...chatData.map(getYValue)),
+    [chatData]
+  );
+  const yAxisLabel = chatData[0]?.unit
+    ? `${currentPropLabel} (${chatData[0].unit})`
+    : currentPropLabel;
 
   const {
     tooltipOpen,
@@ -52,28 +89,36 @@ export function CalibrationDataBarChart({ data: d }: Props) {
     scroll: true,
   });
 
-  // accessors
-  const getDate = (d: { date: string; value: number }) => d.date;
-
-  const parseDate = timeParse("%Y-%m-%d");
-  const format = timeFormat("%b %d");
-  const formatDate = (date: string) => format(parseDate(date) as Date);
-
   // scales
-  const dateScale = scaleBand<string>({
-    domain: data.map(getDate),
+  const xScale = scaleBand<number>({
+    domain: chatData.map(getXValue),
     padding: 0.2,
+    range: [0, xMax],
+    round: true,
   });
-  const temperatureScale = scaleLinear<number>({
-    domain: [0, Math.max(...temperatureTotals)],
+  const yScale = scaleLinear<number>({
+    domain: [0, maxYValue],
     nice: true,
+    range: [yMax, 0],
   });
-
-  dateScale.rangeRound([0, xMax]);
-  temperatureScale.range([yMax, 0]);
 
   return (
-    <div ref={parentRef} className="relative w-full h-full">
+    <div ref={parentRef} className="relative w-full h-full overflow-auto">
+      <Select value={currentProp} onValueChange={setCurrentProp}>
+        <SelectTrigger className="ml-auto w-fit focus:ring-0">
+          <span className="hidden sm:inline text-muted-foreground pr-1">
+            Property:{" "}
+          </span>
+          <SelectValue placeholder="Select property" />
+        </SelectTrigger>
+        <SelectContent>
+          {Object.keys(qubitPropsMap).map((prop) => (
+            <SelectItem value={prop} key={prop}>
+              {qubitPropsMap[prop]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <svg ref={containerRef} width={width} height={height}>
         <rect
           x={0}
@@ -86,27 +131,27 @@ export function CalibrationDataBarChart({ data: d }: Props) {
         <Grid
           top={margin.top}
           left={margin.left}
-          xScale={dateScale}
-          yScale={temperatureScale}
+          xScale={xScale}
+          yScale={yScale}
           width={xMax}
           height={yMax}
           stroke="black"
           strokeOpacity={0.1}
-          xOffset={dateScale.bandwidth() / 2}
+          xOffset={xScale.bandwidth() / 2}
         />
         <Group top={margin.top} left={margin.left}>
-          {data.map((record) => {
-            const key = record.date;
-            const value = record.value;
+          {chatData.map((record) => {
+            const x = getXValue(record);
+            const y = getYValue(record);
 
-            const barWidth = dateScale.bandwidth() + 2;
-            const barHeight = yMax - (temperatureScale(value) ?? 0);
-            const barX = dateScale(key) ?? 0;
+            const barWidth = xScale.bandwidth();
+            const barHeight = yMax - (yScale(y) ?? 0);
+            const barX = xScale(x) ?? 0;
             const barY = yMax - barHeight;
 
             return (
               <Bar
-                key={`bar-${key}`}
+                key={`bar-${x}`}
                 x={barX}
                 y={barY}
                 width={barWidth}
@@ -137,21 +182,20 @@ export function CalibrationDataBarChart({ data: d }: Props) {
         <AxisBottom
           top={yMax + margin.top}
           left={margin.left}
-          scale={dateScale}
-          tickFormat={formatDate}
+          scale={xScale}
           tickLabelProps={{
             textAnchor: "middle",
             className: "text-sm",
           }}
-          label="Date"
+          label="Qubit"
           labelClassName="text-sm"
           labelOffset={30}
         />
         <AxisLeft
-          scale={temperatureScale}
+          scale={yScale}
           top={margin.top}
           left={margin.left}
-          label="Temperature (°F)"
+          label={yAxisLabel}
           labelOffset={30}
           labelClassName="text-sm"
           tickLabelProps={{
@@ -167,11 +211,10 @@ export function CalibrationDataBarChart({ data: d }: Props) {
           style={tooltipStyles}
         >
           <div>
-            <strong>{tooltipData.date}</strong>
+            <strong>Qubit {tooltipData.index}</strong>
           </div>
-          <div>{tooltipData.value}℉</div>
           <div>
-            <small>{formatDate(getDate(tooltipData))}</small>
+            {tooltipData?.value?.toFixed(2)} {tooltipData.unit}
           </div>
         </TooltipInPortal>
       )}
@@ -181,4 +224,5 @@ export function CalibrationDataBarChart({ data: d }: Props) {
 
 interface Props {
   data: DeviceCalibration;
+  minWidth: number;
 }

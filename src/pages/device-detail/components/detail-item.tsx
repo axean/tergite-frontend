@@ -7,7 +7,9 @@ export function DetailItem({
   className = "",
 }: PropsWithChildren<Props>) {
   return (
-    <li className={cn("flex items-center justify-between", className)}>
+    <li
+      className={cn("flex items-center justify-between flex-wrap", className)}
+    >
       <span className="text-muted-foreground">{label}</span>
       {children}
     </li>

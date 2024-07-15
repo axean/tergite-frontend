@@ -18,9 +18,9 @@ export function DeviceDetail() {
   const { device, calibrationData } = useLoaderData() as DeviceDetailData;
 
   return (
-    <main className="grid auto-rows-fr flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-4">
-      <Tabs defaultValue="map" className="lg:pt-3 lg:col-span-2 xl:col-span-3">
-        <TabsList className="">
+    <main className="grid flex-1 items-start gap-4 grid-cols-1 p-4 sm:px-6 sm:py-0 md:gap-8 xl:grid-cols-4">
+      <Tabs defaultValue="map" className="col-span-1 xl:pt-3 xl:col-span-3">
+        <TabsList className="flex items-center justify-start flex-wrap h-auto space-y-1">
           <TabsTrigger value="map">Map view</TabsTrigger>
           <TabsTrigger value="graph">Graph view</TabsTrigger>
           <TabsTrigger value="table">Table view</TabsTrigger>
@@ -32,10 +32,10 @@ export function DeviceDetail() {
           </Card>
         </TabsContent>
         <TabsContent value="graph">
-          <Card>
+          <Card className=" overflow-auto">
             <CalibrationDataHeader device={device} />
-            <CardContent className="w-full min-w-[400px] h-[700px] lg:h-[750px] xl:h-[900px] overflow-clip">
-              <CalibrationDataBarChart data={calibrationData} />
+            <CardContent className="w-full min-w-[250px] h-[700px] lg:h-[750px] xl:h-[900px] overflow-auto">
+              <CalibrationDataBarChart data={calibrationData} minWidth={250} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -51,7 +51,7 @@ export function DeviceDetail() {
       <DeviceSummary
         device={device}
         calibrationData={calibrationData}
-        className="order-first lg:order-none mt-14"
+        className="order-first xl:order-none mt-14 col-span-1"
       />
     </main>
   );
