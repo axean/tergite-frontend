@@ -12,9 +12,11 @@ import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 import { DeviceSummary } from "./components/device-summary";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalibrationDataTable } from "./components/calibration-data-table";
+import { CalibrationDataBarChart } from "./components/calibration-data-barchart";
 
 export function DeviceDetail() {
   const { device, calibrationData } = useLoaderData() as DeviceDetailData;
+
   return (
     <main className="grid auto-rows-fr flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-4">
       <Tabs defaultValue="map" className="lg:pt-3 lg:col-span-2 xl:col-span-3">
@@ -32,7 +34,9 @@ export function DeviceDetail() {
         <TabsContent value="graph">
           <Card>
             <CalibrationDataHeader device={device} />
-            <CardContent>graph</CardContent>
+            <CardContent className="w-full min-w-[400px] h-[700px] lg:h-[750px] xl:h-[900px] overflow-clip">
+              <CalibrationDataBarChart data={calibrationData} />
+            </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="table">

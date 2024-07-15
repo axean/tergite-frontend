@@ -18,6 +18,7 @@ If you are reading this on GitHub, then you are looking at a mirror.
 - [Shadcn UI](https://ui.shadcn.com/)
 - [React +18.2.0](https://react.dev/)
 - [React router +6.23.1](https://reactrouter.com/)
+- [Visx](https://airbnb.io/visx/)
 
 ## Quick Start
 
