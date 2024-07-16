@@ -9,6 +9,7 @@ import { CalibrationDataTable } from "./components/calibration-data-table";
 import { CalibrationBarChart } from "./components/calibration-bar-chart";
 import { CalibrationHeader } from "./components/calibration-header";
 import { CalibrationMapChart } from "./components/calibration-map-chart";
+import { useState } from "react";
 
 const fieldLabels: { [k: string]: string } = {
   t1_decoherence: "T1 decoherence",
@@ -20,6 +21,7 @@ const fieldLabels: { [k: string]: string } = {
 
 export function DeviceDetail() {
   const { device, calibrationData } = useLoaderData() as DeviceDetailData;
+  const [currentData, setCurrentData] = useState<string>("t1_decoherence");
 
   return (
     <main className="grid flex-1 items-start gap-4 grid-cols-1 p-4 sm:px-6 sm:py-0 md:gap-8 xl:grid-cols-4">
@@ -31,32 +33,44 @@ export function DeviceDetail() {
         </TabsList>
         <TabsContent value="map">
           <Card>
-            <CalibrationHeader device={device} />
+            <CalibrationHeader
+              device={device}
+              currentData={currentData}
+              fieldLabels={fieldLabels}
+              onCurrentDataChange={setCurrentData}
+            />
             <CardContent className="w-full min-w-[250px] h-[700px] lg:h-[750px] xl:h-[900px] overflow-auto">
               <CalibrationMapChart
                 data={calibrationData}
                 minWidth={250}
                 fieldLabels={fieldLabels}
                 device={device}
+                currentProp={currentData}
               />
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="graph">
           <Card className=" overflow-auto">
-            <CalibrationHeader device={device} />
+            <CalibrationHeader
+              device={device}
+              currentData={currentData}
+              fieldLabels={fieldLabels}
+              onCurrentDataChange={setCurrentData}
+            />
             <CardContent className="w-full min-w-[250px] h-[700px] lg:h-[750px] xl:h-[900px] overflow-auto">
               <CalibrationBarChart
                 data={calibrationData}
                 minWidth={250}
                 fieldLabels={fieldLabels}
+                currentProp={currentData}
               />
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="table">
           <Card>
-            <CalibrationHeader device={device} />
+            <CalibrationHeader device={device} currentData="Calibration" />
             <CardContent>
               <CalibrationDataTable data={calibrationData} />
             </CardContent>

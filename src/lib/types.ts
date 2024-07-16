@@ -4,6 +4,13 @@ export enum JobStatus {
   FAILED = "failed",
 }
 
+export type QubitProp =
+  | "t1_decoherence"
+  | "t2_decoherence"
+  | "frequency"
+  | "anharmonicity"
+  | "readout_assignment_error";
+
 export interface Qubit {
   t1_decoherence: CalibrationValue;
   t2_decoherence: CalibrationValue;

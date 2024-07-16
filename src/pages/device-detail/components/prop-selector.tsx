@@ -5,11 +5,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { QubitProp } from "@/lib/types";
 
 export function PropSelector({ value, onValueChange, fieldLabels }: Props) {
   return (
     <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger className="ml-auto w-fit focus:ring-0">
+      <SelectTrigger className="w-fit focus:ring-0">
         <span className="hidden sm:inline text-muted-foreground pr-1">
           Property:{" "}
         </span>
@@ -27,7 +28,7 @@ export function PropSelector({ value, onValueChange, fieldLabels }: Props) {
 }
 
 interface Props {
-  value: string;
-  onValueChange: (value: string) => void;
+  value: QubitProp;
+  onValueChange: (value: QubitProp) => void;
   fieldLabels: { [k: string]: string };
 }

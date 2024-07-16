@@ -1,12 +1,15 @@
-import { CalibrationDataPoint, DeviceCalibration } from "@/lib/types";
+import {
+  CalibrationDataPoint,
+  DeviceCalibration,
+  QubitProp,
+} from "@/lib/types";
 import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Group } from "@visx/group";
 import { Grid } from "@visx/grid";
 import { scaleBand, scaleLinear } from "@visx/scale";
 import { useParentSize } from "@visx/responsive";
-import { useMemo, useState } from "react";
-import { PropSelector } from "../prop-selector";
+import { useMemo } from "react";
 import { CalibrationBar, getXValue, getYValue } from "./calibration-bar";
 
 const tooltipStyles = {
@@ -16,7 +19,12 @@ const tooltipStyles = {
   minWidth: "1.25rem",
 };
 
-export function CalibrationBarChart({ data, minWidth, fieldLabels }: Props) {
+export function CalibrationBarChart({
+  data,
+  minWidth,
+  fieldLabels,
+  currentProp,
+}: Props) {
   const {
     parentRef,
     width: _width,
@@ -28,7 +36,6 @@ export function CalibrationBarChart({ data, minWidth, fieldLabels }: Props) {
   const xMax = Math.max(width - margin.left, 0);
   const yMax = Math.max(height - margin.top - 100, 0);
 
-  const [currentProp, setCurrentProp] = useState<string>("t1_decoherence");
   const currentPropLabel = fieldLabels[currentProp];
 
   const chatData: CalibrationDataPoint[] = useMemo(
@@ -79,11 +86,6 @@ export function CalibrationBarChart({ data, minWidth, fieldLabels }: Props) {
 
   return (
     <div ref={parentRef} className="relative w-full h-full overflow-auto">
-      <PropSelector
-        value={currentProp}
-        onValueChange={setCurrentProp}
-        fieldLabels={fieldLabels}
-      />
       <svg ref={containerRef} width={width} height={height}>
         <rect
           x={0}
@@ -162,5 +164,6 @@ export function CalibrationBarChart({ data, minWidth, fieldLabels }: Props) {
 interface Props {
   data: DeviceCalibration;
   minWidth: number;
+  currentProp: QubitProp;
   fieldLabels: { [k: string]: string };
 }

@@ -1,8 +1,12 @@
-import { CalibrationDataPoint, Device, DeviceCalibration } from "@/lib/types";
+import {
+  CalibrationDataPoint,
+  Device,
+  DeviceCalibration,
+  QubitProp,
+} from "@/lib/types";
 import { useParentSize } from "@visx/responsive";
 import { defaultStyles, useTooltip, useTooltipInPortal } from "@visx/tooltip";
-import { PropSelector } from "./prop-selector";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Graph, DefaultNode } from "@visx/network";
 import { localPoint } from "@visx/event";
 import { scalePoint } from "@visx/scale";
@@ -19,8 +23,8 @@ let tooltipTimeout: number;
 export function CalibrationMapChart({
   minWidth,
   data,
-  fieldLabels,
   device,
+  currentProp,
 }: Props) {
   const {
     parentRef,
@@ -30,10 +34,8 @@ export function CalibrationMapChart({
 
   const width = Math.max(minWidth, _width);
   const margin = { top: 20, right: 20, bottom: 20, left: 20 };
-  const xMax = Math.max(width - margin.left - 100, 0);
-  const yMax = Math.max(height - margin.top - 100, 0);
-
-  const [currentProp, setCurrentProp] = useState<string>("t1_decoherence");
+  const xMax = Math.max(width - margin.left - margin.right, 0);
+  const yMax = Math.max(height - margin.top - margin.bottom, 0);
 
   const xValues = useMemo(
     () => [...new Set(device.coordinates.map(([x, _]) => x))].sort(),
@@ -109,11 +111,6 @@ export function CalibrationMapChart({
   });
   return (
     <div ref={parentRef} className="relative w-full h-full overflow-auto">
-      <PropSelector
-        value={currentProp}
-        onValueChange={setCurrentProp}
-        fieldLabels={fieldLabels}
-      />
       <svg ref={containerRef} width={width} height={height}>
         <rect
           x={0}
@@ -189,6 +186,7 @@ export function CalibrationMapChart({
 interface Props {
   data: DeviceCalibration;
   device: Device;
+  currentProp: QubitProp;
   minWidth: number;
   fieldLabels: { [k: string]: string };
 }
