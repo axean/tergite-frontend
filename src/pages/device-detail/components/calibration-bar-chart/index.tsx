@@ -1,4 +1,4 @@
-import { DeviceCalibration } from "@/lib/types";
+import { CalibrationDataPoint, DeviceCalibration } from "@/lib/types";
 import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Group } from "@visx/group";
@@ -7,20 +7,7 @@ import { scaleBand, scaleLinear } from "@visx/scale";
 import { useParentSize } from "@visx/responsive";
 import { useMemo, useState } from "react";
 import { PropSelector } from "../prop-selector";
-import {
-  CalibrationBar,
-  DataPoint,
-  getXValue,
-  getYValue,
-} from "./calibration-bar";
-
-const qubitPropsMap: { [k: string]: string } = {
-  t1_decoherence: "T1 decoherence",
-  t2_decoherence: "T2 decoherence",
-  frequency: "Frequency",
-  anharmonicity: "Anharmonicity",
-  readout_assignment_error: "Readout error",
-};
+import { CalibrationBar, getXValue, getYValue } from "./calibration-bar";
 
 const tooltipStyles = {
   ...defaultStyles,
@@ -29,7 +16,7 @@ const tooltipStyles = {
   minWidth: "1.25rem",
 };
 
-export function CalibrationBarChart({ data, minWidth }: Props) {
+export function CalibrationBarChart({ data, minWidth, fieldLabels }: Props) {
   const {
     parentRef,
     width: _width,
@@ -42,9 +29,9 @@ export function CalibrationBarChart({ data, minWidth }: Props) {
   const yMax = Math.max(height - margin.top - 100, 0);
 
   const [currentProp, setCurrentProp] = useState<string>("t1_decoherence");
-  const currentPropLabel = qubitPropsMap[currentProp];
+  const currentPropLabel = fieldLabels[currentProp];
 
-  const chatData: DataPoint[] = useMemo(
+  const chatData: CalibrationDataPoint[] = useMemo(
     () =>
       data.qubits.map((v, index) => ({
         ...v[currentProp],
@@ -68,7 +55,7 @@ export function CalibrationBarChart({ data, minWidth }: Props) {
     tooltipData,
     hideTooltip,
     showTooltip,
-  } = useTooltip<DataPoint>();
+  } = useTooltip<CalibrationDataPoint>();
 
   const { containerRef, TooltipInPortal } = useTooltipInPortal({
     // TooltipInPortal is rendered in a separate child of <body /> and positioned
@@ -95,7 +82,7 @@ export function CalibrationBarChart({ data, minWidth }: Props) {
       <PropSelector
         value={currentProp}
         onValueChange={setCurrentProp}
-        optionsMap={qubitPropsMap}
+        fieldLabels={fieldLabels}
       />
       <svg ref={containerRef} width={width} height={height}>
         <rect
@@ -175,4 +162,5 @@ export function CalibrationBarChart({ data, minWidth }: Props) {
 interface Props {
   data: DeviceCalibration;
   minWidth: number;
+  fieldLabels: { [k: string]: string };
 }

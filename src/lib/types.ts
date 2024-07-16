@@ -33,6 +33,10 @@ export interface CalibrationValue {
   value: number;
 }
 
+export interface CalibrationDataPoint extends CalibrationValue {
+  index: number;
+}
+
 export type AggregateValue = Omit<CalibrationValue, "date">;
 
 export interface DeviceCalibrationMedians {
@@ -52,7 +56,7 @@ export interface Device {
   isOnline: boolean;
   basisGates: string[];
   /**
-   * this maps what qubit is connect to which other qubit.
+   * this maps what qubit is connected to which other qubit.
    * Preferably use uni-directional mapping
    */
   couplingMap: [number, number][];

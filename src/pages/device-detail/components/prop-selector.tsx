@@ -6,7 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function PropSelector({ value, onValueChange, optionsMap }: Props) {
+export function PropSelector({ value, onValueChange, fieldLabels }: Props) {
   return (
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger className="ml-auto w-fit focus:ring-0">
@@ -16,9 +16,9 @@ export function PropSelector({ value, onValueChange, optionsMap }: Props) {
         <SelectValue placeholder="Select property" />
       </SelectTrigger>
       <SelectContent>
-        {Object.keys(optionsMap).map((prop) => (
+        {Object.keys(fieldLabels).map((prop) => (
           <SelectItem value={prop} key={prop}>
-            {optionsMap[prop]}
+            {fieldLabels[prop]}
           </SelectItem>
         ))}
       </SelectContent>
@@ -29,5 +29,5 @@ export function PropSelector({ value, onValueChange, optionsMap }: Props) {
 interface Props {
   value: string;
   onValueChange: (value: string) => void;
-  optionsMap: { [k: string]: string };
+  fieldLabels: { [k: string]: string };
 }

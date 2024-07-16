@@ -8,6 +8,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalibrationDataTable } from "./components/calibration-data-table";
 import { CalibrationBarChart } from "./components/calibration-bar-chart";
 import { CalibrationHeader } from "./components/calibration-header";
+import { CalibrationMapChart } from "./components/calibration-map-chart";
+
+const fieldLabels: { [k: string]: string } = {
+  t1_decoherence: "T1 decoherence",
+  t2_decoherence: "T2 decoherence",
+  frequency: "Frequency",
+  anharmonicity: "Anharmonicity",
+  readout_assignment_error: "Readout error",
+};
 
 export function DeviceDetail() {
   const { device, calibrationData } = useLoaderData() as DeviceDetailData;
@@ -23,14 +32,25 @@ export function DeviceDetail() {
         <TabsContent value="map">
           <Card>
             <CalibrationHeader device={device} />
-            <CardContent>map</CardContent>
+            <CardContent className="w-full min-w-[250px] h-[700px] lg:h-[750px] xl:h-[900px] overflow-auto">
+              <CalibrationMapChart
+                data={calibrationData}
+                minWidth={250}
+                fieldLabels={fieldLabels}
+                device={device}
+              />
+            </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="graph">
           <Card className=" overflow-auto">
             <CalibrationHeader device={device} />
             <CardContent className="w-full min-w-[250px] h-[700px] lg:h-[750px] xl:h-[900px] overflow-auto">
-              <CalibrationBarChart data={calibrationData} minWidth={250} />
+              <CalibrationBarChart
+                data={calibrationData}
+                minWidth={250}
+                fieldLabels={fieldLabels}
+              />
             </CardContent>
           </Card>
         </TabsContent>

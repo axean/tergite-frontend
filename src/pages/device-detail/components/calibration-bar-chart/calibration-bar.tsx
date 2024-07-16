@@ -1,4 +1,4 @@
-import { CalibrationValue } from "@/lib/types";
+import { CalibrationDataPoint } from "@/lib/types";
 import { Bar } from "@visx/shape";
 import { localPoint } from "@visx/event";
 import { ScaleBand, ScaleLinear } from "@visx/vendor/d3-scale";
@@ -51,12 +51,8 @@ export function CalibrationBar({
   );
 }
 
-export interface DataPoint extends CalibrationValue {
-  index: number;
-}
-
 interface Props {
-  record: DataPoint;
+  record: CalibrationDataPoint;
   xScale: ScaleBand<number>;
   yScale: ScaleLinear<number, number, never>;
   yMax: number;
@@ -64,14 +60,14 @@ interface Props {
   showTooltip: (args: {
     tooltipLeft?: number;
     tooltipTop?: number;
-    tooltipData?: DataPoint;
+    tooltipData?: CalibrationDataPoint;
   }) => void;
 }
 
-export function getYValue(item: DataPoint) {
+export function getYValue(item: CalibrationDataPoint) {
   return item.value;
 }
 
-export function getXValue(item: DataPoint) {
+export function getXValue(item: CalibrationDataPoint) {
   return item.index;
 }
