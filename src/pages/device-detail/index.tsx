@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { deviceCalibrationData, deviceList } from "@/lib/mock-data";
-import { AppState, Device, DeviceCalibration } from "@/lib/types";
+import { AppState, Device, DeviceCalibration, QubitProp } from "@/lib/types";
 import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
 import { DeviceSummary } from "./components/device-summary";
@@ -21,7 +21,7 @@ const fieldLabels: { [k: string]: string } = {
 
 export function DeviceDetail() {
   const { device, calibrationData } = useLoaderData() as DeviceDetailData;
-  const [currentData, setCurrentData] = useState<string>("t1_decoherence");
+  const [currentData, setCurrentData] = useState<QubitProp>("t1_decoherence");
 
   return (
     <main className="grid flex-1 items-start gap-4 grid-cols-1 p-4 sm:px-6 sm:py-0 md:gap-8 xl:grid-cols-4">
