@@ -8,7 +8,6 @@ import ErrorAlert from "./pages/error-alert";
 import LoginPage from "./pages/login";
 import { Home, loader as homeLoader } from "./pages/home";
 import { Devices, loader as devicesLoader } from "./pages/devices";
-import Jobs from "./pages/jobs";
 import { AppState } from "./lib/types";
 import { useContext } from "react";
 import { AppStateContext } from "./lib/app-state";
@@ -56,12 +55,6 @@ function getRouter(appState: AppState) {
               element={<DeviceDetail />}
               loader={deviceDetailLoader(appState)}
               // action={contactAction}
-            />
-            <Route
-              path="jobs"
-              element={<Jobs />}
-              // loader={contactLoader}
-              // action={editAction}
             />
           </Route>
         </Route>

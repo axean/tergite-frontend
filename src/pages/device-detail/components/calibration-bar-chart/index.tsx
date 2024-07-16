@@ -1,20 +1,18 @@
-import { CalibrationValue, DeviceCalibration } from "@/lib/types";
+import { DeviceCalibration } from "@/lib/types";
 import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
 import { AxisBottom, AxisLeft } from "@visx/axis";
-import { Bar } from "@visx/shape";
 import { Group } from "@visx/group";
 import { Grid } from "@visx/grid";
 import { scaleBand, scaleLinear } from "@visx/scale";
-import { localPoint } from "@visx/event";
 import { useParentSize } from "@visx/responsive";
 import { useMemo, useState } from "react";
+import { PropSelector } from "../prop-selector";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  CalibrationBar,
+  DataPoint,
+  getXValue,
+  getYValue,
+} from "./calibration-bar";
 
 const qubitPropsMap: { [k: string]: string } = {
   t1_decoherence: "T1 decoherence",
@@ -24,24 +22,14 @@ const qubitPropsMap: { [k: string]: string } = {
   readout_assignment_error: "Readout error",
 };
 
-interface DataPoint extends CalibrationValue {
-  index: number;
-}
-
-const getYValue = (item: DataPoint) => item.value;
-const getXValue = (item: DataPoint) => item.index;
-
 const tooltipStyles = {
   ...defaultStyles,
-  minWidth: 60,
-  backgroundColor: "rgba(0,0,0,0.9)",
-  color: "white",
+  backgroundColor: "hsl(var(--secondary-foreground))",
+  color: "hsl(var(--secondary))",
+  minWidth: "1.25rem",
 };
 
-let tooltipTimeout: number;
-
-// Inspired from See https://airbnb.io/visx/barstack
-export function CalibrationDataBarChart({ data, minWidth }: Props) {
+export function CalibrationBarChart({ data, minWidth }: Props) {
   const {
     parentRef,
     width: _width,
@@ -104,21 +92,11 @@ export function CalibrationDataBarChart({ data, minWidth }: Props) {
 
   return (
     <div ref={parentRef} className="relative w-full h-full overflow-auto">
-      <Select value={currentProp} onValueChange={setCurrentProp}>
-        <SelectTrigger className="ml-auto w-fit focus:ring-0">
-          <span className="hidden sm:inline text-muted-foreground pr-1">
-            Property:{" "}
-          </span>
-          <SelectValue placeholder="Select property" />
-        </SelectTrigger>
-        <SelectContent>
-          {Object.keys(qubitPropsMap).map((prop) => (
-            <SelectItem value={prop} key={prop}>
-              {qubitPropsMap[prop]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <PropSelector
+        value={currentProp}
+        onValueChange={setCurrentProp}
+        optionsMap={qubitPropsMap}
+      />
       <svg ref={containerRef} width={width} height={height}>
         <rect
           x={0}
@@ -140,44 +118,16 @@ export function CalibrationDataBarChart({ data, minWidth }: Props) {
           xOffset={xScale.bandwidth() / 2}
         />
         <Group top={margin.top} left={margin.left}>
-          {chatData.map((record) => {
-            const x = getXValue(record);
-            const y = getYValue(record);
-
-            const barWidth = xScale.bandwidth();
-            const barHeight = yMax - (yScale(y) ?? 0);
-            const barX = xScale(x) ?? 0;
-            const barY = yMax - barHeight;
-
-            return (
-              <Bar
-                key={`bar-${x}`}
-                x={barX}
-                y={barY}
-                width={barWidth}
-                height={barHeight}
-                className="fill-secondary-foreground"
-                onMouseLeave={() => {
-                  tooltipTimeout = window.setTimeout(() => {
-                    hideTooltip();
-                  }, 300);
-                }}
-                onMouseMove={(event) => {
-                  if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                  // TooltipInPortal expects coordinates to be relative to containerRef
-                  // localPoint returns coordinates relative to the nearest SVG, which
-                  // is what containerRef is set to in this example.
-                  const eventSvgCoords = localPoint(event);
-                  const left = barX + barWidth / 2;
-                  showTooltip({
-                    tooltipData: record,
-                    tooltipTop: eventSvgCoords?.y,
-                    tooltipLeft: left,
-                  });
-                }}
-              />
-            );
-          })}
+          {chatData.map((record) => (
+            <CalibrationBar
+              record={record}
+              xScale={xScale}
+              yMax={yMax}
+              yScale={yScale}
+              hideTooltip={hideTooltip}
+              showTooltip={showTooltip}
+            />
+          ))}
         </Group>
         <AxisBottom
           top={yMax + margin.top}

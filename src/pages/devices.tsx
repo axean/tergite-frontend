@@ -15,10 +15,10 @@ export function Devices() {
   const { devices } = useLoaderData() as DeviceData;
 
   return (
-    <main className="grid flex-1 auto-rows-fr gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    <main className="grid  auto-rows-fr gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       {devices.map((device) => (
         <Link to={`/devices/${device.name}`}>
-          <Card className="text-sm flex flex-col justify-between">
+          <Card className="text-sm flex flex-col justify-between h-full">
             <CardHeader className="pb-4">
               <div className="flex justify-between">
                 <div className="font-semibold">{device.name}</div>{" "}
