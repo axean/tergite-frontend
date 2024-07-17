@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import React from "react";
+import React, { Fragment } from "react";
 import { Button, IconButton } from "../button";
 import { Input } from "../input";
 import {
@@ -165,19 +165,15 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <>
+                <Fragment key={row.id}>
                   {getDrawerContent !== undefined ? (
-                    <DetailDrawer
-                      key={row.id}
-                      row={row}
-                      getDrawerContent={getDrawerContent}
-                    >
+                    <DetailDrawer row={row} getDrawerContent={getDrawerContent}>
                       <DataTableRow row={row} onClick={onRowClick} />
                     </DetailDrawer>
                   ) : (
                     <DataTableRow row={row} onClick={onRowClick} />
                   )}
-                </>
+                </Fragment>
               ))
             ) : (
               <TableRow>

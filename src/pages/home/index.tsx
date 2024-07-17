@@ -16,10 +16,11 @@ import {
 import { Link, LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 import DonutChart from "@/components/ui/donut-chart";
 
-import { deviceList, jobList } from "@/lib/mock-data";
+import { devicesQuery, myJobsQuery } from "@/lib/api-client";
 import { Job, Device, AppState } from "@/lib/types";
 import { JobsTable } from "./components/jobs-table";
 import { DevicesTable } from "./components/devices-table";
+import { QueryClient } from "@tanstack/react-query";
 
 export function Home() {
   const { devices, jobs } = useLoaderData() as HomeData;
@@ -85,8 +86,17 @@ interface HomeData {
   jobs: Job[];
 }
 
-export function loader(_appState: AppState) {
+export function loader(_appState: AppState, queryClient: QueryClient) {
   return async ({}: LoaderFunctionArgs) => {
-    return { devices: deviceList, jobs: jobList } as HomeData;
+    // devices
+    const cachedDevices = queryClient.getQueryData(devicesQuery.queryKey);
+    const devices =
+      cachedDevices ?? (await queryClient.fetchQuery(devicesQuery));
+
+    // jobs
+    const cachedJobs = queryClient.getQueryData(myJobsQuery.queryKey);
+    const jobs = cachedJobs ?? (await queryClient.fetchQuery(myJobsQuery));
+
+    return { devices, jobs } as HomeData;
   };
 }

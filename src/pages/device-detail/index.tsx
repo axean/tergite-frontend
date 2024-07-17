@@ -1,5 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { deviceCalibrationData, deviceList } from "@/lib/mock-data";
+import {
+  singleDeviceCalibrationQuery,
+  singleDeviceQuery,
+} from "@/lib/api-client";
 import { AppState, Device, DeviceCalibration, QubitProp } from "@/lib/types";
 import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
@@ -10,6 +13,7 @@ import { CalibrationBarChart } from "./components/calibration-bar-chart";
 import { CalibrationHeader } from "./components/calibration-header";
 import { CalibrationMapChart } from "./components/calibration-map-chart";
 import { useState } from "react";
+import { QueryClient } from "@tanstack/react-query";
 
 const fieldLabels: { [k: string]: string } = {
   t1_decoherence: "T1 decoherence",
@@ -91,19 +95,22 @@ interface DeviceDetailData {
   calibrationData: DeviceCalibration;
 }
 
-export function loader(_appState: AppState) {
+export function loader(_appState: AppState, queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
-    const device = deviceList.filter((v) => v.name === params.deviceName)[0];
-    if (device === undefined) {
-      throw new Error(`device data for ${params.deviceName} not found`);
-    }
+    const { deviceName = "" } = params;
 
-    const calibrationData = deviceCalibrationData.filter(
-      (v) => v.name === params.deviceName
-    )[0];
-    if (device === undefined) {
-      throw new Error(`calibration for ${params.deviceName} not found`);
-    }
+    // device
+    const deviceQuery = singleDeviceQuery(deviceName);
+    const cachedDevice = queryClient.getQueryData(deviceQuery.queryKey);
+    const device = cachedDevice ?? (await queryClient.fetchQuery(deviceQuery));
+
+    // calibration
+    const calibrationQuery = singleDeviceCalibrationQuery(deviceName);
+    const cachedCalibrationData = queryClient.getQueryData(
+      calibrationQuery.queryKey
+    );
+    const calibrationData =
+      cachedCalibrationData ?? (await queryClient.fetchQuery(calibrationQuery));
 
     return { device, calibrationData };
   };

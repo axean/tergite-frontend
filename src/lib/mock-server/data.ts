@@ -1,4 +1,4 @@
-import { Device, Project, Job, JobStatus, DeviceCalibration } from "./types";
+import { Device, Project, Job, JobStatus, DeviceCalibration } from "../types";
 
 export const deviceList: Device[] = [
   {

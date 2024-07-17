@@ -109,6 +109,7 @@ export function CalibrationBarChart({
         <Group top={margin.top} left={margin.left}>
           {chatData.map((record) => (
             <CalibrationBar
+              key={record.index}
               record={record}
               xScale={xScale}
               yMax={yMax}
