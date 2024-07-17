@@ -38,11 +38,11 @@ export function CalibrationMapChart({
   const yMax = Math.max(height - margin.top - margin.bottom, 0);
 
   const xValues = useMemo(
-    () => [...new Set(device.coordinates.map(([x, _]) => x))].sort(),
+    () => [...new Set(device.coordinates.map((v) => v[0]))].sort(),
     [device]
   );
   const yValues = useMemo(
-    () => [...new Set(device.coordinates.map(([_, y]) => y))].sort(),
+    () => [...new Set(device.coordinates.map((v) => v[1]))].sort(),
     [device]
   );
 
@@ -63,7 +63,7 @@ export function CalibrationMapChart({
         padding: 0.2,
         range: [margin.left, xMax],
       }),
-    [xValues, xMax]
+    [xValues, xMax, margin.left]
   );
   const yScale = useMemo(
     () =>
@@ -72,7 +72,7 @@ export function CalibrationMapChart({
         padding: 0.2,
         range: [yMax, margin.top],
       }),
-    [yValues, yMax]
+    [yValues, yMax, margin.top]
   );
 
   const qubits: QubitNode[] = useMemo(
@@ -143,6 +143,7 @@ export function CalibrationMapChart({
                 // localPoint returns coordinates relative to the nearest SVG, which
                 // is what containerRef is set to in this example.
                 const eventSvgCoords = localPoint(event);
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 const tooltipData = event.target.dataset;
 

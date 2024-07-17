@@ -50,7 +50,9 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const currentFiltersMap: { [k: string]: any } = React.useMemo(
+  const currentFiltersMap: {
+    [k: string]: string | number | readonly string[] | undefined;
+  } = React.useMemo(
     () =>
       columnFilters.reduce(
         (prev, curr) => ({ ...prev, [curr.id]: curr.value }),
@@ -77,7 +79,7 @@ export function DataTable<TData, TValue>({
 
   const isFilterFormAvailable = !!filterFormProps;
 
-  const onFilterSubmit = (values: Object) => {
+  const onFilterSubmit = (values: object) => {
     for (const [key, value] of Object.entries(values)) {
       table.getColumn(key)?.setFilterValue(value);
     }

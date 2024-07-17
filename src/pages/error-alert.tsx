@@ -1,7 +1,7 @@
 import { useRouteError } from "react-router-dom";
 
 export default function ErrorAlert() {
-  const error: any = useRouteError();
+  const error = useRouteError() as ErrorData;
   console.error(error);
 
   return (
@@ -13,4 +13,8 @@ export default function ErrorAlert() {
       </p>
     </div>
   );
+}
+
+interface ErrorData extends Error {
+  statusText?: string;
 }

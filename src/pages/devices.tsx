@@ -10,7 +10,7 @@ import { devicesQuery } from "@/lib/api-client";
 import { AppState, Device } from "@/lib/types";
 import { QueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";
-import { Link, LoaderFunctionArgs, useLoaderData } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 
 export function Devices() {
   const { devices } = useLoaderData() as DeviceData;
@@ -50,8 +50,9 @@ interface DeviceData {
   devices: Device[];
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function loader(_appState: AppState, queryClient: QueryClient) {
-  return async ({}: LoaderFunctionArgs) => {
+  return async () => {
     const cachedDevices = queryClient.getQueryData(devicesQuery.queryKey);
     const devices =
       cachedDevices ?? (await queryClient.fetchQuery(devicesQuery));

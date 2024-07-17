@@ -95,6 +95,7 @@ interface DeviceDetailData {
   calibrationData: DeviceCalibration;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function loader(_appState: AppState, queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
     const { deviceName = "" } = params;

@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 
 export function CalibrationDataTable({ data }: Props) {
-  const columns = useMemo(() => getColumns(data.qubits[0]), [data.qubits[0]]);
+  const columns = useMemo(() => getColumns(data.qubits[0]), [data.qubits]);
   return <DataTable columns={columns} data={data.qubits} />;
 }
 

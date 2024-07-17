@@ -17,6 +17,6 @@ export function DetailItem({
 
 interface Props {
   label: string;
-  value?: any;
+  value?: string;
   className?: string;
 }

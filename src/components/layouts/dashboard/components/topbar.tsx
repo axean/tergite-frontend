@@ -90,7 +90,7 @@ interface TopbarProps {
   onProjectChange: (projectExtId: string) => void;
 }
 
-function MobileMenu({}: MobileMenuProps) {
+function MobileMenu() {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -109,8 +109,6 @@ function MobileMenu({}: MobileMenuProps) {
     </Sheet>
   );
 }
-
-interface MobileMenuProps {}
 
 function TopbarBreadcrumb() {
   const location = useLocation();

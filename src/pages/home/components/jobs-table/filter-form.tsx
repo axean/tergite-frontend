@@ -37,7 +37,7 @@ export const jobFilterFormProps: DataTableFormConfig = {
     label: "Status",
     getFormElement: ({ ref, ...props }: DataTableFilterField) => (
       <Select onValueChange={props.onChange} {...props}>
-        <SelectTrigger>
+        <SelectTrigger ref={ref}>
           <SelectValue placeholder="Select status" />
         </SelectTrigger>
         <SelectContent>

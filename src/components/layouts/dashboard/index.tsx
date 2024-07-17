@@ -2,7 +2,7 @@ import { TooltipProvider } from "../../ui/tooltip";
 import { Sidebar } from "./components/sidebar";
 import { Topbar } from "./components/topbar";
 import { TopBanner } from "./components/top-banner";
-import { LoaderFunctionArgs, Outlet, useLoaderData } from "react-router-dom";
+import { Outlet, useLoaderData } from "react-router-dom";
 import { myProjectsQuery } from "@/lib/api-client";
 import { AppState, Project } from "@/lib/types";
 import { useCallback, useContext, useState } from "react";
@@ -46,8 +46,9 @@ interface DashboardData {
   projects: Project[];
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function loader(_appState: AppState, queryClient: QueryClient) {
-  return async ({}: LoaderFunctionArgs) => {
+  return async () => {
     const cachedProjects = queryClient.getQueryData(myProjectsQuery.queryKey);
     const projects =
       cachedProjects ?? (await queryClient.fetchQuery(myProjectsQuery));

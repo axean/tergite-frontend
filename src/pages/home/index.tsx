@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { Link, LoaderFunctionArgs, useLoaderData } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import DonutChart from "@/components/ui/donut-chart";
 
 import { devicesQuery, myJobsQuery } from "@/lib/api-client";
@@ -86,8 +86,9 @@ interface HomeData {
   jobs: Job[];
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function loader(_appState: AppState, queryClient: QueryClient) {
-  return async ({}: LoaderFunctionArgs) => {
+  return async () => {
     // devices
     const cachedDevices = queryClient.getQueryData(devicesQuery.queryKey);
     const devices =
