@@ -5,7 +5,7 @@ import { Device } from "@/lib/types";
 export function DeviceStatusDiv({ device, className = "" }: Props) {
   return (
     <div className={cn("flex items-center w-fit", className)}>
-      {device.isOnline ? (
+      {device.is_online ? (
         <>
           <Circle className={`fill-green-600 w-2 h-2 mr-1`} strokeWidth={0} />
           Online

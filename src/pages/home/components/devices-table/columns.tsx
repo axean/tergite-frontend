@@ -34,8 +34,8 @@ export const deviceTableColumns: ColumnDef<Device>[] = [
 
     cell: ({ row }) => (
       <>
-        {row.original.lastOnline
-          ? DateTime.fromISO(row.original.lastOnline).toRelative()
+        {row.original.last_online
+          ? DateTime.fromISO(row.original.last_online).toRelative()
           : "N/A"}
       </>
     ),

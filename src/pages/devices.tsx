@@ -28,15 +28,15 @@ export function Devices() {
             </CardHeader>
             <CardContent>
               <DetailItem label="Last seen">
-                {device.lastOnline
-                  ? DateTime.fromISO(device.lastOnline).toRelative()
+                {device.last_online
+                  ? DateTime.fromISO(device.last_online).toRelative()
                   : "N/A"}
               </DetailItem>
             </CardContent>
             <CardFooter className="flex">
               <div>
                 <p className="text-muted-foreground">Qubits</p>
-                <p className="text-4xl">{device.numberOfQubits}</p>
+                <p className="text-4xl">{device.number_of_qubits}</p>
               </div>
             </CardFooter>
           </Card>

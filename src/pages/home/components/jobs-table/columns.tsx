@@ -53,7 +53,7 @@ export const jobTableColumns: ColumnDef<Job>[] = [
     accessorKey: "status",
     header: () => <div className="text-right">Status</div>,
     cell: ({ row }) => {
-      const status: JobStatus = row.getValue("status") || JobStatus.PENDING;
+      const status: JobStatus = row.getValue("status") || "pending";
       return <JobStatusDiv className="ml-auto" status={status} />;
     },
   },

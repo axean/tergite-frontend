@@ -87,7 +87,7 @@ export function CalibrationMapChart({
 
   const couplers: CouplerLink[] = useMemo(
     () =>
-      device.couplingMap.map(([srcQubit, dstQubit]) => ({
+      device.coupling_map.map(([srcQubit, dstQubit]) => ({
         source: qubits[srcQubit],
         target: qubits[dstQubit],
       })),

@@ -27,7 +27,7 @@ export function Home() {
   const devicesOnlineRatio = React.useMemo(
     () =>
       Math.round(
-        (devices.filter((v) => v.isOnline).length / devices.length) * 100
+        (devices.filter((v) => v.is_online).length / devices.length) * 100
       ),
     [devices]
   );

@@ -52,17 +52,17 @@ export function DeviceSummary({
             </DetailItem>
 
             <DetailItem label="Basis gates">
-              {device.basisGates.join(", ")}
+              {device.basis_gates.join(", ")}
             </DetailItem>
 
             <DetailItem label="Type">
-              {device.isSimulator ? "simulator" : "physical"}
+              {device.is_simulator ? "simulator" : "physical"}
             </DetailItem>
           </ul>
           <Separator className="my-2" />
           <ul className="grid gap-3">
             <DetailItem label="Qubits">
-              <span className="text-2xl">{device.numberOfQubits}</span>
+              <span className="text-2xl">{device.number_of_qubits}</span>
             </DetailItem>
           </ul>
         </div>
@@ -89,8 +89,8 @@ export function DeviceSummary({
       <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
         <div className="text-xs text-muted-foreground">
           Last calibrated{" "}
-          <time dateTime={calibrationData.lastCalibrated}>
-            {DateTime.fromISO(calibrationData.lastCalibrated).toRelative()}
+          <time dateTime={calibrationData.last_calibrated}>
+            {DateTime.fromISO(calibrationData.last_calibrated).toRelative()}
           </time>
         </div>
       </CardFooter>

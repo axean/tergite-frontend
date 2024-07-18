@@ -49,7 +49,7 @@ export function Topbar({
         </SelectTrigger>
         <SelectContent>
           {projects.map((project) => (
-            <SelectItem value={project.extId} key={project.extId}>
+            <SelectItem value={project.ext_id} key={project.ext_id}>
               {project.name}
             </SelectItem>
           ))}
