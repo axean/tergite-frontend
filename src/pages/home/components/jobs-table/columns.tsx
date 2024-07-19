@@ -6,24 +6,24 @@ import { DateTime, Duration } from "luxon";
 
 export const jobTableColumns: ColumnDef<Job>[] = [
   {
-    accessorKey: "jobId",
+    accessorKey: "job_id",
     header: "Job ID",
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("jobId")}</div>
+      <div className="font-medium">{row.getValue("job_id")}</div>
     ),
   },
   {
-    accessorKey: "deviceName",
+    accessorKey: "device",
     header: () => <div className="hidden sm:table-cell">Device</div>,
     cell: ({ row }) => (
-      <div className="hidden sm:table-cell">{row.getValue("deviceName")}</div>
+      <div className="hidden sm:table-cell">{row.getValue("device")}</div>
     ),
   },
   {
-    accessorKey: "durationInSecs",
+    accessorKey: "duration_in_secs",
     header: () => <div className="hidden sm:table-cell">Duration</div>,
     cell: ({ row }) => {
-      const durationInSecs: number | null = row.getValue("durationInSecs");
+      const durationInSecs: number | null = row.getValue("duration_in_secs");
       const duration = durationInSecs
         ? Duration.fromObject({
             seconds: durationInSecs,
@@ -33,7 +33,7 @@ export const jobTableColumns: ColumnDef<Job>[] = [
     },
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "created_at",
     header: ({ column }) => (
       <SortHeader
         column={column}
@@ -42,7 +42,7 @@ export const jobTableColumns: ColumnDef<Job>[] = [
       />
     ),
     cell: ({ row }) => {
-      const createdAtString: string = row.getValue("createdAt");
+      const createdAtString: string = row.getValue("created_at");
       const createdAt = DateTime.fromISO(createdAtString).toLocaleString(
         DateTime.DATETIME_MED
       );
@@ -53,7 +53,7 @@ export const jobTableColumns: ColumnDef<Job>[] = [
     accessorKey: "status",
     header: () => <div className="text-right">Status</div>,
     cell: ({ row }) => {
-      const status: JobStatus = row.getValue("status") || JobStatus.PENDING;
+      const status: JobStatus = row.getValue("status") || "pending";
       return <JobStatusDiv className="ml-auto" status={status} />;
     },
   },

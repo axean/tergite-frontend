@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/data-table";
 
 export const jobFilterFormProps: DataTableFormConfig = {
-  jobId: {
+  job_id: {
     validation: z.string(),
     defaultValue: "",
     label: "Job Id",
@@ -23,7 +23,7 @@ export const jobFilterFormProps: DataTableFormConfig = {
       <Input {...field} className="" />
     ),
   },
-  deviceName: {
+  device: {
     validation: z.string(),
     defaultValue: "",
     label: "Device",
@@ -35,9 +35,13 @@ export const jobFilterFormProps: DataTableFormConfig = {
     validation: z.nativeEnum(JobStatus).or(z.literal("")),
     defaultValue: "",
     label: "Status",
-    getFormElement: ({ ref, ...props }: DataTableFilterField) => (
-      <Select onValueChange={props.onChange} {...props}>
-        <SelectTrigger>
+    getFormElement: ({ ref, value, ...props }: DataTableFilterField) => (
+      <Select
+        onValueChange={props.onChange}
+        value={value as string | undefined}
+        {...props}
+      >
+        <SelectTrigger ref={ref}>
           <SelectValue placeholder="Select status" />
         </SelectTrigger>
         <SelectContent>

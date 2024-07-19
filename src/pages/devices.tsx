@@ -6,10 +6,12 @@ import {
 } from "@/components/ui/card";
 import { DetailItem } from "@/components/ui/detail-item";
 import { DeviceStatusDiv } from "@/components/ui/device-status-div";
-import { deviceList } from "@/lib/mock-data";
+import { devicesQuery } from "@/lib/api-client";
 import { AppState, Device } from "@/lib/types";
+import { loadOrRedirectIf401 } from "@/lib/utils";
+import { QueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";
-import { Link, LoaderFunctionArgs, useLoaderData } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 
 export function Devices() {
   const { devices } = useLoaderData() as DeviceData;
@@ -17,7 +19,7 @@ export function Devices() {
   return (
     <main className="grid  auto-rows-fr gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       {devices.map((device) => (
-        <Link to={`/devices/${device.name}`}>
+        <Link key={device.name} to={`/devices/${device.name}`}>
           <Card className="text-sm flex flex-col justify-between h-full">
             <CardHeader className="pb-4">
               <div className="flex justify-between">
@@ -27,15 +29,15 @@ export function Devices() {
             </CardHeader>
             <CardContent>
               <DetailItem label="Last seen">
-                {device.lastOnline
-                  ? DateTime.fromISO(device.lastOnline).toRelative()
+                {device.last_online
+                  ? DateTime.fromISO(device.last_online).toRelative()
                   : "N/A"}
               </DetailItem>
             </CardContent>
             <CardFooter className="flex">
               <div>
                 <p className="text-muted-foreground">Qubits</p>
-                <p className="text-4xl">{device.numberOfQubits}</p>
+                <p className="text-4xl">{device.number_of_qubits}</p>
               </div>
             </CardFooter>
           </Card>
@@ -49,8 +51,13 @@ interface DeviceData {
   devices: Device[];
 }
 
-export function loader(_appState: AppState) {
-  return async ({}: LoaderFunctionArgs) => {
-    return { devices: deviceList } as DeviceData;
-  };
+// eslint-disable-next-line react-refresh/only-export-components
+export function loader(_appState: AppState, queryClient: QueryClient) {
+  return loadOrRedirectIf401(async () => {
+    const cachedDevices = queryClient.getQueryData(devicesQuery.queryKey);
+    const devices =
+      cachedDevices ?? (await queryClient.fetchQuery(devicesQuery));
+
+    return { devices } as DeviceData;
+  });
 }

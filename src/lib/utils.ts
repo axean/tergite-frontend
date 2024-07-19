@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { AggregateValue, CalibrationValue } from "./types";
+import { LoaderFunction, LoaderFunctionArgs, redirect } from "react-router-dom";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -46,4 +47,25 @@ export function getCalibrationMedians(
       },
     ])
   );
+}
+
+/**
+ * Wraps the loader function in a handler for 401 errors to redirect to login page
+ *
+ * @param loaderFn - the actual loader function
+ * @returns - a new loader function
+ */
+export function loadOrRedirectIf401(loaderFn: LoaderFunction) {
+  return async (params: LoaderFunctionArgs) => {
+    try {
+      return await loaderFn(params);
+    } catch (error) {
+      // @ts-expect-error
+      if (error.status === 401) {
+        return redirect("/login");
+      }
+
+      throw error;
+    }
+  };
 }

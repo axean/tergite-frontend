@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import React from "react";
+import React, { Fragment } from "react";
 import { Button, IconButton } from "../button";
 import { Input } from "../input";
 import {
@@ -50,7 +50,9 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const currentFiltersMap: { [k: string]: any } = React.useMemo(
+  const currentFiltersMap: {
+    [k: string]: string | number | readonly string[] | undefined;
+  } = React.useMemo(
     () =>
       columnFilters.reduce(
         (prev, curr) => ({ ...prev, [curr.id]: curr.value }),
@@ -77,7 +79,7 @@ export function DataTable<TData, TValue>({
 
   const isFilterFormAvailable = !!filterFormProps;
 
-  const onFilterSubmit = (values: Object) => {
+  const onFilterSubmit = (values: object) => {
     for (const [key, value] of Object.entries(values)) {
       table.getColumn(key)?.setFilterValue(value);
     }
@@ -165,19 +167,15 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <>
+                <Fragment key={row.id}>
                   {getDrawerContent !== undefined ? (
-                    <DetailDrawer
-                      key={row.id}
-                      row={row}
-                      getDrawerContent={getDrawerContent}
-                    >
+                    <DetailDrawer row={row} getDrawerContent={getDrawerContent}>
                       <DataTableRow row={row} onClick={onRowClick} />
                     </DetailDrawer>
                   ) : (
                     <DataTableRow row={row} onClick={onRowClick} />
                   )}
-                </>
+                </Fragment>
               ))
             ) : (
               <TableRow>

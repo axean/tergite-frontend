@@ -10,7 +10,7 @@ export const deviceTableColumns: ColumnDef<Device>[] = [
     meta: { headerClassName: "", rowClassName: "font-medium" },
   },
   {
-    accessorKey: "numberOfQubits",
+    accessorKey: "number_of_qubits",
     header: "Qubits",
     meta: {
       headerClassName: "hidden lg:table-cell",
@@ -18,7 +18,7 @@ export const deviceTableColumns: ColumnDef<Device>[] = [
     },
   },
   {
-    accessorKey: "isOnline",
+    accessorKey: "is_online",
     header: "Status",
     cell: ({ row }) => (
       <DeviceStatusDiv className="ml-auto lg:ml-0" device={row.original} />
@@ -29,13 +29,13 @@ export const deviceTableColumns: ColumnDef<Device>[] = [
     },
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "last_online",
     header: "Last Seen",
 
     cell: ({ row }) => (
       <>
-        {row.original.lastOnline
-          ? DateTime.fromISO(row.original.lastOnline).toRelative()
+        {row.original.last_online
+          ? DateTime.fromISO(row.original.last_online).toRelative()
           : "N/A"}
       </>
     ),

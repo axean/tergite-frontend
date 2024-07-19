@@ -13,20 +13,22 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { Link, LoaderFunctionArgs, useLoaderData } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import DonutChart from "@/components/ui/donut-chart";
 
-import { deviceList, jobList } from "@/lib/mock-data";
+import { devicesQuery, myJobsQuery } from "@/lib/api-client";
 import { Job, Device, AppState } from "@/lib/types";
 import { JobsTable } from "./components/jobs-table";
 import { DevicesTable } from "./components/devices-table";
+import { QueryClient } from "@tanstack/react-query";
+import { loadOrRedirectIf401 } from "@/lib/utils";
 
 export function Home() {
   const { devices, jobs } = useLoaderData() as HomeData;
   const devicesOnlineRatio = React.useMemo(
     () =>
       Math.round(
-        (devices.filter((v) => v.isOnline).length / devices.length) * 100
+        (devices.filter((v) => v.is_online).length / devices.length) * 100
       ),
     [devices]
   );
@@ -85,8 +87,18 @@ interface HomeData {
   jobs: Job[];
 }
 
-export function loader(_appState: AppState) {
-  return async ({}: LoaderFunctionArgs) => {
-    return { devices: deviceList, jobs: jobList } as HomeData;
-  };
+// eslint-disable-next-line react-refresh/only-export-components
+export function loader(_appState: AppState, queryClient: QueryClient) {
+  return loadOrRedirectIf401(async () => {
+    // devices
+    const cachedDevices = queryClient.getQueryData(devicesQuery.queryKey);
+    const devices =
+      cachedDevices ?? (await queryClient.fetchQuery(devicesQuery));
+
+    // jobs
+    const cachedJobs = queryClient.getQueryData(myJobsQuery.queryKey);
+    const jobs = cachedJobs ?? (await queryClient.fetchQuery(myJobsQuery));
+
+    return { devices, jobs } as HomeData;
+  });
 }

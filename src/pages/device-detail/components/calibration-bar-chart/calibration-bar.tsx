@@ -64,10 +64,12 @@ interface Props {
   }) => void;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function getYValue(item: CalibrationDataPoint) {
   return item.value;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function getXValue(item: CalibrationDataPoint) {
   return item.index;
 }

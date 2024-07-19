@@ -6,7 +6,7 @@ import { useCallback, useContext } from "react";
 import { AppStateContext } from "@/lib/app-state";
 import { copyToClipboard } from "@/lib/utils";
 
-export function TopBanner({}: Props) {
+export function TopBanner() {
   const { apiToken, setApiToken } = useContext(AppStateContext);
   const handleApiTokenRefresh = useCallback(() => {
     // FIXME: call an action to refresh token
@@ -47,4 +47,3 @@ export function TopBanner({}: Props) {
     </header>
   );
 }
-interface Props {}

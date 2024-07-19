@@ -11,7 +11,7 @@ export function JobDetailDrawerContent({ job }: Props) {
   return (
     <div className="h-full w-[300px] md:w-[500px] lg:w-[600px] xl:w-[700px] mt-4">
       <DrawerHeader>
-        <DrawerTitle>Job: {job.jobId}</DrawerTitle>
+        <DrawerTitle>Job: {job.job_id}</DrawerTitle>
         <DrawerDescription>Details about this job.</DrawerDescription>
       </DrawerHeader>
       <div className="p-4 pb-0">
@@ -25,7 +25,7 @@ export function JobDetailDrawerContent({ job }: Props) {
           <div className="flex">
             <span className="mr-2 text-muted-foreground">Created at:</span>
             <span>
-              {DateTime.fromISO(job.createdAt).toLocaleString(
+              {DateTime.fromISO(job.created_at).toLocaleString(
                 DateTime.DATETIME_MED
               )}
             </span>
@@ -33,24 +33,24 @@ export function JobDetailDrawerContent({ job }: Props) {
 
           <div className="flex">
             <span className="mr-2 text-muted-foreground">Device:</span>
-            <span>{job.deviceName}</span>
+            <span>{job.device}</span>
           </div>
 
           <div className="flex">
             <span className="mr-2 text-muted-foreground">Duration:</span>
             <span>
-              {job.durationInSecs
+              {job.duration_in_secs
                 ? Duration.fromObject({
-                    seconds: job.durationInSecs,
+                    seconds: job.duration_in_secs,
                   }).toHuman()
                 : "N/A"}
             </span>
           </div>
 
-          {job.failureReason && (
+          {job.failure_reason && (
             <div className="flex">
               <span className="mr-2 text-muted-foreground">Error:</span>
-              <span>{job.failureReason}</span>
+              <span>{job.failure_reason}</span>
             </div>
           )}
         </div>

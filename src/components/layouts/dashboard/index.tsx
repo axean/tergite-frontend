@@ -2,11 +2,13 @@ import { TooltipProvider } from "../../ui/tooltip";
 import { Sidebar } from "./components/sidebar";
 import { Topbar } from "./components/topbar";
 import { TopBanner } from "./components/top-banner";
-import { LoaderFunctionArgs, Outlet, useLoaderData } from "react-router-dom";
-import { projectList } from "@/lib/mock-data";
+import { Outlet, useLoaderData } from "react-router-dom";
+import { myProjectsQuery } from "@/lib/api-client";
 import { AppState, Project } from "@/lib/types";
 import { useCallback, useContext, useState } from "react";
 import { AppStateContext } from "@/lib/app-state";
+import { QueryClient } from "@tanstack/react-query";
+import { loadOrRedirectIf401 } from "@/lib/utils";
 
 export function Dashboard() {
   const { projects } = useLoaderData() as DashboardData;
@@ -45,8 +47,13 @@ interface DashboardData {
   projects: Project[];
 }
 
-export function loader(_appState: AppState) {
-  return async ({}: LoaderFunctionArgs) => {
-    return { projects: projectList } as DashboardData;
-  };
+// eslint-disable-next-line react-refresh/only-export-components
+export function loader(_appState: AppState, queryClient: QueryClient) {
+  return loadOrRedirectIf401(async () => {
+    const cachedProjects = queryClient.getQueryData(myProjectsQuery.queryKey);
+    const projects =
+      cachedProjects ?? (await queryClient.fetchQuery(myProjectsQuery));
+
+    return { projects } as DashboardData;
+  });
 }

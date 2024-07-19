@@ -79,4 +79,5 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
 );
 IconButton.displayName = "IconButton";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export { Button, buttonVariants, IconButton };
