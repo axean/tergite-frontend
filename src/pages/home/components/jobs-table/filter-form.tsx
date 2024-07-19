@@ -35,8 +35,12 @@ export const jobFilterFormProps: DataTableFormConfig = {
     validation: z.nativeEnum(JobStatus).or(z.literal("")),
     defaultValue: "",
     label: "Status",
-    getFormElement: ({ ref, ...props }: DataTableFilterField) => (
-      <Select onValueChange={props.onChange} {...props}>
+    getFormElement: ({ ref, value, ...props }: DataTableFilterField) => (
+      <Select
+        onValueChange={props.onChange}
+        value={value as string | undefined}
+        {...props}
+      >
         <SelectTrigger ref={ref}>
           <SelectValue placeholder="Select status" />
         </SelectTrigger>

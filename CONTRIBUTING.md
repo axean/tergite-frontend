@@ -100,6 +100,30 @@ npm i
 npm run test
 ```
 
+## How to Build
+
+- Make sure you have [nodejs +20.12](https://nodejs.org/) installed.
+- Clone the repo and enter its root folder
+
+```shell
+git clone git@github.com:tergite/tergite-dashboard.git
+cd tergite-dashboard
+```
+
+- Install the dependencies
+
+```shell
+npm i
+```
+
+- To Build for production, run:
+
+```shell
+npm run build
+```
+
+- Obtain the built files in the [`/dist`](./dist) folder
+
 ## References
 
 This document was adapted from [a gist by Brian A. Danielak](https://gist.github.com/briandk/3d2e8b3ec8daf5a27a62) which
