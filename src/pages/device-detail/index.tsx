@@ -14,6 +14,7 @@ import { CalibrationHeader } from "./components/calibration-header";
 import { CalibrationMapChart } from "./components/calibration-map-chart";
 import { useState } from "react";
 import { QueryClient } from "@tanstack/react-query";
+import { loadOrRedirectIf401 } from "@/lib/utils";
 
 const fieldLabels: { [k: string]: string } = {
   t1_decoherence: "T1 decoherence",
@@ -97,7 +98,7 @@ interface DeviceDetailData {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function loader(_appState: AppState, queryClient: QueryClient) {
-  return async ({ params }: LoaderFunctionArgs) => {
+  return loadOrRedirectIf401(async ({ params }: LoaderFunctionArgs) => {
     const { deviceName = "" } = params;
 
     // device
@@ -114,5 +115,5 @@ export function loader(_appState: AppState, queryClient: QueryClient) {
       cachedCalibrationData ?? (await queryClient.fetchQuery(calibrationQuery));
 
     return { device, calibrationData };
-  };
+  });
 }

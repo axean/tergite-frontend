@@ -5,10 +5,11 @@ import { Device, DeviceCalibration, Job, Project, User } from "../types";
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const cookieName = import.meta.env.VITE_COOKIE_NAME;
 
-const unauthenticatedResponse = HttpResponse.json(
-  { detail: "Unauthorized" },
-  { status: 401 }
-);
+const respond401 = () =>
+  HttpResponse.json({ detail: "Unauthorized" }, { status: 401 });
+
+const respond404 = (detail: string) =>
+  HttpResponse.json({ detail }, { status: 404 });
 
 export const handlers = [
   http.get(`${apiBaseUrl}/devices`, async ({ cookies }) => {
@@ -16,7 +17,7 @@ export const handlers = [
       const deviceList = mockDb.getMany("devices");
       return HttpResponse.json(deviceList);
     }
-    return unauthenticatedResponse;
+    return respond401();
   }),
 
   http.get(`${apiBaseUrl}/devices/:name`, async ({ params, cookies }) => {
@@ -26,14 +27,11 @@ export const handlers = [
         (v) => v.name === params.name
       );
       if (data === undefined) {
-        return HttpResponse.json(
-          { detail: `device '${params.name}' not found` },
-          { status: 404 }
-        );
+        return respond404(`device '${params.name}' not found`);
       }
       return HttpResponse.json(data);
     }
-    return unauthenticatedResponse;
+    return respond401();
   }),
 
   http.get(`${apiBaseUrl}/calibrations`, async ({ cookies }) => {
@@ -41,7 +39,7 @@ export const handlers = [
       const calibrationList = mockDb.getMany("calibrations");
       return HttpResponse.json(calibrationList);
     }
-    return unauthenticatedResponse;
+    return respond401();
   }),
 
   http.get(`${apiBaseUrl}/calibrations/:name`, async ({ params, cookies }) => {
@@ -51,14 +49,11 @@ export const handlers = [
         (v) => v.name === params.name
       );
       if (data === undefined) {
-        return HttpResponse.json(
-          { detail: `calibrations for '${params.name}' not found` },
-          { status: 404 }
-        );
+        return respond404(`calibrations for '${params.name}' not found`);
       }
       return HttpResponse.json(data);
     }
-    return unauthenticatedResponse;
+    return respond401();
   }),
 
   http.get(`${apiBaseUrl}/me/projects`, async ({ cookies }) => {
@@ -74,7 +69,7 @@ export const handlers = [
 
       return HttpResponse.json(myProjects);
     }
-    return unauthenticatedResponse;
+    return respond401();
   }),
 
   http.get(`${apiBaseUrl}/me/jobs`, async ({ cookies }) => {
@@ -87,7 +82,7 @@ export const handlers = [
 
       return HttpResponse.json(myJobs);
     }
-    return unauthenticatedResponse;
+    return respond401();
   }),
 ];
 

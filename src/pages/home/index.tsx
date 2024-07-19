@@ -21,6 +21,7 @@ import { Job, Device, AppState } from "@/lib/types";
 import { JobsTable } from "./components/jobs-table";
 import { DevicesTable } from "./components/devices-table";
 import { QueryClient } from "@tanstack/react-query";
+import { loadOrRedirectIf401 } from "@/lib/utils";
 
 export function Home() {
   const { devices, jobs } = useLoaderData() as HomeData;
@@ -88,7 +89,7 @@ interface HomeData {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function loader(_appState: AppState, queryClient: QueryClient) {
-  return async () => {
+  return loadOrRedirectIf401(async () => {
     // devices
     const cachedDevices = queryClient.getQueryData(devicesQuery.queryKey);
     const devices =
@@ -99,5 +100,5 @@ export function loader(_appState: AppState, queryClient: QueryClient) {
     const jobs = cachedJobs ?? (await queryClient.fetchQuery(myJobsQuery));
 
     return { devices, jobs } as HomeData;
-  };
+  });
 }

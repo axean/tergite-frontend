@@ -43,7 +43,7 @@ function getRouter(appState: AppState, queryClient: QueryClient) {
           path="/"
           element={<Dashboard />}
           loader={dashboardLoader(appState, queryClient)}
-          errorElement={<ErrorAlert />}
+          errorElement={<ErrorAlert className="h-screen bg-muted" />}
         >
           <Route errorElement={<ErrorAlert />}>
             <Route

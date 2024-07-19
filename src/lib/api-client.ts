@@ -1,5 +1,5 @@
 import { FetchQueryOptions } from "@tanstack/react-query";
-import { Device, DeviceCalibration, Job, Project } from "./types";
+import { Device, DeviceCalibration, ErrorInfo, Job, Project } from "./types";
 
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -148,17 +148,22 @@ async function getMyProjects(baseUrl: string = apiBaseUrl): Promise<Project[]> {
 }
 
 /**
- * Extracts the error message from the response
+ * Extracts the error from the response
  *
  * @param response - the response from which to extract the error message
  */
-async function extractErrorMessage(response: Response): Promise<string> {
+async function extractError(response: Response): Promise<ErrorInfo> {
+  let message = "unknown http error";
   try {
     const data = await response.json();
-    return data["detail"] || JSON.stringify(data);
+    message = data["detail"] || JSON.stringify(data);
   } catch (error) {
-    return await response.text();
+    message = await response.text();
   }
+
+  const error = new Error(message) as ErrorInfo;
+  error.status = response.status;
+  return error;
 }
 
 /**
@@ -180,5 +185,5 @@ async function authenticatedFetch<T>(
     return await response.json();
   }
 
-  throw new Error(await extractErrorMessage(response));
+  throw await extractError(response);
 }

@@ -8,6 +8,7 @@ import { AppState, Project } from "@/lib/types";
 import { useCallback, useContext, useState } from "react";
 import { AppStateContext } from "@/lib/app-state";
 import { QueryClient } from "@tanstack/react-query";
+import { loadOrRedirectIf401 } from "@/lib/utils";
 
 export function Dashboard() {
   const { projects } = useLoaderData() as DashboardData;
@@ -48,11 +49,11 @@ interface DashboardData {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function loader(_appState: AppState, queryClient: QueryClient) {
-  return async () => {
+  return loadOrRedirectIf401(async () => {
     const cachedProjects = queryClient.getQueryData(myProjectsQuery.queryKey);
     const projects =
       cachedProjects ?? (await queryClient.fetchQuery(myProjectsQuery));
 
     return { projects } as DashboardData;
-  };
+  });
 }
