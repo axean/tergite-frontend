@@ -48,6 +48,7 @@ export function getCalibrationMedians(
     ])
   );
 }
+
 /**
  * Wraps the loader function in a handler for 401 errors to redirect to login page
  *

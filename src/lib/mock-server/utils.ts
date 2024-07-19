@@ -1,6 +1,7 @@
 import {
   Approval,
   AppToken,
+  AuthProvider,
   DbRecord,
   Device,
   DeviceCalibration,
@@ -11,6 +12,7 @@ import {
 } from "../types";
 import { jwtVerify, type JWTVerifyResult, SignJWT } from "jose";
 import {
+  authProviderList,
   deviceCalibrationList,
   deviceList,
   jobList,
@@ -77,6 +79,7 @@ class MockDb {
     calibrations: [...(deviceCalibrationList as DeviceCalibration[])],
     jobs: [...(jobList as Job[])],
     approvals: [] as Approval[],
+    auth_providers: [...(authProviderList as AuthProvider[])],
   };
   deleted: { [k: string | ItemType]: DeletedIndex } = {
     projects: {},
@@ -86,6 +89,7 @@ class MockDb {
     calibrations: {},
     jobs: {},
     approvals: {},
+    auth_providers: {},
   };
 
   constructor() {
@@ -113,6 +117,7 @@ class MockDb {
       calibrations: [...(deviceCalibrationList as DeviceCalibration[])],
       jobs: [...(jobList as Job[])],
       approvals: [] as Approval[],
+      auth_providers: [...(authProviderList as AuthProvider[])],
     };
     this.deleted = {
       projects: {},
@@ -122,6 +127,7 @@ class MockDb {
       calibrations: {},
       jobs: {},
       approvals: {},
+      auth_providers: {},
     };
   }
 
@@ -269,14 +275,20 @@ function clearObj(obj: { [key: string]: unknown }) {
  * Creates a Set-Cookie header value for authentication
  *
  * @param user - the user for JWT token generation
+ * @param lifeSpan - the life span of the cookie in milliseconds
  * @returns - the value for the Set-Cookie header
  */
-export async function createCookieHeader(user: User): Promise<string> {
+export async function createCookieHeader(
+  user: User,
+  lifeSpan: number = 7_200_000 /* 2 hours in future */
+): Promise<string> {
   const jwtToken = await generateJwt(user);
-  const expiryTimestamp = new Date().getTime() + 7_200_000; // 2 hours in future
+  const expiryTimestamp = new Date().getTime() + lifeSpan;
   const expiry = new Date(expiryTimestamp).toUTCString();
 
-  return `${cookieName}=${jwtToken}; Domain=${cookieDomain}; Secure; HttpOnly; SameSite=Lax; Path=/; Expires=${expiry}`;
+  // Removed HttpOnly because msw cannot set cookies except via javascript.
+  // This for testing purpses only.
+  return `${cookieName}=${jwtToken}; Domain=${cookieDomain}; Secure; SameSite=Lax; Path=/; Expires=${expiry}`;
 }
 
 type ItemType =
@@ -286,7 +298,8 @@ type ItemType =
   | "devices"
   | "calibrations"
   | "jobs"
-  | "approvals";
+  | "approvals"
+  | "auth_providers";
 
 type DeletedIndex = { [k: string]: boolean };
 type UnknownObject = { [key: string]: unknown };

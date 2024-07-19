@@ -9,10 +9,16 @@ export const AppStateContext = createContext<AppState>(newAppState());
  * @returns new app state with proper initializations
  */
 export function newAppState(): AppState {
-  return {
+  const state: AppState = {
     currentProject: undefined,
     setCurrentProject: () => {},
     apiToken: undefined,
     setApiToken: () => {},
+    clear: () => {
+      state.setCurrentProject(undefined);
+      state.setApiToken(undefined);
+    },
   };
+
+  return state;
 }

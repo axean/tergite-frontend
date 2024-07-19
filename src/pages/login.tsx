@@ -1,76 +1,80 @@
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  FormField,
+  Form,
+  FormControl,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { login } from "@/lib/api-client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-/** Logo Component */
-function Logo() {
+const formSchema = z.object({
+  email: z.string().email("invalid email; expected xxx@bxxxx.xxx"),
+});
+
+export default function LoginForm() {
+  const signinForm = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { email: "" },
+  });
+
   return (
-    <div className="flex items-center justify-center text-center mb-8">
-      <div className="group shrink-0">
-        <p className="text-2xl font-semibold">WACQT</p>
-        <p className="font-thin text-base">
-          Wallenberg Centre for Quantum Technology
-        </p>
+    <main className="grid gap-4 p-4 md:gap-8 grid-cols-1 lg:grid-cols-2 h-screen">
+      <div className="w-full h-full hidden lg:block m-4 rounded-md my-auto bg-[url('/img/quantum-computer.png')] bg-no-repeat bg-center bg-cover"></div>
+      <div className="w-full p-4 my-auto">
+        <div className="mb-40">
+          <div className="text-center">
+            <p className="text-3xl font-bold mb-2">WACQT</p>
+
+            <p className="font-light text-lg">
+              Wallenberg Centre for <br /> Quantum Technology
+            </p>
+            <span className="sr-only">
+              WACQT: Wallenberg Centre for Quantum Technology
+            </span>
+          </div>
+        </div>
+
+        <div className="w-full">
+          <h2 className="text-3xl mb-4 text-center font-semibold">
+            Welcome back
+          </h2>
+          <div className="pb-5 border-b mx-auto w-48 mb-20 text-center">
+            <h2 className="text-xl font-thin">Sign in</h2>
+          </div>
+
+          <Form {...signinForm}>
+            <form
+              onSubmit={signinForm.handleSubmit(onFormSubmit)}
+              className="grid gap-4 w-2/3 mx-auto max-w-80"
+            >
+              <FormField
+                control={signinForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem className="grid gap-2">
+                    <FormControl>
+                      <Input placeholder="Email address:" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" disabled={!signinForm.formState.isDirty}>
+                Sign in
+              </Button>
+            </form>
+          </Form>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
 
-/** LoginForm Component */
-export default function LoginForm() {
-  return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <Logo /> {/* Logo placed above the Card */}
-      <Card className="max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>
-            Enter your email below to login to your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <Link to="#" className="ml-auto inline-block text-sm underline">
-                  Forgot your password?
-                </Link>
-              </div>
-              <Input id="password" type="password" required />
-            </div>
-            <Button type="submit" className="w-full">
-              Login
-            </Button>
-            <Button variant="outline" className="w-full">
-              Login with SSO
-            </Button>
-          </div>
-          <div className="mt-4 text-center text-sm">
-            Don't have an account?{" "}
-            <Link to="#" className="underline">
-              Sign up
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+async function onFormSubmit(values: z.infer<typeof formSchema>) {
+  return await login(values.email);
 }

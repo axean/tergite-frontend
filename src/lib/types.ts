@@ -202,11 +202,23 @@ export interface AppTokenCreationResponse {
   token_type: string;
 }
 
+// the possible auth providers and their email domains
+export interface AuthProvider extends DbRecord {
+  name: string;
+  email_domain: string;
+}
+
+// the response from the API detailing the URL to redirect to for authentication
+export interface Oauth2RedirectResponse {
+  authorization_url: string;
+}
+
 export interface AppState {
   currentProject?: string;
-  setCurrentProject: (value: string) => void;
+  setCurrentProject: (value?: string) => void;
   apiToken?: string;
-  setApiToken: (value: string) => void;
+  setApiToken: (value?: string) => void;
+  clear: () => void;
 }
 
 export interface ErrorInfo extends Error {

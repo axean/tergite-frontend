@@ -1,7 +1,7 @@
-import { Cpu, HomeIcon, PanelLeft } from "lucide-react";
+import { Cpu, HomeIcon, PanelLeft, UserRound } from "lucide-react";
 import { Logo } from "../../../ui/logo";
 import { NavItem } from "../../../ui/nav-item";
-import { Button } from "@/components/ui/button";
+import { Button, IconButton } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,13 +27,26 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Fragment, useMemo } from "react";
+import { Fragment, MouseEvent, useCallback, useContext, useMemo } from "react";
+import { logout } from "@/lib/api-client";
+import { useQueryClient } from "@tanstack/react-query";
+import { AppStateContext } from "@/lib/app-state";
 
 export function Topbar({
   currentProject = "",
   onProjectChange,
   projects,
 }: TopbarProps) {
+  const queryClient = useQueryClient();
+  const appState = useContext(AppStateContext);
+
+  const handleLogout = useCallback(
+    (ev: MouseEvent) => {
+      ev.preventDefault();
+      logout(queryClient, appState);
+    },
+    [queryClient, appState]
+  );
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <MobileMenu />
@@ -57,19 +70,11 @@ export function Topbar({
       </Select>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
+          <IconButton
             variant="outline"
-            size="icon"
-            className="overflow-hidden rounded-full"
-          >
-            <img
-              src="/placeholder-user.jpg"
-              width={36}
-              height={36}
-              alt="Avatar"
-              className="overflow-hidden rounded-full"
-            />
-          </Button>
+            className="rounded-full overflow-hidden focus:mr-[1px]"
+            Icon={UserRound}
+          />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
@@ -77,7 +82,7 @@ export function Topbar({
           <DropdownMenuItem>Projects</DropdownMenuItem>
           <DropdownMenuItem>Tokens</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Logout</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>

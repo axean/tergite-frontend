@@ -1,7 +1,17 @@
-import { FetchQueryOptions } from "@tanstack/react-query";
-import { Device, DeviceCalibration, ErrorInfo, Job, Project } from "./types";
+import { FetchQueryOptions, QueryClient } from "@tanstack/react-query";
+import {
+  AppState,
+  Device,
+  DeviceCalibration,
+  ErrorInfo,
+  Job,
+  Oauth2RedirectResponse,
+  Project,
+} from "./types";
 
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const shouldShowMocks =
+  import.meta.env.VITE_SHOW_MOCKS == "true" && import.meta.env.DEV;
 
 /**
  * the devices query for using with react query
@@ -167,6 +177,46 @@ async function extractError(response: Response): Promise<ErrorInfo> {
 }
 
 /**
+ * Login to the backend
+ * @param email - the email of the user
+ * @param baseUrl - the base URL of the API
+ * @param nextUrl - the next URL after login
+ */
+export async function login(
+  email: string,
+  baseUrl: string = apiBaseUrl,
+  nextUrl: string = window.location.origin
+) {
+  const emailDomain = email.split("@")[1];
+  const nextUrlQuery = nextUrl ? `&next=${nextUrl}` : "";
+  // FIXME: Passing the email just for the mock. Remove this in production
+  const mockQuery = shouldShowMocks ? `&email=${email}` : "";
+  const url = `${baseUrl}/auth/providers?domain=${emailDomain}${nextUrlQuery}${mockQuery}`;
+  const { authorization_url } =
+    await authenticatedFetch<Oauth2RedirectResponse>(url);
+  await authenticatedFetch(authorization_url);
+}
+
+/**
+ * Logs out the current user
+ *
+ * @param queryClient - the react query client whose cache is to be reset
+ * @param appState - the app state which is to be cleared
+ * @param options - other options for making the query
+ */
+export async function logout(
+  queryClient: QueryClient,
+  appState: AppState,
+  options: { baseUrl?: string; nextUrl?: string } = {}
+) {
+  const { baseUrl = apiBaseUrl, nextUrl = window.location.origin } = options;
+  appState.clear();
+  queryClient.clear();
+  const url = `${baseUrl}/auth/logout?next=${nextUrl}`;
+  await authenticatedFetch(url);
+}
+
+/**
  * A wrapper around the fetch functionality that adds
  * authentication in it
  *
@@ -178,11 +228,32 @@ async function authenticatedFetch<T>(
   input: string | URL | globalThis.Request,
   init: RequestInit = {}
 ): Promise<T> {
-  init.credentials = "same-origin";
-  init.cache;
+  init.credentials = "include";
+  init.redirect = "follow";
+
   const response = await fetch(input, init);
+  if (response.redirected) {
+    // FIXME: Use the mock fetch so as to use the MSW worker if mocks should be shown
+    // and the new url is not one served by the react router
+    if (shouldShowMocks && !response.url.startsWith(window.location.origin)) {
+      return await authenticatedFetch(response.url);
+    } else {
+      window.location.replace(response.url);
+      // @ts-expect-error
+      return;
+    }
+  }
+
   if (response.ok) {
-    return await response.json();
+    const contentType = response.headers.get("Content-Type");
+    if (contentType === "application/json") {
+      return await response.json();
+    } else {
+      // if response is text, just redirect to it
+      window.location.href = response.url;
+      // @ts-expect-error
+      return;
+    }
   }
 
   throw await extractError(response);
