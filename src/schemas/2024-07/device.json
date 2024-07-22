@@ -1,10 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://tergite.github.io/device.schema.json",
+  "$id": "https://github.com/tergite/tergite-dashboard/tree/main/src/schemas/2024-07/device.json",
   "title": "Device",
   "description": "A quantum computing backend specification",
   "type": "object",
   "properties": {
+    "id": {
+      "description": "The unique identifier of the record in the database",
+      "type": "string"
+    },
     "name": {
       "description": "The unique name of the quantum computer",
       "type": "string"
@@ -13,12 +17,12 @@
       "description": "The revision of this quantum computer",
       "type": "string"
     },
-    "numberOfQubits": {
+    "number_of_qubits": {
       "description": "The number of qubits in the quantum computer",
       "type": "integer",
       "minimum": 0
     },
-    "lastOnline": {
+    "last_online": {
       "description": "The last time this device was seen online",
       "anyOf": [
         {
@@ -28,18 +32,18 @@
         { "type": "null" }
       ]
     },
-    "isOnline": {
+    "is_online": {
       "description": "Whether the quantum computer is online or not",
       "type": "boolean"
     },
-    "basisGates": {
+    "basis_gates": {
       "description": "The unique name of the quantum computer",
       "type": "array",
       "items": {
         "type": "string"
       }
     },
-    "couplingMap": {
+    "coupling_map": {
       "description": "The uni-directional mapping showing how each qubit is connected",
       "type": "array",
       "items": {
@@ -65,39 +69,39 @@
         "maxItems": 2
       }
     },
-    "isSimulator": {
+    "is_simulator": {
       "description": "Whether this is a simulator",
       "type": "boolean"
+    },
+    "created_at": {
+      "description": "The ISO 8601 timestamp when this record was created in the database",
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        { "type": "null" }
+      ]
+    },
+    "updated_at": {
+      "description": "The ISO 8601 timestamp when this record was last updated in the database",
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        { "type": "null" }
+      ]
     }
   },
   "required": [
+    "id",
     "name",
     "version",
-    "numberOfQubits",
-    "isOnline",
-    "basisGates",
-    "isSimulator",
-    "couplingMap"
-  ],
-  "$defs": {
-    "calibrationValue": {
-      "type": "object",
-      "required": ["date", "unit", "value"],
-      "properties": {
-        "date": {
-          "type": "string",
-          "description": "The ISO8601 timestamp when this value was generated",
-          "format": "date-time"
-        },
-        "unit": {
-          "type": "enum",
-          "description": "The unit of measurement"
-        },
-        "value": {
-          "type": "number",
-          "description": "The amount of the given property"
-        }
-      }
-    }
-  }
+    "number_of_qubits",
+    "is_online",
+    "basis_gates",
+    "is_simulator",
+    "coupling_map"
+  ]
 }

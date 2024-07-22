@@ -65,12 +65,8 @@ export const handlers = [
   http.get(`${apiBaseUrl}/me/projects`, async ({ cookies }) => {
     const currentUserId = await getAuthenticatedUserId(cookies);
     if (currentUserId) {
-      const user = mockDb.getOne<User>("users", (v) => v.id === currentUserId);
-      if (user === undefined) {
-        return HttpResponse.json({ detail: `Forbidden` }, { status: 403 });
-      }
       const myProjects = mockDb.getMany<Project>("projects", (v) =>
-        v.user_emails.includes(user.email)
+        v.user_ids.includes(currentUserId)
       );
 
       return HttpResponse.json(myProjects);

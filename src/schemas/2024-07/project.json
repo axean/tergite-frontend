@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/tergite/tergite-dashboard/tree/main/src/schemas/2024-07/project.json",
+  "title": "Project",
+  "description": "The organisational unit under which quantum jobs can be run by the users who are its members",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The unique identifier of the record in the database",
+      "type": "string"
+    },
+    "name": {
+      "description": "The human-understandable identifier of the project",
+      "type": "string"
+    },
+    "ext_id": {
+      "description": "The unique id for by which this project is known in dependent softwares like resource allocators",
+      "type": "string"
+    },
+    "description": {
+      "description": "What this project is about",
+      "type": "string"
+    },
+    "user_ids": {
+      "description": "The list of unique identifiers of users who are members of this project",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "admin_id": {
+      "description": "The unique identifier of the user who administers this project",
+      "type": "string"
+    },
+    "qpu_seconds": {
+      "description": "The total number of seconds that all future jobs created under this project can consume on the quantum computer",
+      "type": "integer"
+    },
+    "status": {
+      "description": "The state of this project",
+      "type": "string",
+      "enum": ["live", "closed"]
+    },
+    "created_at": {
+      "description": "The ISO 8601 timestamp when this record was created in the database",
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "description": "The ISO 8601 timestamp when this record was last updated in the database",
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "ext_id",
+    "user_ids",
+    "admin_id",
+    "qpu_seconds",
+    "status",
+    "created_at",
+    "updated_at"
+  ]
+}

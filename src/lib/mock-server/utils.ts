@@ -1,5 +1,5 @@
 import {
-  Approval,
+  UserRequest,
   AppToken,
   AuthProvider,
   DbRecord,
@@ -78,7 +78,7 @@ class MockDb {
     devices: [...(deviceList as Device[])],
     calibrations: [...(deviceCalibrationList as DeviceCalibration[])],
     jobs: [...(jobList as Job[])],
-    approvals: [] as Approval[],
+    approvals: [] as UserRequest[],
     auth_providers: [...(authProviderList as AuthProvider[])],
   };
   deleted: { [k: string | ItemType]: DeletedIndex } = {
@@ -116,7 +116,7 @@ class MockDb {
       devices: [...(deviceList as Device[])],
       calibrations: [...(deviceCalibrationList as DeviceCalibration[])],
       jobs: [...(jobList as Job[])],
-      approvals: [] as Approval[],
+      approvals: [] as UserRequest[],
       auth_providers: [...(authProviderList as AuthProvider[])],
     };
     this.deleted = {

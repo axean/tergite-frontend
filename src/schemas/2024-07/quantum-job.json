@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/tergite/tergite-dashboard/tree/main/src/schemas/2024-07/quantum-job.json",
+  "title": "Quantum job",
+  "description": "A job that is to be or has been executed by the quantum computer",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The unique identifier of the record in the database",
+      "type": "string"
+    },
+    "job_id": {
+      "description": "The unique id for the job that is shared across the multiple layers of the tergite stack",
+      "type": "string"
+    },
+    "project_id": {
+      "description": "The unique id for the project under which this job has been initialized",
+      "type": "string"
+    },
+    "user_id": {
+      "description": "The unique id for the user who created this job",
+      "type": "string"
+    },
+    "device": {
+      "description": "The name of the quantum computer that executes this job",
+      "type": "string"
+    },
+    "status": {
+      "description": "The state of execution of the job",
+      "type": "string",
+      "enum": ["pending", "successful", "failed"]
+    },
+    "failure_reason": {
+      "description": "The reason for which the job did not complete successfully",
+      "type": "string"
+    },
+    "duration_in_secs": {
+      "description": "The number of seconds for which this job took running on the quantum computer",
+      "type": "integer",
+      "minimum": 0
+    },
+    "created_at": {
+      "description": "The ISO 8601 timestamp when this record was created in the database",
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "description": "The ISO 8601 timestamp when this record was last updated in the database",
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        { "type": "null" }
+      ]
+    }
+  },
+  "required": ["id", "job_id", "device", "status", "created_at"]
+}
