@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/tergite/tergite-dashboard/tree/main/src/schemas/2024-07/create-project-user-request.json",
+  "title": "User request for creating new project",
+  "description": "The user request to create a new project",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The unique identifier of the record in the database",
+      "type": "string"
+    },
+    "status": {
+      "description": "The approval state of the request",
+      "type": "string",
+      "enum": ["pending", "approved", "rejected"]
+    },
+    "type": {
+      "description": "The type of user request",
+      "const": "create-project"
+    },
+    "requester_id": {
+      "description": "The unique identifier of the user who has made the request",
+      "type": "string"
+    },
+    "approver_id": {
+      "description": "The unique identifier of the user who is to approve the request",
+      "type": "string"
+    },
+    "rejection_reason": {
+      "description": "The reason why the request has been rejected",
+      "type": "string"
+    },
+    "request": {
+      "$ref": "#/$defs/request"
+    },
+    "created_at": {
+      "description": "The ISO 8601 timestamp when this record was created in the database",
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "description": "The ISO 8601 timestamp when this record was last updated in the database",
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "id",
+    "requester_id",
+    "type",
+    "created_at",
+    "updated_at",
+    "status"
+  ],
+  "$defs": {
+    "request": {
+      "description": "The body of the request made sent to be approved",
+      "type": "object",
+      "required": ["name", "ext_id", "user_emails", "qpu_seconds"],
+      "properties": {
+        "name": {
+          "description": "The human-understandable name of the project to create",
+          "type": "string"
+        },
+        "ext_id": {
+          "description": "The unique identifier of the project across third party softwares like resource allocators",
+          "type": "string"
+        },
+        "description": {
+          "description": "What the project is about",
+          "type": "string"
+        },
+        "user_emails": {
+          "description": "The email addresses of the initial members of the project",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "qpu_seconds": {
+          "description": "The total number of seconds that all future jobs created under this project can consume on the quantum computer",
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

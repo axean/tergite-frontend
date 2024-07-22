@@ -80,20 +80,20 @@ export interface Device extends DbRecord {
   is_simulator: boolean;
 }
 
-export type ApprovalStatus = "approved" | "rejected" | "pending";
-export type ApprovalRequestType =
+export type UserRequestStatus = "approved" | "rejected" | "pending";
+export type UserRequestType =
   | "create-project"
   | "close-project"
   | "transfer-project";
 
-// the type for all responses for approval requests
-export interface Approval extends DbRecord {
+// the type for all requests made by users to be approved by an admin
+export interface UserRequest extends DbRecord {
   created_at: string;
   updated_at: string;
-  status: ApprovalStatus;
-  request_type: ApprovalRequestType;
-  requested_by: string;
-  handled_by?: string; // id of admin who has handled it
+  status: UserRequestStatus;
+  type: UserRequestType;
+  requester_id: string;
+  approver_id?: string; // id of admin who has handled it
   rejection_reason?: string;
   request?: unknown;
 }
@@ -102,7 +102,7 @@ export type ProjectStatus = "live" | "closed";
 
 // the HTTP request body sent when creating a project.
 // it ends up as a new Project
-export interface ProjectCreationRequest {
+export interface CreateProjectPostBody {
   name: string;
   ext_id: string;
   description?: string;
@@ -114,23 +114,25 @@ export interface ProjectCreationRequest {
 // but a new project is only created in the database using this data
 // after approval is given.
 //
-// the type below is of that approval
-export interface ProjectCreation extends Approval {
-  request_type: "create-project";
-  request: ProjectCreationRequest;
+// the type below is of that request
+export interface CreateProjectUserRequest extends UserRequest {
+  type: "create-project";
+  request: CreateProjectPostBody;
 }
 
 // the HTTP response body got when a project is got from API
-export interface Project extends ProjectCreationRequest {
-  id: string;
-  owner_email: string;
+export interface Project
+  extends Omit<CreateProjectPostBody, "user_emails">,
+    DbRecord {
+  user_ids: string[];
+  admin_id: string;
   status: ProjectStatus;
   created_at: string;
   updated_at: string;
 }
 
 // the HTTP request body when updating a project
-export interface ProjectUpdateRequest {
+export interface UpdateProjectPutBody {
   name?: string;
   description?: string;
   user_emails?: string[];
@@ -138,27 +140,26 @@ export interface ProjectUpdateRequest {
 }
 
 // the HTTP request body when requesting to transfer project
-export interface ProjectTransferRequest {
+export interface TransferProjectPostBody {
   project_id: string;
-  current_owner: string; // email
-  new_owner: string; // email
+  current_admin_id: string;
+  new_admin_id: string;
   reason: string;
 }
 
-export interface ProjectTransfer extends Approval {
-  request_type: "transfer-project";
-  request: ProjectTransferRequest;
+export interface TransferProjectUserRequest extends UserRequest {
+  type: "transfer-project";
+  request: TransferProjectPostBody;
 }
 
-export interface ProjectCloseRequest {
-  id: string;
+export interface CloseProjectPostBody {
   project_id: string;
   reason: string;
 }
 
-export interface ProjectClose extends Approval {
-  request_type: "close-project";
-  request: ProjectCloseRequest;
+export interface CloseProjectUserRequest extends UserRequest {
+  type: "close-project";
+  request: CloseProjectPostBody;
 }
 
 export interface Job extends DbRecord {
@@ -168,7 +169,7 @@ export interface Job extends DbRecord {
   device: string;
   status: JobStatus;
   failure_reason?: string;
-  duration_in_secs: number | null | undefined;
+  duration_in_secs?: number;
   created_at: string;
 }
 
