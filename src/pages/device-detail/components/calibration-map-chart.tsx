@@ -9,7 +9,8 @@ import { defaultStyles, useTooltip, useTooltipInPortal } from "@visx/tooltip";
 import { useMemo } from "react";
 import { Graph } from "@visx/network";
 import { localPoint } from "@visx/event";
-import { scalePoint } from "@visx/scale";
+import { scaleLinear, scalePoint } from "@visx/scale";
+import { interpolatePurples } from "d3-scale-chromatic";
 import { Group } from "@visx/group";
 
 let tooltipTimeout: number;
@@ -50,6 +51,11 @@ export function CalibrationMapChart({
     [data.qubits, currentProp]
   );
 
+  const maxCurrentPropValue = useMemo(
+    () => Math.max(...chatData.map((v) => v.value)),
+    [chatData]
+  );
+
   // scales
   const xScale = useMemo(
     () =>
@@ -69,6 +75,16 @@ export function CalibrationMapChart({
       }),
     [yValues, yMax, margin.top]
   );
+  const minColorRangeValue = 0.3;
+  const colorScale = useMemo(
+    () =>
+      scaleLinear<number>({
+        domain: [0, maxCurrentPropValue],
+        nice: true,
+        range: [minColorRangeValue, 1],
+      }),
+    [maxCurrentPropValue]
+  );
 
   const qubits: QubitNode[] = useMemo(
     () =>
@@ -76,8 +92,11 @@ export function CalibrationMapChart({
         x: xScale(x) ?? 0,
         y: yScale(y) ?? 0,
         data: chatData[idx],
+        color: interpolatePurples(
+          colorScale(chatData[idx].value) ?? minColorRangeValue
+        ),
       })),
-    [chatData, device, xScale, yScale]
+    [chatData, device, xScale, yScale, colorScale]
   );
 
   const couplers: CouplerLink[] = useMemo(
@@ -122,10 +141,11 @@ export function CalibrationMapChart({
           }}
           top={margin.top}
           left={margin.left}
-          nodeComponent={({ node: { data } }) => (
+          nodeComponent={({ node: { data, color } }) => (
             <Group>
               <circle
-                className="fill-secondary-foreground stroke-[1%] stroke-card"
+                className="stroke-[1%] stroke-card"
+                fill={color}
                 r="5%"
                 data-qubit={data.index}
                 data-value={`${data.value.toFixed(2)} ${data.unit}`}
@@ -208,6 +228,7 @@ interface QubitNode {
   x: number;
   y: number;
   data: CalibrationDataPoint;
+  color: string;
 }
 
 interface CouplerLink {
