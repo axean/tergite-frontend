@@ -7,16 +7,11 @@ import {
 import { useParentSize } from "@visx/responsive";
 import { defaultStyles, useTooltip, useTooltipInPortal } from "@visx/tooltip";
 import { useMemo } from "react";
-import { Graph, DefaultNode } from "@visx/network";
+import { Graph } from "@visx/network";
 import { localPoint } from "@visx/event";
-import { scalePoint } from "@visx/scale";
-
-const tooltipStyles = {
-  ...defaultStyles,
-  backgroundColor: "hsl(var(--secondary-foreground))",
-  color: "hsl(var(--secondary))",
-  minWidth: "1.25rem",
-};
+import { scaleLinear, scalePoint } from "@visx/scale";
+import { interpolatePurples } from "d3-scale-chromatic";
+import { Group } from "@visx/group";
 
 let tooltipTimeout: number;
 
@@ -25,6 +20,7 @@ export function CalibrationMapChart({
   data,
   device,
   currentProp,
+  currentLabel,
 }: Props) {
   const {
     parentRef,
@@ -55,6 +51,11 @@ export function CalibrationMapChart({
     [data.qubits, currentProp]
   );
 
+  const maxCurrentPropValue = useMemo(
+    () => Math.max(...chatData.map((v) => v.value)),
+    [chatData]
+  );
+
   // scales
   const xScale = useMemo(
     () =>
@@ -74,6 +75,16 @@ export function CalibrationMapChart({
       }),
     [yValues, yMax, margin.top]
   );
+  const minColorRangeValue = 0.3;
+  const colorScale = useMemo(
+    () =>
+      scaleLinear<number>({
+        domain: [0, maxCurrentPropValue],
+        nice: true,
+        range: [minColorRangeValue, 1],
+      }),
+    [maxCurrentPropValue]
+  );
 
   const qubits: QubitNode[] = useMemo(
     () =>
@@ -81,8 +92,11 @@ export function CalibrationMapChart({
         x: xScale(x) ?? 0,
         y: yScale(y) ?? 0,
         data: chatData[idx],
+        color: interpolatePurples(
+          colorScale(chatData[idx].value) ?? minColorRangeValue
+        ),
       })),
-    [chatData, device, xScale, yScale]
+    [chatData, device, xScale, yScale, colorScale]
   );
 
   const couplers: CouplerLink[] = useMemo(
@@ -127,34 +141,45 @@ export function CalibrationMapChart({
           }}
           top={margin.top}
           left={margin.left}
-          nodeComponent={({ node: { data } }) => (
-            <DefaultNode
-              className="fill-secondary-foreground stroke-[3] stroke-primary-foreground"
-              data-qubit={data.index}
-              data-value={`${data.value.toFixed(2)} ${data.unit}`}
-              onMouseLeave={() => {
-                tooltipTimeout = window.setTimeout(() => {
-                  hideTooltip();
-                }, 300);
-              }}
-              onMouseMove={(event) => {
-                if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                // TooltipInPortal expects coordinates to be relative to containerRef
-                // localPoint returns coordinates relative to the nearest SVG, which
-                // is what containerRef is set to in this example.
-                const eventSvgCoords = localPoint(event);
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                const tooltipData = event.target.dataset;
+          nodeComponent={({ node: { data, color } }) => (
+            <Group>
+              <circle
+                className="stroke-[1%] stroke-card"
+                fill={color}
+                r="5%"
+                data-qubit={data.index}
+                data-value={`${data.value.toFixed(2)} ${data.unit}`}
+                onMouseLeave={() => {
+                  tooltipTimeout = window.setTimeout(() => {
+                    hideTooltip();
+                  }, 300);
+                }}
+                onMouseMove={(event) => {
+                  if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                  // TooltipInPortal expects coordinates to be relative to containerRef
+                  // localPoint returns coordinates relative to the nearest SVG, which
+                  // is what containerRef is set to in this example.
+                  const eventSvgCoords = localPoint(event);
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
+                  const tooltipData = event.target.dataset;
 
-                tooltipData &&
-                  showTooltip({
-                    tooltipData,
-                    tooltipTop: eventSvgCoords?.y,
-                    tooltipLeft: eventSvgCoords?.x,
-                  });
-              }}
-            />
+                  tooltipData &&
+                    showTooltip({
+                      tooltipData,
+                      tooltipTop: eventSvgCoords?.y,
+                      tooltipLeft: eventSvgCoords?.x,
+                    });
+                }}
+              />
+              <text
+                className="fill-background text-lg lg:text-xl  xl:text-2xl font-semibold"
+                textAnchor="middle"
+                alignment-baseline="middle"
+              >
+                {data.index}
+              </text>
+            </Group>
           )}
           linkComponent={({ link: { source, target } }) => (
             <line
@@ -162,7 +187,7 @@ export function CalibrationMapChart({
               y1={source.y}
               x2={target.x}
               y2={target.y}
-              className="stroke-secondary-foreground stroke-[8]"
+              className="stroke-secondary-foreground stroke-[3%]"
             />
           )}
         />
@@ -172,12 +197,18 @@ export function CalibrationMapChart({
         <TooltipInPortal
           top={tooltipTop}
           left={tooltipLeft}
-          style={tooltipStyles}
+          style={defaultStyles}
         >
-          <div>
-            <strong>Qubit {tooltipData.qubit}</strong>
+          <div className="bg-card text-card-foreground min-w-5 p-4 lg:text-lg">
+            <div className="mb-4">
+              <strong>Qubit {tooltipData.qubit}</strong>
+            </div>
+            <div>
+              {currentLabel}
+              {": "}
+              <span className="font-semibold">{tooltipData.value}</span>
+            </div>
           </div>
-          <div>{tooltipData.value}</div>
         </TooltipInPortal>
       )}
     </div>
@@ -188,6 +219,7 @@ interface Props {
   data: DeviceCalibration;
   device: Device;
   currentProp: QubitProp;
+  currentLabel: string;
   minWidth: number;
   fieldLabels: { [k: string]: string };
 }
@@ -196,6 +228,7 @@ interface QubitNode {
   x: number;
   y: number;
   data: CalibrationDataPoint;
+  color: string;
 }
 
 interface CouplerLink {

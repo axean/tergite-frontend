@@ -51,6 +51,7 @@ export function DeviceDetail() {
                 fieldLabels={fieldLabels}
                 device={device}
                 currentProp={currentData}
+                currentLabel={fieldLabels[currentData]}
               />
             </CardContent>
           </Card>
