@@ -9,7 +9,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { login } from "@/lib/api-client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -21,6 +23,18 @@ export default function LoginForm() {
     resolver: zodResolver(formSchema),
     defaultValues: { email: "" },
   });
+
+  const onFormSubmit = useCallback(
+    async (values: z.infer<typeof formSchema>) => {
+      try {
+        return await login(values.email);
+      } catch (error) {
+        const message = (error as any)?.message ?? String(error);
+        signinForm.setError("email", { type: "custom", message });
+      }
+    },
+    [signinForm.setError]
+  );
 
   return (
     <main className="grid gap-4 p-4 md:gap-8 grid-cols-1 lg:grid-cols-2 h-screen">
@@ -73,8 +87,4 @@ export default function LoginForm() {
       </div>
     </main>
   );
-}
-
-async function onFormSubmit(values: z.infer<typeof formSchema>) {
-  return await login(values.email);
 }

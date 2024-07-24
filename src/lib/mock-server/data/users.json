@@ -31,5 +31,12 @@
     "email": "julie.doe@example.com",
     "name": "Julie Doe",
     "organization": "Example AB"
+  },
+  {
+    "id": "0558648bbf51b169dusiwe48e818d3",
+    "roles": ["user"],
+    "email": "wrong.domain@domain.com",
+    "name": "Wrong Domain",
+    "organization": "Exe AB"
   }
 ]

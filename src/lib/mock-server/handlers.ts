@@ -163,7 +163,6 @@ async function getAuthenticatedUserId(
   cookies: Record<string, string>
 ): Promise<string | undefined> {
   const accessToken = cookies[cookieName];
-  console.log({ accessToken });
   try {
     const { payload } = await verifyJwtToken(accessToken);
     return payload.sub;

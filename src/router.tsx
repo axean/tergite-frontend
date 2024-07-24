@@ -21,58 +21,60 @@ import {
 } from "./pages/device-detail";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 
-export function AppRouter() {
+export function AppRouter({ routerConstructor }: Props) {
   const appState = useContext(AppStateContext);
   const queryClient = useQueryClient();
-  const router = getRouter(appState, queryClient);
-  return <RouterProvider router={router} />;
+  const router = getRoutes(appState, queryClient);
+  return <RouterProvider router={routerConstructor(router)} />;
+}
+
+interface Props {
+  routerConstructor: typeof createBrowserRouter;
 }
 
 /**
- * Generates a router component that is aware of the app state
+ * Generates a collection of routes that are aware of the app state
  *
  * @param appState - the global state of the application
  * @param queryClient - the react query client for making queries
- * @returns - the router which is aware of the app state
+ * @returns - the array of routes
  */
-function getRouter(appState: AppState, queryClient: QueryClient) {
-  return createBrowserRouter(
-    createRoutesFromElements(
-      <>
-        <Route
-          path="/"
-          element={<Dashboard />}
-          loader={dashboardLoader(appState, queryClient)}
-          errorElement={<ErrorAlert className="h-screen bg-muted" />}
-        >
-          <Route errorElement={<ErrorAlert />}>
-            <Route
-              index
-              element={<Home />}
-              loader={homeLoader(appState, queryClient)}
-            />
-            <Route
-              path="devices"
-              element={<Devices />}
-              loader={devicesLoader(appState, queryClient)}
-              // action={contactAction}
-            />
-            <Route
-              path="devices/:deviceName"
-              element={<DeviceDetail />}
-              loader={deviceDetailLoader(appState, queryClient)}
-              // action={contactAction}
-            />
-          </Route>
+function getRoutes(appState: AppState, queryClient: QueryClient) {
+  return createRoutesFromElements(
+    <>
+      <Route
+        path="/"
+        element={<Dashboard />}
+        loader={dashboardLoader(appState, queryClient)}
+        errorElement={<ErrorAlert className="h-screen bg-muted" />}
+      >
+        <Route errorElement={<ErrorAlert />}>
+          <Route
+            index
+            element={<Home />}
+            loader={homeLoader(appState, queryClient)}
+          />
+          <Route
+            path="devices"
+            element={<Devices />}
+            loader={devicesLoader(appState, queryClient)}
+            // action={contactAction}
+          />
+          <Route
+            path="devices/:deviceName"
+            element={<DeviceDetail />}
+            loader={deviceDetailLoader(appState, queryClient)}
+            // action={contactAction}
+          />
         </Route>
-        <Route
-          path="login"
-          element={<LoginPage />}
-          //   loader={rootLoader}
-          //   action={rootAction}
-          errorElement={<ErrorAlert />}
-        />
-      </>
-    )
+      </Route>
+      <Route
+        path="login"
+        element={<LoginPage />}
+        //   loader={rootLoader}
+        //   action={rootAction}
+        errorElement={<ErrorAlert />}
+      />
+    </>
   );
 }

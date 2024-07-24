@@ -5,9 +5,16 @@ import {
   DeviceCalibration,
   ErrorInfo,
   Job,
+  NavigatorFunc,
   Oauth2RedirectResponse,
   Project,
 } from "./types";
+import {
+  NavigateFunction,
+  NavigateOptions,
+  Path,
+  useNavigate,
+} from "react-router-dom";
 
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const shouldShowMocks =
@@ -179,14 +186,18 @@ async function extractError(response: Response): Promise<ErrorInfo> {
 /**
  * Login to the backend
  * @param email - the email of the user
- * @param baseUrl - the base URL of the API
- * @param nextUrl - the next URL after login
+ * @param options - the options for loging in including:
+ *          - baseUrl - the base URL of the API
+ *          - nextUrl - the next URL after login
  */
 export async function login(
   email: string,
-  baseUrl: string = apiBaseUrl,
-  nextUrl: string = window.location.origin
+  options: {
+    baseUrl?: string;
+    nextUrl?: string;
+  } = {}
 ) {
+  const { baseUrl = apiBaseUrl, nextUrl = window.location.origin } = options;
   const emailDomain = email.split("@")[1];
   const nextUrlQuery = nextUrl ? `&next=${nextUrl}` : "";
   // FIXME: Passing the email just for the mock. Remove this in production
@@ -194,7 +205,7 @@ export async function login(
   const url = `${baseUrl}/auth/providers?domain=${emailDomain}${nextUrlQuery}${mockQuery}`;
   const { authorization_url } =
     await authenticatedFetch<Oauth2RedirectResponse>(url);
-  await authenticatedFetch(authorization_url);
+  await authenticatedFetch(authorization_url, {});
 }
 
 /**
@@ -232,13 +243,15 @@ async function authenticatedFetch<T>(
   init.redirect = "follow";
 
   const response = await fetch(input, init);
-  if (response.redirected) {
+  if (response.redirected || response.status === 302) {
+    const nextUrl = response.headers.get("location") || response.url;
     // FIXME: Use the mock fetch so as to use the MSW worker if mocks should be shown
     // and the new url is not one served by the react router
-    if (shouldShowMocks && !response.url.startsWith(window.location.origin)) {
-      return await authenticatedFetch(response.url);
+    if (shouldShowMocks && !nextUrl.startsWith(window.location.origin)) {
+      return await authenticatedFetch(nextUrl);
     } else {
-      window.location.replace(response.url);
+      // FIXME: this redirect is not happening during the tests
+      window.location.href = nextUrl;
       // @ts-expect-error
       return;
     }

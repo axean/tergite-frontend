@@ -30,9 +30,10 @@ const jwtAlgorithm = "HS256";
 /**
  * Generate a valid test JWT for the given user
  * @param user - the user for whom the JWT is generated
+ * @param expiry - the unix timestamp at which this JWT is to exprire
  * @returns - the JSON web token
  */
-export async function generateJwt(user: User): Promise<string> {
+export async function generateJwt(user: User, expiry: number): Promise<string> {
   const payload = { sub: user.id, roles: [...user.roles] };
   const secret = new TextEncoder().encode(jwtSecret);
 
@@ -43,7 +44,7 @@ export async function generateJwt(user: User): Promise<string> {
     .setProtectedHeader({ alg })
     .setIssuedAt()
     .setAudience(audience)
-    .setExpirationTime("1h")
+    .setExpirationTime(expiry)
     .sign(secret);
 }
 
@@ -282,8 +283,8 @@ export async function createCookieHeader(
   user: User,
   lifeSpan: number = 7_200_000 /* 2 hours in future */
 ): Promise<string> {
-  const jwtToken = await generateJwt(user);
   const expiryTimestamp = new Date().getTime() + lifeSpan;
+  const jwtToken = await generateJwt(user, expiryTimestamp);
   const expiry = new Date(expiryTimestamp).toUTCString();
 
   // Removed HttpOnly because msw cannot set cookies except via javascript.
