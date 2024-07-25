@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AppState } from "./lib/types";
+import { AppState } from "../types";
 import { newAppState, AppStateContext } from "./lib/app-state";
 import { AppRouter } from "./router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

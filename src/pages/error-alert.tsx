@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ErrorInfo } from "@/lib/types";
+import { ErrorInfo } from "../../types";
 import { cn } from "@/lib/utils";
 import { useNavigate, useRouteError } from "react-router-dom";
 

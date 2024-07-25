@@ -41,7 +41,7 @@ export default function LoginForm() {
       <div className="w-full h-full hidden lg:block m-4 rounded-md my-auto bg-[url('/img/quantum-computer.png')] bg-no-repeat bg-center bg-cover"></div>
       <div className="w-full p-4 my-auto">
         <div className="mb-40">
-          <div className="text-center">
+          <div data-cy-logo className="text-center">
             <p className="text-3xl font-bold mb-2">WACQT</p>
 
             <p className="font-light text-lg">

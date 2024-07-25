@@ -3,7 +3,7 @@ import {
   singleDeviceCalibrationQuery,
   singleDeviceQuery,
 } from "@/lib/api-client";
-import { AppState, Device, DeviceCalibration, QubitProp } from "@/lib/types";
+import { AppState, Device, DeviceCalibration, QubitProp } from "../../../types";
 import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
 import { DeviceSummary } from "./components/device-summary";

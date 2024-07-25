@@ -8,7 +8,7 @@ import ErrorAlert from "./pages/error-alert";
 import LoginPage from "./pages/login";
 import { Home, loader as homeLoader } from "./pages/home";
 import { Devices, loader as devicesLoader } from "./pages/devices";
-import { AppState } from "./lib/types";
+import { AppState } from "../types";
 import { useContext } from "react";
 import { AppStateContext } from "./lib/app-state";
 import {

@@ -1,6 +1,6 @@
 import { Circle, CircleX } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Device } from "@/lib/types";
+import { Device } from "../../../types";
 
 export function DeviceStatusDiv({ device, className = "" }: Props) {
   return (

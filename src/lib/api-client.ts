@@ -5,20 +5,11 @@ import {
   DeviceCalibration,
   ErrorInfo,
   Job,
-  NavigatorFunc,
   Oauth2RedirectResponse,
   Project,
-} from "./types";
-import {
-  NavigateFunction,
-  NavigateOptions,
-  Path,
-  useNavigate,
-} from "react-router-dom";
+} from "../../types";
 
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-const shouldShowMocks =
-  import.meta.env.VITE_SHOW_MOCKS == "true" && import.meta.env.DEV;
 
 /**
  * the devices query for using with react query
@@ -200,9 +191,7 @@ export async function login(
   const { baseUrl = apiBaseUrl, nextUrl = window.location.origin } = options;
   const emailDomain = email.split("@")[1];
   const nextUrlQuery = nextUrl ? `&next=${nextUrl}` : "";
-  // FIXME: Passing the email just for the mock. Remove this in production
-  const mockQuery = shouldShowMocks ? `&email=${email}` : "";
-  const url = `${baseUrl}/auth/providers?domain=${emailDomain}${nextUrlQuery}${mockQuery}`;
+  const url = `${baseUrl}/auth/providers?domain=${emailDomain}${nextUrlQuery}`;
   const { authorization_url } =
     await authenticatedFetch<Oauth2RedirectResponse>(url);
   await authenticatedFetch(authorization_url, {});
@@ -239,34 +228,14 @@ async function authenticatedFetch<T>(
   input: string | URL | globalThis.Request,
   init: RequestInit = {}
 ): Promise<T> {
-  init.credentials = "include";
-  init.redirect = "follow";
-
-  const response = await fetch(input, init);
-  if (response.redirected || response.status === 302) {
-    const nextUrl = response.headers.get("location") || response.url;
-    // FIXME: Use the mock fetch so as to use the MSW worker if mocks should be shown
-    // and the new url is not one served by the react router
-    if (shouldShowMocks && !nextUrl.startsWith(window.location.origin)) {
-      return await authenticatedFetch(nextUrl);
-    } else {
-      // FIXME: this redirect is not happening during the tests
-      window.location.href = nextUrl;
-      // @ts-expect-error
-      return;
-    }
-  }
+  const response = await fetch(input, {
+    ...init,
+    credentials: "include",
+    redirect: "follow",
+  });
 
   if (response.ok) {
-    const contentType = response.headers.get("Content-Type");
-    if (contentType === "application/json") {
-      return await response.json();
-    } else {
-      // if response is text, just redirect to it
-      window.location.href = response.url;
-      // @ts-expect-error
-      return;
-    }
+    return await response.json();
   }
 
   throw await extractError(response);

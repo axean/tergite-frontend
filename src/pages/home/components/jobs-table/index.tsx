@@ -1,4 +1,4 @@
-import { Job } from "@/lib/types";
+import { Job } from "../../../../../types";
 import { JobDetailDrawerContent } from "./detail-drawer";
 import { jobFilterFormProps } from "./filter-form";
 import { jobTableColumns } from "./columns";

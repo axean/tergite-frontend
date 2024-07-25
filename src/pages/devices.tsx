@@ -7,7 +7,7 @@ import {
 import { DetailItem } from "@/components/ui/detail-item";
 import { DeviceStatusDiv } from "@/components/ui/device-status-div";
 import { devicesQuery } from "@/lib/api-client";
-import { AppState, Device } from "@/lib/types";
+import { AppState, Device } from "../../types";
 import { loadOrRedirectIf401 } from "@/lib/utils";
 import { QueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";

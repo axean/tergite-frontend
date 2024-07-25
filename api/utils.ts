@@ -1,5 +1,17 @@
+import { jwtVerify, type JWTVerifyResult, SignJWT } from "jose";
+import authProviderList from "../cypress/fixtures/auth-providers.json";
+import deviceCalibrationList from "../cypress/fixtures/calibrations.json";
+import deviceList from "../cypress/fixtures/device-list.json";
+import jobList from "../cypress/fixtures/jobs.json";
+import projectList from "../cypress/fixtures/projects.json";
+import tokenList from "../cypress/fixtures/tokens.json";
+import userList from "../cypress/fixtures/users.json";
 import {
-  UserRequest,
+  type NextFunction,
+  type Response as ExpressResponse,
+  type Request as ExpressRequest,
+} from "express";
+import {
   AppToken,
   AuthProvider,
   DbRecord,
@@ -9,28 +21,19 @@ import {
   Job,
   Project,
   User,
+  UserRequest,
 } from "../types";
-import { jwtVerify, type JWTVerifyResult, SignJWT } from "jose";
-import {
-  authProviderList,
-  deviceCalibrationList,
-  deviceList,
-  jobList,
-  projectList,
-  tokenList,
-  userList,
-} from "./data";
 
-const jwtSecret = import.meta.env.JWT_SECRET ?? "no-token-really-noooo";
-const authAudience = import.meta.env.AUTH_AUDIENCE ?? "no-auth-audience-noooo";
-const cookieName = import.meta.env.VITE_COOKIE_NAME;
-const cookieDomain = import.meta.env.VITE_COOKIE_DOMAIN;
+const jwtSecret = process.env.JWT_SECRET ?? "no-token-really-noooo";
+const authAudience = process.env.AUTH_AUDIENCE ?? "no-auth-audience-noooo";
+const cookieName: string = process.env.VITE_COOKIE_NAME ?? "tergiteauth";
+const cookieDomain = process.env.VITE_COOKIE_DOMAIN;
 const jwtAlgorithm = "HS256";
 
 /**
  * Generate a valid test JWT for the given user
  * @param user - the user for whom the JWT is generated
- * @param expiry - the unix timestamp at which this JWT is to exprire
+ * @param expiry - the unix timestamp in seconds at which this JWT is to exprire
  * @returns - the JSON web token
  */
 export async function generateJwt(user: User, expiry: number): Promise<string> {
@@ -284,12 +287,77 @@ export async function createCookieHeader(
   lifeSpan: number = 7_200_000 /* 2 hours in future */
 ): Promise<string> {
   const expiryTimestamp = new Date().getTime() + lifeSpan;
-  const jwtToken = await generateJwt(user, expiryTimestamp);
+  const jwtToken = await generateJwt(user, Math.round(expiryTimestamp / 1000));
   const expiry = new Date(expiryTimestamp).toUTCString();
 
-  // Removed HttpOnly because msw cannot set cookies except via javascript.
-  // This for testing purpses only.
-  return `${cookieName}=${jwtToken}; Domain=${cookieDomain}; Secure; SameSite=Lax; Path=/; Expires=${expiry}`;
+  return `${cookieName}=${jwtToken}; Domain=${cookieDomain}; Secure; HttpOnly; SameSite=Lax; Path=/; Expires=${expiry}`;
+}
+
+/**
+ * Checks whether the user is authenticated
+ *
+ * @param cookies - the cookies to authenticate with
+ */
+export async function getAuthenticatedUserId(
+  cookies: Record<string, string>
+): Promise<string | undefined> {
+  let accessToken: string | undefined;
+  try {
+    // There was a weird thing happening where the cookie string
+    // took the format of '{accessToken} {cookieName}={accessToken} {cookieName}={accessToken}'
+    // I am not sure what that was about :) Just another crazy bug to chase all over the code
+    const cookieString = cookies[cookieName];
+    const cookieParts = cookieString
+      .split(",")
+      .map((v) => v.replace(`${cookieName}=`, "").trim());
+    accessToken = cookieParts[cookieParts.length - 1];
+
+    const { payload } = await verifyJwtToken(accessToken);
+    return payload.sub;
+  } catch (error) {
+    accessToken && console.error(error);
+    return undefined;
+  }
+}
+
+/**
+ * A wrapper around the request handler that handles common tasks on request handlers
+ *
+ * @param reqHandler - the async request handler for express
+ * @returns - a wrapped async request handler
+ */
+export function use(reqHandler: AsyncRequestHandler): AsyncRequestHandler {
+  return async (req, res, next) => {
+    try {
+      reqHandler(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+/**
+ * Constructs a URL query string from the express request query object
+ *
+ * @param query - the query object from the express request object
+ * @returns - the query string
+ */
+export function getQueryString(query: Object) {
+  const queryString = Object.entries(query).reduce(
+    (prev, [k, v]) => `${prev}&${k}=${v}`,
+    ""
+  );
+
+  return queryString ? `?${queryString}` : "";
+}
+
+/**
+ * Respond with 401 unauthorized
+ *
+ * @param res - the express response object
+ */
+export function respond401(res: ExpressResponse) {
+  res.status(401).json({ detail: "Unauthorized" });
 }
 
 type ItemType =
@@ -305,3 +373,8 @@ type ItemType =
 type DeletedIndex = { [k: string]: boolean };
 type UnknownObject = { [key: string]: unknown };
 type FilterFunc<T> = (item: T) => boolean;
+type AsyncRequestHandler = (
+  req: ExpressRequest,
+  res: ExpressResponse,
+  next: NextFunction
+) => Promise<void>;

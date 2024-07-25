@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/select";
 import { z } from "zod";
 
-import { JobStatus } from "@/lib/types";
+import { JobStatus } from "../../../../../types";
 import {
   DataTableFilterField,
   DataTableFormConfig,

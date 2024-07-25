@@ -4,7 +4,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { JobStatusDiv } from "@/components/ui/job-status-div";
-import { Job } from "@/lib/types";
+import { Job } from "../../../../../types";
 import { DateTime, Duration } from "luxon";
 
 export function JobDetailDrawerContent({ job }: Props) {

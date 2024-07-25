@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { AppState } from "./types";
+import { AppState } from "../../types";
 
 export const AppStateContext = createContext<AppState>(newAppState());
 

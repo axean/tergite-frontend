@@ -1,6 +1,6 @@
 import { DataTable } from "@/components/ui/data-table";
 import { SortHeader } from "@/components/ui/data-table";
-import { DeviceCalibration, Qubit } from "@/lib/types";
+import { DeviceCalibration, Qubit } from "../../../../types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 

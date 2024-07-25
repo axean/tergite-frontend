@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Project } from "@/lib/types";
+import { Project } from "../../../../../types";
 import { Sheet, SheetContent, SheetTrigger } from "../../../ui/sheet";
 import { Link, useLocation } from "react-router-dom";
 import {

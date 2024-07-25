@@ -1,5 +1,3 @@
-import { NavigateOptions, To } from "react-router-dom";
-
 export enum JobStatus {
   PENDING = "pending",
   SUCCESSFUL = "successful",
@@ -228,5 +226,3 @@ export interface ErrorInfo extends Error {
   status?: number;
   statusText?: string;
 }
-
-export type NavigatorFunc = (to: To, options?: NavigateOptions) => void;
