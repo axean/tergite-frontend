@@ -72,6 +72,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         className
       )}
       size={size}
+      aria-label={props["aria-label"] ?? Icon.displayName ?? Icon.name}
     >
       <Icon className={cn("h-4 w-4", iconClassName)} />
     </Button>

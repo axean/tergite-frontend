@@ -1,4 +1,4 @@
-import { Device } from "@/lib/types";
+import { Device } from "../../../../../types";
 import { deviceTableColumns } from "./columns";
 import { DataTable } from "@/components/ui/data-table";
 import { useNavigate } from "react-router-dom";

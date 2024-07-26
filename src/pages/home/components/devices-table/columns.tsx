@@ -1,5 +1,5 @@
 import { DeviceStatusDiv } from "@/components/ui/device-status-div";
-import { Device } from "@/lib/types";
+import { Device } from "../../../../../types";
 import { ColumnDef } from "@tanstack/react-table";
 import { DateTime } from "luxon";
 

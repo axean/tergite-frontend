@@ -8,12 +8,19 @@ export default defineConfig({
   test: {
     globals: true,
     include: ["src/**/__tests__/*"],
-    environment: "jsdom",
+    environment: "happy-dom",
     setupFiles: "src/setupTests.ts",
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  server: {
+    cors: {
+      credentials: true,
+      origin: true,
+      methods: ["GET", "PUT", "POST", "DELETE", "PATCH", "HEAD"],
     },
   },
 });

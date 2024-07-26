@@ -17,7 +17,7 @@ import { Link, useLoaderData } from "react-router-dom";
 import DonutChart from "@/components/ui/donut-chart";
 
 import { devicesQuery, myJobsQuery } from "@/lib/api-client";
-import { Job, Device, AppState } from "@/lib/types";
+import { Job, Device, AppState } from "../../../types";
 import { JobsTable } from "./components/jobs-table";
 import { DevicesTable } from "./components/devices-table";
 import { QueryClient } from "@tanstack/react-query";

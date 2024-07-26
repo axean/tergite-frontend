@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { QubitProp } from "@/lib/types";
+import { QubitProp } from "../../../../types";
 
 export function PropSelector({ value, onValueChange, fieldLabels }: Props) {
   return (

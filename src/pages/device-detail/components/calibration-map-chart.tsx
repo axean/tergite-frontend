@@ -3,7 +3,7 @@ import {
   Device,
   DeviceCalibration,
   QubitProp,
-} from "@/lib/types";
+} from "../../../../types";
 import { useParentSize } from "@visx/responsive";
 import { defaultStyles, useTooltip, useTooltipInPortal } from "@visx/tooltip";
 import { useMemo } from "react";

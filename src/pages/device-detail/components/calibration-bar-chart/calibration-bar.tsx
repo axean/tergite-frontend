@@ -1,4 +1,4 @@
-import { CalibrationDataPoint } from "@/lib/types";
+import { CalibrationDataPoint } from "../../../../../types";
 import { Bar } from "@visx/shape";
 import { localPoint } from "@visx/event";
 import { ScaleBand, ScaleLinear } from "@visx/vendor/d3-scale";

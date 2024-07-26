@@ -214,6 +214,12 @@ export interface Oauth2RedirectResponse {
   authorization_url: string;
 }
 
+// the response from the API detailing the URL to login for the given email domain
+export interface AuthProviderResponse {
+  url: string;
+  name: string;
+}
+
 export interface AppState {
   currentProject?: string;
   setCurrentProject: (value?: string) => void;

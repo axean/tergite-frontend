@@ -12,7 +12,7 @@ import {
   DeviceCalibrationMedians,
   Device,
   DeviceCalibration,
-} from "@/lib/types";
+} from "../../../../types";
 import { getCalibrationMedians, cn } from "@/lib/utils";
 import { DateTime } from "luxon";
 import { useMemo } from "react";

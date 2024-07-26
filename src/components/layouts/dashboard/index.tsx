@@ -3,8 +3,8 @@ import { Sidebar } from "./components/sidebar";
 import { Topbar } from "./components/topbar";
 import { TopBanner } from "./components/top-banner";
 import { Outlet, useLoaderData } from "react-router-dom";
-import { myProjectsQuery } from "@/lib/api-client";
-import { AppState, Project } from "@/lib/types";
+import { logout, myProjectsQuery } from "@/lib/api-client";
+import { AppState, Project } from "../../../../types";
 import { useCallback, useContext, useState } from "react";
 import { AppStateContext } from "@/lib/app-state";
 import { QueryClient } from "@tanstack/react-query";
@@ -55,5 +55,13 @@ export function loader(_appState: AppState, queryClient: QueryClient) {
       cachedProjects ?? (await queryClient.fetchQuery(myProjectsQuery));
 
     return { projects } as DashboardData;
+  });
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function action(appState: AppState, queryClient: QueryClient) {
+  return loadOrRedirectIf401(async () => {
+    await logout(queryClient, appState);
+    return { projects: [] } as DashboardData;
   });
 }

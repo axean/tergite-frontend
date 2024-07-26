@@ -1,4 +1,4 @@
-import { JobStatus } from "@/lib/types";
+import { JobStatus } from "../../../types";
 import { cn } from "@/lib/utils";
 import { CircleCheck, CircleDashed, CircleX } from "lucide-react";
 import React from "react";

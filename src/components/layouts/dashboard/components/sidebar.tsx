@@ -13,6 +13,7 @@ export function Sidebar({ isExpanded, onIsExpandedChange }: Props) {
 
   return (
     <aside
+      data-testid="sidebar"
       className={`fixed inset-y-0 left-0 z-10 hidden sm:pt-1 ${widthClass} flex-col border-r bg-background sm:flex`}
     >
       <Logo isExpanded={isExpanded} />

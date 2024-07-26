@@ -5,13 +5,11 @@ import {
   DeviceCalibration,
   ErrorInfo,
   Job,
-  Oauth2RedirectResponse,
+  AuthProviderResponse,
   Project,
-} from "./types";
+} from "../../types";
 
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-const shouldShowMocks =
-  import.meta.env.VITE_SHOW_MOCKS == "true" && import.meta.env.DEV;
 
 /**
  * the devices query for using with react query
@@ -165,7 +163,7 @@ async function getMyProjects(baseUrl: string = apiBaseUrl): Promise<Project[]> {
 async function extractError(response: Response): Promise<ErrorInfo> {
   let message = "unknown http error";
   try {
-    const data = await response.json();
+    const data = await response.clone().json();
     message = data["detail"] || JSON.stringify(data);
   } catch (error) {
     message = await response.text();
@@ -177,24 +175,25 @@ async function extractError(response: Response): Promise<ErrorInfo> {
 }
 
 /**
- * Login to the backend
+ * Get Login url
  * @param email - the email of the user
- * @param baseUrl - the base URL of the API
- * @param nextUrl - the next URL after login
+ * @param options - the options for loging in including:
+ *          - baseUrl - the base URL of the API
+ *          - nextUrl - the next URL after login
+ * @returns - the auth provider for the given email or raises a 404 error
  */
-export async function login(
+export async function getAuthProvier(
   email: string,
-  baseUrl: string = apiBaseUrl,
-  nextUrl: string = window.location.origin
-) {
+  options: {
+    baseUrl?: string;
+    nextUrl?: string;
+  } = {}
+): Promise<AuthProviderResponse> {
+  const { baseUrl = apiBaseUrl, nextUrl = window.location.origin } = options;
   const emailDomain = email.split("@")[1];
   const nextUrlQuery = nextUrl ? `&next=${nextUrl}` : "";
-  // FIXME: Passing the email just for the mock. Remove this in production
-  const mockQuery = shouldShowMocks ? `&email=${email}` : "";
-  const url = `${baseUrl}/auth/providers?domain=${emailDomain}${nextUrlQuery}${mockQuery}`;
-  const { authorization_url } =
-    await authenticatedFetch<Oauth2RedirectResponse>(url);
-  await authenticatedFetch(authorization_url);
+  const url = `${baseUrl}/auth/providers?domain=${emailDomain}${nextUrlQuery}`;
+  return await authenticatedFetch<AuthProviderResponse>(url);
 }
 
 /**
@@ -207,13 +206,12 @@ export async function login(
 export async function logout(
   queryClient: QueryClient,
   appState: AppState,
-  options: { baseUrl?: string; nextUrl?: string } = {}
+  options: { baseUrl?: string } = {}
 ) {
-  const { baseUrl = apiBaseUrl, nextUrl = window.location.origin } = options;
+  const { baseUrl = apiBaseUrl } = options;
   appState.clear();
   queryClient.clear();
-  const url = `${baseUrl}/auth/logout?next=${nextUrl}`;
-  await authenticatedFetch(url);
+  await authenticatedFetch(`${baseUrl}/auth/logout`, { method: "post" });
 }
 
 /**
@@ -228,32 +226,13 @@ async function authenticatedFetch<T>(
   input: string | URL | globalThis.Request,
   init: RequestInit = {}
 ): Promise<T> {
-  init.credentials = "include";
-  init.redirect = "follow";
-
-  const response = await fetch(input, init);
-  if (response.redirected) {
-    // FIXME: Use the mock fetch so as to use the MSW worker if mocks should be shown
-    // and the new url is not one served by the react router
-    if (shouldShowMocks && !response.url.startsWith(window.location.origin)) {
-      return await authenticatedFetch(response.url);
-    } else {
-      window.location.replace(response.url);
-      // @ts-expect-error
-      return;
-    }
-  }
+  const response = await fetch(input, {
+    ...init,
+    credentials: "include",
+  });
 
   if (response.ok) {
-    const contentType = response.headers.get("Content-Type");
-    if (contentType === "application/json") {
-      return await response.json();
-    } else {
-      // if response is text, just redirect to it
-      window.location.href = response.url;
-      // @ts-expect-error
-      return;
-    }
+    return await response.json();
   }
 
   throw await extractError(response);

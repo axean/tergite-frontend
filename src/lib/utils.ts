@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { AggregateValue, CalibrationValue } from "./types";
+import { AggregateValue, CalibrationValue } from "../../types";
 import { LoaderFunction, LoaderFunctionArgs, redirect } from "react-router-dom";
 
 export function cn(...inputs: ClassValue[]) {

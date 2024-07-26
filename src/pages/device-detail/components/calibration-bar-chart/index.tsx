@@ -2,7 +2,7 @@ import {
   CalibrationDataPoint,
   DeviceCalibration,
   QubitProp,
-} from "@/lib/types";
+} from "../../../../../types";
 import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Group } from "@visx/group";
