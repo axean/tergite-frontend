@@ -5,7 +5,7 @@ import {
   DeviceCalibration,
   ErrorInfo,
   Job,
-  Oauth2RedirectResponse,
+  AuthProviderResponse,
   Project,
 } from "../../types";
 
@@ -175,26 +175,25 @@ async function extractError(response: Response): Promise<ErrorInfo> {
 }
 
 /**
- * Login to the backend
+ * Get Login url
  * @param email - the email of the user
  * @param options - the options for loging in including:
  *          - baseUrl - the base URL of the API
  *          - nextUrl - the next URL after login
+ * @returns - the auth provider for the given email or raises a 404 error
  */
-export async function login(
+export async function getAuthProvier(
   email: string,
   options: {
     baseUrl?: string;
     nextUrl?: string;
   } = {}
-) {
+): Promise<AuthProviderResponse> {
   const { baseUrl = apiBaseUrl, nextUrl = window.location.origin } = options;
   const emailDomain = email.split("@")[1];
   const nextUrlQuery = nextUrl ? `&next=${nextUrl}` : "";
   const url = `${baseUrl}/auth/providers?domain=${emailDomain}${nextUrlQuery}`;
-  const { authorization_url } =
-    await authenticatedFetch<Oauth2RedirectResponse>(url);
-  await authenticatedFetch(authorization_url);
+  return await authenticatedFetch<AuthProviderResponse>(url);
 }
 
 /**
@@ -230,19 +229,10 @@ async function authenticatedFetch<T>(
   const response = await fetch(input, {
     ...init,
     credentials: "include",
-    redirect: "follow",
   });
 
   if (response.ok) {
-    const contentType = response.headers.get("content-type");
-    if (contentType?.includes("application/json")) {
-      return await response.json();
-    }
-
-    // manually redirect to url in browser
-    window.location.href = response.url;
-    // @ts-expect-error
-    return;
+    return await response.json();
   }
 
   throw await extractError(response);

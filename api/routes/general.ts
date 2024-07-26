@@ -13,6 +13,7 @@ import {
   Device,
   DeviceCalibration,
   Job,
+  AuthProviderResponse,
   Project,
   User,
 } from "../../types";
@@ -142,12 +143,16 @@ router.get(
       (v) => v.email_domain === domain
     );
 
+    if (!data) {
+      res.status(404).json({ detail: `not found` });
+      return;
+    }
+
     const queryString = getQueryString(req.query);
-    return data
-      ? res.redirect(
-          `${apiBaseUrl}/auth/router/${data.name}/authorize${queryString}`
-        )
-      : respond401(res);
+    res.json({
+      url: `${apiBaseUrl}/auth/router/${data.name}/authorize${queryString}`,
+      name: data.name,
+    } as AuthProviderResponse);
   })
 );
 
@@ -155,9 +160,7 @@ router.get(
   "/auth/router/:provider/authorize",
   use(async (req, res) => {
     const queryString = getQueryString(req.query);
-    res.json({
-      authorization_url: `${apiBaseUrl}/oauth/callback${queryString}`,
-    });
+    return res.redirect(`${apiBaseUrl}/oauth/callback${queryString}`);
   })
 );
 

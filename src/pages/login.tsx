@@ -7,10 +7,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { login } from "@/lib/api-client";
+import { getAuthProvier } from "@/lib/api-client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
+import { AuthProviderResponse } from "types";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -18,6 +19,8 @@ const formSchema = z.object({
 });
 
 export default function LoginForm() {
+  const [provider, setProvider] = useState<AuthProviderResponse>();
+
   const signinForm = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { email: "" },
@@ -26,13 +29,14 @@ export default function LoginForm() {
   const onFormSubmit = useCallback(
     async (values: z.infer<typeof formSchema>) => {
       try {
-        return await login(values.email);
+        const authProvider = await getAuthProvier(values.email);
+        setProvider(authProvider);
       } catch (error) {
         const message = (error as any)?.message ?? String(error);
         signinForm.setError("email", { type: "custom", message });
       }
     },
-    [signinForm.setError]
+    [signinForm.setError, setProvider]
   );
 
   return (
@@ -60,28 +64,36 @@ export default function LoginForm() {
             <h2 className="text-xl font-thin">Sign in</h2>
           </div>
 
-          <Form {...signinForm}>
-            <form
-              onSubmit={signinForm.handleSubmit(onFormSubmit)}
-              className="grid gap-4 w-2/3 mx-auto max-w-80"
-            >
-              <FormField
-                control={signinForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem className="grid gap-2">
-                    <FormControl>
-                      <Input placeholder="Email address:" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" disabled={!signinForm.formState.isDirty}>
-                Sign in
+          {provider ? (
+            <div className="grid gap-4 w-2/3 mx-auto max-w-80">
+              <Button asChild>
+                <a href={provider.url}>Login with {provider.name}</a>
               </Button>
-            </form>
-          </Form>
+            </div>
+          ) : (
+            <Form {...signinForm}>
+              <form
+                onSubmit={signinForm.handleSubmit(onFormSubmit)}
+                className="grid gap-4 w-2/3 mx-auto max-w-80"
+              >
+                <FormField
+                  control={signinForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem className="grid gap-2">
+                      <FormControl>
+                        <Input placeholder="Email address:" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" disabled={!signinForm.formState.isDirty}>
+                  Next
+                </Button>
+              </form>
+            </Form>
+          )}
         </div>
       </div>
     </main>
