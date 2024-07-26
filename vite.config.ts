@@ -16,4 +16,11 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    cors: {
+      credentials: true,
+      origin: true,
+      methods: ["GET", "PUT", "POST", "DELETE", "PATCH", "HEAD"],
+    },
+  },
 });

@@ -12,7 +12,8 @@ const invalidFormatEmailAddresses = [
 ];
 
 users.forEach((user) => {
-  const isDomainSupported = supportedDomains.includes(user.email.split("@")[1]);
+  const emailDomain = user.email.split("@")[1];
+  const isDomainSupported = supportedDomains.includes(emailDomain);
 
   describe(`login page for user '${user.name}'`, () => {
     beforeEach(() => {
@@ -21,8 +22,9 @@ users.forEach((user) => {
       const userIdCookieName = Cypress.env("USER_ID_COOKIE_NAME");
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
-      cy.intercept("GET", `${apiBaseUrl}/me/jobs`).as("my-job-list");
       cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/jobs`).as("my-jobs-list");
+      cy.intercept("GET", `${apiBaseUrl}/oauth/callback`).as("oauth-callback");
 
       cy.setCookie(userIdCookieName, user.id, {
         domain,
@@ -32,70 +34,81 @@ users.forEach((user) => {
       });
 
       cy.visit("/");
-      cy.wait("@devices-list");
-      cy.wait("@my-job-list");
       cy.wait("@my-project-list");
+      cy.wait("@devices-list");
+
+      cy.get("input[name=email]").as("emailInput");
+      cy.get("button[type=submit]")
+        .contains(/sign in/i)
+        .as("signinBtn");
     });
 
-    it("renders correctly", async () => {
-      cy.get("[data-cy-logo]").should("contain", "WACQT");
+    it("renders correctly", () => {
+      cy.get("[data-cy-logo]").should("contain.text", "WACQT");
       cy.get("[data-cy-logo]").should(
-        "contain",
+        "contain.text",
         "Wallenberg Centre for Quantum Technology"
       );
 
-      cy.get("input[name=email]")
+      cy.get("@emailInput")
         .should("have.attr", "placeholder")
         .and("match", /email address:/i);
 
-      cy.get("button[type=submit]").should("have.value", /sign in/i);
+      cy.get("@signinBtn").should("be.visible");
     });
 
     !isDomainSupported &&
-      it(`renders 'unauthorized' error message for '${user.email}'`, async () => {
-        // const user = userEvent.setup();
-        // const errorMsgRegex = /unauthorized/i;
-        // render(<App routerConstructor={createMemoryRouter} />);
-        // const emailInput = await screen.findByPlaceholderText("Email address:");
-        // expect(screen.queryByText(errorMsgRegex)).not.toBeInTheDocument();
-        // await user.type(emailInput, email);
-        // await user.click(
-        //   screen.getByRole("button", {
-        //     name: /sign in/i,
-        //   })
-        // );
-        // expect(await screen.findByText(errorMsgRegex)).toBeInTheDocument();
+      it(`renders 'unauthorized' error message for '${user.email}'`, () => {
+        cy.get("p.text-destructive").should("not.exist");
+
+        cy.get("@emailInput").type(user.email);
+        cy.get("@signinBtn").click();
+
+        cy.wait("@oauth-callback");
+
+        cy.get("p.text-destructive")
+          .contains(/unauthorized/i)
+          .should("be.visible");
       });
 
-    invalidFormatEmailAddresses.forEach((email) =>
-      it(`renders error invalid email message for '${email}'`, async () => {
-        // const user = userEvent.setup();
-        // const errorMsgRegex = /invalid email; expected xxx@bxxxx.xxx/;
-        // render(<App routerConstructor={createMemoryRouter} />);
-        // const emailInput = await screen.findByPlaceholderText("Email address:");
-        // expect(screen.queryByText(errorMsgRegex)).not.toBeInTheDocument();
-        // await user.type(emailInput, email);
-        // await user.click(
-        //   screen.getByRole("button", {
-        //     name: /sign in/i,
-        //   })
-        // );
-        // expect(await screen.findByText(errorMsgRegex)).toBeInTheDocument();
-      })
-    );
+    it(`redirects to the home page of the dashboard`, () => {
+      cy.get("@emailInput").type(user.email);
+      cy.get("@signinBtn").click();
 
-    it(`redirects to the home page of the dashboard`, async () => {
-      // const user = userEvent.setup();
-      // render(<App routerConstructor={createMemoryRouter} />);
-      // const emailInput = await screen.findByPlaceholderText("Email address:");
-      // await user.type(emailInput, email);
-      // await user.click(
-      //   screen.getByRole("button", {
-      //     name: /sign in/i,
-      //   })
-      // );
-      // expect(window.location.href).toBe("http://localhost:3000/");
-      // expect(await screen.findByText(/dashboard/i)).toBeInTheDocument();
+      cy.wait("@my-jobs-list");
+
+      cy.url().should("equal", "http://127.0.0.1:5173/");
+      cy.get("nav a")
+        .contains(/dashboard/i)
+        .should("be.visible");
     });
   });
 });
+
+invalidFormatEmailAddresses.forEach((email) =>
+  describe(`login with invalid email ${email}`, () => {
+    beforeEach(() => {
+      const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
+
+      cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
+
+      cy.visit("/");
+      cy.wait("@my-project-list");
+      cy.wait("@devices-list");
+    });
+
+    it(`renders error message`, () => {
+      cy.get("p.text-destructive").should("not.exist");
+
+      cy.get("input[name=email]").type(email);
+      cy.get("button[type=submit]")
+        .contains(/sign in/i)
+        .click();
+
+      cy.get("p.text-destructive")
+        .contains(/invalid email; expected xxx@bxxxx.xxx/i)
+        .should("be.visible");
+    });
+  })
+);
