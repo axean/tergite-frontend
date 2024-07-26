@@ -60,7 +60,7 @@ export function loadOrRedirectIf401(loaderFn: LoaderFunction) {
     try {
       return await loaderFn(params);
     } catch (error) {
-      // @ts-expect-error
+      // @ts-expect-error error can be any
       if (error.status === 401) {
         return redirect("/login");
       }

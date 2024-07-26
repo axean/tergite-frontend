@@ -6,6 +6,7 @@ import jobList from "../cypress/fixtures/jobs.json";
 import projectList from "../cypress/fixtures/projects.json";
 import tokenList from "../cypress/fixtures/tokens.json";
 import userList from "../cypress/fixtures/users.json";
+import { type ParsedQs } from "qs";
 import {
   type NextFunction,
   type Response as ExpressResponse,
@@ -256,7 +257,6 @@ class MockDb {
  */
 function conformsToFilter(item: DbRecord, filters: UnknownObject): boolean {
   return Object.entries(filters).reduce(
-    // @ts-ignore
     (prev, [k, v]) => prev && item[k] === v,
     true
   );
@@ -272,7 +272,7 @@ export const mockDb = new MockDb();
  * @param obj - the object to clear
  */
 function clearObj(obj: { [key: string]: unknown }) {
-  for (var member in obj) delete obj[member];
+  for (const member in obj) delete obj[member];
 }
 
 /**
@@ -342,7 +342,7 @@ export function use(reqHandler: AsyncRequestHandler): AsyncRequestHandler {
  * @param query - the query object from the express request object
  * @returns - the query string
  */
-export function getQueryString(query: Object) {
+export function getQueryString(query: ParsedQs) {
   const queryString = Object.entries(query).reduce(
     (prev, [k, v]) => `${prev}&${k}=${v}`,
     ""
@@ -387,7 +387,7 @@ export function toHTTPError(err: Error | HttpError): HttpError {
  */
 export function NotFound(message: string = "not found"): ErrorInfo {
   return {
-    message: "not found",
+    message,
     status: 404,
     name: "NotFound",
   };

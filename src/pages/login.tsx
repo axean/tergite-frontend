@@ -32,11 +32,11 @@ export default function LoginForm() {
         const authProvider = await getAuthProvier(values.email);
         setProvider(authProvider);
       } catch (error) {
-        const message = (error as any)?.message ?? String(error);
+        const message = (error as Error)?.message ?? String(error);
         signinForm.setError("email", { type: "custom", message });
       }
     },
-    [signinForm.setError, setProvider]
+    [signinForm, setProvider]
   );
 
   return (

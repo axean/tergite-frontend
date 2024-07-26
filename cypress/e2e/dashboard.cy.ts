@@ -1,11 +1,11 @@
 /// <reference types="cypress" />
 
 import users from "../fixtures/users.json";
-import authProviders from "../fixtures/auth-providers.json";
+// import authProviders from "../fixtures/auth-providers.json";
 
-const supportedDomains = authProviders.map((v) => v.email_domain);
+// const supportedDomains = authProviders.map((v) => v.email_domain);
 
-users.forEach((user) => {
+[...users].forEach((user) => {
   describe(`dashboard-layout for ${user.name}`, () => {
     beforeEach(async () => {
       // add fresh cookie to document to login

@@ -35,7 +35,7 @@ router.options("*", (req, res, next) => {
 
 router.get(
   "/me/projects",
-  use(async (req, res, next) => {
+  use(async (req, res) => {
     const currentUserId = await getAuthenticatedUserId(req.cookies);
     if (!currentUserId) {
       return respond401(res);
