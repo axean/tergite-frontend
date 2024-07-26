@@ -11,7 +11,6 @@ import { login } from "@/lib/api-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -57,7 +56,7 @@ export default function LoginForm() {
           <h2 className="text-3xl mb-4 text-center font-semibold">
             Welcome back
           </h2>
-          <div className="pb-5 border-b mx-auto w-48 mb-20 text-center">
+          <div className="pb-5 border-b mx-auto max-w-48 mb-20 text-center">
             <h2 className="text-xl font-thin">Sign in</h2>
           </div>
 

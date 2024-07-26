@@ -4,9 +4,8 @@
  * I am tired of libraries that work only upto some point, then start failing.
  */
 
-import express from "express";
+import express, { ErrorRequestHandler } from "express";
 import cookieParser from "cookie-parser";
-import bodyParser from "body-parser";
 import cors from "cors";
 import {
   mockDb,
@@ -15,6 +14,8 @@ import {
   getAuthenticatedUserId,
   respond401,
   getQueryString,
+  toHTTPError,
+  NotFound,
 } from "./utils";
 import {
   Project,
@@ -24,14 +25,25 @@ import {
   AuthProvider,
   User,
 } from "../types";
+import path from "path";
+import { fileURLToPath } from "url";
+import logger from "morgan";
+
+// "type": "module" in the package.json makes this an ES module, making it __filename
+// and __dirname undefined, which they would be if this were a commonjs module
+// Thanks to https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const apiBaseUrl = process.env.VITE_API_BASE_URL;
 const userIdCookieName = process.env.USER_ID_COOKIE_NAME ?? "userId";
 
 const app = express();
 
+app.use(logger("dev") as express.RequestHandler);
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(
   cors({
     origin: true,
@@ -39,6 +51,8 @@ app.use(
     credentials: true,
   })
 );
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "hbs");
 
 app.options("*", (req, res, next) => {
   next();
@@ -173,16 +187,18 @@ app.get(
   })
 );
 
-// Dummy third party authenticator
+// Dummy third party authenticator GET page
 app.get(
   "/oauth/callback",
   use(async (req, res) => {
-    const { next: nextUrl } = req.query;
-
     const userId = req.cookies[userIdCookieName];
-    const user = mockDb.getOne<User>("users", (v) => v.id === userId);
+    if (!userId) {
+      return res.render("oauth", {});
+    }
 
+    const user = mockDb.getOne<User>("users", (v) => v.id === userId);
     if (user) {
+      const { next: nextUrl } = req.query;
       const cookieHeader = await createCookieHeader(user);
       res.set("Set-Cookie", cookieHeader);
       return res.redirect(nextUrl as string);
@@ -191,20 +207,35 @@ app.get(
   })
 );
 
-app.get(
+// Dummy third party authenticator POST page
+app.post(
+  "/oauth/callback",
+  use(async (req, res) => {
+    const { email } = req.body;
+
+    const user = mockDb.getOne<User>("users", (v) => v.email === email);
+    if (user) {
+      const { next: nextUrl } = req.query;
+      const cookieHeader = await createCookieHeader(user);
+      res.set("Set-Cookie", cookieHeader);
+      return res.redirect(nextUrl as string);
+    }
+    return res.render("oauth", { emailError: "unknown email" });
+  })
+);
+
+app.post(
   "/auth/logout",
   use(async (req, res) => {
-    const { next: nextUrl } = req.query;
     const userId = await getAuthenticatedUserId(req.cookies);
     const user = mockDb.getOne<User>("users", (v) => v.id === userId);
 
     if (user) {
       const staleCookieHeader = await createCookieHeader(user, -7_200_000);
-
       res.set("Set-Cookie", staleCookieHeader);
-      return res.redirect(nextUrl as string);
     }
-    return res.redirect(nextUrl as string);
+
+    res.json({ message: "logged out" });
   })
 );
 
@@ -217,6 +248,24 @@ app.get("/refreshed-db", (req, res) => {
 app.get("/", (req, res) => {
   res.json({ message: "hello world" });
 });
+
+// catch 404 and forward to error handler
+app.use(function (req, res, next) {
+  next(NotFound());
+});
+
+// error handler
+app.use(function (err, req, res, _next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get("env") === "development" ? err : {};
+
+  const error = toHTTPError(err);
+
+  // render the error page
+  res.status(error.status);
+  res.json({ detail: error.message });
+} as ErrorRequestHandler);
 
 app.listen(8002, "0.0.0.0", () => {
   console.log("api running on port 8002");

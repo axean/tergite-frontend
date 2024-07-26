@@ -14,6 +14,7 @@ import { AppStateContext } from "./lib/app-state";
 import {
   Dashboard,
   loader as dashboardLoader,
+  action as dashboardAction,
 } from "./components/layouts/dashboard";
 import {
   DeviceDetail,
@@ -46,6 +47,7 @@ function getRoutes(appState: AppState, queryClient: QueryClient) {
         path="/"
         element={<Dashboard />}
         loader={dashboardLoader(appState, queryClient)}
+        action={dashboardAction(appState, queryClient)}
         errorElement={<ErrorAlert className="h-screen bg-muted" />}
       >
         <Route errorElement={<ErrorAlert />}>

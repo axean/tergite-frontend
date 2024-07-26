@@ -329,7 +329,7 @@ export async function getAuthenticatedUserId(
 export function use(reqHandler: AsyncRequestHandler): AsyncRequestHandler {
   return async (req, res, next) => {
     try {
-      reqHandler(req, res, next);
+      await reqHandler(req, res, next);
     } catch (error) {
       next(error);
     }
@@ -360,6 +360,39 @@ export function respond401(res: ExpressResponse) {
   res.status(401).json({ detail: "Unauthorized" });
 }
 
+/**
+ * Converts an error into an HTTP error
+ *
+ * @param err - the error object
+ * @returns - the HttpError version of the given error
+ */
+export function toHTTPError(err: Error | HttpError): HttpError {
+  if (err instanceof ReferenceError) {
+    return { ...err, status: 404 };
+  }
+
+  if ("status" in err) {
+    return err;
+  }
+
+  console.error(err);
+  return { ...err, status: 500, message: "unexpected server error" };
+}
+
+/**
+ * Creates a NotFound ErrorInfo object
+ *
+ * @param message - the message in the not found error; default="not found"
+ * @returns - the NotFoundError
+ */
+export function NotFound(message: string = "not found"): ErrorInfo {
+  return {
+    message: "not found",
+    status: 404,
+    name: "NotFound",
+  };
+}
+
 type ItemType =
   | "projects"
   | "users"
@@ -378,3 +411,6 @@ type AsyncRequestHandler = (
   res: ExpressResponse,
   next: NextFunction
 ) => Promise<void>;
+interface HttpError extends ErrorInfo {
+  status: number;
+}

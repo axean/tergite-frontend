@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Project } from "../../../../../types";
 import { Sheet, SheetContent, SheetTrigger } from "../../../ui/sheet";
-import { Link, useLocation } from "react-router-dom";
+import { Form, Link, useLocation } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,26 +27,13 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Fragment, MouseEvent, useCallback, useContext, useMemo } from "react";
-import { logout } from "@/lib/api-client";
-import { useQueryClient } from "@tanstack/react-query";
-import { AppStateContext } from "@/lib/app-state";
+import { Fragment, useMemo } from "react";
 
 export function Topbar({
   currentProject = "",
   onProjectChange,
   projects,
 }: TopbarProps) {
-  const queryClient = useQueryClient();
-  const appState = useContext(AppStateContext);
-
-  const handleLogout = useCallback(
-    (ev: MouseEvent) => {
-      ev.preventDefault();
-      logout(queryClient, appState);
-    },
-    [queryClient, appState]
-  );
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <MobileMenu />
@@ -82,7 +69,11 @@ export function Topbar({
           <DropdownMenuItem>Projects</DropdownMenuItem>
           <DropdownMenuItem>Tokens</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+          <Form method="post">
+            <DropdownMenuItem>
+              <input type="submit" value="Logout" className="cursor-pointer" />
+            </DropdownMenuItem>
+          </Form>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>

@@ -163,7 +163,7 @@ async function getMyProjects(baseUrl: string = apiBaseUrl): Promise<Project[]> {
 async function extractError(response: Response): Promise<ErrorInfo> {
   let message = "unknown http error";
   try {
-    const data = await response.json();
+    const data = await response.clone().json();
     message = data["detail"] || JSON.stringify(data);
   } catch (error) {
     message = await response.text();
@@ -194,7 +194,7 @@ export async function login(
   const url = `${baseUrl}/auth/providers?domain=${emailDomain}${nextUrlQuery}`;
   const { authorization_url } =
     await authenticatedFetch<Oauth2RedirectResponse>(url);
-  await authenticatedFetch(authorization_url, {});
+  await authenticatedFetch(authorization_url);
 }
 
 /**
@@ -207,13 +207,12 @@ export async function login(
 export async function logout(
   queryClient: QueryClient,
   appState: AppState,
-  options: { baseUrl?: string; nextUrl?: string } = {}
+  options: { baseUrl?: string } = {}
 ) {
-  const { baseUrl = apiBaseUrl, nextUrl = window.location.origin } = options;
+  const { baseUrl = apiBaseUrl } = options;
   appState.clear();
   queryClient.clear();
-  const url = `${baseUrl}/auth/logout?next=${nextUrl}`;
-  await authenticatedFetch(url);
+  await authenticatedFetch(`${baseUrl}/auth/logout`, { method: "post" });
 }
 
 /**
@@ -235,7 +234,15 @@ async function authenticatedFetch<T>(
   });
 
   if (response.ok) {
-    return await response.json();
+    const contentType = response.headers.get("content-type");
+    if (contentType?.includes("application/json")) {
+      return await response.json();
+    }
+
+    // manually redirect to url in browser
+    window.location.href = response.url;
+    // @ts-expect-error
+    return;
   }
 
   throw await extractError(response);
