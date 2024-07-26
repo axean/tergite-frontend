@@ -67,7 +67,9 @@ export default function LoginForm() {
           {provider ? (
             <div className="grid gap-4 w-2/3 mx-auto max-w-80">
               <Button asChild>
-                <a href={provider.url}>Login with {provider.name}</a>
+                <a href={provider.url} data-cy-login-link>
+                  Login with {provider.name}
+                </a>
               </Button>
             </div>
           ) : (

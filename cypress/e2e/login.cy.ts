@@ -11,7 +11,7 @@ const invalidFormatEmailAddresses = [
   "http://example.com",
 ];
 
-users.forEach((user) => {
+[...users].forEach((user) => {
   const emailDomain = user.email.split("@")[1];
   const isDomainSupported = supportedDomains.includes(emailDomain);
 
@@ -24,7 +24,6 @@ users.forEach((user) => {
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
       cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
       cy.intercept("GET", `${apiBaseUrl}/me/jobs`).as("my-jobs-list");
-      cy.intercept("GET", `${apiBaseUrl}/oauth/callback`).as("oauth-callback");
 
       cy.setCookie(userIdCookieName, user.id, {
         domain,
@@ -38,9 +37,7 @@ users.forEach((user) => {
       cy.wait("@devices-list");
 
       cy.get("input[name=email]").as("emailInput");
-      cy.get("button[type=submit]")
-        .contains(/sign in/i)
-        .as("signinBtn");
+      cy.get("button[type=submit]").contains(/next/i).as("nextBtn");
     });
 
     it("renders correctly", () => {
@@ -54,34 +51,36 @@ users.forEach((user) => {
         .should("have.attr", "placeholder")
         .and("match", /email address:/i);
 
-      cy.get("@signinBtn").should("be.visible");
+      cy.get("@nextBtn").should("be.visible");
     });
 
     !isDomainSupported &&
       it(`renders 'unauthorized' error message for '${user.email}'`, () => {
         cy.get("p.text-destructive").should("not.exist");
 
+        cy.get("@emailInput").clear();
         cy.get("@emailInput").type(user.email);
-        cy.get("@signinBtn").click();
-
-        cy.wait("@oauth-callback");
+        cy.get("@nextBtn").click();
 
         cy.get("p.text-destructive")
-          .contains(/unauthorized/i)
+          .contains(/not found/i)
           .should("be.visible");
       });
 
-    it(`redirects to the home page of the dashboard`, () => {
-      cy.get("@emailInput").type(user.email);
-      cy.get("@signinBtn").click();
+    isDomainSupported &&
+      it(`redirects to the home page of the dashboard`, () => {
+        cy.get("@emailInput").clear();
+        cy.get("@emailInput").type(user.email);
+        cy.get("@nextBtn").click();
 
-      cy.wait("@my-jobs-list");
+        cy.get("[data-cy-login-link]").click();
+        cy.wait("@my-jobs-list");
 
-      cy.url().should("equal", "http://127.0.0.1:5173/");
-      cy.get("nav a")
-        .contains(/dashboard/i)
-        .should("be.visible");
-    });
+        cy.url().should("equal", "http://127.0.0.1:5173/");
+        cy.get("nav a")
+          .contains(/dashboard/i)
+          .should("be.visible");
+      });
   });
 });
 
@@ -102,9 +101,7 @@ invalidFormatEmailAddresses.forEach((email) =>
       cy.get("p.text-destructive").should("not.exist");
 
       cy.get("input[name=email]").type(email);
-      cy.get("button[type=submit]")
-        .contains(/sign in/i)
-        .click();
+      cy.get("button[type=submit]").contains(/next/i).click();
 
       cy.get("p.text-destructive")
         .contains(/invalid email; expected xxx@bxxxx.xxx/i)
