@@ -7,6 +7,8 @@ import {
   Job,
   AuthProviderResponse,
   Project,
+  AppTokenCreationRequest,
+  AppTokenCreationResponse,
 } from "../../types";
 
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -98,6 +100,66 @@ export const myProjectsQuery: FetchQueryOptions<
 };
 
 /**
+ * Generates a new app token
+ * @param - the payload for a new app token
+ * @param options - the options for loging in including:
+ *          - baseUrl - the base URL of the API
+ */
+export async function createAppToken(
+  payload: AppTokenCreationRequest,
+  options: {
+    baseUrl?: string;
+  } = {}
+): Promise<AppTokenCreationResponse> {
+  const { baseUrl = apiBaseUrl } = options;
+  return await authenticatedFetch(`${baseUrl}/me/tokens`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+/**
+ * Get Login url
+ * @param email - the email of the user
+ * @param options - the options for loging in including:
+ *          - baseUrl - the base URL of the API
+ *          - nextUrl - the next URL after login
+ * @returns - the auth provider for the given email or raises a 404 error
+ */
+export async function getAuthProvier(
+  email: string,
+  options: {
+    baseUrl?: string;
+    nextUrl?: string;
+  } = {}
+): Promise<AuthProviderResponse> {
+  const { baseUrl = apiBaseUrl, nextUrl = window.location.origin } = options;
+  const emailDomain = email.split("@")[1];
+  const nextUrlQuery = nextUrl ? `&next=${nextUrl}` : "";
+  const url = `${baseUrl}/auth/providers?domain=${emailDomain}${nextUrlQuery}`;
+  return await authenticatedFetch<AuthProviderResponse>(url);
+}
+
+/**
+ * Logs out the current user
+ *
+ * @param queryClient - the react query client whose cache is to be reset
+ * @param appState - the app state which is to be cleared
+ * @param options - other options for making the query
+ */
+export async function logout(
+  queryClient: QueryClient,
+  appState: AppState,
+  options: { baseUrl?: string } = {}
+) {
+  const { baseUrl = apiBaseUrl } = options;
+  appState.clear();
+  queryClient.clear();
+  await authenticatedFetch(`${baseUrl}/auth/logout`, { method: "post" });
+}
+
+/**
  * Retrieves the devices on the system
  * @param baseUrl - the API base URL
  */
@@ -172,46 +234,6 @@ async function extractError(response: Response): Promise<ErrorInfo> {
   const error = new Error(message) as ErrorInfo;
   error.status = response.status;
   return error;
-}
-
-/**
- * Get Login url
- * @param email - the email of the user
- * @param options - the options for loging in including:
- *          - baseUrl - the base URL of the API
- *          - nextUrl - the next URL after login
- * @returns - the auth provider for the given email or raises a 404 error
- */
-export async function getAuthProvier(
-  email: string,
-  options: {
-    baseUrl?: string;
-    nextUrl?: string;
-  } = {}
-): Promise<AuthProviderResponse> {
-  const { baseUrl = apiBaseUrl, nextUrl = window.location.origin } = options;
-  const emailDomain = email.split("@")[1];
-  const nextUrlQuery = nextUrl ? `&next=${nextUrl}` : "";
-  const url = `${baseUrl}/auth/providers?domain=${emailDomain}${nextUrlQuery}`;
-  return await authenticatedFetch<AuthProviderResponse>(url);
-}
-
-/**
- * Logs out the current user
- *
- * @param queryClient - the react query client whose cache is to be reset
- * @param appState - the app state which is to be cleared
- * @param options - other options for making the query
- */
-export async function logout(
-  queryClient: QueryClient,
-  appState: AppState,
-  options: { baseUrl?: string } = {}
-) {
-  const { baseUrl = apiBaseUrl } = options;
-  appState.clear();
-  queryClient.clear();
-  await authenticatedFetch(`${baseUrl}/auth/logout`, { method: "post" });
 }
 
 /**

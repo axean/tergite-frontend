@@ -34,7 +34,7 @@ export function NavItem({
       className={`flex h-9 px-2 items-center ${colorsClass} rounded-sm  transition-colors hover:text-foreground`}
     >
       <div className={`flex ${sizeClass.gap} items-center`}>
-        <Icon className={sizeClass.icon} />
+        <Icon aria-label={Icon.displayName} className={sizeClass.icon} />
         {isExpanded && <span className={sizeClass.text}>{text}</span>}
         <span className="sr-only">{text}</span>
       </div>

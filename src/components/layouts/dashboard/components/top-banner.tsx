@@ -5,21 +5,32 @@ import { Label } from "../../../ui/label";
 import { useCallback, useContext } from "react";
 import { AppStateContext } from "@/lib/app-state";
 import { copyToClipboard } from "@/lib/utils";
+import { createAppToken } from "@/lib/api-client";
 
 export function TopBanner() {
-  const { apiToken, setApiToken } = useContext(AppStateContext);
+  const {
+    apiToken,
+    setApiToken,
+    currentProject: project_ext_id,
+  } = useContext(AppStateContext);
   const handleApiTokenRefresh = useCallback(() => {
-    // FIXME: call an action to refresh token
-    const newApiToken = `some-token-${new Date().getTime()}`;
-    setApiToken(newApiToken);
-  }, [setApiToken]);
+    if (project_ext_id) {
+      createAppToken({
+        title: `${project_ext_id}-${new Date().getTime()}`,
+        project_ext_id,
+        lifespan_seconds: 7_200,
+      }).then((appToken) => {
+        setApiToken(appToken.access_token);
+      });
+    }
+  }, [setApiToken, project_ext_id]);
 
   const handleApiTokenCopy = useCallback(
     () => copyToClipboard(apiToken || ""),
     [apiToken]
   );
   return (
-    <header className="flex px-4 sm:px-6 py-4">
+    <header data-testid="top-banner" className="flex px-4 sm:px-6 py-4">
       <div className="relative w-full md:w-fit md:ml-auto flex items-center">
         <Label htmlFor="api-token" className="text-sm pr-2">
           API token
@@ -35,11 +46,13 @@ export function TopBanner() {
           variant="outline"
           className="rounded-none focus:mr-[1px]"
           Icon={RefreshCcw}
+          disabled={!project_ext_id}
           onClick={handleApiTokenRefresh}
         />
         <IconButton
           variant="outline"
           className="rounded-l-none"
+          disabled={!apiToken}
           onClick={handleApiTokenCopy}
           Icon={Copy}
         />

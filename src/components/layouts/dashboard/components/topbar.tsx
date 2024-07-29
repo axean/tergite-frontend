@@ -18,8 +18,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Project } from "../../../../../types";
-import { Sheet, SheetContent, SheetTrigger } from "../../../ui/sheet";
-import { Form, Link, useLocation } from "react-router-dom";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "../../../ui/sheet";
+import { Link, useLocation } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -33,14 +38,22 @@ export function Topbar({
   currentProject = "",
   onProjectChange,
   projects,
+  onLogout,
 }: TopbarProps) {
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+    <header
+      data-testid="topbar"
+      className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6"
+    >
       <MobileMenu />
 
       <TopbarBreadcrumb />
 
-      <Select value={currentProject} onValueChange={onProjectChange}>
+      <Select
+        data-testid="project-select"
+        value={currentProject}
+        onValueChange={onProjectChange}
+      >
         <SelectTrigger className="ml-auto w-fit">
           <span className="hidden sm:inline text-muted-foreground pr-1">
             Project:{" "}
@@ -49,7 +62,11 @@ export function Topbar({
         </SelectTrigger>
         <SelectContent>
           {projects.map((project) => (
-            <SelectItem value={project.ext_id} key={project.ext_id}>
+            <SelectItem
+              data-cy-project={project.name}
+              value={project.ext_id}
+              key={project.ext_id}
+            >
               {project.name}
             </SelectItem>
           ))}
@@ -69,11 +86,8 @@ export function Topbar({
           <DropdownMenuItem>Projects</DropdownMenuItem>
           <DropdownMenuItem>Tokens</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <Form method="post">
-            <DropdownMenuItem>
-              <input type="submit" value="Logout" className="cursor-pointer" />
-            </DropdownMenuItem>
-          </Form>
+
+          <DropdownMenuItem onClick={onLogout}>Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>
@@ -84,6 +98,7 @@ interface TopbarProps {
   currentProject?: string;
   projects: Project[];
   onProjectChange: (projectExtId: string) => void;
+  onLogout: () => void;
 }
 
 function MobileMenu() {
@@ -95,8 +110,15 @@ function MobileMenu() {
           <span className="sr-only">Toggle Menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="sm:max-w-xs">
-        <Logo />
+      <SheetContent
+        data-testid="mobile-menu"
+        side="left"
+        className="sm:max-w-xs"
+      >
+        <SheetTitle>
+          <Logo />
+        </SheetTitle>
+
         <nav className="grid gap-6 text-lg font-medium">
           <NavItem to="/" Icon={HomeIcon} text="Dashboard" isBig={true} />
           <NavItem to="/devices" Icon={Cpu} text="Devices" isBig={true} />

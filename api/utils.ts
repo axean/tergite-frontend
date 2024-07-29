@@ -35,34 +35,48 @@ const jwtAlgorithm = "HS256";
  * Generate a valid test JWT for the given user
  * @param user - the user for whom the JWT is generated
  * @param expiry - the unix timestamp in seconds at which this JWT is to exprire
+ * @param options - extra options including
+ *        - secret: the JWT secret to use
+ *        - audience: the JWT audience
  * @returns - the JSON web token
  */
-export async function generateJwt(user: User, expiry: number): Promise<string> {
+export async function generateJwt(
+  user: User,
+  expiry: number,
+  options: { secret?: string; audience?: string } = {}
+): Promise<string> {
+  const { secret = jwtSecret, audience = authAudience } = options;
   const payload = { sub: user.id, roles: [...user.roles] };
-  const secret = new TextEncoder().encode(jwtSecret);
+  const encodedSecret = new TextEncoder().encode(secret);
 
   const alg = jwtAlgorithm;
-  const audience = [authAudience];
+  const audienceList = [audience];
 
   return await new SignJWT(payload)
     .setProtectedHeader({ alg })
     .setIssuedAt()
-    .setAudience(audience)
+    .setAudience(audienceList)
     .setExpirationTime(expiry)
-    .sign(secret);
+    .sign(encodedSecret);
 }
 
 /**
  * Verified a given JWT token
  * @param token - the token to be verified
+ * @param options - extra options including
+ *        - secret: the JWT secret to use
+ *        - audience: the JWT audience
  * @returns - the verifiration result including the claims stored  in the payload
  */
-export async function verifyJwtToken(token: string): Promise<JWTVerifyResult> {
-  const audience = authAudience;
+export async function verifyJwtToken(
+  token: string,
+  options: { secret?: string; audience?: string } = {}
+): Promise<JWTVerifyResult> {
+  const { secret = jwtSecret, audience = authAudience } = options;
   const algorithms = [jwtAlgorithm];
-  const secret = new TextEncoder().encode(jwtSecret);
+  const encodedSecret = new TextEncoder().encode(secret);
 
-  return await jwtVerify(token, secret, { audience, algorithms });
+  return await jwtVerify(token, encodedSecret, { audience, algorithms });
 }
 
 /**
@@ -190,18 +204,19 @@ class MockDb {
    * @param unique_fields - the fields that are unique
    * @returns - the created project
    */
-  create(
+  create<T extends DbRecord>(
     itemType: ItemType,
     payload: UnknownObject,
-    unique_fields: string[] = []
-  ): DbRecord {
-    const filters = unique_fields.reduce(
+    unique_fields: string[] | undefined = undefined
+  ): T {
+    const filters = unique_fields?.reduce(
       (prev, k) => ({ ...prev, k: payload[k] }),
       {}
     );
-    const preExistingItems = this.getOne(itemType, (item) =>
-      conformsToFilter(item, filters)
-    );
+    const preExistingItems =
+      filters &&
+      this.getOne(itemType, (item) => conformsToFilter(item, filters));
+
     if (preExistingItems) {
       const error = new Error(`${itemType} already exists`) as ErrorInfo;
       error.status = 400;
@@ -214,7 +229,7 @@ class MockDb {
       id: `${randInt(10000000)}`,
       created_at: timestamp,
       updated_at: timestamp,
-    } as DbRecord;
+    } as T;
 
     this.cache[itemType].push(newItem);
     return newItem;

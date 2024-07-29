@@ -16,7 +16,10 @@ import {
   AuthProviderResponse,
   Project,
   User,
+  AppToken,
+  AppTokenCreationResponse,
 } from "../../types";
+import { randomUUID } from "crypto";
 
 const apiBaseUrl = process.env.VITE_API_BASE_URL;
 const router = Router();
@@ -63,6 +66,37 @@ router.get(
     );
 
     res.json(myJobs);
+  })
+);
+
+router.post(
+  "/me/tokens",
+  use(async (req, res) => {
+    const user_id = await getAuthenticatedUserId(req.cookies);
+    if (!user_id) {
+      return respond401(res);
+    }
+
+    const payload = { ...req.body, userId: user_id };
+    const project = mockDb.getOne<Project>(
+      "projects",
+      (v) =>
+        v.ext_id == (payload as AppToken).project_ext_id &&
+        v.user_ids.includes(user_id)
+    );
+    if (!project) {
+      return respond401(res);
+    }
+
+    const access_token = randomUUID();
+    payload["access_token"] = access_token;
+
+    mockDb.create<AppToken>("tokens", payload);
+    res.status(201);
+    res.json({
+      access_token,
+      token_type: "bearer",
+    } as AppTokenCreationResponse);
   })
 );
 
