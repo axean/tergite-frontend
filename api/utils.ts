@@ -270,9 +270,12 @@ class MockDb {
  * @param filters - the filters to check against
  * @returns - whether the item confirms to filters or not
  */
-function conformsToFilter(item: DbRecord, filters: UnknownObject): boolean {
+export function conformsToFilter<T extends DbRecord>(
+  item: T,
+  filters: Partial<T>
+): boolean {
   return Object.entries(filters).reduce(
-    (prev, [k, v]) => prev && item[k] === v,
+    (prev, [k, v]) => prev && (v === undefined ? true : item[k] === v),
     true
   );
 }

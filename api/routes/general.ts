@@ -1,6 +1,7 @@
 import { Router } from "express";
 import cors from "cors";
 import {
+  conformsToFilter,
   createCookieHeader,
   getAuthenticatedUserId,
   getQueryString,
@@ -60,9 +61,9 @@ router.get(
       return respond401(res);
     }
 
-    const myJobs = mockDb.getMany<Job>(
-      "jobs",
-      (v) => v.user_id === currentUserId
+    const { project_id } = req.query as { [k: string]: string };
+    const myJobs = mockDb.getMany<Job>("jobs", (v) =>
+      conformsToFilter(v, { user_id: currentUserId, project_id })
     );
 
     res.json(myJobs);

@@ -73,17 +73,17 @@ export function singleDeviceCalibrationQuery(
 
 /**
  * the my jobs query for using with react query
+ * @param options - extra options for filtering the jobs
  */
-export const myJobsQuery: FetchQueryOptions<
-  Job[],
-  Error,
-  Job[],
-  string[],
-  never
-> = {
-  queryKey: [apiBaseUrl, "me", "jobs"],
-  queryFn: async () => await getMyJobs(),
-};
+export function myJobsQuery(
+  options: { project_id?: string } = {}
+): FetchQueryOptions<Job[], Error, Job[], string[], never> {
+  const { project_id = "" } = options;
+  return {
+    queryKey: [apiBaseUrl, "me", "jobs", project_id],
+    queryFn: async () => await getMyJobs(options),
+  };
+}
 
 /**
  * the my projects query for using with react query
@@ -203,10 +203,16 @@ async function getCalibrationsForDevice(
 
 /**
  * Retrieves the jobs for the current user on the system
- * @param baseUrl - the API base URL
+ * @param options - extra options for querying the jobs
+ *      e.g. - project id
+ *           - baseUrl - the API base URL; default apiBaseUrl
  */
-async function getMyJobs(baseUrl: string = apiBaseUrl): Promise<Job[]> {
-  return await authenticatedFetch(`${baseUrl}/me/jobs`);
+async function getMyJobs(
+  options: { project_id?: string; baseUrl?: string } = {}
+): Promise<Job[]> {
+  const { project_id, baseUrl = apiBaseUrl } = options;
+  const query = project_id ? `?project_id=${project_id}` : "";
+  return await authenticatedFetch(`${baseUrl}/me/jobs${query}`);
 }
 
 /**
