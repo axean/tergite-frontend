@@ -13,6 +13,9 @@ export default function DonutChart({
   );
   return (
     <svg
+      aria-valuenow={percentFill}
+      aria-valuemax={100}
+      aria-valuemin={0}
       width={viewBoxSize}
       height={viewBoxSize}
       viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}
