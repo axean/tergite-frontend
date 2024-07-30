@@ -183,13 +183,15 @@ users.forEach((user) => {
         cy.get("@projectSelectBtn").click();
         cy.get("[data-radix-popper-content-wrapper]")
           .contains(project.name)
-          .click();
-        cy.get("@newTokenBtn")
           .click()
           .then(() => {
-            cy.get("@appTokenInput")
-              .invoke("val")
-              .then((value) => expect(value).not.to.eql(""));
+            cy.get("@newTokenBtn")
+              .click()
+              .then(() => {
+                cy.get("@appTokenInput")
+                  .invoke("val")
+                  .then((value) => expect(value).not.to.eql(""));
+              });
           });
       }
     });

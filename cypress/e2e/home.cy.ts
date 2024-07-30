@@ -159,7 +159,7 @@ users.forEach((user) => {
                           if (prop === "created_at") {
                             expect(cell.td.text()).to.match(
                               // FIXME: Not the right regx for ~ 'Oct 14, 1983, 9:30 AM' but might work
-                              /\d+ \w+ \d+, \d+:\d+/i
+                              /\d+ \w+ \d+, \d+:\d+ ?(AM)|(PM)?/i
                             );
                           } else if (prop === "duration_in_secs") {
                             expect(cell.td.text()).to.match(
@@ -229,7 +229,7 @@ users.forEach((user) => {
                             if (prop === "created_at") {
                               expect(cell.td.text()).to.match(
                                 // FIXME: Not the right regx for ~ 'Oct 14, 1983, 9:30 AM' but might work
-                                /\d+ \w+ \d+, \d+:\d+/i
+                                /\d+ \w+ \d+, \d+:\d+ ?(AM)|(PM)?/i
                               );
                             } else if (prop === "duration_in_secs") {
                               expect(cell.td.text()).to.match(
