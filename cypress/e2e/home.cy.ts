@@ -7,6 +7,8 @@ import projectList from "../fixtures/projects.json";
 import { generateJwt } from "../../api/utils";
 import { type Project, type Device, type Job, type User } from "../../types";
 
+// FIXME: the refresh button for the devices and the jobs table needs to be tested
+
 const users = [...userList] as User[];
 const devices = [...deviceList] as Device[];
 const jobs = [...jobList] as Job[];
@@ -256,6 +258,9 @@ users.forEach((user) => {
         });
       }
     });
+
+    it("refreshes device list on click on device refresh button", () => {});
+    it("refreshes jobs list on click on job refresh button", () => {});
 
     // it("filters the list of jobs", () => {
     //   // open the filter modal
