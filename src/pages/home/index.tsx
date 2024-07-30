@@ -1,8 +1,3 @@
-// export default function Home() {
-//   // FIXME: If not logged in, redirect to login page
-//   return <div>Home</div>;
-// }
-
 import * as React from "react";
 
 import {
