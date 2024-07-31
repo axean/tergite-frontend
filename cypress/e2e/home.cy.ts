@@ -271,15 +271,60 @@ users.forEach((user) => {
       }
     });
 
-    // it("filters the list of jobs", () => {
-    //   // open the filter modal
-    //   // input the filter options
-    //   // check that only the filtered rows show up
-    //   // filter by device
-    //   // filter by status
-    //   // filter by job id
-    // });
+    it("filters the list of jobs", () => {
+      // open the filter modal
+      // input the filter options
+      // check that only the filtered rows show up
+      // filter by device
+      // filter by status
+      // filter by job id
+    });
 
-    // it("renders the details of each job", () => {});
+    it("renders the details of each job", () => {
+      cy.viewport(1080, 750);
+      cy.contains("table", /Job ID/i).as("job-list-table");
+
+      for (const job of allUserJobs) {
+        cy.wrap(job).then((job) => {
+          cy.get("@job-list-table")
+            .within(() =>
+              cy.get("tr td:first-child").contains(job.job_id).click()
+            )
+            .then(() => {
+              cy.contains("[data-cy-job-detail]", /details about this job/i, {
+                timeout: 10000,
+              })
+                .within(() => {
+                  const durationRegex = job.duration_in_secs
+                    ? // FIXME: Not the right regx for ~ '1 days, 2 minutes, 30 seconds' but might work
+                      /Duration:\s?(\d+ (seconds)|(minutes)|(hours)|(days)|(weeks)|(months)|(years),?)+/i
+                    : /Duration:\s?N\/A/i;
+                  cy.contains(new RegExp(`Job:\\s?${job.job_id}`, "i")).should(
+                    "be.visible"
+                  );
+                  cy.contains(
+                    new RegExp(`Status:\\s?${job.status}`, "i")
+                  ).should("be.visible");
+                  cy.contains(
+                    /Created at:\s?\d+ \w+ \d+, \d+:\d+ ?(AM)|(PM)?/i
+                  ).should("be.visible");
+                  cy.contains(
+                    new RegExp(`Device:\\s?${job.device}`, "i")
+                  ).should("be.visible");
+                  cy.contains(durationRegex).should("be.visible");
+                  job.failure_reason &&
+                    cy
+                      .contains(
+                        new RegExp(`Error:\\s?${job.failure_reason}`, "i")
+                      )
+                      .should("be.visible");
+                })
+                .then(() => {
+                  cy.reload();
+                });
+            });
+        });
+      }
+    });
   });
 });

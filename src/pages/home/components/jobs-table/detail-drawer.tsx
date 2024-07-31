@@ -9,7 +9,10 @@ import { DateTime, Duration } from "luxon";
 
 export function JobDetailDrawerContent({ job }: Props) {
   return (
-    <div className="h-full w-[300px] md:w-[500px] lg:w-[600px] xl:w-[700px] mt-4">
+    <div
+      data-cy-job-detail
+      className="h-full w-[300px] md:w-[500px] lg:w-[600px] xl:w-[700px] mt-4"
+    >
       <DrawerHeader>
         <DrawerTitle>Job: {job.job_id}</DrawerTitle>
         <DrawerDescription>Details about this job.</DrawerDescription>

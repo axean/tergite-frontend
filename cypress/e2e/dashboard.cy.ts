@@ -188,6 +188,7 @@ users.forEach((user) => {
             cy.get("@newTokenBtn")
               .click()
               .then(() => {
+                cy.wait(500);
                 cy.get("@appTokenInput")
                   .invoke("val")
                   .then((value) => expect(value).not.to.eql(""));
