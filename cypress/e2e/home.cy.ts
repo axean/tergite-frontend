@@ -272,12 +272,121 @@ users.forEach((user) => {
     });
 
     it("filters the list of jobs", () => {
-      // open the filter modal
-      // input the filter options
-      // check that only the filtered rows show up
-      // filter by device
-      // filter by status
-      // filter by job id
+      const filterMaps = [
+        {
+          input: { device: "lo" },
+          result: allUserJobs.filter((v) =>
+            v.device.toLowerCase().startsWith("lo")
+          ),
+        },
+        {
+          input: { device: "lo", job_id: "1" },
+          result: allUserJobs.filter(
+            (v) =>
+              v.device.toLowerCase().startsWith("lo") &&
+              v.job_id.startsWith("1")
+          ),
+        },
+        {
+          input: { job_id: "6" },
+          result: allUserJobs.filter((v) => v.job_id.startsWith("6")),
+        },
+        {
+          input: { device: "lo", status: "failed" },
+          result: allUserJobs.filter(
+            (v) =>
+              v.device.toLowerCase().startsWith("lo") && v.status === "failed"
+          ),
+        },
+        {
+          input: { status: "pending" },
+          result: allUserJobs.filter((v) => v.status === "pending"),
+        },
+        {
+          input: { status: "successful" },
+          result: allUserJobs.filter((v) => v.status === "successful"),
+        },
+        {
+          input: { device: "lo", status: "pending", job_id: "4" },
+          result: allUserJobs.filter(
+            (v) =>
+              v.device.toLowerCase().startsWith("lo") &&
+              v.job_id.startsWith("4") &&
+              v.status === "pending"
+          ),
+        },
+      ];
+
+      cy.viewport(1080, 750);
+      cy.contains("table", /Job ID/i).as("job-list-table");
+      cy.get("[aria-label='Filter']").as("filterBtn");
+
+      cy.get("@filterBtn")
+        .click()
+        .then(() => {
+          cy.get("[data-cy-filter-form] input[name='job_id']").as("jobIdInput");
+          cy.get("[data-cy-filter-form] input[name='device']").as(
+            "deviceInput"
+          );
+          cy.get("[data-cy-filter-form] button[role='combobox']").as(
+            "statusSelect"
+          );
+          cy.get("[data-cy-filter-form] button[type='submit']").as("submitBtn");
+          cy.get("[data-cy-filter-form] button[type='reset']").as("clearBtn");
+
+          for (const filterMap of filterMaps) {
+            cy.wrap(filterMap).then(({ input, result }) => {
+              input.job_id && cy.get("@jobIdInput").type(input.job_id);
+              input.device && cy.get("@deviceInput").type(input.device);
+              input.status &&
+                cy
+                  .get("@statusSelect")
+                  .click()
+                  .then(() => {
+                    cy.get("[data-cy-job-status-select]").within(() => {
+                      cy.contains(new RegExp(input.status, "i")).click();
+                    });
+                  });
+              cy.get("@submitBtn")
+                .click()
+                .then(() => {
+                  cy.get("@job-list-table")
+                    .find("tbody tr")
+                    .should("have.length", result.length || 1);
+
+                  for (const job of result) {
+                    cy.wrap(job).then((job) => {
+                      cy.get("@job-list-table").within(() =>
+                        cy
+                          .get("tr td:first-child")
+                          .contains(job.job_id)
+                          .should("be.visible")
+                      );
+                    });
+                  }
+
+                  cy.get("@clearBtn")
+                    .click()
+                    .then(() => {
+                      cy.get("@job-list-table")
+                        .find("tbody tr")
+                        .should("have.length", allUserJobs.length || 1);
+
+                      for (const job of allUserJobs) {
+                        cy.wrap(job).then((job) => {
+                          cy.get("@job-list-table").within(() =>
+                            cy
+                              .get("tr td:first-child")
+                              .contains(job.job_id)
+                              .should("be.visible")
+                          );
+                        });
+                      }
+                    });
+                });
+            });
+          }
+        });
     });
 
     it("renders the details of each job", () => {

@@ -44,7 +44,7 @@ export const jobFilterFormProps: DataTableFormConfig = {
         <SelectTrigger ref={ref}>
           <SelectValue placeholder="Select status" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent data-cy-job-status-select>
           <SelectItem value={JobStatus.FAILED}>Failed</SelectItem>
           <SelectItem value={JobStatus.SUCCESSFUL}>Successful</SelectItem>
           <SelectItem value={JobStatus.PENDING}>Pending</SelectItem>

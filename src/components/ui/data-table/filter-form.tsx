@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MouseEvent } from "react";
 import { Button } from "../button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,14 +38,22 @@ export function DataFilterForm({
     values,
   });
 
-  const resetHandler = React.useCallback(() => {
-    onReset();
-    filterForm.reset(defaultValues);
-  }, [defaultValues, filterForm, onReset]);
+  const resetHandler = React.useCallback(
+    (ev: MouseEvent) => {
+      ev.preventDefault();
+      onReset();
+      filterForm.reset(defaultValues);
+    },
+    [defaultValues, filterForm, onReset]
+  );
 
   return (
     <Form {...filterForm}>
-      <form onSubmit={filterForm.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        data-cy-filter-form
+        onSubmit={filterForm.handleSubmit(onSubmit)}
+        className="space-y-8"
+      >
         {Object.entries(fieldsConfig).map(([name, fieldConfig]) => (
           <FormField
             control={filterForm.control}
@@ -70,6 +78,7 @@ export function DataFilterForm({
           </Button>
 
           <Button
+            type="reset"
             variant="secondary"
             disabled={!isFiltered}
             onClick={resetHandler}

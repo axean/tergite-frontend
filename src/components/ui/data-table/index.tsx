@@ -95,7 +95,9 @@ export function DataTable<TData, TValue>({
             <PopoverTrigger asChild>
               <IconButton
                 variant="outline"
-                className="ml-auto rounded-l-none rounded-br-none"
+                className={`${
+                  onRefreshData ? "" : "ml-auto"
+                } rounded-l-none rounded-br-none`}
                 Icon={Filter}
                 iconClassName={isFiltered ? "fill-secondary-foreground" : ""}
               />
