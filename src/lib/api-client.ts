@@ -1,4 +1,4 @@
-import { FetchQueryOptions, QueryClient } from "@tanstack/react-query";
+import { QueryClient, queryOptions } from "@tanstack/react-query";
 import {
   AppState,
   Device,
@@ -12,92 +12,71 @@ import {
 } from "../../types";
 
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+export const refetchInterval = parseFloat(
+  import.meta.env.VITE_REFETCH_INTERVAL_MS || "120000"
+); // default: 2 minutes
 
 /**
  * the devices query for using with react query
  */
-export const devicesQuery: FetchQueryOptions<
-  Device[],
-  Error,
-  Device[],
-  string[],
-  never
-> = {
+export const devicesQuery = queryOptions({
   queryKey: [apiBaseUrl, "devices"],
   queryFn: async () => await getDevices(),
-};
+  refetchInterval,
+});
 
 /**
  * the single device query for using with react query
  */
-export function singleDeviceQuery(
-  name: string
-): FetchQueryOptions<Device, Error, Device, string[], never> {
-  return {
+export function singleDeviceQuery(name: string) {
+  return queryOptions({
     queryKey: [apiBaseUrl, "devices", name],
     queryFn: async () => await getDeviceDetail(name),
-  };
+    refetchInterval,
+  });
 }
 
 /**
  * the devices query for using with react query
  */
-export const calibrationsQuery: FetchQueryOptions<
-  DeviceCalibration[],
-  Error,
-  DeviceCalibration[],
-  string[],
-  never
-> = {
+export const calibrationsQuery = queryOptions({
   queryKey: [apiBaseUrl, "calibrations"],
   queryFn: async () => await getCalibrations(),
-};
+  refetchInterval,
+});
 
 /**
  * the single device's calibration query for using with react query
  */
-export function singleDeviceCalibrationQuery(
-  name: string
-): FetchQueryOptions<
-  DeviceCalibration,
-  Error,
-  DeviceCalibration,
-  string[],
-  never
-> {
-  return {
+export function singleDeviceCalibrationQuery(name: string) {
+  return queryOptions({
     queryKey: [apiBaseUrl, "calibrations", name],
     queryFn: async () => await getCalibrationsForDevice(name),
-  };
+    refetchInterval,
+  });
 }
 
 /**
  * the my jobs query for using with react query
  * @param options - extra options for filtering the jobs
  */
-export function myJobsQuery(
-  options: { project_id?: string } = {}
-): FetchQueryOptions<Job[], Error, Job[], string[], never> {
+export function myJobsQuery(options: { project_id?: string } = {}) {
   const { project_id = "" } = options;
-  return {
+  return queryOptions({
     queryKey: [apiBaseUrl, "me", "jobs", project_id],
     queryFn: async () => await getMyJobs(options),
-  };
+    refetchInterval,
+  });
 }
 
 /**
  * the my projects query for using with react query
  */
-export const myProjectsQuery: FetchQueryOptions<
-  Project[],
-  Error,
-  Project[],
-  string[],
-  never
-> = {
+export const myProjectsQuery = queryOptions({
   queryKey: [apiBaseUrl, "me", "projects"],
   queryFn: async () => await getMyProjects(),
-};
+  refetchInterval,
+});
 
 /**
  * Generates a new app token

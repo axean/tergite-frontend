@@ -7,8 +7,6 @@ import projectList from "../fixtures/projects.json";
 import { generateJwt } from "../../api/utils";
 import { type Project, type Device, type Job, type User } from "../../types";
 
-// FIXME: the refresh button for the devices and the jobs table needs to be tested
-
 const users = [...userList] as User[];
 const devices = [...deviceList] as Device[];
 const jobs = [...jobList] as Job[];
@@ -33,6 +31,7 @@ users.forEach((user) => {
     "status",
   ];
 
+  let refetchIntervalMs: number;
   const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
   const allUserJobs = jobs.filter((v) => v.user_id === user.id);
   describe(`dashboard-layout for ${user.name}`, () => {
@@ -42,6 +41,7 @@ users.forEach((user) => {
       const cookieName = Cypress.env("VITE_COOKIE_NAME");
       const secret = Cypress.env("JWT_SECRET");
       const audience = Cypress.env("AUTH_AUDIENCE");
+      refetchIntervalMs = parseFloat(Cypress.env("VITE_REFETCH_INTERVAL_MS"));
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
@@ -259,8 +259,17 @@ users.forEach((user) => {
       }
     });
 
-    it("refreshes device list on click on device refresh button", () => {});
-    it("refreshes jobs list on click on job refresh button", () => {});
+    it("refreshes device list every after the refresh interval", () => {
+      for (let i = 0; i < 3; i++) {
+        cy.wait("@devices-list", { timeout: 1.5 * refetchIntervalMs });
+      }
+    });
+
+    it("refreshes jobs list every after the refresh interval", () => {
+      for (let i = 0; i < 3; i++) {
+        cy.wait("@my-jobs-list", { timeout: 1.5 * refetchIntervalMs });
+      }
+    });
 
     // it("filters the list of jobs", () => {
     //   // open the filter modal

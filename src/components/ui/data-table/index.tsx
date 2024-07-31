@@ -21,14 +21,7 @@ import {
 } from "@/components/ui/table";
 import React, { Fragment } from "react";
 import { Button, IconButton } from "../button";
-import { Input } from "../input";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Filter,
-  RefreshCcw,
-  Search,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, RefreshCcw } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { DataFilterForm, DataTableFormConfig } from "./filter-form";
 import { DataTableRow } from "./table-row";
@@ -40,7 +33,6 @@ export { SortHeader } from "./sort-header";
 export function DataTable<TData, TValue>({
   columns,
   data,
-  searchAccessKey,
   filterFormProps,
   onRefreshData,
   onRowClick,
@@ -88,40 +80,22 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       <div className="flex">
-        {searchAccessKey && (
-          <div className="relative ml-auto flex-1 md:grow-0">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="w-full rounded-lg bg-background pl-8"
-              value={
-                (table
-                  .getColumn(searchAccessKey)
-                  ?.getFilterValue() as string) ?? ""
-              }
-              onChange={(event) =>
-                table
-                  .getColumn(searchAccessKey)
-                  ?.setFilterValue(event.target.value)
-              }
-            />
-          </div>
+        {onRefreshData && (
+          <IconButton
+            variant="outline"
+            className={`ml-auto focus:mr-[1px] rounded-none  ${
+              isFilterFormAvailable ? "" : "rounded-tr-md"
+            }`}
+            Icon={RefreshCcw}
+            onClick={onRefreshData}
+          />
         )}
-        <IconButton
-          variant="outline"
-          className={`ml-auto focus:mr-[1px] rounded-none  ${
-            isFilterFormAvailable ? "" : "rounded-tr-md"
-          }`}
-          Icon={RefreshCcw}
-          onClick={onRefreshData}
-        />
         {isFilterFormAvailable && (
           <Popover>
             <PopoverTrigger asChild>
               <IconButton
                 variant="outline"
-                className="rounded-l-none rounded-br-none"
+                className="ml-auto rounded-l-none rounded-br-none"
                 Icon={Filter}
                 iconClassName={isFiltered ? "fill-secondary-foreground" : ""}
               />
@@ -217,7 +191,6 @@ export function DataTable<TData, TValue>({
 interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  searchAccessKey?: string;
   filterFormProps?: DataTableFormConfig;
   onRefreshData?: () => void;
   getDrawerContent?: (row: Row<TData>) => React.ReactElement;

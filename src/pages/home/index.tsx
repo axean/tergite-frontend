@@ -15,11 +15,15 @@ import { devicesQuery, myJobsQuery, myProjectsQuery } from "@/lib/api-client";
 import { Job, Device, AppState, Project } from "../../../types";
 import { JobsTable } from "./components/jobs-table";
 import { DevicesTable } from "./components/devices-table";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, useQuery } from "@tanstack/react-query";
 import { loadOrRedirectIf401 } from "@/lib/utils";
 
 export function Home() {
-  const { devices, jobs, currentProjectObj } = useLoaderData() as HomeData;
+  const { currentProjectObj } = useLoaderData() as HomeData;
+  const { data: devices = [] } = useQuery(devicesQuery);
+  const { data: jobs = [] } = useQuery(
+    myJobsQuery({ project_id: currentProjectObj?.id })
+  );
   const devicesOnlineRatio = React.useMemo(
     () =>
       Math.round(
