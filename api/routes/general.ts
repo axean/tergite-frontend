@@ -173,26 +173,32 @@ router.get(
   "/auth/providers",
   use(async (req, res) => {
     const { domain } = req.query;
-    const data = mockDb.getOne<AuthProvider>(
+    // FIXME: This should return multiple ways in case the same email domain can login in many ways
+    const data = mockDb.getMany<AuthProvider>(
       "auth_providers",
       (v) => v.email_domain === domain
     );
 
-    if (!data) {
+    if (data.length === 0) {
       res.status(404).json({ detail: `not found` });
       return;
     }
 
     const queryString = getQueryString(req.query);
-    res.json({
-      url: `${apiBaseUrl}/auth/router/${data.name}/authorize${queryString}`,
-      name: data.name,
-    } as AuthProviderResponse);
+    res.json(
+      data.map(
+        (item) =>
+          ({
+            url: `${apiBaseUrl}/auth/${item.name}/authorize${queryString}`,
+            name: item.name,
+          } as AuthProviderResponse)
+      )
+    );
   })
 );
 
 router.get(
-  "/auth/router/:provider/authorize",
+  "/auth/:provider/authorize",
   use(async (req, res) => {
     const queryString = getQueryString(req.query);
     return res.redirect(`${apiBaseUrl}/oauth/callback${queryString}`);

@@ -7,7 +7,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { getAuthProvier } from "@/lib/api-client";
+import { getAuthProviders } from "@/lib/api-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -19,7 +19,7 @@ const formSchema = z.object({
 });
 
 export default function LoginForm() {
-  const [provider, setProvider] = useState<AuthProviderResponse>();
+  const [providers, setProviders] = useState<AuthProviderResponse[]>();
 
   const signinForm = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -29,14 +29,14 @@ export default function LoginForm() {
   const onFormSubmit = useCallback(
     async (values: z.infer<typeof formSchema>) => {
       try {
-        const authProvider = await getAuthProvier(values.email);
-        setProvider(authProvider);
+        const authProviders = await getAuthProviders(values.email);
+        setProviders(authProviders);
       } catch (error) {
         const message = (error as Error)?.message ?? String(error);
         signinForm.setError("email", { type: "custom", message });
       }
     },
-    [signinForm, setProvider]
+    [signinForm, setProviders]
   );
 
   return (
@@ -64,14 +64,16 @@ export default function LoginForm() {
             <h2 className="text-xl font-thin">Sign in</h2>
           </div>
 
-          {provider ? (
-            <div className="grid gap-4 w-2/3 mx-auto max-w-80">
-              <Button asChild>
-                <a href={provider.url} data-cy-login-link>
-                  Login with {provider.name}
-                </a>
-              </Button>
-            </div>
+          {providers ? (
+            providers.map((provider) => (
+              <div className="grid gap-4 w-2/3 mx-auto max-w-80 mb-2">
+                <Button variant="outline" asChild>
+                  <a href={provider.url} data-cy-login-link>
+                    Login with {provider.name}
+                  </a>
+                </Button>
+              </div>
+            ))
           ) : (
             <Form {...signinForm}>
               <form

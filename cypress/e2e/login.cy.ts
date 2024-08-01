@@ -3,7 +3,6 @@
 import users from "../fixtures/users.json";
 import authProviders from "../fixtures/auth-providers.json";
 
-const supportedDomains = authProviders.map((v) => v.email_domain);
 const invalidFormatEmailAddresses = [
   "john",
   "1",
@@ -13,9 +12,12 @@ const invalidFormatEmailAddresses = [
 
 [...users].forEach((user) => {
   const emailDomain = user.email.split("@")[1];
-  const isDomainSupported = supportedDomains.includes(emailDomain);
+  const availableAuthProviders = authProviders.filter(
+    (v) => v.email_domain === emailDomain
+  );
+  const isDomainSupported = availableAuthProviders.length > 0;
 
-  describe(`login page for user '${user.name}'`, () => {
+  describe(`login page for authenticated user '${user.name}'`, () => {
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");
@@ -73,13 +75,57 @@ const invalidFormatEmailAddresses = [
         cy.get("@emailInput").type(user.email);
         cy.get("@nextBtn").click();
 
-        cy.get("[data-cy-login-link]").click();
+        cy.get("[data-cy-login-link]").first().click();
         cy.wait("@my-jobs-list");
 
         cy.url().should("equal", "http://127.0.0.1:5173/");
         cy.get("nav a")
           .contains(/dashboard/i)
           .should("be.visible");
+      });
+  });
+
+  describe(`login page for unauthenticated user '${user.name}'`, () => {
+    let apiBaseUrl: string;
+    beforeEach(() => {
+      apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
+
+      cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/jobs`).as("my-jobs-list");
+      cy.intercept(
+        "GET",
+        `${apiBaseUrl}/auth/providers?domain=${emailDomain}&next=http://127.0.0.1:5173`
+      ).as("auth-providers");
+
+      cy.visit("/");
+      cy.wait("@my-project-list");
+      cy.wait("@devices-list");
+
+      cy.get("input[name=email]").as("emailInput");
+      cy.get("button[type=submit]").contains(/next/i).as("nextBtn");
+    });
+
+    isDomainSupported &&
+      it(`redirects to the home page of the dashboard`, () => {
+        cy.get("@emailInput").clear();
+        cy.get("@emailInput").type(user.email);
+        cy.get("@nextBtn").click();
+
+        cy.wait("@auth-providers");
+
+        for (const provider of availableAuthProviders) {
+          cy.wrap(provider).then((provider) => {
+            cy.contains(
+              "a",
+              new RegExp(`login with ${provider.name}`, "i")
+            ).should(
+              "have.attr",
+              "href",
+              `${apiBaseUrl}/auth/${provider.name}/authorize?&domain=${emailDomain}&next=http://127.0.0.1:5173`
+            );
+          });
+        }
       });
   });
 });

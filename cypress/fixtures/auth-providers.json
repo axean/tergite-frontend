@@ -13,5 +13,10 @@
     "id": "uyu7899",
     "name": "foobar",
     "email_domain": "foobar.ug"
+  },
+  {
+    "id": "16778u",
+    "name": "example",
+    "email_domain": "example.com"
   }
 ]
