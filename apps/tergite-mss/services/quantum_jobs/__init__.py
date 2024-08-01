@@ -145,15 +145,18 @@ async def create_job(
     }
 
 
-async def get_latest_many(db: AsyncIOMotorDatabase, limit: int = 10):
+async def get_latest_many(
+    db: AsyncIOMotorDatabase, filters: Optional[dict] = None, limit: int = -1
+):
     """Retrieves the latest jobs up to the given limit
 
     Args:
         db: the mongo database from where to get the jobs
-        limit: maximum number of records to return
+        filters: the mongodb like filters which all returned records should satisfy
+        limit: maximum number of records to return; default = -1 meaning all of them
     """
-    return await mongodb_utils.find_all(
-        db.jobs, limit=limit, **mongodb_utils.LATEST_FIRST_SORT
+    return await mongodb_utils.find(
+        db.jobs, limit=limit, filters=filters, **mongodb_utils.LATEST_FIRST_SORT
     )
 
 

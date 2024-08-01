@@ -24,6 +24,7 @@ from services.auth.service import (
     GET_CURRENT_LAX_PROJECT,
     GET_CURRENT_PROJECT,
     GET_CURRENT_SYSTEM_USER_PROJECT,
+    GET_CURRENT_USER_ID,
 )
 from services.external import bcc
 from utils.mongodb import get_mongodb
@@ -37,6 +38,7 @@ async def get_default_mongodb():
 
 CurrentSystemUserProjectDep = Annotated[User, Depends(GET_CURRENT_SYSTEM_USER_PROJECT)]
 CurrentProjectDep = Depends(GET_CURRENT_PROJECT)
+CurrentUserIdDep = Depends(GET_CURRENT_USER_ID)
 CurrentLaxProjectDep = Annotated[Optional[Project], Depends(GET_CURRENT_LAX_PROJECT)]
 CurrentStrictProjectDep = Annotated[Optional[Project], Depends(GET_CURRENT_PROJECT)]
 ProjectDbDep = Annotated[ProjectDatabase, Depends(get_project_db)]

@@ -105,21 +105,30 @@ async def find_one(
         return document
 
 
-async def find_all(
-    collection: AsyncIOMotorCollection, /, *, limit: int = 10, **order
+async def find(
+    collection: AsyncIOMotorCollection,
+    /,
+    *,
+    filters: Optional[dict] = None,
+    limit: int = 10,
+    **order,
 ) -> List[Dict[str, Any]]:
     """Retrieves all records in the collection up to limit records, given the sort order
 
     Args:
         collection: the mongo db collection to query from
-        limit: the maximum number of records to return
+        filters: the mongodb like filters which all returned records should satisfy
+        limit: the maximum number of records to return: If limit is negative, all results are returned
         order: the key-value args where key is name of field and value is -1 or 1,
             implying descending and ascending respectively
 
     Returns:
         a list of documents that were found
     """
-    db_cursor = collection.find({}, {"_id": 0})
+    if filters is None:
+        filters = {}
+
+    db_cursor = collection.find(filters)
     if order:
         db_cursor.sort(**order)
     if limit >= 0:

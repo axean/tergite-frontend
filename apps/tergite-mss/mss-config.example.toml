@@ -84,6 +84,8 @@ client_type = "okta"
 # to allow only john.doe@example.com, jane@example.com and aggrey@example.com to login via this method
 # default = ".*"
 email_regex = ".*"
+# the domain of the emails of the users that should be directed to this auth client
+email_domain = "example.com"
 # The set of roles every user who logs in via this method should get.
 # Possible roles include: "admin", "user", "researcher", "partner". Default is 'user'
 roles = ["user"]
@@ -100,6 +102,7 @@ client_secret = "some-github-obtained-client-secret"
 redirect_url = "http://127.0.0.1:8002/auth/app/github/callback"
 client_type = "github"
 email_regex = "^(john\\.doe|jane|aggrey)@example\\.com$"
+email_domain = "example.com"
 roles = ["admin", "user"]
 
 [[auth.clients]]
@@ -109,6 +112,7 @@ client_secret = "some-puhuri-obtained-client-secret"
 redirect_url = "http://127.0.0.1:8002/auth/app/puhuri/callback"
 client_type = "openid"
 email_regex = "^(john\\.doe|jane)@example\\.com$"
+email_domain = "example.com"
 roles = ["user"]
 openid_configuration_endpoint = "https://proxy.acc.puhuri.eduteams.org/.well-known/openid-configuration"
 

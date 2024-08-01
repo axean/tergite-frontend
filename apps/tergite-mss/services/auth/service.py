@@ -22,7 +22,7 @@ from fastapi_users.authentication import AuthenticationBackend
 import settings
 from utils.config import Oauth2ClientConfig, UserRole
 
-from . import app_tokens, projects, users
+from . import app_tokens, projects, providers, users
 from .utils import get_oauth2_client
 
 # JWT-based authentication
@@ -48,6 +48,7 @@ GET_CURRENT_USER_ID = JWT_AUTH.current_user_id()
 GET_CURRENT_SUPERUSER = JWT_AUTH.current_user(active=True, superuser=True)
 
 # Project-based app token auth
+# FIXME: the "auth/app-tokens/generate" does not matter
 APP_TOKEN_BACKEND = projects.get_app_token_backend("auth/app-tokens/generate")
 APP_TOKEN_AUTH = projects.ProjectBasedAuth(
     get_project_manager_dep=projects.get_project_manager,
@@ -124,5 +125,42 @@ def register_oauth2_client(
             redirect_url=conf.redirect_url,
         ),
         prefix=f"/app/{client.name}",
+        tags=tags,
+    )
+
+
+def register_oauth2_client_v2(
+    router: APIRouter,
+    controller: FastAPIUsers,
+    auth_cookie_backend: AuthenticationBackend,
+    jwt_secret: str,
+    conf: Oauth2ClientConfig,
+    tags: List[str] = ("auth",),
+):
+    """Registers an oauth2 method on the given router, allowing only browser based login and no REST API mode
+
+    Args:
+        router: APIRouter where to register the oauth2 method
+        controller: the FastAPIUsers instance that controls authentication
+        auth_cookie_backend: the AuthenticationBackend which handles the authentication via cookies
+        jwt_secret: the secret string used to generate JWT tokens
+        conf: the configuration for the oauth2 client
+        tags: the list of tags to add to the routes of this client
+    """
+    client = get_oauth2_client(conf)
+
+    # FIXME: There is still an issue with programmatically generating the redirect URI.
+    #  It keeps missing the http(s). It is like the scheme is never passed along, which is weird
+
+    # For browser based auth
+    router.include_router(
+        controller.get_oauth_router(
+            oauth_client=client,
+            backend=auth_cookie_backend,
+            state_secret=jwt_secret,
+            is_verified_by_default=True,
+            redirect_url=conf.redirect_url,
+        ),
+        prefix=f"/{client.name}",
         tags=tags,
     )

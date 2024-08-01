@@ -26,6 +26,7 @@ from .projects.dtos import (
     ProjectRead,
     ProjectUpdate,
 )
+from .providers.dtos import AuthProvider
 from .service import (
     APP_TOKEN_AUTH,
     APP_TOKEN_BACKEND,
@@ -61,6 +62,7 @@ __all__ = [
     AppTokenRead,
     AppTokenCreate,
     AppTokenListResponse,
+    AuthProvider,
     # service
     "service",
     JWT_HEADER_BACKEND,

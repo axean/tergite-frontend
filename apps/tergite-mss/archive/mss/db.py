@@ -37,7 +37,7 @@ db = LocalProxy(get_db)
 
 def get_t1(nlast=1):
     # return list(db.t1_mon.find({},{"_id:0"}).sort({"date": DESCENDING}).limit(nlast))
-    cursor = db.t1_mon.find({}, {"_id": 0}).sort([("date", DESCENDING)]).limit(nlast)
+    cursor = db.t1_mon.find({}).sort([("date", DESCENDING)]).limit(nlast)
     response = []
     for document in cursor:
         response.append(document)

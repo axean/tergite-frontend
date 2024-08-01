@@ -119,12 +119,21 @@ class Oauth2ClientConfig(BaseModel, extra=Extra.allow):
     # default = ".*"
     email_regex: str = ".*"
 
+    # the domain of the emails of the users that should be directed to this auth client
+    email_domain: str
+
     # The set of roles every user who logs in via this method should get.
     # Possible roles include: "admin", "user", "researcher", "partner". Default is 'user'
     roles: List[UserRole] = [UserRole.USER]
 
     # config fields that are not used to create the client
-    _non_client_fields = {"client_type", "redirect_url", "email_regex", "roles"}
+    _non_client_fields = {
+        "client_type",
+        "redirect_url",
+        "email_regex",
+        "roles",
+        "email_domain",
+    }
 
 
 class AuthConfig(BaseModel):
