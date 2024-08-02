@@ -1,3 +1,5 @@
+from http.cookiejar import Cookie, CookieJar
+
 from tests._utils.env import (
     TEST_BACKENDS,
     TEST_DB_NAME,
@@ -159,6 +161,18 @@ def user_jwt_header() -> Dict[str, str]:
 def admin_jwt_header() -> Dict[str, str]:
     """the auth header for the client when JWT of an admin is used"""
     yield get_auth_header(TEST_SUPERUSER_ID)
+
+
+@pytest.fixture
+def user_jwt_cookie() -> Dict[str, str]:
+    """the auth cookie for the client when JWT of user is used"""
+    yield get_auth_cookie(TEST_USER_ID)
+
+
+@pytest.fixture
+def admin_jwt_cookie() -> Dict[str, str]:
+    """the auth cookie for the client when JWT of an admin is used"""
+    yield get_auth_cookie(TEST_SUPERUSER_ID)
 
 
 @pytest.fixture
@@ -422,6 +436,11 @@ def get_auth_header(user_id: str) -> Dict[str, Any]:
     return {"Authorization": f"Bearer {get_jwt_token(user_id)}"}
 
 
+def get_auth_cookie(user_id: str) -> Dict[str, str]:
+    """Retrieves the authorization cookie for the given user_id"""
+    return {"some-cookie": get_jwt_token(user_id)}
+
+
 def get_unauthorized_app_token_post():
     """Returns the body and headers for unauthorized app token generation POST
 
@@ -448,6 +467,39 @@ def get_unauthorized_app_token_post():
 
     user_only_post_data = [
         (body, get_auth_header(TEST_SUPERUSER_ID))
+        for body in APP_TOKEN_LIST
+        if body["project_ext_id"] in user_only_projects
+    ]
+
+    return admin_only_post_data + user_only_post_data
+
+
+def get_unauthorized_app_token_post_with_cookies():
+    """Returns the body and cookies for unauthorized app token generation POST
+
+    The auth cookie provided is for a user who does not have access
+    to the given project
+    """
+    admin_only_projects = [
+        project["ext_id"]
+        for project in PROJECT_LIST
+        if project["user_emails"] == [TEST_SUPERUSER_EMAIL]
+    ]
+
+    user_only_projects = [
+        project["ext_id"]
+        for project in PROJECT_LIST
+        if project["user_emails"] == [TEST_USER_EMAIL]
+    ]
+
+    admin_only_post_data = [
+        (body, get_auth_cookie(TEST_USER_ID))
+        for body in APP_TOKEN_LIST
+        if body["project_ext_id"] in admin_only_projects
+    ]
+
+    user_only_post_data = [
+        (body, get_auth_cookie(TEST_SUPERUSER_ID))
         for body in APP_TOKEN_LIST
         if body["project_ext_id"] in user_only_projects
     ]
