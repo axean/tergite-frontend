@@ -16,44 +16,27 @@
 
 
 import logging
-from datetime import datetime
-from typing import Any, Dict, List, Union
+from typing import Any, Dict
 
 from fastapi import APIRouter, HTTPException, Query, status
 
-from api.rest.dependencies import (
-    CurrentProjectDep,
-    CurrentSystemUserProjectDep,
-    MongoDbDep,
-)
+from api.rest.dependencies import CurrentSystemUserProjectDep, MongoDbDep
 from services import device_info
-from services.device_info.dtos import (
-    BasicDeviceConfig,
-    BasicDeviceData,
-    DeviceData,
-    FilteredComponent,
-    FilteredDeviceData,
-    PrivateBackendFullDeviceConfig,
-    QiskitDeviceData,
-    QiskitFullDeviceConfig,
-    VisualisationType,
-)
 from utils import mongodb as mongodb_utils
-from utils.date_time import DEFAULT_FROM_DATETIME_STR, parse_datetime_string
 
 router = APIRouter(prefix="/devices", tags=["devices"])
 
 
 @router.get("")
 async def read_many(db: MongoDbDep):
-    """Retrieves all backends"""
-    return await device_info.get_all_backends(db)
+    """Retrieves all devices"""
+    return await device_info.get_all_devices(db)
 
 
 @router.get("/{name}")
 async def read_one(db: MongoDbDep, name: str):
     try:
-        return await device_info.get_one_backend(db, name=name)
+        return await device_info.get_one_device(db, name=name)
     except mongodb_utils.DocumentNotFoundError as exp:
         logging.error(exp)
         raise HTTPException(
@@ -66,66 +49,20 @@ async def upsert(
     db: MongoDbDep,
     user: CurrentSystemUserProjectDep,
     payload: Dict[str, Any],
-    collection_name: str = Query("backends", alias="collection"),
 ):
     """Creates a new backend if it does not exist already or updates it.
 
     It also appends this resultant backend config into the backends log.
     """
     if "name" not in payload:
-        return "Backend needs to have a name"
+        return "Device needs to have a name"
 
     try:
-        await device_info.upsert_backend(
-            db, payload=payload, collection_name=collection_name
-        )
+        await device_info.upsert_device(db, payload=payload)
     except ValueError as exp:
         logging.error(exp)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"{exp}"
-        )
-
-    return "OK"
-
-
-@router.get("/{name}/properties/lda_parameters")
-async def read_lda_parameters(
-    db: MongoDbDep, user: CurrentSystemUserProjectDep, name: str
-):
-    try:
-        document = await device_info.get_one_backend(db, name=name)
-        lda_parameters = document["properties"]["lda_parameters"]
-    except KeyError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"backend {name} lacks lda_parameters",
-        )
-
-    except mongodb_utils.DocumentNotFoundError as exp:
-        logging.error(exp)
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"{name} not found"
-        )
-
-    return lda_parameters
-
-
-@router.put("/{name}/properties/lda_parameters")
-async def update_lda_parameters(
-    db: MongoDbDep, user: CurrentSystemUserProjectDep, name: str, lda_parameters: dict
-):
-    try:
-        await device_info.patch_backend(
-            db, name, payload={"properties": {"lda_parameters": lda_parameters}}
-        )
-    except ValueError as exp:
-        logging.error(exp)
-        # FIXME: change this to an HTTPException
-        return {"message": "Server failed to update the documents."}
-    except mongodb_utils.DocumentNotFoundError as exp:
-        logging.error(exp)
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"{name} not found"
         )
 
     return "OK"
@@ -137,7 +74,7 @@ async def update(
 ):
     """Updates the given backend with the new body supplied."""
     try:
-        await device_info.patch_backend(db, name, payload=body)
+        await device_info.patch_device(db, name, payload=body)
     except ValueError as exp:
         logging.error(exp)
         # FIXME: change this to an HTTPException
