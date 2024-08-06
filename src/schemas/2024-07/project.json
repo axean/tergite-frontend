@@ -13,6 +13,11 @@
       "description": "The human-understandable identifier of the project",
       "type": "string"
     },
+    "version": {
+      "description": "The version of this schema of project",
+      "type": "integer",
+      "minimum": 1
+    },
     "ext_id": {
       "description": "The unique id for by which this project is known in dependent softwares like resource allocators",
       "type": "string"
@@ -36,10 +41,9 @@
       "description": "The total number of seconds that all future jobs created under this project can consume on the quantum computer",
       "type": "integer"
     },
-    "status": {
-      "description": "The state of this project",
-      "type": "string",
-      "enum": ["live", "closed"]
+    "is_active": {
+      "description": "Whether this project is still active or has been closed",
+      "type": "boolean"
     },
     "created_at": {
       "description": "The ISO 8601 timestamp when this record was created in the database",
@@ -59,7 +63,7 @@
     "user_ids",
     "admin_id",
     "qpu_seconds",
-    "status",
+    "is_active",
     "created_at",
     "updated_at"
   ]

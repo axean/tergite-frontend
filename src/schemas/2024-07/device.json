@@ -102,6 +102,7 @@
     "is_online",
     "basis_gates",
     "is_simulator",
-    "coupling_map"
+    "coupling_map",
+    "coordinates"
   ]
 }

@@ -98,8 +98,6 @@ export interface UserRequest extends DbRecord {
   request?: unknown;
 }
 
-export type ProjectStatus = "live" | "closed";
-
 // the HTTP request body sent when creating a project.
 // it ends up as a new Project
 export interface CreateProjectPostBody {
@@ -126,7 +124,8 @@ export interface Project
     DbRecord {
   user_ids: string[];
   admin_id: string;
-  status: ProjectStatus;
+  version?: number;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
