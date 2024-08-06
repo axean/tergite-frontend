@@ -51,6 +51,7 @@ def test_read_devices(db, client, user_jwt_cookie):
     with client as client:
         response = client.get(f"/v2/devices", cookies=user_jwt_cookie)
         got = order_by(response.json(), field="name")
+        pop_field(got, field="_id")
         expected = order_by(_DEVICE_LIST, field="name")
 
         assert response.status_code == 200
@@ -67,7 +68,8 @@ def test_read_one_device(db, client, name: str, user_jwt_cookie):
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get(f"/v2/devices/{name}", cookies=user_jwt_cookie)
-        got = response.json()
+        got: dict = response.json()
+        got.pop("_id")
         expected = get_record(_DEVICE_LIST, _filter={"name": name})
 
         assert response.status_code == 200
@@ -121,8 +123,8 @@ def test_create_device_non_system_user(
             db, collection_name=_DEVICES_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
         )
 
-        assert response.status_code == 403
-        assert response.json() == {"details": "forbidden"}
+        assert response.status_code == 401
+        assert response.json() == {"detail": "Unauthorized"}
 
         assert original_data_in_db == []
         assert final_data_in_db == []
@@ -158,14 +160,16 @@ def test_create_pre_existing_device(
         assert all([is_not_older_than(x["LAST_UPDATED"], seconds=30) for x in timelogs])
 
 
-@pytest.mark.parametrize("payload", _DEVICE_LIST)
-def test_update_device(db, client, payload: Dict[str, Any], system_app_token_header):
+@pytest.mark.parametrize("backend_dict", _DEVICE_LIST)
+def test_update_device(
+    db, client, backend_dict: Dict[str, Any], system_app_token_header
+):
     """PUT to /v2/devices/{name} updates the given device"""
-    insert_in_collection(db, collection_name=_DEVICES_COLLECTION, data=[payload])
+    insert_in_collection(db, collection_name=_DEVICES_COLLECTION, data=[backend_dict])
     original_data_in_db = find_in_collection(
         db, collection_name=_DEVICES_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
     )
-    backend_name = payload["name"]
+    backend_name = backend_dict["name"]
     payload = {"foo": "bar", "hey": "you"}
 
     # using context manager to ensure on_startup runs
@@ -187,20 +191,20 @@ def test_update_device(db, client, payload: Dict[str, Any], system_app_token_hea
         assert response.status_code == 200
         assert response.json() == "OK"
 
-        assert original_data_in_db == [payload]
+        assert original_data_in_db == [backend_dict]
         assert final_data_in_db[0] == expected
 
 
-@pytest.mark.parametrize("payload", _DEVICE_LIST)
+@pytest.mark.parametrize("backend_dict", _DEVICE_LIST)
 def test_update_device_non_system_user(
-    db, client, payload: Dict[str, Any], user_jwt_cookie
+    db, client, backend_dict: Dict[str, Any], user_jwt_cookie
 ):
     """Only system users can PUT to /v2/devices/{name}"""
-    insert_in_collection(db, collection_name=_DEVICES_COLLECTION, data=[payload])
+    insert_in_collection(db, collection_name=_DEVICES_COLLECTION, data=[backend_dict])
     original_data_in_db = find_in_collection(
         db, collection_name=_DEVICES_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
     )
-    backend_name = payload["name"]
+    backend_name = backend_dict["name"]
     payload = {"foo": "bar", "hey": "you"}
 
     # using context manager to ensure on_startup runs
@@ -214,8 +218,8 @@ def test_update_device_non_system_user(
             db, collection_name=_DEVICES_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
         )
 
-        assert response.status_code == 403
-        assert response.json() == {"details": "forbidden"}
+        assert response.status_code == 401
+        assert response.json() == {"detail": "Unauthorized"}
 
-        assert original_data_in_db == [payload]
-        assert final_data_in_db[0] == [payload]
+        assert original_data_in_db == [backend_dict]
+        assert final_data_in_db[0] == backend_dict

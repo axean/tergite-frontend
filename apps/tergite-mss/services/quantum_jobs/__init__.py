@@ -26,7 +26,7 @@ from utils import mongodb as mongodb_utils
 from utils.date_time import get_current_timestamp
 
 from ..auth import Project
-from .dtos import CreatedJobResponse, JobTimestamps
+from .dtos import CreatedJobResponse, JobTimestamps, JobV2
 
 if TYPE_CHECKING:
     from ..auth.projects.database import ProjectDatabase
@@ -146,7 +146,10 @@ async def create_job(
 
 
 async def get_latest_many(
-    db: AsyncIOMotorDatabase, filters: Optional[dict] = None, limit: int = -1
+    db: AsyncIOMotorDatabase,
+    filters: Optional[dict] = None,
+    limit: int = -1,
+    exclude: Tuple[str] = (),
 ):
     """Retrieves the latest jobs up to the given limit
 
@@ -154,9 +157,37 @@ async def get_latest_many(
         db: the mongo database from where to get the jobs
         filters: the mongodb like filters which all returned records should satisfy
         limit: maximum number of records to return; default = -1 meaning all of them
+        exclude: the fields to exclude
     """
     return await mongodb_utils.find(
-        db.jobs, limit=limit, filters=filters, **mongodb_utils.LATEST_FIRST_SORT
+        db.jobs,
+        limit=limit,
+        filters=filters,
+        exclude=exclude,
+        **mongodb_utils.LATEST_FIRST_SORT,
+    )
+
+
+async def get_latest_many_v2(
+    db: AsyncIOMotorDatabase,
+    filters: Optional[dict] = None,
+    limit: int = -1,
+    exclude: Tuple[str] = (),
+):
+    """Retrieves the latest jobs v2 up to the given limit
+
+    Args:
+        db: the mongo database from where to get the jobs
+        filters: the mongodb like filters which all returned records should satisfy
+        limit: maximum number of records to return; default = -1 meaning all of them
+        exclude: the fields to exclude
+    """
+    return await mongodb_utils.find(
+        db.jobs_v2,
+        limit=limit,
+        filters=filters,
+        exclude=exclude,
+        **mongodb_utils.LATEST_FIRST_SORT,
     )
 
 

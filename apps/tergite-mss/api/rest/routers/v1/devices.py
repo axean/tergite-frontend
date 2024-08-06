@@ -79,7 +79,9 @@ async def upsert_backend(
         return "Backend needs to have a name"
 
     try:
-        await device_info.upsert_device(db, payload=payload)
+        await device_info.upsert_backend(
+            db, payload=payload, collection_name=collection_name
+        )
     except ValueError as exp:
         logging.error(exp)
         raise HTTPException(

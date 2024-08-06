@@ -136,3 +136,12 @@ class UserBasedAuth(FastAPIUsers[models.UP, models.ID]):
             associate_by_email,
             is_verified_by_default,
         )
+
+    def get_auth_router(
+        self, backend: AuthenticationBackend, requires_verification: bool = False
+    ) -> APIRouter:
+        return routers.get_auth_router(
+            backend=backend,
+            authenticator=self.authenticator,
+            requires_verification=requires_verification,
+        )

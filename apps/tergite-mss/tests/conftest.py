@@ -56,6 +56,7 @@ from tests._utils.auth import (
     get_db_record,
     get_jwt_token,
     init_test_auth,
+    init_test_auth_v2,
     insert_if_not_exist,
 )
 from tests._utils.fixtures import load_json_fixture
@@ -64,6 +65,7 @@ from tests._utils.waldur import MockWaldurClient
 
 _PUHURI_OPENID_CONFIG = load_json_fixture("puhuri_openid_config.json")
 PROJECT_LIST = load_json_fixture("project_list.json")
+PROJECT_V2_LIST = load_json_fixture("project_v2_list.json")
 APP_TOKEN_LIST = load_json_fixture("app_token_list.json")
 TEST_NEXT_COOKIE_URL = "https://testserver/"
 
@@ -194,6 +196,15 @@ def client(db) -> TestClient:
 
 
 @pytest.fixture
+def client_v2(db) -> TestClient:
+    """A test client for fast api for v2"""
+    from api.rest import app
+
+    init_test_auth_v2(db)
+    yield TestClient(app)
+
+
+@pytest.fixture
 def no_auth_client(db) -> TestClient:
     """A test client for fast api without auth"""
     environ["MSS_CONFIG_FILE"] = TEST_NO_AUTH_MSS_CONFIG_FILE
@@ -222,6 +233,19 @@ def inserted_projects(db) -> Dict[str, Dict[str, Any]]:
 
 
 @pytest.fixture
+def inserted_projects_v2(db) -> Dict[str, Dict[str, Any]]:
+    """A dictionary of inserted projects v2"""
+    from services.auth import Project
+
+    projects = {}
+    for item in PROJECT_V2_LIST:
+        projects[item["_id"]] = {**item}
+        insert_if_not_exist(db, Project, {**item, "_id": PydanticObjectId(item["_id"])})
+
+    yield projects
+
+
+@pytest.fixture
 def existing_puhuri_projects(db) -> List[Dict[str, Any]]:
     """A list of pre-existing puhuri projects"""
     from services.auth import Project
@@ -243,6 +267,12 @@ def existing_puhuri_projects(db) -> List[Dict[str, Any]]:
 def inserted_project_ids(inserted_projects) -> List[str]:
     """A list of inserted project ids"""
     yield list(inserted_projects.keys())
+
+
+@pytest.fixture
+def inserted_project_ids_v2(inserted_projects_v2) -> List[str]:
+    """A list of inserted project ids for version 2"""
+    yield list(inserted_projects_v2.keys())
 
 
 @pytest.fixture

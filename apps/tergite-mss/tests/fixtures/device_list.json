@@ -35,7 +35,6 @@
     "version": "2023.06.0",
     "number_of_qubits": 5,
     "is_online": true,
-    "last_online": null,
     "basis_gates": ["u", "h", "x"],
     "is_simulator": true,
     "coupling_map": [
@@ -182,7 +181,6 @@
     "version": "2024.04.1",
     "number_of_qubits": 8,
     "is_online": true,
-    "last_online": null,
     "basis_gates": ["u", "h", "x"],
     "is_simulator": false,
     "coupling_map": [
@@ -213,7 +211,6 @@
     "version": "2023.06.0",
     "number_of_qubits": 5,
     "is_online": true,
-    "last_online": null,
     "basis_gates": ["u", "h", "x"],
     "is_simulator": false,
     "coupling_map": [

@@ -11,8 +11,9 @@
 # that they have been altered from the originals.
 
 """Router for my things"""
+from typing import List, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
 from api.rest import CurrentProjectDep
 from api.rest.dependencies import CurrentUserIdDep, MongoDbDep
@@ -34,13 +35,13 @@ router.include_router(
 )
 
 
-@router.get("/jobs")
-async def get_my_jobs_in_current_project(
+@router.get("/jobs", response_model=List[jobs_service.JobV2])
+async def get_my_jobs_in_project(
     db: MongoDbDep,
     user_id: str = CurrentUserIdDep,
-    project: Project = CurrentProjectDep,
+    project_id: Optional[str] = Query(None),
 ):
     """Retrieves the jobs belonging to the current user in the current project"""
-    return await jobs_service.get_latest_many(
-        db, filters={"user_id": user_id, "project_id": project.id}
+    return await jobs_service.get_latest_many_v2(
+        db, filters={"user_id": user_id, "project_id": project_id}
     )

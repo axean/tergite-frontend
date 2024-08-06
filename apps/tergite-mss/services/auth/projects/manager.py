@@ -94,8 +94,8 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
         if user is None:
             raise UserNotExists()
 
-        project = await self.project_db.get_by_ext_and_user_email(
-            ext_id=ext_id, user_email=user.email
+        project = await self.project_db.get_by_ext_and_user_email_or_id(
+            ext_id=ext_id, user_email=user.email, user_id=user_id
         )
 
         if project is None:

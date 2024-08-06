@@ -70,7 +70,7 @@ async def get_all_backends(db: AsyncIOMotorDatabase):
         a list of all backends found in the backend collection
     """
     return await mongodb_utils.find(
-        db.backends, limit=-1, **mongodb_utils.LATEST_FIRST_SORT
+        db.backends, limit=-1, exclude=("_id",), **mongodb_utils.LATEST_FIRST_SORT
     )
 
 

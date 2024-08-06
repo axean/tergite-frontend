@@ -14,11 +14,19 @@
 # Refactored by Martin Ahindura 2023-11-08
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Tuple, Union
 
+from beanie import PydanticObjectId
+from bson import ObjectId
 from pydantic import BaseModel
 
 from utils.models import ZEncodedBaseModel
+
+if TYPE_CHECKING:
+    DictStrAny = Dict[str, Any]
+    IntStr = Union[int, str]
+    AbstractSetIntStr = AbstractSet[IntStr]
+    MappingIntStrAny = Mapping[IntStr, Any]
 
 
 class Property(ZEncodedBaseModel):
@@ -259,3 +267,45 @@ class VisualisationType(Enum):
     @classmethod
     def values(cls):
         return list(map(lambda c: c.value, cls))
+
+
+class DeviceV2(ZEncodedBaseModel):
+    """The Schema for the devices"""
+
+    id: PydanticObjectId
+    name: str
+    version: str
+    number_of_qubits: int
+    last_online: Optional[datetime] = None
+    is_online: bool
+    basis_gates: List[str]
+    coupling_map: List[Tuple[int, int]]
+    coordinates: List[Tuple[int, int]]
+    is_simulator: bool
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        orm_mode = True
+        json_encoders = {ObjectId: str}
+        fields = {"id": "_id"}
+
+    def dict(
+        self,
+        *,
+        include: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
+        exclude: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
+        by_alias: bool = False,
+        skip_defaults: Optional[bool] = None,
+        exclude_unset: bool = False,
+        exclude_defaults: bool = False,
+        exclude_none: bool = False,
+    ) -> "DictStrAny":
+        return super().dict(
+            include=include,
+            exclude=exclude,
+            by_alias=by_alias,
+            skip_defaults=skip_defaults,
+            exclude_defaults=exclude_defaults,
+            exclude_none=True,
+        )

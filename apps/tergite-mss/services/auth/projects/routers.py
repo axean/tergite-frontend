@@ -15,6 +15,7 @@ from typing import List, Optional, Type
 
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import Response
 from fastapi_users import exceptions, schemas
 from fastapi_users.router.common import ErrorModel
@@ -270,10 +271,15 @@ def get_my_projects_router(
     ):
         user = await user_manager.get(PydanticObjectId(user_id))
         projects = await project_manager.get_many(
-            filter_obj={"user_emails": user.email}, skip=skip, limit=limit
+            filter_obj={"$or": [{"user_emails": user.email}, {"user_ids": user_id}]},
+            skip=skip,
+            limit=limit,
         )
 
-        data = [schemas.model_validate(project_schema, project) for project in projects]
+        data = [
+            jsonable_encoder(schemas.model_validate(project_schema, project))
+            for project in projects
+        ]
         return ProjectListResponse(data=data, skip=skip, limit=limit)
 
     @router.get(
@@ -302,8 +308,14 @@ def get_my_projects_router(
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from e
 
         user = await user_manager.get(PydanticObjectId(user_id))
+        user_emails: List[str] = (
+            project.user_emails if project.user_emails is not None else []
+        )
+        user_ids: List[str] = project.user_ids if project.user_ids is not None else []
 
-        if user is None or user.email not in project.user_emails:
+        if user is None or (
+            user.email not in user_emails and str(user.id) not in user_ids
+        ):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="the project does not exist.",

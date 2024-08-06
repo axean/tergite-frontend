@@ -14,6 +14,7 @@
 from typing import Any, Dict, List, Mapping, Optional
 
 from beanie import PydanticObjectId, UpdateResponse
+from beanie.odm.operators.find.logical import Or
 from beanie.odm.operators.update.general import Inc
 from fastapi_users.models import ID
 
@@ -33,15 +34,24 @@ class ProjectDatabase:
         return await Project.find_one(Project.ext_id == ext_id)
 
     @staticmethod
-    async def get_by_ext_and_user_email(
-        ext_id: str, user_email: str
+    async def get_by_ext_and_user_email_or_id(
+        ext_id: str, user_email: Optional[str] = None, user_id: Optional[str] = None
     ) -> Optional[Project]:
         """Get a single project by ext_id and user_email.
 
         The user_email must be among the Project's user emails
+
+        Args:
+            user_id: the id of the given user
+            user_email: the email of the given user
+            ext_id: the external id of the project
+
+        Returns:
+            the project that matches the filter
         """
         return await Project.find_one(
-            Project.ext_id == ext_id, Project.user_emails == user_email
+            Project.ext_id == ext_id,
+            Or(Project.user_emails == user_email, Project.user_ids == user_id),
         )
 
     @staticmethod

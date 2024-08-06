@@ -16,9 +16,9 @@
 
 
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, List
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, status
 
 from api.rest.dependencies import CurrentSystemUserProjectDep, MongoDbDep
 from services import device_info
@@ -27,13 +27,13 @@ from utils import mongodb as mongodb_utils
 router = APIRouter(prefix="/devices", tags=["devices"])
 
 
-@router.get("")
+@router.get("", response_model=List[device_info.DeviceV2])
 async def read_many(db: MongoDbDep):
     """Retrieves all devices"""
     return await device_info.get_all_devices(db)
 
 
-@router.get("/{name}")
+@router.get("/{name}", response_model=device_info.DeviceV2)
 async def read_one(db: MongoDbDep, name: str):
     try:
         return await device_info.get_one_device(db, name=name)

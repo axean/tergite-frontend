@@ -14,6 +14,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter
@@ -28,12 +29,12 @@ from services import calibration as calibration_service
 router = APIRouter(prefix="/calibrations", tags=["calibrations"])
 
 
-@router.get("")
+@router.get("", response_model=List[calibration_service.DeviceCalibrationV2])
 async def read_many(db: MongoDbDep):
     return await calibration_service.get_latest_many_v2(db)
 
 
-@router.get("/{name}")
+@router.get("/{name}", response_model=calibration_service.DeviceCalibrationV2)
 async def read_one(db: MongoDbDep, name: str):
     return await calibration_service.get_one_v2(db, name)
 

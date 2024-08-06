@@ -51,7 +51,7 @@ async def get_one_device(db: AsyncIOMotorDatabase, name: str):
     Returns:
         the device as a dictionary
     """
-    return await mongodb_utils.find_one(db.devices, {"name": name})
+    return await mongodb_utils.find_one(db.devices, {"name": name}, dropped_fields=())
 
 
 # FIXME: Create a standard schema for the given payload

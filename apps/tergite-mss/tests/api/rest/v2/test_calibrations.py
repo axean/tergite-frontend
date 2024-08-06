@@ -23,6 +23,7 @@ def test_read_calibrations(db, client, user_jwt_cookie):
     with client as client:
         response = client.get(f"/v2/calibrations", headers=user_jwt_cookie)
         got = order_by(response.json(), field="name")
+        pop_field(got, "_id")
         expected = order_by(_CALIBRATIONS_LIST, field="name")
 
         assert response.status_code == 200
@@ -39,7 +40,8 @@ def test_read_calibration(name: str, db, client, app_token_header):
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get(f"/v2/calibrations/{name}", headers=app_token_header)
-        got = response.json()
+        got: dict = response.json()
+        got.pop("_id")
         expected = list(filter(lambda x: x["name"] == name, _CALIBRATIONS_LIST))[0]
 
         assert response.status_code == 200
@@ -92,8 +94,8 @@ def test_create_calibrations_non_system_user(db, client, user_jwt_cookie):
         )
         final_data_in_db = order_by(final_data_in_db, "name")
 
-        assert response.status_code == 403
-        assert response.json() == {"details": "forbidden"}
+        assert response.status_code == 401
+        assert response.json() == {"detail": "Unauthorized"}
 
         assert original_data_in_db == []
         assert final_data_in_db == []

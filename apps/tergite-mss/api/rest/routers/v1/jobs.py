@@ -129,7 +129,7 @@ async def create_job(
 @router.get("")
 async def read_jobs(db: MongoDbDep, project: CurrentLaxProjectDep, nlast: int = 10):
     """Gets the latest jobs only upto the given nlast records"""
-    return await jobs_service.get_latest_many(db, limit=nlast)
+    return await jobs_service.get_latest_many(db, limit=nlast, exclude=("_id",))
 
 
 @router.put("/{job_id}/result", deprecated=True)

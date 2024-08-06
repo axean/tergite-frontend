@@ -68,15 +68,15 @@ _AUTH_PROVIDER_DOMAIN_PAIRS = [
             AuthProvider(name="gitlab", email_domain="example.com"),
         ],
     ),
-    ("example.se", [AuthProvider(name="puhuri", email_domain="example.com")]),
-    ("chalmers.com", [AuthProvider(name="chalmers", email_domain="example.com")]),
+    ("example.se", [AuthProvider(name="puhuri", email_domain="example.se")]),
+    ("chalmers.com", [AuthProvider(name="chalmers", email_domain="chalmers.com")]),
 ]
 
 _AUTH_COOKIE_REGEX = re.compile(
     r"some-cookie=(.*); Domain=testserver; HttpOnly; Max-Age=3600; Path=/; SameSite=lax; Secure"
 )
 _STALE_AUTH_COOKIE_REGEX = re.compile(
-    r"some-cookie=(.*); Domain=testserver; HttpOnly; .* Path=/; SameSite=lax; Secure; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    r'some-cookie=""; Domain=testserver; HttpOnly; Max-Age=0; Path=/; SameSite=lax; Secure'
 )
 
 
@@ -235,7 +235,7 @@ def test_login(client):
 
         got = response.json()
         assert response.status_code == 404
-        assert got == {"detail": "not found"}
+        assert got == {"detail": "Not Found"}
 
 
 @pytest.mark.parametrize("user_email, cookies", _USER_EMAIL_COOKIES_FIXTURE)
@@ -250,13 +250,14 @@ def test_logout(
         assert _STALE_AUTH_COOKIE_REGEX.match(set_cookie_header) is not None
 
 
-@pytest.mark.parametrize("email_domain, expected", _AUTH_PROVIDER_DOMAIN_PAIRS)
-def test_get_auth_providers(client, email_domain, expected):
+@pytest.mark.parametrize("email_domain, expected_models", _AUTH_PROVIDER_DOMAIN_PAIRS)
+def test_get_auth_providers(client, email_domain, expected_models):
     """GET /v2/auth/providers returns the auth providers for the given email domain"""
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.post("/v2/auth/providers", params={"domain": email_domain})
+        response = client.get("/v2/auth/providers", params={"domain": email_domain})
         got = response.json()
+        expected = [obj.dict() for obj in expected_models]
         assert got == expected
 
 
@@ -265,9 +266,9 @@ def test_get_auth_providers_unsupported_domains(client, email_domain):
     """GET /v2/auth/providers returns 404 for unsupported email domain"""
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.post("/v2/auth/providers", params={"domain": email_domain})
+        response = client.get("/v2/auth/providers", params={"domain": email_domain})
         got = response.json()
-        assert got == {"detail": "not found"}
+        assert got == {"detail": "Not Found"}
         assert response.status_code == 404
 
 

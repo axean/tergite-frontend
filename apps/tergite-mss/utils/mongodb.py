@@ -110,6 +110,7 @@ async def find(
     /,
     *,
     filters: Optional[dict] = None,
+    exclude: Tuple[str] = (),
     limit: int = 10,
     **order,
 ) -> List[Dict[str, Any]]:
@@ -118,6 +119,7 @@ async def find(
     Args:
         collection: the mongo db collection to query from
         filters: the mongodb like filters which all returned records should satisfy
+        exclude: the fields to exclude
         limit: the maximum number of records to return: If limit is negative, all results are returned
         order: the key-value args where key is name of field and value is -1 or 1,
             implying descending and ascending respectively
@@ -125,10 +127,12 @@ async def find(
     Returns:
         a list of documents that were found
     """
+    projection = {field: 0 for field in exclude}
+
     if filters is None:
         filters = {}
 
-    db_cursor = collection.find(filters)
+    db_cursor = collection.find(filters, projection)
     if order:
         db_cursor.sort(**order)
     if limit >= 0:

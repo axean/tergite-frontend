@@ -1,7 +1,8 @@
 from typing import List
 
 import settings
-from services.auth import AuthProvider
+
+from .dtos import AuthProvider
 
 _ALL_AUTH_PROVIDERS = [
     AuthProvider(name=client.name, email_domain=client.email_domain)

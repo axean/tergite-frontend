@@ -10,8 +10,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Data Transfer Objects for the quantum jobs service"""
+import enum
 from datetime import datetime
 from typing import Optional, TypedDict
+
+from bson import ObjectId
 
 from utils.models import ZEncodedBaseModel
 
@@ -51,3 +54,29 @@ class JobTimestamps(ZEncodedBaseModel):
             AttributeError: 'NoneType' object has no attribute 'finished'
             """
             return None
+
+
+class JobStatus(str, enum.Enum):
+    PENDING = "pending"
+    SUCCESSFUL = "successful"
+    FAILED = "failed"
+
+
+class JobV2(ZEncodedBaseModel):
+    """Version 2 of the job schema"""
+
+    id: str
+    job_id: str
+    project_id: Optional[str] = None
+    user_id: Optional[str] = None
+    device: Optional[str] = None
+    status: JobStatus
+    failure_reason: Optional[str] = None
+    duration_in_secs: Optional[float] = None
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
+
+    class Config:
+        json_encoders = {ObjectId: str}
+        allow_population_by_field_name = True
+        fields = {"id": "_id"}

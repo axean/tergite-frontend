@@ -23,10 +23,15 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from utils import mongodb as mongodb_utils
 
+from .dtos import DeviceCalibrationV2
+
 
 async def get_latest_many(db: AsyncIOMotorDatabase, limit: int = 10):
     return await mongodb_utils.find(
-        db.calibrations, limit=limit, **mongodb_utils.LATEST_FIRST_SORT
+        db.calibrations,
+        limit=limit,
+        exclude=("_id",),
+        **mongodb_utils.LATEST_FIRST_SORT
     )
 
 
@@ -80,4 +85,6 @@ async def get_one_v2(db: AsyncIOMotorDatabase, name: str):
     Returns:
         the dict of the calibration results
     """
-    return await mongodb_utils.find_one(db.calibrations_v2, {"name": name})
+    return await mongodb_utils.find_one(
+        db.calibrations_v2, {"name": name}, dropped_fields=()
+    )
