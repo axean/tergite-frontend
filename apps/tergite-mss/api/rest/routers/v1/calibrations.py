@@ -25,7 +25,7 @@ from api.rest.dependencies import (
 )
 from services import calibration as calibration_service
 
-router = APIRouter(prefix="/calibrations", tags=["calibration"])
+router = APIRouter(prefix="/calibrations", tags=["calibrations"])
 
 
 @router.get("", dependencies=[CurrentProjectDep])

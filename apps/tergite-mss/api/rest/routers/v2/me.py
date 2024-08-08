@@ -20,22 +20,22 @@ from api.rest.dependencies import CurrentUserIdDep, MongoDbDep
 from services import quantum_jobs as jobs_service
 from services.auth import APP_TOKEN_AUTH, APP_TOKEN_BACKEND, Project
 
-router = APIRouter(prefix="/me", tags=["me"])
+router = APIRouter(prefix="/me")
 
 router.include_router(
     APP_TOKEN_AUTH.get_my_projects_router(),
     prefix="/projects",
-    tags=["auth", "me"],
+    tags=["auth"],
 )
 
 router.include_router(
     APP_TOKEN_AUTH.get_app_tokens_router(backend=APP_TOKEN_BACKEND),
     prefix="/tokens",
-    tags=["auth", "me"],
+    tags=["auth"],
 )
 
 
-@router.get("/jobs", response_model=List[jobs_service.JobV2])
+@router.get("/jobs", response_model=List[jobs_service.JobV2], tags=["jobs"])
 async def get_my_jobs_in_project(
     db: MongoDbDep,
     user_id: str = CurrentUserIdDep,

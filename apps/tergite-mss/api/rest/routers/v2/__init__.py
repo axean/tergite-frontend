@@ -19,7 +19,7 @@ from .calibrations import router as calibrations_router
 from .devices import router as devices_router
 from .me import router as my_router
 
-v2_router = APIRouter(prefix="/v2", tags=["v2"])
+v2_router = APIRouter(prefix="/v2")
 
 v2_router.include_router(auth_router)
 v2_router.include_router(calibrations_router)
