@@ -7,6 +7,21 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 ## [Unreleased]
 
+- Added v2 endpoints including
+    - `/v2/me/projects/` to `GET`, `POST` current cookie user's projects
+    - `/v2/me/projects/{project_id}` to `GET`, `PUT` current cookie user's single project
+    - `/v2/me/tokens/` to `GET`, `POST` current cookie user's application tokens
+    - `/v2/me/tokens/{token_id}` to `GET`, `PUT` current cookie user's application token
+    - `/v2/me/jobs/` to `GET` current cookie user's jobs (with option of specifying project id)
+    - `/v2/auth/providers` to `GET` the available Oauth2 provider corresponding to a given email domain
+    - `/v2/auth/{provider}/authorize` to `POST` Oauth2 initialization request for given `provider`
+    - `/v2/auth/{provider}/callback` to handle `GET` redirects from 3rd party Oauth2 providers after successful login
+    - `/v2/auth/logout` to handle `POST` requests to logout the current user via cookies
+    - `/v2/calibrations/` to `GET`, `POST` calibration data for all devices. `POST` is available for only system users.
+    - `/v2/calibration/{device_name}` to `GET` calibration data for the device of the given `device_name`
+    - `/v2/devices` to `GET`, `PUT` (upsert) all devices. `PUT` is available for only system users.
+    - `/v2/devices/{name}` to `GET`, `PUT` the device of a given name. `PUT` is available for only system users.
+
 ## [2024.04.1] - 2024-05-28
 
 ### Added
