@@ -66,11 +66,11 @@ _AUTH_PROVIDER_DOMAIN_PAIRS = [
         [
             dict(
                 name="github",
-                url="http://testserver/v2/auth/github/authorize",
+                url="http://testserver/v2/auth/github/auto-authorize",
             ),
             dict(
                 name="gitlab",
-                url="http://testserver/v2/auth/gitlab/authorize",
+                url="http://testserver/v2/auth/gitlab/auto-authorize",
             ),
         ],
     ),
@@ -79,7 +79,7 @@ _AUTH_PROVIDER_DOMAIN_PAIRS = [
         [
             dict(
                 name="puhuri",
-                url="http://testserver/v2/auth/puhuri/authorize",
+                url="http://testserver/v2/auth/puhuri/auto-authorize",
             )
         ],
     ),
@@ -88,7 +88,7 @@ _AUTH_PROVIDER_DOMAIN_PAIRS = [
         [
             dict(
                 name="chalmers",
-                url="http://testserver/v2/auth/chalmers/authorize",
+                url="http://testserver/v2/auth/chalmers/auto-authorize",
             )
         ],
     ),
@@ -128,6 +128,21 @@ def test_github_cookie_authorize(client):
         assert re.match(auth_url_pattern, got["authorization_url"]) is not None
 
 
+def test_github_cookie_auto_authorize(client):
+    """github users can automatically be redirected to auth url at /v2/auth/github/auto-authorize using cookies"""
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.get(
+            f"/v2/auth/github/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
+            allow_redirects=False,
+        )
+        auth_url_pattern = r"^https\:\/\/github\.com\/login\/oauth\/authorize\?response_type\=code\&client_id\=test-tergite-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fgithub\%2Fcallback\&state=.*&scope=user\+user\%3Aemail$"
+
+        got = response.headers["location"]
+        assert response.status_code == 307
+        assert re.match(auth_url_pattern, got) is not None
+
+
 def test_chalmers_cookie_authorize(client):
     """Chalmers' users can authorize at /v2/auth/chalmers/authorize using cookies"""
     # using context manager to ensure on_startup runs
@@ -142,6 +157,21 @@ def test_chalmers_cookie_authorize(client):
         assert re.match(auth_url_pattern, got["authorization_url"]) is not None
 
 
+def test_chalmers_cookie_auto_authorize(client):
+    """Chalmers' users can be automatically redirected at /v2/auth/chalmers/auto-authorize using cookies"""
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.get(
+            f"/v2/auth/chalmers/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
+            allow_redirects=False,
+        )
+        auth_url_pattern = r"^https\:\/\/login\.microsoftonline\.com\/common\/oauth2\/v.*\/authorize\?response_type\=code\&client_id\=test-chalmers-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fchalmers\%2Fcallback\&state=.*\&scope\=User\.Read\&response_mode\=query$"
+
+        got = response.headers["location"]
+        assert response.status_code == 307
+        assert re.match(auth_url_pattern, got) is not None
+
+
 def test_puhuri_cookie_authorize(client):
     """Puhuri users can authorize at /v2/auth/puhuri/authorize using cookies"""
     """Any random partner users can authorize at /auth/{partner}/authorize"""
@@ -153,6 +183,22 @@ def test_puhuri_cookie_authorize(client):
         got = response.json()
         assert response.status_code == 200
         assert re.match(auth_url_pattern, got["authorization_url"]) is not None
+
+
+def test_puhuri_cookie_auto_authorize(client):
+    """Puhuri users can automatically be redirected at /v2/auth/puhuri/auto-authorize using cookies"""
+    """Any random partner users can authorize at /auth/{partner}/authorize"""
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.get(
+            f"/v2/auth/puhuri/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
+            allow_redirects=False,
+        )
+        auth_url_pattern = r"^https:\/\/proxy.acc.puhuri.eduteams.org\/OIDC\/authorization\?response_type\=code\&client_id\=test-puhuri-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fpuhuri\%2Fcallback\&state=.*\&scope\=openid\+email$"
+
+        got = response.headers["location"]
+        assert response.status_code == 307
+        assert re.match(auth_url_pattern, got) is not None
 
 
 def test_github_cookie_callback(client, github_user, cookie_oauth_state):

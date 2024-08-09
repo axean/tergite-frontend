@@ -57,6 +57,32 @@ def get_oauth_router(
             route_name=callback_route_name,
         )
 
+    async def get_authorization_url(
+        request: Request, scopes: Optional[List[str]], _next: Optional[str]
+    ) -> str:
+        """Gets the authorization url for this Oauth2 provider
+
+        Args:
+            request: the FastAPI request object
+            scopes: the Oauth2 scopes
+            _next: the url to redirect to after successful authentication
+
+        Returns:
+            the authorization url
+        """
+        if redirect_url is not None:
+            authorize_redirect_url = redirect_url
+        else:
+            authorize_redirect_url = str(request.url_for(callback_route_name))
+
+        state_data: Dict[str, str] = {"next": _next}
+        state = generate_state_token(state_data, state_secret)
+        return await oauth_client.get_authorization_url(
+            authorize_redirect_url,
+            state,
+            scopes,
+        )
+
     @router.get(
         "/authorize",
         name=f"oauth:{oauth_client.name}.{backend.name}.authorize",
@@ -67,20 +93,30 @@ def get_oauth_router(
         scopes: List[str] = Query(None),
         _next: str = Query(None, alias="next"),
     ) -> OAuth2AuthorizeResponse:
-        if redirect_url is not None:
-            authorize_redirect_url = redirect_url
-        else:
-            authorize_redirect_url = str(request.url_for(callback_route_name))
-
-        state_data: Dict[str, str] = {"next": _next}
-        state = generate_state_token(state_data, state_secret)
-        authorization_url = await oauth_client.get_authorization_url(
-            authorize_redirect_url,
-            state,
+        authorization_url = await get_authorization_url(
+            request,
             scopes,
+            _next,
         )
 
         return OAuth2AuthorizeResponse(authorization_url=authorization_url)
+
+    @router.get(
+        "/auto-authorize",
+        name=f"oauth:{oauth_client.name}.{backend.name}.authorize",
+        response_class=RedirectResponse,
+    )
+    async def auto_authorize(
+        request: Request,
+        scopes: List[str] = Query(None),
+        _next: str = Query(None, alias="next"),
+    ):
+        """Automatically redirects to the authorization URL"""
+        return await get_authorization_url(
+            request,
+            scopes,
+            _next,
+        )
 
     @router.get(
         "/callback",
