@@ -64,12 +64,34 @@ _AUTH_PROVIDER_DOMAIN_PAIRS = [
     (
         "example.com",
         [
-            AuthProvider(name="github", email_domain="example.com"),
-            AuthProvider(name="gitlab", email_domain="example.com"),
+            dict(
+                name="github",
+                url="http://testserver/v2/auth/github/authorize",
+            ),
+            dict(
+                name="gitlab",
+                url="http://testserver/v2/auth/gitlab/authorize",
+            ),
         ],
     ),
-    ("example.se", [AuthProvider(name="puhuri", email_domain="example.se")]),
-    ("chalmers.com", [AuthProvider(name="chalmers", email_domain="chalmers.com")]),
+    (
+        "example.se",
+        [
+            dict(
+                name="puhuri",
+                url="http://testserver/v2/auth/puhuri/authorize",
+            )
+        ],
+    ),
+    (
+        "chalmers.com",
+        [
+            dict(
+                name="chalmers",
+                url="http://testserver/v2/auth/chalmers/authorize",
+            )
+        ],
+    ),
 ]
 
 _AUTH_COOKIE_REGEX = re.compile(
@@ -250,14 +272,13 @@ def test_logout(
         assert _STALE_AUTH_COOKIE_REGEX.match(set_cookie_header) is not None
 
 
-@pytest.mark.parametrize("email_domain, expected_models", _AUTH_PROVIDER_DOMAIN_PAIRS)
-def test_get_auth_providers(client, email_domain, expected_models):
+@pytest.mark.parametrize("email_domain, expected", _AUTH_PROVIDER_DOMAIN_PAIRS)
+def test_get_auth_providers(client, email_domain, expected):
     """GET /v2/auth/providers returns the auth providers for the given email domain"""
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get("/v2/auth/providers", params={"domain": email_domain})
         got = response.json()
-        expected = [obj.dict() for obj in expected_models]
         assert got == expected
 
 

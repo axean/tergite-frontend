@@ -149,11 +149,6 @@ def register_oauth2_client_v2(
     """
     client = get_oauth2_client(conf)
 
-    # FIXME: the redirect url is still refering to the v1 version of the api; remmove this in future
-    redirect_url = conf.redirect_url.replace(
-        f"/auth/app/{conf.name}", f"/v2/auth/{conf.name}"
-    )
-
     # FIXME: There is still an issue with programmatically generating the redirect URI.
     #  It keeps missing the http(s). It is like the scheme is never passed along, which is weird
 
@@ -164,7 +159,7 @@ def register_oauth2_client_v2(
             backend=auth_cookie_backend,
             state_secret=jwt_secret,
             is_verified_by_default=True,
-            redirect_url=redirect_url,
+            redirect_url=conf.redirect_url_v2,
         ),
         prefix=f"/{client.name}",
         tags=tags,

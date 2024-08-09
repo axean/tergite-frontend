@@ -59,17 +59,7 @@ _OTHERS_TOKENS_REQUESTS = [
     for user_id in [TEST_USER_ID, TEST_SUPERUSER_ID]
     if user_id != token["user_id"]
 ]
-_AUTH_PROVIDER_DOMAIN_PAIRS = [
-    (
-        "example.com",
-        [
-            AuthProvider(name="github", email_domain="example.com"),
-            AuthProvider(name="gitlab", email_domain="example.com"),
-        ],
-    ),
-    ("example.se", [AuthProvider(name="puhuri", email_domain="example.com")]),
-    ("chalmers.com", [AuthProvider(name="chalmers", email_domain="example.com")]),
-]
+
 _JOBS_LIST = load_json_fixture("job_v2_list.json")
 
 

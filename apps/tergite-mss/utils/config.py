@@ -135,6 +135,14 @@ class Oauth2ClientConfig(BaseModel, extra=Extra.allow):
         "email_domain",
     }
 
+    @property
+    def redirect_url_v2(self):
+        """The redirect URL for version 2"""
+        # FIXME: the redirect url is still referring to the v1 version of the api; remove this in future
+        return self.redirect_url.replace(
+            f"/auth/app/{self.name}", f"/v2/auth/{self.name}"
+        )
+
 
 class AuthConfig(BaseModel):
     """Configration for auth"""

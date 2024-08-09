@@ -2,10 +2,14 @@ from typing import List
 
 import settings
 
-from .dtos import AuthProvider
+from .dtos import AuthProvider, AuthProviderRead
 
 _ALL_AUTH_PROVIDERS = [
-    AuthProvider(name=client.name, email_domain=client.email_domain)
+    AuthProvider(
+        name=client.name,
+        email_domain=client.email_domain,
+        url=client.redirect_url_v2.replace("/callback", "/authorize"),
+    )
     for client in settings.CONFIG.auth.clients
 ]
 
