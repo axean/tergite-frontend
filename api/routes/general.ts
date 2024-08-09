@@ -19,6 +19,7 @@ import {
   User,
   AppToken,
   AppTokenCreationResponse,
+  PaginatedData,
 } from "../../types";
 import { randomUUID } from "crypto";
 
@@ -45,11 +46,11 @@ router.get(
       return respond401(res);
     }
 
-    const myProjects = mockDb.getMany<Project>("projects", (v) =>
+    const data = mockDb.getMany<Project>("projects", (v) =>
       v.user_ids.includes(currentUserId)
     );
 
-    res.json(myProjects);
+    res.json({ skip: 0, limit: null, data } as PaginatedData<Project[]>);
   })
 );
 
@@ -208,6 +209,7 @@ router.get(
 router.post(
   "/auth/logout",
   use(async (req, res) => {
+    // FIXME: Add a next query param
     const userId = await getAuthenticatedUserId(req.cookies);
     const user = mockDb.getOne<User>("users", (v) => v.id === userId);
 

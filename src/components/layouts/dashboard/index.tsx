@@ -25,6 +25,8 @@ export function Dashboard() {
     logout(queryClient, appState).then(() => navigate("/login"));
   }, [queryClient, appState, navigate]);
 
+  console.log({ projects });
+
   return (
     <TooltipProvider>
       <div className="flex h-screen w-full flex-col bg-muted/40">

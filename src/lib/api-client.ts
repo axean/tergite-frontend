@@ -9,6 +9,7 @@ import {
   Project,
   AppTokenCreationRequest,
   AppTokenCreationResponse,
+  PaginatedData,
 } from "../../types";
 
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -199,7 +200,10 @@ async function getMyJobs(
  * @param baseUrl - the API base URL
  */
 async function getMyProjects(baseUrl: string = apiBaseUrl): Promise<Project[]> {
-  return await authenticatedFetch(`${baseUrl}/me/projects`);
+  const response: PaginatedData<Project[]> = await authenticatedFetch(
+    `${baseUrl}/me/projects`
+  );
+  return response.data;
 }
 
 /**

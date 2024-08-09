@@ -231,3 +231,9 @@ export interface ErrorInfo extends Error {
   status?: number;
   statusText?: string;
 }
+
+export interface PaginatedData<T> {
+  skip: number;
+  limit?: number | null;
+  data: T;
+}

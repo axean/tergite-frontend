@@ -71,7 +71,10 @@ export default function LoginForm() {
                 className="grid gap-4 w-2/3 mx-auto max-w-80 mb-2"
               >
                 <Button variant="outline" asChild>
-                  <a href={provider.url} data-cy-login-link>
+                  <a
+                    href={`${provider.url}?next=${window.location.origin}`}
+                    data-cy-login-link
+                  >
                     Login with {provider.name}
                   </a>
                 </Button>
