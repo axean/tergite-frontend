@@ -66,7 +66,10 @@ export default function LoginForm() {
 
           {providers ? (
             providers.map((provider) => (
-              <div className="grid gap-4 w-2/3 mx-auto max-w-80 mb-2">
+              <div
+                key={provider.name}
+                className="grid gap-4 w-2/3 mx-auto max-w-80 mb-2"
+              >
                 <Button variant="outline" asChild>
                   <a href={provider.url} data-cy-login-link>
                     Login with {provider.name}
