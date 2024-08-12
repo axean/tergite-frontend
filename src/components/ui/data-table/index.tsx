@@ -168,7 +168,7 @@ export function DataTable<TData, TValue>({
       </div>
       <div className="flex items-center justify-end space-x-2">
         <Button
-          className="rounded-none rounded-bl-md"
+          className="rounded-none rounded-bl-md disabled:text-muted-foreground disabled:bg-muted"
           variant="outline"
           size="icon"
           onClick={() => table.previousPage()}
@@ -178,7 +178,7 @@ export function DataTable<TData, TValue>({
         </Button>
         <Button
           variant="outline"
-          className="rounded-none rounded-br-md"
+          className="rounded-none rounded-br-md disabled:text-muted-foreground disabled:bg-muted"
           size="icon"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}

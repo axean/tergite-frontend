@@ -44,14 +44,14 @@ export function TopBanner() {
         />
         <IconButton
           variant="outline"
-          className="rounded-none focus:mr-[1px]"
+          className="rounded-none focus:mr-[1px] disabled:text-muted-foreground disabled:bg-muted"
           Icon={RefreshCcw}
           disabled={!project_ext_id}
           onClick={handleApiTokenRefresh}
         />
         <IconButton
           variant="outline"
-          className="rounded-l-none"
+          className="rounded-l-none disabled:text-muted-foreground disabled:bg-muted"
           disabled={!apiToken}
           onClick={handleApiTokenCopy}
           Icon={Copy}

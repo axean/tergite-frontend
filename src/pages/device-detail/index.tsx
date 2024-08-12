@@ -44,7 +44,7 @@ export function DeviceDetail() {
               fieldLabels={fieldLabels}
               onCurrentDataChange={setCurrentData}
             />
-            <CardContent className="w-full min-w-[250px] h-[700px] lg:h-[750px] xl:h-[900px] overflow-auto">
+            <CardContent className="w-full min-w-[250px] h-[60vh] overflow-auto">
               <CalibrationMapChart
                 data={calibrationData}
                 minWidth={250}
@@ -64,7 +64,7 @@ export function DeviceDetail() {
               fieldLabels={fieldLabels}
               onCurrentDataChange={setCurrentData}
             />
-            <CardContent className="w-full min-w-[250px] h-[700px] lg:h-[750px] xl:h-[900px] overflow-auto">
+            <CardContent className="w-full min-w-[250px] h-[60vh] overflow-auto">
               <CalibrationBarChart
                 data={calibrationData}
                 minWidth={250}
