@@ -201,7 +201,7 @@ async function getMyJobs(
  */
 async function getMyProjects(baseUrl: string = apiBaseUrl): Promise<Project[]> {
   const response: PaginatedData<Project[]> = await authenticatedFetch(
-    `${baseUrl}/me/projects`
+    `${baseUrl}/me/projects/`
   );
   return response.data;
 }
