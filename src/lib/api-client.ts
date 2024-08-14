@@ -92,7 +92,7 @@ export async function createAppToken(
   } = {}
 ): Promise<AppTokenCreationResponse> {
   const { baseUrl = apiBaseUrl } = options;
-  return await authenticatedFetch(`${baseUrl}/me/tokens`, {
+  return await authenticatedFetch(`${baseUrl}/me/tokens/`, {
     method: "POST",
     body: JSON.stringify(payload),
     headers: { "Content-Type": "application/json" },
