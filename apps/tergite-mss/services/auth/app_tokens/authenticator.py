@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """FastAPIUsers-specific definition of Authenticator for app tokens"""
+import dataclasses
 from inspect import Parameter, Signature
 from typing import Callable, List, Optional, Sequence, Tuple, cast
 
@@ -76,7 +77,7 @@ class AppTokenAuthenticator:
 
         @with_signature(signature)
         async def current_project_dependency(*args, **options):
-            project, _ = await self._authenticate(
+            auth_metadata = await self._authenticate(
                 *args,
                 optional=(not settings.CONFIG.auth.is_enabled),
                 active=active,
@@ -85,9 +86,54 @@ class AppTokenAuthenticator:
                 **options,
             )
 
-            return project
+            return auth_metadata.project
 
         return current_project_dependency
+
+    def current_project_and_user_ids(
+        self,
+        active: bool = False,
+        ignore_qpu_seconds: bool = False,
+        user_roles: Tuple[UserRole] = (),
+        **kwargs,
+    ):
+        """Return a dependency callable to retrieve current project and user ids.
+
+        Args:
+            active: If `True`, throw `401 Unauthorized` if
+                the project is inactive. Defaults to `False`.
+            ignore_qpu_seconds: If `True`, authorization will succeed even when QPU
+                seconds of project are below zero. Defaults to `False`.
+            user_roles: Tuple of possible roles the user should have. The user can have any of
+                the roles. If the user doesn't have any, a 403 error is raised.
+        """
+        signature = self._get_dependency_signature()
+
+        @with_signature(signature)
+        async def current_project_and_user_id_dependency(*args, **options):
+            """Gets current project and user ids
+
+            Returns:
+                tuple of (project_id, user_id)
+            """
+            auth_metadata = await self._authenticate(
+                *args,
+                optional=(not settings.CONFIG.auth.is_enabled),
+                active=active,
+                ignore_qpu_seconds=ignore_qpu_seconds,
+                user_roles=user_roles,
+                **options,
+            )
+            project_id: Optional[str] = (
+                None if auth_metadata.project is None else str(auth_metadata.project.id)
+            )
+            user_id: Optional[str] = (
+                None if auth_metadata.user is None else str(auth_metadata.user.id)
+            )
+
+            return project_id, user_id
+
+        return current_project_and_user_id_dependency
 
     async def _authenticate(
         self,
@@ -98,9 +144,8 @@ class AppTokenAuthenticator:
         ignore_qpu_seconds: bool = False,
         user_roles: Tuple[UserRole] = (),
         **kwargs,
-    ) -> Tuple[Optional[Project], Optional[str]]:
+    ) -> "AuthMetadata":
         project_user_pair: Optional[Tuple[Project, User]] = None
-        project: Optional[Project] = None
         token: Optional[str] = None
         enabled_backends: Sequence[AuthenticationBackend] = kwargs.get(
             "enabled_backends", self.backends
@@ -115,6 +160,7 @@ class AppTokenAuthenticator:
                     project_user_pair = await strategy.read_token(
                         token, project_manager
                     )
+
                     if project_user_pair:
                         break
 
@@ -134,9 +180,12 @@ class AppTokenAuthenticator:
             elif user_roles and not any(role in user.roles for role in user_roles):
                 # restrict access to only tokens of users with any of the given roles
                 project_user_pair = None
+            else:
+                return AuthMetadata(project=project, user=user, token=token)
+
         if not project_user_pair and not optional:
             raise HTTPException(status_code=status_code, detail=error_msg)
-        return project, token
+        return AuthMetadata()
 
     def _get_dependency_signature(self) -> Signature:
         """Generate a dynamic signature for the current_user dependency.
@@ -171,3 +220,12 @@ class AppTokenAuthenticator:
             return Signature(parameters)
         except ValueError:
             raise DuplicateBackendNamesError()
+
+
+@dataclasses.dataclass
+class AuthMetadata:
+    """Metadata got after authentication"""
+
+    project: Optional[Project] = None
+    user: Optional[User] = None
+    token: Optional[str] = None

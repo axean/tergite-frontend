@@ -319,7 +319,7 @@ def test_puhuri_cookie_callback_disallowed_email(
 
 
 @pytest.mark.parametrize("project", _PROJECT_CREATE_LIST)
-def test_admin_create_project(project, client, admin_jwt_header):
+def test_admin_create_project(project, client, admin_jwt_header, freezer):
     """Admins can create projects at /auth/projects/"""
     # using context manager to ensure on_startup runs
     with client as client:
@@ -328,7 +328,8 @@ def test_admin_create_project(project, client, admin_jwt_header):
         got = response.json()
         assert response.status_code == 201
         got.pop("id")
-        expected = {**project, "is_active": True}
+        now = _get_timestamp_str(datetime.now(timezone.utc))
+        expected = {**project, "is_active": True, "created_at": now, "updated_at": now}
         assert got == expected
 
 
@@ -346,23 +347,38 @@ def test_non_admin_cannot_create_project(project, client, user_jwt_header):
 
 
 @pytest.mark.parametrize("payload", _PROJECT_UPDATE_LIST)
-def test_admin_update_project(payload, client, admin_jwt_header):
+def test_admin_update_project(payload, client, admin_jwt_header, freezer):
     """Admins can create projects at /auth/projects/{id}"""
+    created_at = _get_timestamp_str(datetime.now(timezone.utc))
     # using context manager to ensure on_startup runs
     with client as client:
-        url = f"/auth/projects/{TEST_PROJECT_ID}"
+        post_body = _PROJECT_CREATE_LIST[0]
+        response = client.post(
+            "/auth/projects", json=post_body, headers=admin_jwt_header
+        )
+        assert response.status_code == 201
+        project = response.json()
+        project_id = project["id"]
+
+        freezer.move_to("2024-05-20")
+        updated_at = _get_timestamp_str(datetime.now(timezone.utc))
+        url = f"/auth/projects/{project_id}"
         response = client.patch(url, json=payload, headers=admin_jwt_header)
+
         expected = {
-            "id": TEST_PROJECT_ID,
-            "ext_id": TEST_PROJECT_DICT["ext_id"],
+            "id": project_id,
+            "ext_id": project["ext_id"],
             "is_active": True,
-            "qpu_seconds": payload.get("qpu_seconds", TEST_PROJECT_DICT["qpu_seconds"]),
-            "user_emails": payload.get("user_emails", TEST_PROJECT_DICT["user_emails"]),
+            "qpu_seconds": payload.get("qpu_seconds", project["qpu_seconds"]),
+            "user_emails": payload.get("user_emails", project["user_emails"]),
+            "created_at": created_at,
+            "updated_at": updated_at,
         }
 
         got = response.json()
         assert response.status_code == 200
         assert got == expected
+        assert updated_at != created_at
 
 
 @pytest.mark.parametrize("payload", _PROJECT_UPDATE_LIST)
@@ -417,13 +433,14 @@ def test_non_admin_cannot_delete_project(
 
 
 def test_admin_view_all_projects_in_detail(
-    client, inserted_project_ids, admin_jwt_header
+    client, inserted_project_ids, admin_jwt_header, freezer
 ):
     """Admins can view projects at /auth/projects/ in full detail"""
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.get("/auth/projects", headers=admin_jwt_header)
 
+        now = _get_timestamp_str(datetime.now(timezone.utc))
         got = response.json()
         project_list = [
             {
@@ -432,6 +449,8 @@ def test_admin_view_all_projects_in_detail(
                 "qpu_seconds": item["qpu_seconds"],
                 "is_active": item.get("is_active", True),
                 "user_emails": item["user_emails"],
+                "created_at": now,
+                "updated_at": now,
             }
             for item in [TEST_PROJECT_DICT, TEST_NO_QPU_PROJECT_DICT] + PROJECT_LIST
         ]
@@ -442,7 +461,7 @@ def test_admin_view_all_projects_in_detail(
 
 @pytest.mark.parametrize("user_email, headers", _USER_EMAIL_HEADERS_FIXTURE)
 def test_view_own_projects_in_less_detail(
-    user_email, headers, client, inserted_project_ids
+    user_email, headers, client, inserted_project_ids, freezer
 ):
     """Any user can view only their own projects at /auth/me/projects/
     without user_emails"""
@@ -450,6 +469,7 @@ def test_view_own_projects_in_less_detail(
     with client as client:
         response = client.get("/auth/me/projects", headers=headers)
 
+        now = _get_timestamp_str(datetime.now(timezone.utc))
         got = response.json()
         project_list = [
             {
@@ -457,6 +477,8 @@ def test_view_own_projects_in_less_detail(
                 "ext_id": item["ext_id"],
                 "qpu_seconds": item["qpu_seconds"],
                 "is_active": item.get("is_active", True),
+                "created_at": now,
+                "updated_at": now,
             }
             for item in [TEST_PROJECT_DICT, TEST_NO_QPU_PROJECT_DICT] + PROJECT_LIST
             if user_email in item["user_emails"]
@@ -468,7 +490,7 @@ def test_view_own_projects_in_less_detail(
 
 @pytest.mark.parametrize("project", PROJECT_LIST)
 def test_admin_view_single_project_in_detail(
-    project, client, inserted_projects, admin_jwt_header
+    project, client, inserted_projects, admin_jwt_header, freezer
 ):
     """Admins can view single project at /auth/projects/{id} in full detail"""
     # using context manager to ensure on_startup runs
@@ -477,6 +499,7 @@ def test_admin_view_single_project_in_detail(
         url = f"/auth/projects/{_id}"
         response = client.get(url, headers=admin_jwt_header)
 
+        now = _get_timestamp_str(datetime.now(timezone.utc))
         got = response.json()
         expected = {
             "id": _id,
@@ -484,6 +507,8 @@ def test_admin_view_single_project_in_detail(
             "qpu_seconds": project["qpu_seconds"],
             "is_active": project["is_active"],
             "user_emails": project["user_emails"],
+            "created_at": now,
+            "updated_at": now,
         }
 
         assert response.status_code == 200
@@ -492,7 +517,7 @@ def test_admin_view_single_project_in_detail(
 
 @pytest.mark.parametrize("user_email, headers, project", _MY_PROJECT_REQUESTS)
 def test_view_my_project_in_less_detail(
-    user_email, headers, project, client, inserted_projects
+    user_email, headers, project, client, inserted_projects, freezer
 ):
     """Any user can view only their own single project at /auth/me/projects/{id}
     without user_emails"""
@@ -502,12 +527,15 @@ def test_view_my_project_in_less_detail(
         url = f"/auth/me/projects/{project_id}"
         response = client.get(url, headers=headers)
 
+        now = _get_timestamp_str(datetime.now(timezone.utc))
         got = response.json()
         expected = {
             "id": project_id,
             "ext_id": project["ext_id"],
             "qpu_seconds": project["qpu_seconds"],
             "is_active": project["is_active"],
+            "created_at": now,
+            "updated_at": now,
         }
 
         assert response.status_code == 200
@@ -750,3 +778,15 @@ def test_app_token_of_unallocated_projects_fails(
 def _get_token_from_cookie(resp: httpx.Response) -> Optional[str]:
     """Extracts the acces token from the cookie"""
     return _AUTH_COOKIE_REGEX.match(resp.headers["set-cookie"]).group(1)
+
+
+def _get_timestamp_str(timestamp: datetime) -> str:
+    """Converts a timestamp to a string
+
+    Args:
+        timestamp: the datetime value
+
+    Returns:
+        the timestamp as a string
+    """
+    return timestamp.isoformat("T", timespec="milliseconds").replace("+00:00", "Z")

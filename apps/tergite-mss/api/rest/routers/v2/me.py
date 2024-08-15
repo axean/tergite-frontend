@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """Router for my things"""
+import logging
 from typing import List, Optional
 
 from fastapi import APIRouter, Query
@@ -42,6 +43,6 @@ async def get_my_jobs_in_project(
     project_id: Optional[str] = Query(None),
 ):
     """Retrieves the jobs belonging to the current user in the current project"""
-    return await jobs_service.get_latest_many_v2(
-        db, filters={"user_id": user_id, "project_id": project_id}
-    )
+    filters = {"user_id": user_id, "project_id": project_id}
+    logging.info(filters)
+    return await jobs_service.get_latest_many_v2(db, filters=filters)

@@ -59,6 +59,7 @@ APP_TOKEN_AUTH = projects.ProjectBasedAuth(
     auth_backends=[APP_TOKEN_BACKEND],
 )
 GET_CURRENT_PROJECT = APP_TOKEN_AUTH.current_project(active=True)
+GET_CURRENT_PROJECT_USER_IDS = APP_TOKEN_AUTH.current_project_and_user_ids(active=True)
 GET_CURRENT_LAX_PROJECT = APP_TOKEN_AUTH.current_project(
     active=True, ignore_qpu_seconds=True
 )

@@ -86,6 +86,9 @@ class ProjectBasedAuth:
         self.get_current_user_id = get_current_user_id_dep
         self.get_current_superuser = get_current_superuser_dep
         self.current_project = self.authenticator.current_project
+        self.current_project_and_user_ids = (
+            self.authenticator.current_project_and_user_ids
+        )
 
     def get_app_tokens_router(
         self, backend: AppTokenAuthenticationBackend

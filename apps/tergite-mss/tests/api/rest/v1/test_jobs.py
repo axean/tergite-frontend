@@ -1,16 +1,15 @@
 """Integration tests for the jobs router"""
-import datetime
-from typing import Dict, Optional
+from datetime import datetime, timezone
+from typing import Dict, List, Optional
 
 import pytest
 from beanie import PydanticObjectId
 from pytest_lazyfixture import lazy_fixture
 
-import settings
 from services.auth import Project
 from tests._utils.auth import TEST_PROJECT_EXT_ID, get_db_record
 from tests._utils.date_time import is_not_older_than
-from tests._utils.env import TEST_BACKENDS, TEST_BACKENDS_MAP
+from tests._utils.env import TEST_BACKENDS_MAP
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection
 from tests._utils.records import order_by, pop_field
@@ -112,7 +111,13 @@ def test_read_job_download_url(db, client, job_id: str, no_qpu_app_token_header)
 
 @pytest.mark.parametrize("backend", _BACKENDS)
 def test_create_job(
-    mock_bcc, db, client, backend: str, project_id: PydanticObjectId, app_token_header
+    mock_bcc,
+    db,
+    client,
+    backend: str,
+    project_id: PydanticObjectId,
+    app_token_header,
+    current_user_id,
 ):
     """Post to /jobs/ creates a job in the given backend"""
     query_string = "" if backend is None else f"?backend={backend}"
@@ -134,6 +139,7 @@ def test_create_job(
         expected_job = {
             "project_id": str(project_id),
             "job_id": new_job_id,
+            "user_id": str(current_user_id),
             "backend": backend_param,
             "status": "REGISTERING",
         }
@@ -143,6 +149,8 @@ def test_create_job(
             fields_to_exclude=_EXCLUDED_FIELDS,
         )
         timelogs = pop_field(jobs_after_creation, "timelog")
+        created_at_values = pop_field(jobs_after_creation, "created_at")
+        updated_at_values = pop_field(jobs_after_creation, "updated_at")
 
         assert response.status_code == 200
         assert response.json() == {
@@ -153,6 +161,8 @@ def test_create_job(
         assert jobs_before_creation == []
         assert jobs_after_creation == [expected_job]
         assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+        assert all([is_not_older_than(x, seconds=30) for x in created_at_values])
+        assert all([is_not_older_than(x, seconds=30) for x in updated_at_values])
 
 
 @pytest.mark.parametrize("backend, bcc", _UNAVAILABLE_BCC_FIXTURE)
@@ -196,6 +206,7 @@ def test_create_job_with_auth_disabled(mock_bcc, db, no_auth_client, backend: st
         new_job_id = json_response["job_id"]
         expected_job = {
             "project_id": None,
+            "user_id": None,
             "job_id": new_job_id,
             "backend": backend_param,
             "status": "REGISTERING",
@@ -206,6 +217,8 @@ def test_create_job_with_auth_disabled(mock_bcc, db, no_auth_client, backend: st
             fields_to_exclude=_EXCLUDED_FIELDS,
         )
         timelogs = pop_field(jobs_after_creation, "timelog")
+        created_at_values = pop_field(jobs_after_creation, "created_at")
+        updated_at_values = pop_field(jobs_after_creation, "updated_at")
 
         assert response.status_code == 200
         assert response.json() == {
@@ -216,6 +229,8 @@ def test_create_job_with_auth_disabled(mock_bcc, db, no_auth_client, backend: st
         assert jobs_before_creation == []
         assert jobs_after_creation == [expected_job]
         assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+        assert all([is_not_older_than(x, seconds=30) for x in created_at_values])
+        assert all([is_not_older_than(x, seconds=30) for x in updated_at_values])
 
 
 @pytest.mark.parametrize("nlast", [1, 4, 6, 10, None])
@@ -458,8 +473,8 @@ def _get_resource_usage(timestamps: Dict[str, Dict[str, str]]) -> Optional[float
         execution_timestamps = timestamps["execution"]
         started_timestamp_str = execution_timestamps["started"].replace("Z", "+00:00")
         finished_timestamp_str = execution_timestamps["finished"].replace("Z", "+00:00")
-        started_timestamp = datetime.datetime.fromisoformat(started_timestamp_str)
-        finished_timestamp = datetime.datetime.fromisoformat(finished_timestamp_str)
+        started_timestamp = datetime.fromisoformat(started_timestamp_str)
+        finished_timestamp = datetime.fromisoformat(finished_timestamp_str)
         return round((finished_timestamp - started_timestamp).total_seconds(), 1)
     except AttributeError:
         return 0

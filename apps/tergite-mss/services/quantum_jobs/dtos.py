@@ -15,8 +15,12 @@ from datetime import datetime
 from typing import Optional, TypedDict
 
 from bson import ObjectId
+from pydantic import Extra, Field
 
+from utils.date_time import get_current_timestamp
 from utils.models import ZEncodedBaseModel
+
+from .utils import get_uuid4_str
 
 
 class CreatedJobResponse(TypedDict):
@@ -62,6 +66,11 @@ class JobStatus(str, enum.Enum):
     FAILED = "failed"
 
 
+class JobExecutionStage(str, enum.Enum):
+    REGISTERING = "REGISTERING"
+    DONE = "DONE"
+
+
 class JobV2(ZEncodedBaseModel):
     """Version 2 of the job schema"""
 
@@ -80,3 +89,15 @@ class JobV2(ZEncodedBaseModel):
         json_encoders = {ObjectId: str}
         allow_population_by_field_name = True
         fields = {"id": "_id"}
+
+
+class JobCreate(ZEncodedBaseModel, extra=Extra.allow):
+    """The schema used when creating a job"""
+
+    backend: str
+    job_id: str = Field(default_factory=get_uuid4_str)
+    project_id: Optional[str] = None
+    user_id: Optional[str] = None
+    status: JobExecutionStage = JobExecutionStage.REGISTERING
+    created_at: Optional[str] = Field(default_factory=get_current_timestamp)
+    updated_at: Optional[str] = Field(default_factory=get_current_timestamp)

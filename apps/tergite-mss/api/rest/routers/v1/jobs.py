@@ -27,12 +27,13 @@ from api.rest.dependencies import (
     BccClientsMapDep,
     CurrentLaxProjectDep,
     CurrentStrictProjectDep,
+    CurrentStrictProjectUserIds,
     MongoDbDep,
     ProjectDbDep,
 )
 from services import quantum_jobs as jobs_service
 from services.external import puhuri as puhuri_service
-from services.quantum_jobs import JobTimestamps
+from services.quantum_jobs import JobCreate, JobTimestamps
 from utils import mongodb as mongodb_utils
 from utils.api import get_bearer_token
 from utils.exc import ServiceUnavailableError
@@ -96,14 +97,13 @@ async def create_job(
     request: Request,
     db: MongoDbDep,
     bcc_clients_map: BccClientsMapDep,
-    project: CurrentStrictProjectDep,
+    project_user_id_pair: CurrentStrictProjectUserIds,
     backend: str = "pingu",
 ):
     """Creates a job in the given backend"""
     app_token = get_bearer_token(
         request, raise_if_error=settings.CONFIG.auth.is_enabled
     )
-    project_id = None if project is None else project.id
     try:
         bcc_client = bcc_clients_map[backend]
     except KeyError:
@@ -113,12 +113,10 @@ async def create_job(
         )
 
     try:
+        project_id, user_id = project_user_id_pair
+        job = JobCreate(backend=backend, project_id=project_id, user_id=user_id)
         return await jobs_service.create_job(
-            db,
-            bcc_client=bcc_client,
-            backend=backend,
-            project_id=project_id,
-            app_token=app_token,
+            db, bcc_client=bcc_client, job=job, app_token=app_token
         )
     except ServiceUnavailableError as exp:
         raise HTTPException(

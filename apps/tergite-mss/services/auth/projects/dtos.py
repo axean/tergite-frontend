@@ -15,10 +15,10 @@ from datetime import datetime
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 from beanie import Document, PydanticObjectId
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field, validator
 from pymongo import IndexModel
 
-from utils.date_time import datetime_to_zulu
+from utils.date_time import datetime_to_zulu, get_current_timestamp
 from utils.models import ZEncodedBaseModel
 
 PROJECT_DB_COLLECTION = "auth_projects"
@@ -75,8 +75,8 @@ class ProjectRead(BaseModel):
     description: Optional[str] = None
     user_ids: Optional[List[str]] = None
     admin_id: Optional[str] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -120,6 +120,7 @@ class ProjectUpdate(BaseModel):
     user_emails: Optional[List[str]]
     user_ids: Optional[List[str]]
     qpu_seconds: Optional[int]
+    updated_at: Optional[str] = Field(default_factory=get_current_timestamp)
 
 
 class ProjectV2Update(BaseModel):
@@ -137,8 +138,8 @@ class ProjectV2AdminUpdate(BaseModel):
 
 class Project(ProjectCreate, Document):
     is_active: bool = True
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    created_at: Optional[str] = Field(default_factory=get_current_timestamp)
+    updated_at: Optional[str] = Field(default_factory=get_current_timestamp)
 
     class Settings:
         name = PROJECT_DB_COLLECTION

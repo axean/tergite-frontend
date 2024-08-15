@@ -51,6 +51,7 @@ from tests._utils.auth import (
     TEST_SUPERUSER_EMAIL,
     TEST_SUPERUSER_ID,
     TEST_SYSTEM_USER_APP_TOKEN_STRING,
+    TEST_USER_DICT,
     TEST_USER_EMAIL,
     TEST_USER_ID,
     get_db_record,
@@ -139,6 +140,12 @@ def db(mock_puhuri) -> pymongo.database.Database:
 def app_token_header() -> Dict[str, str]:
     """the auth header for the client when app tokens are used"""
     yield {"Authorization": f"Bearer {TEST_APP_TOKEN_STRING}"}
+
+
+@pytest.fixture
+def current_user_id() -> Dict[str, str]:
+    """the current user for the default app token"""
+    yield TEST_USER_DICT["_id"]
 
 
 @pytest.fixture
