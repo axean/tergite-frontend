@@ -316,6 +316,7 @@ def test_logout(
         response = client.post("/v2/auth/logout", cookies=cookies)
         set_cookie_header = response.headers["set-cookie"]
         assert _STALE_AUTH_COOKIE_REGEX.match(set_cookie_header) is not None
+        assert response.json() == {"message": "logged out"}
 
 
 @pytest.mark.parametrize("email_domain, expected", _AUTH_PROVIDER_DOMAIN_PAIRS)

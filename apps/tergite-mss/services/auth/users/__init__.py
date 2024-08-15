@@ -15,11 +15,7 @@ from typing import Dict, Optional, Sequence, Tuple, Union
 
 from fastapi import APIRouter, Depends
 from fastapi_users import FastAPIUsers, models
-from fastapi_users.authentication import (
-    AuthenticationBackend,
-    BearerTransport,
-    CookieTransport,
-)
+from fastapi_users.authentication import AuthenticationBackend, BearerTransport
 from fastapi_users.jwt import SecretType
 from fastapi_users.manager import UserManagerDependency
 from fastapi_users_db_beanie import BeanieUserDatabase
@@ -33,6 +29,7 @@ from .database import UserDatabase
 from .dtos import ID, UP, CurrentUserDependency, OAuthAccount, User
 from .manager import UserManager
 from .strategy import CustomJWTStrategy
+from .transport import JwtCookieTransport
 from .validators import EmailRegexValidator, Validator
 
 _AUTH_EMAIL_REGEX_MAP: Dict[str, Tuple[str, Union[re.RegexFlag, int]]] = {
@@ -69,7 +66,7 @@ def get_jwt_cookie_backend(
     cookie_max_age: Optional[int] = None,
 ) -> AuthenticationBackend:
     """Creates an auth backend that uses JWT in cookie to handle auth."""
-    transport = CookieTransport(
+    jwt_transport = JwtCookieTransport(
         cookie_name=cookie_name,
         cookie_domain=cookie_domain,
         cookie_max_age=cookie_max_age,
@@ -81,7 +78,7 @@ def get_jwt_cookie_backend(
 
     return AuthenticationBackend(
         name="jwt-cookie",
-        transport=transport,
+        transport=jwt_transport,
         get_strategy=get_jwt_strategy,
     )
 

@@ -12,7 +12,9 @@
 from typing import Dict, List, Optional, Tuple
 
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.requests import Request
+from fastapi.responses import RedirectResponse
 from fastapi_users import BaseUserManager, models
 from fastapi_users.authentication import AuthenticationBackend, Authenticator, Strategy
 from fastapi_users.exceptions import UserAlreadyExists
@@ -28,9 +30,6 @@ from fastapi_users.router.oauth import (
 )
 from httpx_oauth.integrations.fastapi import OAuth2AuthorizeCallback
 from httpx_oauth.oauth2 import BaseOAuth2, OAuth2Token
-from starlette import status
-from starlette.requests import Request
-from starlette.responses import RedirectResponse
 
 
 def get_oauth_router(
