@@ -27,7 +27,7 @@ from tests.conftest import (
     get_unauthorized_app_token_post_with_cookies,
 )
 
-_JOBS_COLLECTION = "jobs_v2"
+_JOBS_COLLECTION = "jobs"
 
 _USER_EMAIL_INDEX = {
     TEST_SUPERUSER_EMAIL: TEST_SUPERUSER_ID,

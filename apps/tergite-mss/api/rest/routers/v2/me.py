@@ -16,10 +16,9 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Query
 
-from api.rest import CurrentProjectDep
 from api.rest.dependencies import CurrentUserIdDep, MongoDbDep
 from services import quantum_jobs as jobs_service
-from services.auth import APP_TOKEN_AUTH, APP_TOKEN_BACKEND, Project
+from services.auth import APP_TOKEN_AUTH, APP_TOKEN_BACKEND
 
 router = APIRouter(prefix="/me")
 
@@ -45,4 +44,4 @@ async def get_my_jobs_in_project(
     """Retrieves the jobs belonging to the current user in the current project"""
     filters = {"user_id": user_id, "project_id": project_id}
     logging.info(filters)
-    return await jobs_service.get_latest_many_v2(db, filters=filters)
+    return await jobs_service.get_latest_many(db, filters=filters)

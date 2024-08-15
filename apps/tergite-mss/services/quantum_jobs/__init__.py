@@ -16,9 +16,8 @@
 # that they have been altered from the originals.
 import logging
 from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
-from uuid import UUID, uuid4
+from uuid import UUID
 
-from beanie import PydanticObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from services.external.bcc import BccClient
@@ -149,29 +148,6 @@ async def get_latest_many(
     """
     return await mongodb_utils.find(
         db.jobs,
-        limit=limit,
-        filters=filters,
-        exclude=exclude,
-        **mongodb_utils.LATEST_FIRST_SORT,
-    )
-
-
-async def get_latest_many_v2(
-    db: AsyncIOMotorDatabase,
-    filters: Optional[dict] = None,
-    limit: int = -1,
-    exclude: Tuple[str] = (),
-):
-    """Retrieves the latest jobs v2 up to the given limit
-
-    Args:
-        db: the mongo database from where to get the jobs
-        filters: the mongodb like filters which all returned records should satisfy
-        limit: maximum number of records to return; default = -1 meaning all of them
-        exclude: the fields to exclude
-    """
-    return await mongodb_utils.find(
-        db.jobs_v2,
         limit=limit,
         filters=filters,
         exclude=exclude,
