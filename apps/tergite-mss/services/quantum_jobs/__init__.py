@@ -25,7 +25,7 @@ from utils import mongodb as mongodb_utils
 from utils.date_time import get_current_timestamp
 
 from ..auth import Project
-from .dtos import CreatedJobResponse, JobCreate, JobTimestamps, JobV2
+from .dtos import CreatedJobResponse, JobCreate, JobTimestamps, JobV1, JobV2
 
 if TYPE_CHECKING:
     from ..auth.projects.database import ProjectDatabase

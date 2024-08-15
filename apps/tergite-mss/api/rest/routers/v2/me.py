@@ -12,13 +12,13 @@
 
 """Router for my things"""
 import logging
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Query
 
 from api.rest.dependencies import CurrentUserIdDep, MongoDbDep
-from services import quantum_jobs as jobs_service
 from services.auth import APP_TOKEN_AUTH, APP_TOKEN_BACKEND
+from services.quantum_jobs import JobV1, JobV2, get_latest_many
 
 router = APIRouter(prefix="/me")
 
@@ -35,13 +35,15 @@ router.include_router(
 )
 
 
-@router.get("/jobs", response_model=List[jobs_service.JobV2], tags=["jobs"])
+@router.get("/jobs", tags=["jobs"])
 async def get_my_jobs_in_project(
     db: MongoDbDep,
     user_id: str = CurrentUserIdDep,
     project_id: Optional[str] = Query(None),
 ):
     """Retrieves the jobs belonging to the current user in the current project"""
-    filters = {"user_id": user_id, "project_id": project_id}
-    logging.info(filters)
-    return await jobs_service.get_latest_many(db, filters=filters)
+    filters = {"user_id": user_id}
+    if project_id is not None:
+        filters["project_id"] = project_id
+    jobs = await get_latest_many(db, filters=filters)
+    return [JobV2.from_v1(JobV1.validate(job)) for job in jobs]
