@@ -7,6 +7,7 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       dotenv.config({ path: ".env.test" });
       config.env = { ...config.env, ...process.env };
+      config.env["PLATFORM"] = process.platform;
       // implement node event listeners here
       return getCompareSnapshotsPlugin(on, config);
     },
