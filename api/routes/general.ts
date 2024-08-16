@@ -185,12 +185,11 @@ router.get(
       return;
     }
 
-    const queryString = getQueryString(req.query);
     res.json(
       data.map(
         (item) =>
           ({
-            url: `${apiBaseUrl}/auth/${item.name}/authorize${queryString}`,
+            url: `${apiBaseUrl}/auth/${item.name}/authorize`,
             name: item.name,
           } as AuthProviderResponse)
       )

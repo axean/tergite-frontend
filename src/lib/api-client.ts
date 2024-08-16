@@ -104,20 +104,17 @@ export async function createAppToken(
  * @param email - the email of the user
  * @param options - the options for loging in including:
  *          - baseUrl - the base URL of the API
- *          - nextUrl - the next URL after login
  * @returns - the auth provider for the given email or raises a 404 error
  */
 export async function getAuthProviders(
   email: string,
   options: {
     baseUrl?: string;
-    nextUrl?: string;
   } = {}
 ): Promise<AuthProviderResponse[]> {
-  const { baseUrl = apiBaseUrl, nextUrl = window.location.origin } = options;
+  const { baseUrl = apiBaseUrl } = options;
   const emailDomain = email.split("@")[1];
-  const nextUrlQuery = nextUrl ? `&next=${nextUrl}` : "";
-  const url = `${baseUrl}/auth/providers?domain=${emailDomain}${nextUrlQuery}`;
+  const url = `${baseUrl}/auth/providers?domain=${emailDomain}`;
   return await authenticatedFetch<AuthProviderResponse[]>(url);
 }
 

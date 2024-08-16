@@ -95,7 +95,7 @@ const invalidFormatEmailAddresses = [
       cy.intercept("GET", `${apiBaseUrl}/me/jobs`).as("my-jobs-list");
       cy.intercept(
         "GET",
-        `${apiBaseUrl}/auth/providers?domain=${emailDomain}&next=http://127.0.0.1:5173`
+        `${apiBaseUrl}/auth/providers?domain=${emailDomain}`
       ).as("auth-providers");
 
       cy.visit("/");
@@ -122,7 +122,7 @@ const invalidFormatEmailAddresses = [
             ).should(
               "have.attr",
               "href",
-              `${apiBaseUrl}/auth/${provider.name}/authorize?&domain=${emailDomain}&next=http://127.0.0.1:5173`
+              `${apiBaseUrl}/auth/${provider.name}/authorize?next=http://127.0.0.1:5173`
             );
           });
         }
