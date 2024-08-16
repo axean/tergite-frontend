@@ -22,6 +22,7 @@ const medianCalibrationsDataMap: {
 users.forEach((user) => {
   devices.forEach((device) => {
     const calibrationMedians = medianCalibrationsDataMap[device.id];
+    let testThreshold: number;
 
     describe(`${device.name} device detail  for ${user.name}`, () => {
       beforeEach(() => {
@@ -30,6 +31,7 @@ users.forEach((user) => {
         const cookieName = Cypress.env("VITE_COOKIE_NAME");
         const secret = Cypress.env("JWT_SECRET");
         const audience = Cypress.env("AUTH_AUDIENCE");
+        testThreshold = parseFloat(Cypress.env("TEST_THRESHOLD") || "0.3");
         const cookieExpiry = Math.round(
           (new Date().getTime() + 800_000) / 1000
         );
@@ -130,7 +132,7 @@ users.forEach((user) => {
             });
             cy.get("#map-view").compareSnapshot({
               name: `map-view-for-${property}-of-${device.id}`,
-              testThreshold: 0.3,
+              testThreshold,
               retryOptions: {
                 limit: 2,
                 delay: 500,
@@ -154,7 +156,7 @@ users.forEach((user) => {
             });
             cy.get("#graph-view").compareSnapshot({
               name: `graph-view-for-${property}-of-${device.id}`,
-              testThreshold: 0.3,
+              testThreshold,
               retryOptions: {
                 limit: 2,
                 delay: 500,
@@ -169,7 +171,7 @@ users.forEach((user) => {
         cy.contains("button", /table view/i).click();
         cy.get("#table-view").compareSnapshot({
           name: `table-view-for-${device.id}`,
-          testThreshold: 0.3,
+          testThreshold,
           retryOptions: {
             limit: 2,
             delay: 500,

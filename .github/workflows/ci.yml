@@ -31,4 +31,6 @@ jobs:
       - name: Component tests
         run: npm run test
       - name: End-to-end tests
-        run: npm run e2e
+        run: |
+          echo "TEST_THRESHOLD=${{ vars.TEST_THRESHOLD }}" >> .env.test
+          npm run e2e
