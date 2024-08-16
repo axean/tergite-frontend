@@ -115,7 +115,7 @@ users.forEach((user) => {
                       } else if (prop === "last_online") {
                         expect(cell.td.text()).to.match(
                           cell.device.last_online
-                            ? /\d+ (seconds)|(minutes)|(hours)|(days)|(weeks)|(months)|(years) ago/i
+                            ? /\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?) ago/i
                             : /N\/A/i
                         );
                       } else {
@@ -165,7 +165,7 @@ users.forEach((user) => {
                             expect(cell.td.text()).to.match(
                               cell.job.duration_in_secs
                                 ? // FIXME: Not the right regx for ~ '1 days, 2 minutes, 30 seconds' but might work
-                                  /(\d+ (seconds)|(minutes)|(hours)|(days)|(weeks)|(months)|(years),?)+/i
+                                  /(\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+/i
                                 : /N\/A/i
                             );
                           } else {
@@ -235,7 +235,7 @@ users.forEach((user) => {
                               expect(cell.td.text()).to.match(
                                 cell.job.duration_in_secs
                                   ? // FIXME: Not the right regx for ~ '1 days, 2 minutes, 30 seconds' but might work
-                                    /(\d+ (seconds)|(minutes)|(hours)|(days)|(weeks)|(months)|(years),?)+/i
+                                    /(\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+/i
                                   : /N\/A/i
                               );
                             } else {
@@ -406,7 +406,7 @@ users.forEach((user) => {
                 .within(() => {
                   const durationRegex = job.duration_in_secs
                     ? // FIXME: Not the right regx for ~ '1 days, 2 minutes, 30 seconds' but might work
-                      /Duration:\s?(\d+ (seconds)|(minutes)|(hours)|(days)|(weeks)|(months)|(years),?)+/i
+                      /Duration:\s?(\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+/i
                     : /Duration:\s?N\/A/i;
                   cy.contains(new RegExp(`Job:\\s?${job.job_id}`, "i")).should(
                     "be.visible"

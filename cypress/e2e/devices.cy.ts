@@ -46,7 +46,7 @@ users.forEach((user) => {
           cy.contains(".bg-card", device.name).within(() => {
             const statusRegex = device.is_online ? /online/i : /offline/i;
             const lastOnlineRegex = device.last_online
-              ? /\d+ (seconds)|(minutes)|(hours)|(days)|(weeks)|(months)|(years) ago/i
+              ? /\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?) ago/i
               : /N\/A/i;
 
             cy.contains(device.name).should("be.visible");

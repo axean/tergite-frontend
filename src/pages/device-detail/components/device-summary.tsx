@@ -34,7 +34,7 @@ export function DeviceSummary({
   );
 
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card id="device-summary" className={cn("overflow-hidden", className)}>
       <CardHeader className="flex flex-row items-start bg-muted/50 justify-between">
         <div className="grid gap-0.5">
           <CardTitle className="group flex items-center gap-2 text-lg">
