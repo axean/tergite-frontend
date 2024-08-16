@@ -16,7 +16,7 @@ export function PropSelector({ value, onValueChange, fieldLabels }: Props) {
         </span>
         <SelectValue placeholder="Select property" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent id="prop-selector">
         {Object.keys(fieldLabels).map((prop) => (
           <SelectItem value={prop} key={prop}>
             {fieldLabels[prop]}

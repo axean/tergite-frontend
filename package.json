@@ -82,6 +82,8 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "cypress": "^13.13.1",
+    "cypress-image-diff-html-report": "^2.2.0",
+    "cypress-image-diff-js": "^2.2.1",
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",

@@ -36,7 +36,7 @@ export function DeviceDetail() {
           <TabsTrigger value="graph">Graph view</TabsTrigger>
           <TabsTrigger value="table">Table view</TabsTrigger>
         </TabsList>
-        <TabsContent value="map">
+        <TabsContent id="map-view" value="map">
           <Card>
             <CalibrationHeader
               device={device}
@@ -56,7 +56,7 @@ export function DeviceDetail() {
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="graph">
+        <TabsContent id="graph-view" value="graph">
           <Card className=" overflow-auto">
             <CalibrationHeader
               device={device}
@@ -74,7 +74,7 @@ export function DeviceDetail() {
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="table">
+        <TabsContent id="table-view" value="table">
           <Card>
             <CalibrationHeader device={device} currentData="Calibration" />
             <CardContent>

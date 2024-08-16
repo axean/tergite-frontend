@@ -1,5 +1,6 @@
 import { defineConfig } from "cypress";
 import dotenv from "dotenv";
+import getCompareSnapshotsPlugin from "cypress-image-diff-js/plugin";
 
 export default defineConfig({
   e2e: {
@@ -7,7 +8,7 @@ export default defineConfig({
       dotenv.config({ path: ".env.test" });
       config.env = { ...config.env, ...process.env };
       // implement node event listeners here
-      return config;
+      return getCompareSnapshotsPlugin(on, config);
     },
     baseUrl: "http://127.0.0.1:5173/",
   },
