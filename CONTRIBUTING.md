@@ -124,6 +124,40 @@ npm run build
 
 - Obtain the built files in the [`/dist`](./dist) folder
 
+## How to Generate Snapshots for CI
+
+The end-to-end tests in the CI files require some linux-specific snapshots. If one is developing non-linux computer, one can generate these snapshots using docker.
+
+- Make sure you have [docker](https://docs.docker.com/engine/install/) installed.
+
+- Clone the repo and enter its root folder
+
+```shell
+git clone git@github.com:tergite/tergite-dashboard.git
+cd tergite-dashboard
+```
+
+- Generate the end-to-end testing image `tergite-dashboard-e2e`
+
+```shell
+docker build -t tergite-dashboard-e2e:latest -f Dockerfile.e2e .
+```
+
+- Run the end-to-end tests using that image
+
+```shell
+docker run --name dash-e2e-test -v ./cypress-image-diff-screenshots:/app/cypress-image-diff-screenshots -e TEST_THRESHOLD=0.4 tergite-dashboard-e2e:latest
+```
+
+- The new baseline snapshots should be added to the [`./cypress-image-diff-screenshots/baseline/`](./cypress-image-diff-screenshots/baseline/) folder
+
+- Now you can commit them to git if anything has changed
+
+```shell
+git add .
+git commit -m "Updated the baseline snapshots for end-to-end tests"
+```
+
 ## References
 
 This document was adapted from [a gist by Brian A. Danielak](https://gist.github.com/briandk/3d2e8b3ec8daf5a27a62) which
