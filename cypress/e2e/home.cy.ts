@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+/// <reference types="cypress-real-events" />
 
 import userList from "../fixtures/users.json";
 import deviceList from "../fixtures/device-list.json";
@@ -188,18 +189,13 @@ users.forEach((user) => {
 
     it("renders the list of user's jobs in selected project", () => {
       cy.viewport(1080, 750);
-      cy.get('[data-testid="topbar"]')
-        .contains("button", /project:/i)
-        .as("projectSelectBtn");
 
       for (const project of userProjects) {
         cy.wrap(project).then((project) => {
-          cy.get("@projectSelectBtn").click();
-
-          cy.get("#project-selector").within(() => {
-            cy.contains(project.name).as("project-btn");
-            cy.get("@project-btn").click();
-          });
+          cy.contains('[data-testid="topbar"] button', /project:/i).click();
+          cy.contains('#project-selector [role="option"]', project.name, {
+            timeout: 500,
+          }).click();
 
           const jobsForProject = allUserJobs.filter(
             (v) => v.project_id === project.id

@@ -18,5 +18,6 @@ import "./commands";
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+import "cypress-real-events";
 import compareSnapshotCommand from "cypress-image-diff-js/command";
 compareSnapshotCommand();

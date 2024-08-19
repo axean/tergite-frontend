@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+/// <reference types="cypress-real-events" />
 
 import userList from "../fixtures/users.json";
 import deviceList from "../fixtures/device-list.json";
@@ -126,12 +127,16 @@ users.forEach((user) => {
           cy.wrap(property).then((property) => {
             const regex = calibrationProperties[property];
 
-            cy.contains("button", /map view/i).click();
-            cy.contains("button", /property:/i).click();
-            cy.get("#prop-selector").within(() => {
-              cy.contains(regex).as("item-btn");
-              cy.get("@item-btn").click();
-            });
+            cy.contains("button", /map view/i).realClick();
+            cy.contains("button", /property:/i)
+              .realClick()
+              .then(() => {
+                cy.get("#prop-selector").within(() => {
+                  cy.contains(regex).as("item-btn");
+                  cy.get("@item-btn").realClick();
+                });
+              });
+
             cy.get("#map-view").compareSnapshot({
               name: `map-view-${platform}-for-${property}-of-${device.id}`,
               testThreshold: Math.max(testThreshold, 0.35),
