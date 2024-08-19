@@ -193,71 +193,73 @@ users.forEach((user) => {
         .as("projectSelectBtn");
 
       for (const project of userProjects) {
-        cy.get("@projectSelectBtn").click();
+        cy.wrap(project).then((project) => {
+          cy.get("@projectSelectBtn").click();
 
-        cy.get("#project-selector").within(() => {
-          cy.contains(project.name).as("project-btn");
-          cy.get("@project-btn").click();
-        });
+          cy.get("#project-selector").within(() => {
+            cy.contains(project.name).as("project-btn");
+            cy.get("@project-btn").click();
+          });
 
-        const jobsForProject = allUserJobs.filter(
-          (v) => v.project_id === project.id
-        );
-        cy.wrap({ jobs: jobsForProject, project }).then((params) => {
-          cy.contains(
-            ".bg-card",
-            new RegExp(`status of your jobs in ${params.project.name}`, "i")
-          ).within(() => {
-            cy.get("table").as("job-list-table");
+          const jobsForProject = allUserJobs.filter(
+            (v) => v.project_id === project.id
+          );
+          cy.wrap({ jobs: jobsForProject, project }).then((params) => {
+            cy.contains(
+              ".bg-card",
+              new RegExp(`status of your jobs in ${params.project.name}`, "i")
+            ).within(() => {
+              cy.get("table").as("job-list-table");
 
-            // header
-            cy.get("@job-list-table")
-              .get("thead th")
-              .each((el, idx) => {
-                expect(el.text()).to.eql(jobTableHeaders[idx]);
-              });
+              // header
+              cy.get("@job-list-table")
+                .get("thead th")
+                .each((el, idx) => {
+                  expect(el.text()).to.eql(jobTableHeaders[idx]);
+                });
 
-            // body
-            cy.get("@job-list-table")
-              .get("tbody")
-              .within(() => {
-                cy.get("tr").each((el, idx) => {
-                  cy.wrap({ el, idx }).then((obj) => {
-                    const job = params.jobs[obj.idx];
+              // body
+              cy.get("@job-list-table")
+                .get("tbody")
+                .within(() => {
+                  cy.get("tr").each((el, idx) => {
+                    cy.wrap({ el, idx }).then((obj) => {
+                      const job = params.jobs[obj.idx];
 
-                    if (job) {
-                      cy.wrap(obj.el).within(() => {
-                        cy.get("td").each((td, cellIdx) => {
-                          cy.wrap({ td, job, idx: cellIdx }).then((cell) => {
-                            const prop = jobTableDataProps[cell.idx];
-                            if (prop === "created_at") {
-                              expect(cell.td.text()).to.match(
-                                // FIXME: Not the right regx for ~ 'Oct 14, 1983, 9:30 AM' but might work
-                                /\d+ \w+ \d+, \d+:\d+ ?(AM)|(PM)?/i
-                              );
-                            } else if (prop === "duration_in_secs") {
-                              expect(cell.td.text()).to.match(
-                                cell.job.duration_in_secs
-                                  ? // FIXME: Not the right regx for ~ '1 days, 2 minutes, 30 seconds' but might work
-                                    /(\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+/i
-                                  : /N\/A/i
-                              );
-                            } else {
-                              expect(cell.td.text()).to.eql(
-                                `${cell.job[prop]}`
-                              );
-                            }
+                      if (job) {
+                        cy.wrap(obj.el).within(() => {
+                          cy.get("td").each((td, cellIdx) => {
+                            cy.wrap({ td, job, idx: cellIdx }).then((cell) => {
+                              const prop = jobTableDataProps[cell.idx];
+                              if (prop === "created_at") {
+                                expect(cell.td.text()).to.match(
+                                  // FIXME: Not the right regx for ~ 'Oct 14, 1983, 9:30 AM' but might work
+                                  /\d+ \w+ \d+, \d+:\d+ ?(AM)|(PM)?/i
+                                );
+                              } else if (prop === "duration_in_secs") {
+                                expect(cell.td.text()).to.match(
+                                  cell.job.duration_in_secs
+                                    ? // FIXME: Not the right regx for ~ '1 days, 2 minutes, 30 seconds' but might work
+                                      /(\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+/i
+                                    : /N\/A/i
+                                );
+                              } else {
+                                expect(cell.td.text()).to.eql(
+                                  `${cell.job[prop]}`
+                                );
+                              }
+                            });
                           });
                         });
-                      });
-                    } else {
-                      cy.wrap(obj.el).within(() => {
-                        cy.contains("td", /no results/i).should("be.visible");
-                      });
-                    }
+                      } else {
+                        cy.wrap(obj.el).within(() => {
+                          cy.contains("td", /no results/i).should("be.visible");
+                        });
+                      }
+                    });
                   });
                 });
-              });
+            });
           });
         });
       }
