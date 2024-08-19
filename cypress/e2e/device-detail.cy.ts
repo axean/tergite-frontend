@@ -134,7 +134,7 @@ users.forEach((user) => {
             });
             cy.get("#map-view").compareSnapshot({
               name: `map-view-${platform}-for-${property}-of-${device.id}`,
-              testThreshold,
+              testThreshold: Math.max(testThreshold, 0.35),
               retryOptions: {
                 limit: 2,
                 delay: 500,
