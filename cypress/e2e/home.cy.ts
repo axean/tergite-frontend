@@ -194,7 +194,11 @@ users.forEach((user) => {
 
       for (const project of userProjects) {
         cy.get("@projectSelectBtn").click();
-        cy.get(`[data-cy-project='${project.name}']`).click();
+
+        cy.get("#project-selector").within(() => {
+          cy.contains(project.name).as("project-btn");
+          cy.get("@project-btn").click();
+        });
 
         const jobsForProject = allUserJobs.filter(
           (v) => v.project_id === project.id

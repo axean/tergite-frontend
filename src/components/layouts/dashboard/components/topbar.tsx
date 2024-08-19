@@ -60,13 +60,9 @@ export function Topbar({
           </span>
           <SelectValue placeholder="Select project" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent id="project-selector">
           {projects.map((project) => (
-            <SelectItem
-              data-cy-project={project.name}
-              value={project.ext_id}
-              key={project.ext_id}
-            >
+            <SelectItem value={project.ext_id} key={project.ext_id}>
               {project.name}
             </SelectItem>
           ))}
