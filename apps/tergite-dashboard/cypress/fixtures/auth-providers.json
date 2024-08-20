@@ -1,0 +1,22 @@
+[
+  {
+    "id": "123u",
+    "name": "github",
+    "email_domain": "example.com"
+  },
+  {
+    "id": "7843934",
+    "name": "chalmers",
+    "email_domain": "chalmers.se"
+  },
+  {
+    "id": "uyu7899",
+    "name": "foobar",
+    "email_domain": "foobar.ug"
+  },
+  {
+    "id": "16778u",
+    "name": "example",
+    "email_domain": "example.com"
+  }
+]

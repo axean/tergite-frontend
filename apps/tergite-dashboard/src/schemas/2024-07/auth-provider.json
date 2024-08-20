@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/tergite/tergite-dashboard/tree/main/src/schemas/2024-07/auth-provider.json",
+  "title": "Auth provider",
+  "description": "The third-party Oauth2 provider to use to authenticate users",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The unique identifier of the record in the database",
+      "type": "string"
+    },
+    "name": {
+      "description": "The name of the third party provider as will appear in URL's",
+      "type": "string"
+    },
+    "email_domain": {
+      "description": "domain section of all emails that can authenticate with the given provider",
+      "type": "string",
+      "pattern": "^([A-Z0-9][A-Z0-9\\-]*\\.)+[A-Z]{2,}$"
+    },
+    "created_at": {
+      "description": "The ISO 8601 timestamp when this record was created in the database",
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "description": "The ISO 8601 timestamp when this record was last updated in the database",
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["id", "name", "email_domain"]
+}

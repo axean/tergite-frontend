@@ -1,0 +1,39 @@
+name: Dashboard CI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+    paths:
+      - "apps/tergite-dashboard/**"
+  pull_request:
+    paths:
+      - "apps/tergite-dashboard/**"
+concurrency:
+  # cancel any previous run on this branch or tag that is still in progress
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Nodejs 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Lint
+        run: |
+          cd apps/tergite-dashboard
+          npm ci
+          npm run lint
+      - name: Component tests
+        run: npm run test
+      - name: End-to-end tests
+        run: |
+          echo "TEST_THRESHOLD=${{ vars.TEST_THRESHOLD }}" >> .env.test
+          npm run e2e
