@@ -32,8 +32,11 @@ jobs:
           npm ci
           npm run lint
       - name: Component tests
-        run: npm run test
+        run: |
+          cd apps/tergite-dashboard
+          npm run test
       - name: End-to-end tests
         run: |
+          cd apps/tergite-dashboard
           echo "TEST_THRESHOLD=${{ vars.TEST_THRESHOLD }}" >> .env.test
           npm run e2e
