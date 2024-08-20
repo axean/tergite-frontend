@@ -27,15 +27,15 @@ services:
     build:
       context: apps/tergite-dashboard
       dockerfile: Dockerfile
+      additional_contexts:
+        parent-folder: ./
       args:
         - VITE_API_BASE_URL=${MSS_V2_API_URL}
-        - MSS_CONFIG_FILE=/app/mss-config.toml
+        - MSS_CONFIG_FILE=./mss-config.toml
     logging:
       driver: ${LOGGING_DRIVER}
     ports:
       - "3000:80"
-    volumes:
-      - ./mss-config.toml:/app/mss-config.toml:ro
     env_file:
       - .env
 
