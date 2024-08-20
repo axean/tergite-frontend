@@ -2,26 +2,6 @@
 version: "3"
 
 services:
-  landing-page:
-    restart: always
-    depends_on:
-      - mss
-    image: "tergite/tergite-landing-page:${LANDING_PAGE_VERSION:-v0.1.1}"
-    build:
-      context: apps/tergite-landing-page
-      dockerfile: FullDockerfile
-    logging:
-      driver: ${LOGGING_DRIVER}
-    ports:
-      - "8030:80"
-    environment:
-      - API_BASE_URL=http://mss
-      - MSS_CONFIG_FILE=/app/mss-config.toml
-    volumes:
-      - ./mss-config.toml:/app/mss-config.toml:ro
-    env_file:
-      - .env
-
   mss:
     restart: always
     image: "tergite/tergite-mss:${MSS_VERSION:-v0.4.0}"
@@ -39,21 +19,21 @@ services:
     env_file:
       - .env
 
-  webgui:
+  dashboard:
     restart: always
     depends_on:
       - mss
-    image: "tergite/tergite-webgui:${WEBGUI_VERSION:-v0.0.4}"
+    image: "tergite/tergite-dashboard:${DASHBOARD_VERSION:-v0.5.0}"
     build:
-      context: apps/tergite-webgui
-      dockerfile: FullDockerfile
+      context: apps/tergite-dashboard
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=${MSS_V2_API_URL}
+        - MSS_CONFIG_FILE=/app/mss-config.toml
     logging:
       driver: ${LOGGING_DRIVER}
     ports:
-      - "3000:3000"
-    environment:
-      - API_BASE_URL=http://mss
-      - MSS_CONFIG_FILE=/app/mss-config.toml
+      - "3000:80"
     volumes:
       - ./mss-config.toml:/app/mss-config.toml:ro
     env_file:

@@ -90,9 +90,8 @@ All signed CLAs are emails to us at <quantum.nextlabs@chalmers.se>.
 
 Please refer to the `CONTRIBUTING.md` file of the app in question.
 
-- [./apps/tergite-landing-page/CONTRIBUTING.md](./apps/tergite-landing-page/CONTRIBUTING.md)
+- [./apps/tergite-dashboard/CONTRIBUTING.md](./apps/tergite-dashboard/CONTRIBUTING.md)
 - [./apps/tergite-mss/CONTRIBUTING.md](./apps/tergite-mss/CONTRIBUTING.md)
-- [./apps/tergite-webgui/CONTRIBUTING.md](./apps/tergite-webgui/CONTRIBUTING.md)
 
 ## License
 
