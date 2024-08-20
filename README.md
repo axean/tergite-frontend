@@ -12,7 +12,7 @@ If you are reading this on GitHub, then you are looking at a mirror.
 
 ## Major Dependencies
 
-- [Nodejs +20.12](https://nodejs.org/)
+- [Nodejs 20](https://nodejs.org/)
 - [Vitejs +5.2.0](https://vitejs.dev/)
 - [tailwind CSS +3.4.4](https://tailwindcss.com/)
 - [Shadcn UI](https://ui.shadcn.com/)

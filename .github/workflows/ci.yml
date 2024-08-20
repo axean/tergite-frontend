@@ -8,22 +8,21 @@ on:
       - "v*"
   pull_request:
 
+concurrency:
+  # cancel any previous run on this branch or tag that is still in progress
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   tests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version:
-          - "20"
-          - "21"
-          - "22"
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Nodejs ${{ matrix.node-version }}
+      - name: Set up Nodejs 20
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20
       - name: Lint
         run: |
           npm ci
