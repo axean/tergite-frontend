@@ -80,7 +80,7 @@ docker compose -f prebuilt-docker-compose.yml up -d
 - Open your browser at
 
   - [http://localhost:8002](http://localhost:8002) to see the MSS service
-  - [http://localhost:3000](http://localhost:3000) to see the webGUI application
+  - [http://localhost:3000](http://localhost:3000) to see the dashboard application
 
 - To ensure that the services start up even on server restarts, run:
 
