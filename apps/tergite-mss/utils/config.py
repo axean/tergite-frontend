@@ -119,12 +119,29 @@ class Oauth2ClientConfig(BaseModel, extra=Extra.allow):
     # default = ".*"
     email_regex: str = ".*"
 
+    # the domain of the emails of the users that should be directed to this auth client
+    email_domain: str
+
     # The set of roles every user who logs in via this method should get.
     # Possible roles include: "admin", "user", "researcher", "partner". Default is 'user'
     roles: List[UserRole] = [UserRole.USER]
 
     # config fields that are not used to create the client
-    _non_client_fields = {"client_type", "redirect_url", "email_regex", "roles"}
+    _non_client_fields = {
+        "client_type",
+        "redirect_url",
+        "email_regex",
+        "roles",
+        "email_domain",
+    }
+
+    @property
+    def redirect_url_v2(self):
+        """The redirect URL for version 2"""
+        # FIXME: the redirect url is still referring to the v1 version of the api; remove this in future
+        return self.redirect_url.replace(
+            f"/auth/app/{self.name}", f"/v2/auth/{self.name}"
+        )
 
 
 class AuthConfig(BaseModel):

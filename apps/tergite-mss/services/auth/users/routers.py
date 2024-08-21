@@ -12,12 +12,15 @@
 from typing import Dict, List, Optional, Tuple
 
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.requests import Request
+from fastapi.responses import RedirectResponse
 from fastapi_users import BaseUserManager, models
-from fastapi_users.authentication import AuthenticationBackend, Strategy
+from fastapi_users.authentication import AuthenticationBackend, Authenticator, Strategy
 from fastapi_users.exceptions import UserAlreadyExists
 from fastapi_users.jwt import SecretType, decode_jwt
 from fastapi_users.manager import UserManagerDependency
+from fastapi_users.openapi import OpenAPIResponseType
 from fastapi_users.router import ErrorCode
 from fastapi_users.router.common import ErrorModel
 from fastapi_users.router.oauth import (
@@ -27,9 +30,6 @@ from fastapi_users.router.oauth import (
 )
 from httpx_oauth.integrations.fastapi import OAuth2AuthorizeCallback
 from httpx_oauth.oauth2 import BaseOAuth2, OAuth2Token
-from starlette import status
-from starlette.requests import Request
-from starlette.responses import RedirectResponse
 
 
 def get_oauth_router(
@@ -56,6 +56,32 @@ def get_oauth_router(
             route_name=callback_route_name,
         )
 
+    async def get_authorization_url(
+        request: Request, scopes: Optional[List[str]], _next: Optional[str]
+    ) -> str:
+        """Gets the authorization url for this Oauth2 provider
+
+        Args:
+            request: the FastAPI request object
+            scopes: the Oauth2 scopes
+            _next: the url to redirect to after successful authentication
+
+        Returns:
+            the authorization url
+        """
+        if redirect_url is not None:
+            authorize_redirect_url = redirect_url
+        else:
+            authorize_redirect_url = str(request.url_for(callback_route_name))
+
+        state_data: Dict[str, str] = {"next": _next}
+        state = generate_state_token(state_data, state_secret)
+        return await oauth_client.get_authorization_url(
+            authorize_redirect_url,
+            state,
+            scopes,
+        )
+
     @router.get(
         "/authorize",
         name=f"oauth:{oauth_client.name}.{backend.name}.authorize",
@@ -66,20 +92,30 @@ def get_oauth_router(
         scopes: List[str] = Query(None),
         _next: str = Query(None, alias="next"),
     ) -> OAuth2AuthorizeResponse:
-        if redirect_url is not None:
-            authorize_redirect_url = redirect_url
-        else:
-            authorize_redirect_url = str(request.url_for(callback_route_name))
-
-        state_data: Dict[str, str] = {"next": _next}
-        state = generate_state_token(state_data, state_secret)
-        authorization_url = await oauth_client.get_authorization_url(
-            authorize_redirect_url,
-            state,
+        authorization_url = await get_authorization_url(
+            request,
             scopes,
+            _next,
         )
 
         return OAuth2AuthorizeResponse(authorization_url=authorization_url)
+
+    @router.get(
+        "/auto-authorize",
+        name=f"oauth:{oauth_client.name}.{backend.name}.authorize",
+        response_class=RedirectResponse,
+    )
+    async def auto_authorize(
+        request: Request,
+        scopes: List[str] = Query(None),
+        _next: str = Query(None, alias="next"),
+    ):
+        """Automatically redirects to the authorization URL"""
+        return await get_authorization_url(
+            request,
+            scopes,
+            _next,
+        )
 
     @router.get(
         "/callback",
@@ -161,5 +197,38 @@ def get_oauth_router(
         if _next is not None:
             return RedirectResponse(_next, headers=response.headers)
         return response
+
+    return router
+
+
+def get_auth_router(
+    backend: AuthenticationBackend,
+    authenticator: Authenticator,
+    requires_verification: bool = False,
+) -> APIRouter:
+    """Generate a router with login/logout routes for an authentication backend."""
+    router = APIRouter()
+    get_current_user_token = authenticator.current_user_token(
+        active=True, verified=requires_verification
+    )
+
+    logout_responses: OpenAPIResponseType = {
+        **{
+            status.HTTP_401_UNAUTHORIZED: {
+                "description": "Missing token or inactive user."
+            }
+        },
+        **backend.transport.get_openapi_logout_responses_success(),
+    }
+
+    @router.post(
+        "/logout", name=f"auth:{backend.name}.logout", responses=logout_responses
+    )
+    async def logout(
+        user_token: Tuple[models.UP, str] = Depends(get_current_user_token),
+        strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
+    ):
+        user, token = user_token
+        return await backend.logout(strategy, user, token)
 
     return router

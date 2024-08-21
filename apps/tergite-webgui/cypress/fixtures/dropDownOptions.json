@@ -1,9 +1,0 @@
-[
-    "pulse_amp",
-    "pulse_freq",
-    "pulse_drag",
-    "pulse_detune",
-    "qubit_pulse_length",
-    "gate_err",
-    "id"
-]

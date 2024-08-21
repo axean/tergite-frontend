@@ -1,10 +1,12 @@
+from http.cookiejar import Cookie, CookieJar
+
 from tests._utils.env import (
     TEST_BACKENDS,
-    TEST_MSS_CONFIG_FILE,
     TEST_DB_NAME,
     TEST_DISABLED_PUHURI_MSS_CONFIG_FILE,
     TEST_JWT_SECRET,
     TEST_MONGODB_URL,
+    TEST_MSS_CONFIG_FILE,
     TEST_NO_AUTH_MSS_CONFIG_FILE,
     TEST_PUHURI_CONFIG_ENDPOINT,
     setup_test_env,
@@ -49,11 +51,13 @@ from tests._utils.auth import (
     TEST_SUPERUSER_EMAIL,
     TEST_SUPERUSER_ID,
     TEST_SYSTEM_USER_APP_TOKEN_STRING,
+    TEST_USER_DICT,
     TEST_USER_EMAIL,
     TEST_USER_ID,
     get_db_record,
     get_jwt_token,
     init_test_auth,
+    init_test_auth_v2,
     insert_if_not_exist,
 )
 from tests._utils.fixtures import load_json_fixture
@@ -62,6 +66,7 @@ from tests._utils.waldur import MockWaldurClient
 
 _PUHURI_OPENID_CONFIG = load_json_fixture("puhuri_openid_config.json")
 PROJECT_LIST = load_json_fixture("project_list.json")
+PROJECT_V2_LIST = load_json_fixture("project_v2_list.json")
 APP_TOKEN_LIST = load_json_fixture("app_token_list.json")
 TEST_NEXT_COOKIE_URL = "https://testserver/"
 
@@ -138,6 +143,12 @@ def app_token_header() -> Dict[str, str]:
 
 
 @pytest.fixture
+def current_user_id() -> Dict[str, str]:
+    """the current user for the default app token"""
+    yield TEST_USER_DICT["_id"]
+
+
+@pytest.fixture
 def no_qpu_app_token_header() -> Dict[str, str]:
     """the auth header for the client when the project has negative qpu seconds"""
     yield {"Authorization": f"Bearer {TEST_NO_QPU_APP_TOKEN_STRING}"}
@@ -162,6 +173,18 @@ def admin_jwt_header() -> Dict[str, str]:
 
 
 @pytest.fixture
+def user_jwt_cookie() -> Dict[str, str]:
+    """the auth cookie for the client when JWT of user is used"""
+    yield get_auth_cookie(TEST_USER_ID)
+
+
+@pytest.fixture
+def admin_jwt_cookie() -> Dict[str, str]:
+    """the auth cookie for the client when JWT of an admin is used"""
+    yield get_auth_cookie(TEST_SUPERUSER_ID)
+
+
+@pytest.fixture
 def project_id(db) -> PydanticObjectId:
     """the project id for the default app token header"""
     from services.auth import Project
@@ -176,6 +199,15 @@ def client(db) -> TestClient:
     from api.rest import app
 
     init_test_auth(db)
+    yield TestClient(app)
+
+
+@pytest.fixture
+def client_v2(db) -> TestClient:
+    """A test client for fast api for v2"""
+    from api.rest import app
+
+    init_test_auth_v2(db)
     yield TestClient(app)
 
 
@@ -208,6 +240,19 @@ def inserted_projects(db) -> Dict[str, Dict[str, Any]]:
 
 
 @pytest.fixture
+def inserted_projects_v2(db) -> Dict[str, Dict[str, Any]]:
+    """A dictionary of inserted projects v2"""
+    from services.auth import Project
+
+    projects = {}
+    for item in PROJECT_V2_LIST:
+        projects[item["_id"]] = {**item}
+        insert_if_not_exist(db, Project, {**item, "_id": PydanticObjectId(item["_id"])})
+
+    yield projects
+
+
+@pytest.fixture
 def existing_puhuri_projects(db) -> List[Dict[str, Any]]:
     """A list of pre-existing puhuri projects"""
     from services.auth import Project
@@ -229,6 +274,12 @@ def existing_puhuri_projects(db) -> List[Dict[str, Any]]:
 def inserted_project_ids(inserted_projects) -> List[str]:
     """A list of inserted project ids"""
     yield list(inserted_projects.keys())
+
+
+@pytest.fixture
+def inserted_project_ids_v2(inserted_projects_v2) -> List[str]:
+    """A list of inserted project ids for version 2"""
+    yield list(inserted_projects_v2.keys())
 
 
 @pytest.fixture
@@ -422,6 +473,11 @@ def get_auth_header(user_id: str) -> Dict[str, Any]:
     return {"Authorization": f"Bearer {get_jwt_token(user_id)}"}
 
 
+def get_auth_cookie(user_id: str) -> Dict[str, str]:
+    """Retrieves the authorization cookie for the given user_id"""
+    return {"some-cookie": get_jwt_token(user_id)}
+
+
 def get_unauthorized_app_token_post():
     """Returns the body and headers for unauthorized app token generation POST
 
@@ -448,6 +504,39 @@ def get_unauthorized_app_token_post():
 
     user_only_post_data = [
         (body, get_auth_header(TEST_SUPERUSER_ID))
+        for body in APP_TOKEN_LIST
+        if body["project_ext_id"] in user_only_projects
+    ]
+
+    return admin_only_post_data + user_only_post_data
+
+
+def get_unauthorized_app_token_post_with_cookies():
+    """Returns the body and cookies for unauthorized app token generation POST
+
+    The auth cookie provided is for a user who does not have access
+    to the given project
+    """
+    admin_only_projects = [
+        project["ext_id"]
+        for project in PROJECT_LIST
+        if project["user_emails"] == [TEST_SUPERUSER_EMAIL]
+    ]
+
+    user_only_projects = [
+        project["ext_id"]
+        for project in PROJECT_LIST
+        if project["user_emails"] == [TEST_USER_EMAIL]
+    ]
+
+    admin_only_post_data = [
+        (body, get_auth_cookie(TEST_USER_ID))
+        for body in APP_TOKEN_LIST
+        if body["project_ext_id"] in admin_only_projects
+    ]
+
+    user_only_post_data = [
+        (body, get_auth_cookie(TEST_SUPERUSER_ID))
         for body in APP_TOKEN_LIST
         if body["project_ext_id"] in user_only_projects
     ]

@@ -1,3 +1,4 @@
+from .dtos import DeviceV2
 from .service import (
     append_latest_device_config,
     append_latest_device_info,
@@ -25,3 +26,4 @@ from .service import (
     patch_backend,
     upsert_backend,
 )
+from .service_v2 import get_all_devices, get_one_device, patch_device, upsert_device

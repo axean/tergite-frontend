@@ -1,7 +1,0 @@
-build
-coverage
-node_modules
-.dist
-.next
-.git
-.*

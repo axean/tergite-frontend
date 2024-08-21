@@ -16,9 +16,8 @@
 # that they have been altered from the originals.
 import logging
 from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
-from uuid import UUID, uuid4
+from uuid import UUID
 
-from beanie import PydanticObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from services.external.bcc import BccClient
@@ -26,7 +25,7 @@ from utils import mongodb as mongodb_utils
 from utils.date_time import get_current_timestamp
 
 from ..auth import Project
-from .dtos import CreatedJobResponse, JobTimestamps
+from .dtos import CreatedJobResponse, JobCreate, JobTimestamps, JobV1, JobV2
 
 if TYPE_CHECKING:
     from ..auth.projects.database import ProjectDatabase
@@ -101,8 +100,7 @@ async def get_job_download_url(db: AsyncIOMotorDatabase, job_id: UUID):
 async def create_job(
     db: AsyncIOMotorDatabase,
     bcc_client: BccClient,
-    backend: str,
-    project_id: Optional[PydanticObjectId] = None,
+    job: JobCreate,
     app_token: Optional[str] = None,
 ) -> CreatedJobResponse:
     """Creates a new job for the given backend
@@ -110,8 +108,7 @@ async def create_job(
     Args:
         db: the mongo database from where to create the job
         bcc_client: the HTTP client for accessing BCC
-        backend: the backend where the job is to run
-        project_id: the ID of the project to which this job is attached
+        job: the job object to create
         app_token: the associated with this new job. It is None if no auth is required
 
     Returns:
@@ -123,37 +120,38 @@ async def create_job(
             ServiceUnavailableError: backend is currently unavailable.
                 See :meth:`utils.http_clients.BccClient.save_credentials`
     """
-    job_id = f"{uuid4()}"
-    logging.info(f"Creating new job with id: {job_id}")
-    project_id = str(project_id) if project_id is not None else None
-
-    document = {
-        "job_id": job_id,
-        "project_id": project_id,
-        "status": "REGISTERING",
-        "backend": backend,
-    }
-
-    await bcc_client.save_credentials(job_id=job_id, app_token=f"{app_token}")
-    await mongodb_utils.insert_one(collection=db.jobs, document=document)
+    logging.info(f"Creating new job with id: {job.job_id}")
+    await bcc_client.save_credentials(job_id=job.job_id, app_token=f"{app_token}")
+    await mongodb_utils.insert_one(collection=db.jobs, document=job.dict())
 
     upload_url = _without_special_docker_host_domain(f"{bcc_client.base_url}/jobs")
 
     return {
-        "job_id": job_id,
+        "job_id": job.job_id,
         "upload_url": upload_url,
     }
 
 
-async def get_latest_many(db: AsyncIOMotorDatabase, limit: int = 10):
+async def get_latest_many(
+    db: AsyncIOMotorDatabase,
+    filters: Optional[dict] = None,
+    limit: int = -1,
+    exclude: Tuple[str] = (),
+):
     """Retrieves the latest jobs up to the given limit
 
     Args:
         db: the mongo database from where to get the jobs
-        limit: maximum number of records to return
+        filters: the mongodb like filters which all returned records should satisfy
+        limit: maximum number of records to return; default = -1 meaning all of them
+        exclude: the fields to exclude
     """
-    return await mongodb_utils.find_all(
-        db.jobs, limit=limit, **mongodb_utils.LATEST_FIRST_SORT
+    return await mongodb_utils.find(
+        db.jobs,
+        limit=limit,
+        filters=filters,
+        exclude=exclude,
+        **mongodb_utils.LATEST_FIRST_SORT,
     )
 
 

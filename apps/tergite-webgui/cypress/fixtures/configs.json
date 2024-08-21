@@ -1,7 +1,0 @@
-{
-	"mssBaseUrl": "http://0.0.0.0:8002/v2",
-	"landingPageUrl": "http://localhost:3000",
-	"webguiBaseUrl": "http://127.0.0.1:3001",
-	"correctMLExperimentID": "ba8290fd"
-}
-

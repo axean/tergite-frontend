@@ -14,13 +14,11 @@ If you are reading this on GitHub, then you are looking at a mirror.
 
 ## Services
 
-- [Tergite Landing Page](./apps/tergite-landing-page/) [![Landing Page CI](https://github.com/tergite/tergite-frontend/actions/workflows/landing-page-ci.yml/badge.svg)](https://github.com/tergite/tergite-frontend/actions/workflows/landing-page-ci.yml)  
-  The website that welcomes all users by default
+- [Tergite Dashboard](./apps/tergite-dashboard/) [![Dashboard CI](https://github.com/tergite/tergite-frontend/actions/workflows/dashboard-ci.yml/badge.svg)](https://github.com/tergite/tergite-frontend/actions/workflows/dashboard-ci.yml)  
+  The website that shows the state of the quantum computer
 - [Tergite Main Service Server or MSS](./apps/tergite-mss/) [![MSS CI](https://github.com/tergite/tergite-frontend/actions/workflows/mss-ci.yml/badge.svg)](https://github.com/tergite/tergite-frontend/actions/workflows/mss-ci.yml)  
   The server that controls all services on this frontend.  
-  It also exposes the REST API through which other clients like [tergite-qiskit-connector](https://github.com/tergite/tergite-qiskit-connector) communicate with the quantum computers.
-- [Tergite WebGUI](./apps/tergite-webgui/) [![WebGUI CI](https://github.com/tergite/tergite-frontend/actions/workflows/webgui-ci.yml/badge.svg)](https://github.com/tergite/tergite-frontend/actions/workflows/webgui-ci.yml)  
-  The website that welcomes all users by default
+  It also exposes the REST API through which other clients like [tergite SDK](https://github.com/tergite/tergite) communicate with the quantum computers.
 
 ## Dependencies
 
@@ -40,7 +38,7 @@ If you are reading this on GitHub, then you are looking at a mirror.
 git clone git@github.com:tergite/tergite-frontend.git
 ```
 
-- You might need to login to a hosted docker container registry e.g. one based on the [tergite-registry repo](https://github.com/tergite/tergite-registry), 
+- You might need to login to a hosted docker container registry e.g. one based on the [tergite-registry repo](https://github.com/tergite/tergite-registry),
   especially if you are going to use prebuilt tergite images.
 
 ```shell
@@ -81,7 +79,6 @@ docker compose -f prebuilt-docker-compose.yml up -d
 
 - Open your browser at
 
-  - [http://localhost:8030](http://localhost:8030) to see the landing page
   - [http://localhost:8002](http://localhost:8002) to see the MSS service
   - [http://localhost:3000](http://localhost:3000) to see the webGUI application
 

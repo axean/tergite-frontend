@@ -25,7 +25,8 @@ from .dependencies import (
     CurrentStrictProjectDep,
     get_default_mongodb,
 )
-from .routers import auth, calibrations, devices, jobs, random
+from .routers import v1
+from .routers.v2 import v2_router
 
 # application
 app = FastAPI(**get_app_kwargs())
@@ -39,13 +40,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(devices.devices_router, dependencies=[CurrentProjectDep])
-app.include_router(devices.backends_router)
-app.include_router(jobs.router)
-app.include_router(calibrations.router)
-app.include_router(random.rng_router, dependencies=[CurrentProjectDep])
-app.include_router(random.random_router)
-app.include_router(auth.router)
+app.include_router(v1.devices_router, dependencies=[CurrentProjectDep])
+app.include_router(v1.backends_router)
+app.include_router(v1.jobs_router)
+app.include_router(v1.calibrations_router)
+app.include_router(v1.rng_router, dependencies=[CurrentProjectDep])
+app.include_router(v1.random_router)
+app.include_router(v1.auth_router)
+app.include_router(v2_router)
 
 
 @app.get("/")

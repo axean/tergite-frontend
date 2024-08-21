@@ -9,11 +9,21 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 Please refer to the `CHANGELOG.md` file of the app in question.
 
-- [./apps/tergite-landing-page/CHANGELOG.md](./apps/tergite-landing-page/CHANGELOG.md)
+- [./apps/tergite-dashboard/CHANGELOG.md](./apps/tergite-dashboard/CHANGELOG.md)
 - [./apps/tergite-mss/CHANGELOG.md](./apps/tergite-mss/CHANGELOG.md)
-- [./apps/tergite-webgui/CHANGELOG.md](./apps/tergite-webgui/CHANGELOG.md)
 
 ## [unreleased]
+
+### Added
+
+- Added the tergite-dashboard app
+
+### Changed
+
+- Removed the tergite-landing-page app
+- Removed the tergite-webgui app
+
+### Fixed
 
 ## [2024.04.1] - 2024-05-28
 

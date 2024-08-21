@@ -69,8 +69,8 @@ async def get_all_backends(db: AsyncIOMotorDatabase):
     Returns:
         a list of all backends found in the backend collection
     """
-    return await mongodb_utils.find_all(
-        db.backends, limit=-1, **mongodb_utils.LATEST_FIRST_SORT
+    return await mongodb_utils.find(
+        db.backends, limit=-1, exclude=("_id",), **mongodb_utils.LATEST_FIRST_SORT
     )
 
 
@@ -261,7 +261,6 @@ async def get_backend_data_snapshot(
             },
             "_force_refresh": False,
         },
-        {"_id": False, "_force_refresh": False},
         sort=[("last_update_date", _DB_SORT_ASCENDING)],
     )
     items = await cursor.to_list(length=_DB_SNAPSHOT_LIST_LENGTH)
