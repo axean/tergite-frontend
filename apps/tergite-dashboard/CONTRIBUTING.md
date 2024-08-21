@@ -84,8 +84,8 @@ All signed CLAs are emails to us at <quantum.nextlabs@chalmers.se>.
 - Clone the repo and enter its root folder
 
 ```shell
-git clone git@github.com:tergite/tergite-dashboard.git
-cd tergite-dashboard
+git clone git@github.com:tergite/tergite-frontend.git
+cd apps/tergite-dashboard
 ```
 
 - Install the dependencies
@@ -106,8 +106,8 @@ npm run test
 - Clone the repo and enter its root folder
 
 ```shell
-git clone git@github.com:tergite/tergite-dashboard.git
-cd tergite-dashboard
+git clone git@github.com:tergite/tergite-frontend.git
+cd apps/tergite-dashboard
 ```
 
 - Install the dependencies
@@ -133,8 +133,8 @@ The end-to-end tests in the CI files require some linux-specific snapshots. If o
 - Clone the repo and enter its root folder
 
 ```shell
-git clone git@github.com:tergite/tergite-dashboard.git
-cd tergite-dashboard
+git clone git@github.com:tergite/tergite-frontend.git
+cd apps/tergite-dashboard
 ```
 
 - Generate the end-to-end testing image `tergite-dashboard-e2e`

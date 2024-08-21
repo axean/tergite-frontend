@@ -26,8 +26,8 @@ If you are reading this on GitHub, then you are looking at a mirror.
 - Clone the repo and enter its root folder
 
 ```shell
-git clone git@github.com:tergite/tergite-dashboard.git
-cd tergite-dashboard
+git clone git@github.com:tergite/tergite-frontend.git
+cd apps/tergite-dashboard
 ```
 
 - Install the dependencies
