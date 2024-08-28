@@ -41,7 +41,7 @@ export default function LoginForm() {
 
   return (
     <main className="grid gap-4 p-4 md:gap-8 grid-cols-1 lg:grid-cols-2 h-screen">
-      <div className="w-full h-full hidden lg:block m-4 rounded-md my-auto bg-[url('/img/quantum-computer.png')] bg-no-repeat bg-center bg-cover"></div>
+      <div className="w-full h-full hidden lg:block m-4 rounded-md my-auto bg-[url('/img/quantum-computer.jpg')] bg-no-repeat bg-center bg-cover"></div>
       <div className="w-full p-4 my-auto">
         <div className="mb-40">
           <div data-cy-logo className="text-center">
