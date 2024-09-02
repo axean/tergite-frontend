@@ -14,6 +14,8 @@ Please refer to the `CHANGELOG.md` file of the app in question.
 
 ## [unreleased]
 
+## [2024.09.0] - 2024-09-02
+
 ### Added
 
 - Added the tergite-dashboard app
