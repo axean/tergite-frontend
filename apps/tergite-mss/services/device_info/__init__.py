@@ -1,4 +1,4 @@
-from .dtos import DeviceV2
+from .dtos import DeviceV2, DeviceV2Upsert
 from .service import (
     append_latest_device_config,
     append_latest_device_info,

@@ -16,7 +16,7 @@
 
 
 import logging
-from typing import Any, Dict, List
+from typing import List
 
 from fastapi import APIRouter, HTTPException, status
 
@@ -44,40 +44,35 @@ async def read_one(db: MongoDbDep, name: str):
         )
 
 
-@router.put("")
+@router.put("", response_model=device_info.DeviceV2)
 async def upsert(
     db: MongoDbDep,
     user: CurrentSystemUserProjectDep,
-    payload: Dict[str, Any],
+    payload: device_info.DeviceV2Upsert,
 ):
     """Creates a new backend if it does not exist already or updates it.
 
     It also appends this resultant backend config into the backends log.
     """
-    if "name" not in payload:
-        return "Device needs to have a name"
-
     try:
-        await device_info.upsert_device(db, payload=payload)
+        return await device_info.upsert_device(db, payload=payload)
     except ValueError as exp:
         logging.error(exp)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"{exp}"
         )
 
-    return "OK"
 
-
-@router.put("/{name}")
+@router.put("/{name}", response_model=device_info.DeviceV2)
 async def update(
     db: MongoDbDep, user: CurrentSystemUserProjectDep, name: str, body: dict
 ):
     """Updates the given backend with the new body supplied."""
     try:
-        await device_info.patch_device(db, name, payload=body)
+        return await device_info.patch_device(db, name, payload=body)
     except ValueError as exp:
         logging.error(exp)
-        # FIXME: change this to an HTTPException
-        return {"message": "Server failed to update the documents."}
-
-    return "OK"
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Server failed to update the documents.",
+        )
