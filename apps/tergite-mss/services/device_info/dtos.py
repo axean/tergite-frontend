@@ -18,8 +18,9 @@ from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Tuple, Uni
 
 from beanie import PydanticObjectId
 from bson import ObjectId
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
+from utils.date_time import datetime_to_zulu
 from utils.models import ZEncodedBaseModel
 
 if TYPE_CHECKING:
@@ -269,26 +270,22 @@ class VisualisationType(Enum):
         return list(map(lambda c: c.value, cls))
 
 
-class DeviceV2(ZEncodedBaseModel):
-    """The Schema for the devices"""
+class DeviceV2Upsert(ZEncodedBaseModel):
+    """The schema for upserting device"""
 
-    id: PydanticObjectId
     name: str
     version: str
     number_of_qubits: int
-    last_online: Optional[datetime] = None
+    last_online: Optional[str] = None
     is_online: bool
     basis_gates: List[str]
     coupling_map: List[Tuple[int, int]]
     coordinates: List[Tuple[int, int]]
     is_simulator: bool
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
 
     class Config:
-        orm_mode = True
-        json_encoders = {ObjectId: str}
-        fields = {"id": "_id"}
+        json_encoders = {datetime: datetime_to_zulu}
+        extra = Extra.allow
 
     def dict(
         self,
@@ -309,3 +306,17 @@ class DeviceV2(ZEncodedBaseModel):
             exclude_defaults=exclude_defaults,
             exclude_none=True,
         )
+
+
+class DeviceV2(DeviceV2Upsert):
+    """The Schema for the devices"""
+
+    id: PydanticObjectId
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+    class Config:
+        fields = {"id": "_id"}
+        orm_mode = True
+        json_encoders = {ObjectId: str, datetime: datetime_to_zulu}
+        extra = Extra.allow

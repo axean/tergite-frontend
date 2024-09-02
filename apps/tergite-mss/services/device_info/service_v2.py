@@ -21,6 +21,8 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from utils import mongodb as mongodb_utils
 from utils.date_time import get_current_timestamp
 
+from .dtos import DeviceV2Upsert
+
 
 async def on_startup() -> None:
     """Call this event when fastapi starts. Currently not used."""
@@ -54,13 +56,12 @@ async def get_one_device(db: AsyncIOMotorDatabase, name: str):
     return await mongodb_utils.find_one(db.devices, {"name": name}, dropped_fields=())
 
 
-# FIXME: Create a standard schema for the given payload
-async def upsert_device(db: AsyncIOMotorDatabase, payload: Dict[str, Any]):
+async def upsert_device(db: AsyncIOMotorDatabase, payload: DeviceV2Upsert):
     """Creates a new device or updates it if it exists
 
     Args:
         db: the mongo database where the device information is stored
-        payload: the devices dict
+        payload: the device
 
     Returns:
         the new device
@@ -68,21 +69,19 @@ async def upsert_device(db: AsyncIOMotorDatabase, payload: Dict[str, Any]):
     Raises:
         ValueError: could not insert '{payload['name']}' document
     """
-    # this is to ensure that if any timelog is passed is removed
-    payload.pop("timelog", None)
     timestamp = get_current_timestamp()
-    payload["timelog.LAST_UPDATED"] = timestamp
+    payload.updated_at = timestamp
 
     device = await db.devices.find_one_and_update(
-        {"name": str(payload["name"])},
-        {"$set": payload, "$setOnInsert": {"timelog.REGISTERED": timestamp}},
+        {"name": payload.name},
+        {"$set": payload.dict(), "$setOnInsert": {"created_at": timestamp}},
         upsert=True,
         return_document=pymongo.ReturnDocument.AFTER,
     )
 
     if device is None:
         raise ValueError(
-            f"could not insert '{payload['name']}' document.",
+            f"could not insert '{payload.name}' document.",
         )
 
     return device
@@ -103,8 +102,13 @@ async def patch_device(db: AsyncIOMotorDatabase, name: str, payload: Dict[str, A
         ValueError: server failed updating documents
         DocumentNotFoundError: no documents matching {"name": name} were found
     """
-    return await mongodb_utils.update_many(
-        db.devices,
-        _filter={"name": str(name)},
-        payload=payload,
+    device = await db.devices.find_one_and_update(
+        {"name": name},
+        {"$set": {**payload, "updated_at": get_current_timestamp()}},
+        return_document=pymongo.ReturnDocument.AFTER,
     )
+
+    if device is None:
+        raise ValueError(f"device '{name}' not found")
+
+    return device

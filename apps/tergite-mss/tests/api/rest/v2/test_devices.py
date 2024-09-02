@@ -93,14 +93,19 @@ def test_create_device(db, client, payload: Dict[str, Any], system_app_token_hea
         final_data_in_db = find_in_collection(
             db, collection_name=_DEVICES_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
         )
-        timelogs = pop_field(final_data_in_db, "timelog")
+        json_response: dict = response.json()
+        json_response.pop("_id")
 
         assert response.status_code == 200
-        assert response.json() == "OK"
+        assert json_response == final_data_in_db[0]
+
+        created_at_timestamps = pop_field(final_data_in_db, "created_at")
+        updated_at_timestamps = pop_field(final_data_in_db, "updated_at")
 
         assert original_data_in_db == []
         assert final_data_in_db == [payload]
-        assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+        assert all([is_not_older_than(x, seconds=30) for x in created_at_timestamps])
+        assert all([is_not_older_than(x, seconds=30) for x in updated_at_timestamps])
 
 
 @pytest.mark.parametrize("payload", _DEVICE_LIST)
@@ -134,7 +139,7 @@ def test_create_device_non_system_user(
 def test_create_pre_existing_device(
     db, client, payload: Dict[str, Any], system_app_token_header
 ):
-    """PUT to /v2/devices a pre-existing device will do nothing"""
+    """PUT to /v2/devices a pre-existing device will do nothing except update updated_at"""
     insert_in_collection(db, collection_name=_DEVICES_COLLECTION, data=[payload])
     original_data_in_db = find_in_collection(
         db, collection_name=_DEVICES_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
@@ -150,14 +155,17 @@ def test_create_pre_existing_device(
         final_data_in_db = find_in_collection(
             db, collection_name=_DEVICES_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
         )
-        timelogs = pop_field(final_data_in_db, "timelog")
+        json_response: dict = response.json()
+        json_response.pop("_id")
 
         assert response.status_code == 200
-        assert response.json() == "OK"
+        assert json_response == final_data_in_db[0]
+
+        updated_at_timestamps = pop_field(final_data_in_db, "updated_at")
 
         assert original_data_in_db == [payload]
         assert final_data_in_db == original_data_in_db
-        assert all([is_not_older_than(x["LAST_UPDATED"], seconds=30) for x in timelogs])
+        assert all([is_not_older_than(x, seconds=30) for x in updated_at_timestamps])
 
 
 @pytest.mark.parametrize("backend_dict", _DEVICE_LIST)
@@ -182,17 +190,21 @@ def test_update_device(
         final_data_in_db = find_in_collection(
             db, collection_name=_DEVICES_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
         )
+        json_response: dict = response.json()
+        json_response.pop("_id")
+
+        assert response.status_code == 200
+        assert json_response == final_data_in_db[0]
+
+        updated_at_timestamps = pop_field(final_data_in_db, "updated_at")
         expected = {
             **original_data_in_db[0],
             **payload,
-            "timelog": {**final_data_in_db[0]["timelog"]},
         }
-
-        assert response.status_code == 200
-        assert response.json() == "OK"
 
         assert original_data_in_db == [backend_dict]
         assert final_data_in_db[0] == expected
+        assert all([is_not_older_than(x, seconds=30) for x in updated_at_timestamps])
 
 
 @pytest.mark.parametrize("backend_dict", _DEVICE_LIST)
