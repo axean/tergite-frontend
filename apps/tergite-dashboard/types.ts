@@ -1,3 +1,5 @@
+import { DateTime } from "luxon";
+
 export enum JobStatus {
   PENDING = "pending",
   SUCCESSFUL = "successful",
@@ -189,6 +191,13 @@ export interface AppToken extends DbRecord {
   created_at: string;
 }
 
+// an extension of the AppToken schema with some computed properties
+export interface ExtendedAppToken extends AppToken {
+  expires_at: DateTime;
+  is_expired: boolean;
+  project_name: string;
+}
+
 // the HTTP request body for creating an app token
 export interface AppTokenCreationRequest {
   title: string;
@@ -200,6 +209,11 @@ export interface AppTokenCreationRequest {
 export interface AppTokenCreationResponse {
   access_token: string;
   token_type: string;
+}
+
+// the HTTP request body for updating an app token
+export interface AppTokenUpdateRequest {
+  expires_at: string;
 }
 
 // the possible auth providers and their email domains
@@ -220,8 +234,8 @@ export interface AuthProviderResponse {
 }
 
 export interface AppState {
-  currentProject?: string;
-  setCurrentProject: (value?: string) => void;
+  currentProjectExtId?: string;
+  setCurrentProjectExtId: (value?: string) => void;
   apiToken?: string;
   setApiToken: (value?: string) => void;
   clear: () => void;
@@ -236,4 +250,11 @@ export interface PaginatedData<T> {
   skip: number;
   limit?: number | null;
   data: T;
+}
+
+export interface Time {
+  hour?: number;
+  minute?: number;
+  second?: number;
+  millisecond?: number;
 }

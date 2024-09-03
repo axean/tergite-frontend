@@ -3,6 +3,7 @@ import {
   ColumnFiltersState,
   Row,
   SortingState,
+  TableOptions,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -37,6 +38,7 @@ export function DataTable<TData, TValue>({
   onRefreshData,
   onRowClick,
   getDrawerContent,
+  options = {},
 }: Props<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -55,6 +57,7 @@ export function DataTable<TData, TValue>({
   const isFiltered = columnFilters.length > 0;
 
   const table = useReactTable({
+    ...options,
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
@@ -197,6 +200,7 @@ interface Props<TData, TValue> {
   onRefreshData?: () => void;
   getDrawerContent?: (row: Row<TData>) => React.ReactElement;
   onRowClick?: (row: Row<TData>) => void;
+  options?: Partial<TableOptions<TData>>;
 }
 
 function DetailDrawer<TData>({
