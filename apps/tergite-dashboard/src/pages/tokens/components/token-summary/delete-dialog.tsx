@@ -26,7 +26,7 @@ export function DeleteDialog({ token, onDelete, isDisabled }: Props) {
           Delete
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent id="delete-token-dialog">
         <DialogHeader>
           <DialogTitle>Delete token {token.title}?</DialogTitle>
           <DialogDescription className="text-center py-5">

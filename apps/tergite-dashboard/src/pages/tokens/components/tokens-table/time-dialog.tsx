@@ -111,7 +111,7 @@ export function TimeDialog({
           Edit lifespan
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent id="edit-lifespan-dialog">
         <DialogHeader>
           <DialogTitle>Edit lifespan of token {token.title}?</DialogTitle>
           <DialogDescription className="py-5">

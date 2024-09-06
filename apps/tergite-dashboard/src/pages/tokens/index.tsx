@@ -21,58 +21,53 @@ import { useLoaderData } from "react-router-dom";
 import { type AppState, type ExtendedAppToken, type Project } from "types";
 import { TokensTable } from "./components/tokens-table";
 import { TokenSummary } from "./components/token-summary";
-import { Row } from "@tanstack/react-table";
+import { Row, RowSelectionState } from "@tanstack/react-table";
 
 export function Tokens() {
   const queryClient = useQueryClient();
   const { currentProject, tokensQuery } = useLoaderData() as TokensPageData;
   const [previousProject, setPreviousProject] = useState<Project>();
   const { data: tokens = [] } = useQuery<ExtendedAppToken[]>(tokensQuery);
-  const [currentTokenIdx, setCurrentTokenIdx] = useState<number>(0);
-  const [selectedRow, setSelectedRow] = useState<Row<ExtendedAppToken>>();
   const projectName = useMemo(
     () => currentProject?.name ?? "all projects",
     [currentProject]
   );
-
-  const handleTokenDelete = useCallback(async () => {
-    refreshMyTokensQueries(queryClient);
-    const index = selectedRow ? tokens.indexOf(selectedRow?.original) : 0;
-    setCurrentTokenIdx(index);
-  }, [setCurrentTokenIdx, tokens, queryClient, selectedRow]);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const selectedTokenIdx = useMemo(() => {
+    const selectedEntries = Object.entries(rowSelection).filter(
+      ([_k, v]) => v === true
+    );
+    if (selectedEntries.length > 0) {
+      return parseInt(selectedEntries[0][0]);
+    }
+    return -1;
+  }, [rowSelection]);
 
   const handleRowClick = useCallback(
     (row: Row<ExtendedAppToken>) => {
       if (!row.getIsSelected()) {
         row.toggleSelected();
-        setCurrentTokenIdx(tokens.indexOf(row.original));
-        setSelectedRow(row);
+        setRowSelection({ [row.id]: true });
       }
     },
-    [setSelectedRow, setCurrentTokenIdx, tokens]
+    [setRowSelection, tokens]
   );
+
+  const handleTokenDelete = useCallback(async () => {
+    refreshMyTokensQueries(queryClient);
+    // clear selected rows
+    setRowSelection({});
+  }, [queryClient, setRowSelection]);
 
   useEffect(() => {
     // track the changes in current project and reset the current token when projects change
     if (previousProject?.id != currentProject?.id) {
-      setCurrentTokenIdx(0);
       setPreviousProject(currentProject);
 
-      try {
-        selectedRow?.toggleSelected();
-      } catch (error) {}
-
-      setSelectedRow(undefined);
+      // clear selection
+      setRowSelection({});
     }
-  }, [
-    currentProject,
-    previousProject,
-    tokens,
-    selectedRow,
-    setPreviousProject,
-    setCurrentTokenIdx,
-    setSelectedRow,
-  ]);
+  }, [currentProject, previousProject, setPreviousProject, setRowSelection]);
 
   return (
     <main className="grid flex-1 items-start gap-4 grid-cols-1 p-4 sm:px-6 sm:py-0 md:gap-8 xl:grid-cols-4">
@@ -81,13 +76,18 @@ export function Tokens() {
           <CardDescription>API tokens for {projectName}</CardDescription>
         </CardHeader>
         <CardContent>
-          <TokensTable data={tokens} onRowClick={handleRowClick} />
+          <TokensTable
+            data={tokens}
+            onRowSelectionChange={setRowSelection}
+            rowSelection={rowSelection}
+            onRowClick={handleRowClick}
+          />
         </CardContent>
       </Card>
 
-      {tokens[currentTokenIdx] && (
+      {tokens[selectedTokenIdx] && (
         <TokenSummary
-          token={tokens[currentTokenIdx]}
+          token={tokens[selectedTokenIdx]}
           className="order-first xl:order-none mt-14 col-span-1"
           onDelete={handleTokenDelete}
         />
