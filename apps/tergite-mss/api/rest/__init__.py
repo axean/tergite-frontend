@@ -16,7 +16,6 @@
 # that they have been altered from the originals.
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
 from . import app_kwargs
 from .app_kwargs import get_app_kwargs
@@ -26,6 +25,7 @@ from .dependencies import (
     get_default_mongodb,
 )
 from .routers import v1
+from api.rest.utils import TergiteCORSMiddleware
 from .routers.v2 import v2_router
 
 # application
@@ -33,7 +33,7 @@ app = FastAPI(**get_app_kwargs())
 
 
 app.add_middleware(
-    CORSMiddleware,
+    TergiteCORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
