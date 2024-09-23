@@ -41,8 +41,5 @@ async def read_one(db: MongoDbDep, name: str):
 
 @router.post("")
 async def create(db: MongoDbDep, user: CurrentSystemUserProjectDep, documents: list):
-    try:
-        await calibration_service.insert_many_v2(db, documents)
-    except Exception as exp:
-        return {"message": str(exp)}
+    await calibration_service.insert_many_v2(db, documents)
     return "OK"
