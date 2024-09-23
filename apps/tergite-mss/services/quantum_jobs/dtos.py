@@ -70,6 +70,7 @@ class JobStatus(str, enum.Enum):
 class JobExecutionStage(str, enum.Enum):
     REGISTERING = "REGISTERING"
     DONE = "DONE"
+    ERROR = "ERROR"
 
     @classmethod
     def to_status(cls, value: "JobExecutionStage") -> JobStatus:
@@ -78,6 +79,8 @@ class JobExecutionStage(str, enum.Enum):
             return JobStatus.PENDING
         if value == cls.DONE:
             return JobStatus.SUCCESSFUL
+        if value == cls.ERROR:
+            return JobStatus.FAILED
         return JobStatus.PENDING
 
 
@@ -153,6 +156,11 @@ class JobV2(BaseModel):
         Returns:
             the JobV2 equivalent
         """
+        duration_in_secs = (
+            value.timestamps
+            if value.timestamps is None
+            else value.timestamps.resource_usage
+        )
         return cls(
             id=value.id,
             job_id=value.job_id,
@@ -161,7 +169,7 @@ class JobV2(BaseModel):
             device=value.backend,
             status=JobExecutionStage.to_status(value.status),
             failure_reason=None,
-            duration_in_secs=value.timestamps.resource_usage,
+            duration_in_secs=duration_in_secs,
             created_at=value.created_at,
             updated_at=value.updated_at,
         )

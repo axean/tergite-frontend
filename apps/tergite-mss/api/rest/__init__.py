@@ -17,6 +17,8 @@
 
 from fastapi import FastAPI
 
+from api.rest.utils import TergiteCORSMiddleware
+
 from . import app_kwargs
 from .app_kwargs import get_app_kwargs
 from .dependencies import (
@@ -25,7 +27,6 @@ from .dependencies import (
     get_default_mongodb,
 )
 from .routers import v1
-from api.rest.utils import TergiteCORSMiddleware
 from .routers.v2 import v2_router
 
 # application
