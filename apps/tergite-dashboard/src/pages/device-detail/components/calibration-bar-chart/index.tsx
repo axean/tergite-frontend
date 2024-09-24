@@ -41,14 +41,17 @@ export function CalibrationBarChart({
   const chatData: CalibrationDataPoint[] = useMemo(
     () =>
       data.qubits.map((v, index) => ({
-        ...v[currentProp],
+        ...(v[currentProp] ?? {}),
         index,
       })),
     [data.qubits, currentProp]
   );
 
   const maxYValue = useMemo(
-    () => Math.max(...chatData.map(getYValue)),
+    () =>
+      Math.max(
+        ...(chatData.map(getYValue).filter((v) => v != undefined) as number[])
+      ),
     [chatData]
   );
   const yAxisLabel = chatData[0]?.unit

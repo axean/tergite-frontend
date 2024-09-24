@@ -15,9 +15,10 @@ export function CalibrationBar({
 }: Props) {
   const x = getXValue(record);
   const y = getYValue(record);
+  const yMin = y != undefined ? yScale(y) : 0;
 
   const barWidth = xScale.bandwidth();
-  const barHeight = yMax - (yScale(y) ?? 0);
+  const barHeight = yMax - (yMin ?? 0);
   const barX = xScale(x) ?? 0;
   const barY = yMax - barHeight;
 

@@ -45,14 +45,19 @@ export function CalibrationMapChart({
   const chatData: CalibrationDataPoint[] = useMemo(
     () =>
       data.qubits.map((v, index) => ({
-        ...v[currentProp],
+        ...(v[currentProp] ?? {}),
         index,
       })),
     [data.qubits, currentProp]
   );
 
   const maxCurrentPropValue = useMemo(
-    () => Math.max(...chatData.map((v) => v.value)),
+    () =>
+      Math.max(
+        ...(chatData
+          .map((v) => v.value)
+          .filter((v) => v != undefined) as number[])
+      ),
     [chatData]
   );
 
@@ -93,7 +98,9 @@ export function CalibrationMapChart({
         y: yScale(y) ?? 0,
         data: chatData[idx],
         color: interpolatePurples(
-          colorScale(chatData[idx].value) ?? minColorRangeValue
+          chatData[idx].value != undefined
+            ? colorScale(chatData[idx].value as number) ?? minColorRangeValue
+            : minColorRangeValue
         ),
       })),
     [chatData, device, xScale, yScale, colorScale]
@@ -148,7 +155,7 @@ export function CalibrationMapChart({
                 fill={color}
                 r="5%"
                 data-qubit={data.index}
-                data-value={`${data.value.toFixed(2)} ${data.unit}`}
+                data-value={`${data.value?.toFixed(2) ?? ""} ${data.unit}`}
                 onMouseLeave={() => {
                   tooltipTimeout = window.setTimeout(() => {
                     hideTooltip();

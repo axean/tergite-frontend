@@ -24,11 +24,17 @@ export function copyToClipboard(value: string) {
  * @returns - a mapping of field and its median
  */
 export function getCalibrationMedians(
-  values: { [k: string]: CalibrationValue }[],
+  values: { [k: string]: CalibrationValue | null | undefined }[],
   fields: string[]
 ): { [k: string]: AggregateValue } {
   const constituentLists: { [k: string]: number[] } = Object.fromEntries(
-    fields.map((field) => [field, values.map((v) => v[field].value).sort()])
+    fields.map((field) => [
+      field,
+      values
+        .map((v) => v[field]?.value)
+        .filter((v) => v != undefined)
+        .sort() as number[],
+    ])
   );
 
   const middle = Math.floor(values.length / 2);
@@ -38,14 +44,16 @@ export function getCalibrationMedians(
     : (v: number[]) => v[middle];
 
   return Object.fromEntries(
-    fields.map((field) => [
-      field,
-      {
-        // Assume that the unit of the first item is the one for all
-        unit: values[0][field]?.unit,
-        value: medianFunc(constituentLists[field]),
-      },
-    ])
+    fields
+      .filter((field) => constituentLists[field]?.length > 0)
+      .map((field) => [
+        field,
+        {
+          // Assume that the unit of the first item is the one for all
+          unit: values[0][field]?.unit ?? "",
+          value: medianFunc(constituentLists[field]),
+        },
+      ])
   );
 }
 

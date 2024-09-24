@@ -48,11 +48,6 @@
           "unit": "GHz",
           "value": 4.736284620626751
         },
-        "anharmonicity": {
-          "date": "2024-07-08T22:03:09Z",
-          "unit": "GHz",
-          "value": -0.3129180725120383
-        },
         "readout_assignment_error": {
           "date": "2024-07-08T06:16:05Z",
           "unit": "",
@@ -64,11 +59,6 @@
           "date": "2024-07-08T06:42:01Z",
           "unit": "us",
           "value": 299.04980556264877
-        },
-        "t2_decoherence": {
-          "date": "2024-07-08T06:56:44Z",
-          "unit": "us",
-          "value": 184.24377667714367
         },
         "frequency": {
           "date": "2024-07-08T22:03:09Z",
@@ -320,11 +310,6 @@
           "date": "2024-07-08T07:18:48Z",
           "unit": "us",
           "value": 81.99099168984513
-        },
-        "frequency": {
-          "date": "2024-07-08T22:03:09Z",
-          "unit": "GHz",
-          "value": 4.74331607417109
         },
         "anharmonicity": {
           "date": "2024-07-08T22:03:09Z",

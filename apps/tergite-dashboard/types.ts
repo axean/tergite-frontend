@@ -18,12 +18,12 @@ export type QubitProp =
   | "readout_assignment_error";
 
 export interface Qubit {
-  t1_decoherence: CalibrationValue;
-  t2_decoherence: CalibrationValue;
-  frequency: CalibrationValue;
-  anharmonicity: CalibrationValue;
-  readout_assignment_error: CalibrationValue;
-  [k: string]: CalibrationValue;
+  t1_decoherence?: CalibrationValue;
+  t2_decoherence?: CalibrationValue;
+  frequency?: CalibrationValue;
+  anharmonicity?: CalibrationValue;
+  readout_assignment_error?: CalibrationValue;
+  [k: string]: CalibrationValue | undefined | null;
 }
 
 /**
@@ -46,7 +46,7 @@ export interface CalibrationValue {
   value: number;
 }
 
-export interface CalibrationDataPoint extends CalibrationValue {
+export interface CalibrationDataPoint extends Partial<CalibrationValue> {
   index: number;
 }
 

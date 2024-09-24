@@ -1,5 +1,5 @@
 {
-  "loke": { "t1": "316.16 us", "t2": "271.05 us", "readout_error": "0.02" },
+  "loke": { "t1": "316.16 us", "t2": "277.58", "readout_error": "0.02" },
   "thor": { "t1": "260.55 us", "t2": "336.55 us", "readout_error": "0.02" },
   "pingu": { "t1": "335.25 us", "t2": "269.83 us", "readout_error": "0.02" }
 }
