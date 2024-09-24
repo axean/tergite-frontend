@@ -23,9 +23,11 @@ from utils.models import ZEncodedBaseModel
 
 class CalibrationUnit(str, enum.Enum):
     ns = "ns"
+    s = "s"
     us = "us"
     GHz = "GHz"
     MHz = "MHz"
+    Hz = "Hz"
     EMPTY = ""
 
 

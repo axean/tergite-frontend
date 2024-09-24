@@ -9,7 +9,8 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 ### Added
 
-- Add example scopes in the mss_config.example.toml
+- Added example scopes in the mss_config.example.toml
+- Added units 'Hz' and 's' to calibration data schema
 
 ### Fixed
 

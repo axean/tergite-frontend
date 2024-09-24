@@ -42,7 +42,7 @@ export interface DeviceCalibration extends DbRecord {
 
 export interface CalibrationValue {
   date: string;
-  unit: "ns" | "us" | "GHz" | "MHz" | "";
+  unit: "ns" | "us" | "GHz" | "MHz" | "" | "s" | "Hz";
   value: number;
 }
 

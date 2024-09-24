@@ -7,6 +7,10 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 ## [Unreleased]
 
+### Added
+
+- Added units 'Hz' and 's' to calibration data schema
+
 ## [2024.09.0] - 2024-09-02
 
 ### Added
