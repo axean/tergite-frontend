@@ -11,6 +11,7 @@ import {
   AppTokenCreationResponse,
   PaginatedData,
 } from "../../types";
+import { normalizeCalibrationData } from "./utils";
 
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 export const refetchInterval = parseFloat(
@@ -163,7 +164,10 @@ async function getDeviceDetail(
 async function getCalibrations(
   baseUrl: string = apiBaseUrl
 ): Promise<DeviceCalibration[]> {
-  return await authenticatedFetch(`${baseUrl}/calibrations`);
+  const rawResult = await authenticatedFetch<DeviceCalibration[]>(
+    `${baseUrl}/calibrations`
+  );
+  return rawResult.map(normalizeCalibrationData);
 }
 
 /**
@@ -175,7 +179,10 @@ async function getCalibrationsForDevice(
   name: string,
   baseUrl: string = apiBaseUrl
 ): Promise<DeviceCalibration> {
-  return await authenticatedFetch(`${baseUrl}/calibrations/${name}`);
+  const rawResult = await authenticatedFetch<DeviceCalibration>(
+    `${baseUrl}/calibrations/${name}`
+  );
+  return normalizeCalibrationData(rawResult);
 }
 
 /**

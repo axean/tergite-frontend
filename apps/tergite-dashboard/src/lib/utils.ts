@@ -1,6 +1,10 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { AggregateValue, CalibrationValue } from "../../types";
+import {
+  AggregateValue,
+  CalibrationValue,
+  DeviceCalibration,
+} from "../../types";
 import { LoaderFunction, LoaderFunctionArgs, redirect } from "react-router-dom";
 
 export function cn(...inputs: ClassValue[]) {
@@ -76,4 +80,49 @@ export function loadOrRedirectIf401(loaderFn: LoaderFunction) {
       throw error;
     }
   };
+}
+
+/**
+ * Normalizes the calibration data to the expected units like GHz for frequency, etc.
+ *
+ * @param data - the calibration item to normalize
+ */
+export function normalizeCalibrationData(
+  item: DeviceCalibration
+): DeviceCalibration {
+  const qubits = item.qubits.map((v) => ({
+    ...v,
+    frequency: hzToGHz(v.frequency),
+    t1_decoherence: secToMicrosec(v.t1_decoherence),
+    t2_decoherence: secToMicrosec(v.t2_decoherence),
+    anharmonicity: hzToGHz(v.anharmonicity),
+  }));
+  return {
+    ...item,
+    qubits,
+  };
+}
+
+/**
+ * Converts Herts to GHz
+ *
+ * @param value - the Hz value
+ * @returns the value as a GHz
+ */
+function hzToGHz(value?: CalibrationValue): CalibrationValue | undefined {
+  return value?.unit === "Hz"
+    ? { ...value, unit: "GHz", value: value.value / 1000_000_000 }
+    : value;
+}
+
+/**
+ * Converts seconds to microseconds
+ *
+ * @param value - the seconds value
+ * @returns the value as a microseconds
+ */
+function secToMicrosec(value?: CalibrationValue): CalibrationValue | undefined {
+  return value?.unit === "s"
+    ? { ...value, unit: "us", value: value.value * 1000_000 }
+    : value;
 }

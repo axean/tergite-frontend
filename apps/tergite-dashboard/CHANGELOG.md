@@ -11,6 +11,11 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 - Added units 'Hz' and 's' to calibration data schema
 - Changed all properites of calibration data to be optional
+- Added normalizing calibration data to have frequencies in GHz and durations in microseconds
+
+### Changed
+
+### Fixed
 
 ## [2024.09.0] - 2024-09-02
 
