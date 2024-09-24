@@ -12,7 +12,7 @@
 """Data Transfer Objects for calibration"""
 import enum
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from beanie import PydanticObjectId
 from bson import ObjectId
@@ -42,11 +42,11 @@ class CalibrationValue(ZEncodedBaseModel):
 class QubitCalibration(ZEncodedBaseModel, extra=Extra.allow):
     """Schema for the calibration data of the qubit"""
 
-    t1_decoherence: CalibrationValue
-    t2_decoherence: CalibrationValue
-    frequency: CalibrationValue
-    anharmonicity: CalibrationValue
-    readout_assignment_error: CalibrationValue
+    t1_decoherence: Optional[CalibrationValue] = None
+    t2_decoherence: Optional[CalibrationValue] = None
+    frequency: Optional[CalibrationValue] = None
+    anharmonicity: Optional[CalibrationValue] = None
+    readout_assignment_error: Optional[CalibrationValue] = None
 
 
 class DeviceCalibrationV2(ZEncodedBaseModel):

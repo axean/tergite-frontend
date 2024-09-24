@@ -21,6 +21,7 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 - Removed `archives` folder
 - Removed `dev` folder
+- Changed all calibration v2 properties optional
 
 ## [2024.09.0] - 2024-09-02
 
