@@ -97,6 +97,7 @@ users.forEach((user) => {
 
     it("renders all user's tokens with no project selected", () => {
       cy.viewport(1080, 750);
+      cy.wait(100);
       cy.contains(".bg-card", /api tokens for all projects/i).within(() => {
         cy.get("table").as("token-list-table");
 
@@ -156,12 +157,13 @@ users.forEach((user) => {
 
     it("renders user's tokens' summary when row is clicked with no project selected", () => {
       cy.viewport(1080, 750);
+      cy.wait(100);
       cy.get(".bg-card tbody tr").each((el, idx) => {
         cy.wrap({ el, idx }).then((obj) => {
           const token = allUserTokens[obj.idx];
 
           if (token) {
-            cy.wrap(obj.el).click();
+            cy.wrap(obj.el).realClick();
 
             cy.contains("#token-summary h3", token.title).should("be.visible");
 

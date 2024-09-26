@@ -60,7 +60,8 @@ _OTHERS_TOKENS_REQUESTS = [
     if user_id != token["user_id"]
 ]
 
-_JOBS_LIST = load_json_fixture("job_v2_list.json")
+_JOBS_LIST_IN_DB = load_json_fixture("jobs_v2_in_db.json")
+_JOBS_LIST_AS_RESPONSES = load_json_fixture("jobs_v2_as_responses.json")
 
 
 @pytest.mark.parametrize("user_id, cookies", _USER_ID_COOKIES_FIXTURE)
@@ -369,7 +370,9 @@ def test_app_token_of_unallocated_projects_fails(
 def test_read_all_my_jobs(db, client_v2, user_id, cookies):
     """Get to /v2/me/jobs returns the jobs for the current user"""
     # FIXME: the jobs need a user_id property on them
-    insert_in_collection(database=db, collection_name=_JOBS_COLLECTION, data=_JOBS_LIST)
+    insert_in_collection(
+        database=db, collection_name=_JOBS_COLLECTION, data=_JOBS_LIST_IN_DB
+    )
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
@@ -378,7 +381,7 @@ def test_read_all_my_jobs(db, client_v2, user_id, cookies):
         expected = order_by(
             [
                 job
-                for job in _JOBS_LIST
+                for job in _JOBS_LIST_AS_RESPONSES
                 if "user_id" in job and job["user_id"] == user_id
             ],
             field="job_id",
@@ -392,7 +395,9 @@ def test_read_all_my_jobs(db, client_v2, user_id, cookies):
 def test_read_all_my_jobs_of_given_project(db, client_v2, user_id, cookies, project):
     """Get to /v2/me/jobs returns the jobs for the current user for the given project"""
     # FIXME: the jobs need a user_id property on them
-    insert_in_collection(database=db, collection_name=_JOBS_COLLECTION, data=_JOBS_LIST)
+    insert_in_collection(
+        database=db, collection_name=_JOBS_COLLECTION, data=_JOBS_LIST_IN_DB
+    )
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
@@ -404,7 +409,7 @@ def test_read_all_my_jobs_of_given_project(db, client_v2, user_id, cookies, proj
         expected = order_by(
             [
                 job
-                for job in _JOBS_LIST
+                for job in _JOBS_LIST_AS_RESPONSES
                 if "user_id" in job
                 and job["user_id"] == user_id
                 and job["project_id"] == project_id

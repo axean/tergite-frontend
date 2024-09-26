@@ -93,6 +93,8 @@ roles = ["user"]
 # other client-type specific key-word arguments e.g. OpenID requires a openid_configuration_endpoint
 # openid_configuration_endpoint = "https://example.com/.well-known/openid-configuration"
 # You might need to check their initialization arguments in the `httpx_oauth.clients` module.
+# e.g. Github may have scopes
+# scopes = ["user:email"]
 
 # Add as many clients as you wish to have
 [[auth.clients]]

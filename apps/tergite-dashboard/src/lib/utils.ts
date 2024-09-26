@@ -5,6 +5,7 @@ import {
   type AggregateValue,
   type AppToken,
   type CalibrationValue,
+  type DeviceCalibration,
   type ExtendedAppToken,
   type Project,
 } from "../../types";
@@ -32,11 +33,17 @@ export function copyToClipboard(value: string) {
  * @returns - a mapping of field and its median
  */
 export function getCalibrationMedians(
-  values: { [k: string]: CalibrationValue }[],
+  values: { [k: string]: CalibrationValue | null | undefined }[],
   fields: string[]
 ): { [k: string]: AggregateValue } {
   const constituentLists: { [k: string]: number[] } = Object.fromEntries(
-    fields.map((field) => [field, values.map((v) => v[field].value).sort()])
+    fields.map((field) => [
+      field,
+      values
+        .map((v) => v[field]?.value)
+        .filter((v) => v != undefined)
+        .sort() as number[],
+    ])
   );
 
   const middle = Math.floor(values.length / 2);
@@ -46,14 +53,16 @@ export function getCalibrationMedians(
     : (v: number[]) => v[middle];
 
   return Object.fromEntries(
-    fields.map((field) => [
-      field,
-      {
-        // Assume that the unit of the first item is the one for all
-        unit: values[0][field]?.unit,
-        value: medianFunc(constituentLists[field]),
-      },
-    ])
+    fields
+      .filter((field) => constituentLists[field]?.length > 0)
+      .map((field) => [
+        field,
+        {
+          // Assume that the unit of the first item is the one for all
+          unit: values[0][field]?.unit ?? "",
+          value: medianFunc(constituentLists[field]),
+        },
+      ])
   );
 }
 
@@ -76,6 +85,51 @@ export function loadOrRedirectIf401(loaderFn: LoaderFunction) {
       throw error;
     }
   };
+}
+
+/**
+ * Normalizes the calibration data to the expected units like GHz for frequency, etc.
+ *
+ * @param data - the calibration item to normalize
+ */
+export function normalizeCalibrationData(
+  item: DeviceCalibration
+): DeviceCalibration {
+  const qubits = item.qubits.map((v) => ({
+    ...v,
+    frequency: hzToGHz(v.frequency),
+    t1_decoherence: secToMicrosec(v.t1_decoherence),
+    t2_decoherence: secToMicrosec(v.t2_decoherence),
+    anharmonicity: hzToGHz(v.anharmonicity),
+  }));
+  return {
+    ...item,
+    qubits,
+  };
+}
+
+/**
+ * Converts Herts to GHz
+ *
+ * @param value - the Hz value
+ * @returns the value as a GHz
+ */
+function hzToGHz(value?: CalibrationValue): CalibrationValue | undefined {
+  return value?.unit === "Hz"
+    ? { ...value, unit: "GHz", value: value.value / 1000_000_000 }
+    : value;
+}
+
+/**
+ * Converts seconds to microseconds
+ *
+ * @param value - the seconds value
+ * @returns the value as a microseconds
+ */
+function secToMicrosec(value?: CalibrationValue): CalibrationValue | undefined {
+  return value?.unit === "s"
+    ? { ...value, unit: "us", value: value.value * 1000_000 }
+    : value;
 }
 
 /**

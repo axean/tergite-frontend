@@ -7,6 +7,24 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 ## [Unreleased]
 
+## [2024.09.1] - 2024-09-24
+
+### Added
+
+- Added example scopes in the mss_config.example.toml
+- Added units 'Hz' and 's' to calibration data schema
+
+### Fixed
+
+-  Fixed CORS error when dashboard and MSS are on different domains or subdomains
+-  Fixed 'AttributeError: 'NoneType' object has no attribute 'resource_usage'' on GET /v2/me/jobs
+
+### Changed
+
+- Removed `archives` folder
+- Removed `dev` folder
+- Changed all calibration v2 properties optional
+
 ## [2024.09.0] - 2024-09-02
 
 ### Added

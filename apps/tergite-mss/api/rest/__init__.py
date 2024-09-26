@@ -16,7 +16,8 @@
 # that they have been altered from the originals.
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+
+from api.rest.utils import TergiteCORSMiddleware
 
 from . import app_kwargs
 from .app_kwargs import get_app_kwargs
@@ -33,7 +34,7 @@ app = FastAPI(**get_app_kwargs())
 
 
 app.add_middleware(
-    CORSMiddleware,
+    TergiteCORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
