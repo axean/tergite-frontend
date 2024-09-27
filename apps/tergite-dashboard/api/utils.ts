@@ -127,11 +127,12 @@ class MockDb {
   refresh() {
     clearObj(this.cache);
     clearObj(this.deleted);
+    const now = new Date().toISOString();
 
     this.cache = {
       projects: [...(projectList as Project[])],
       users: [...(userList as User[])],
-      tokens: [...(tokenList as AppToken[])],
+      tokens: bulkUpdate(tokenList, { created_at: now }) as AppToken[],
       devices: [...(deviceList as Device[])],
       calibrations: [...(deviceCalibrationList as DeviceCalibration[])],
       jobs: [...(jobList as Job[])],
@@ -409,6 +410,20 @@ export function NotFound(message: string = "not found"): ErrorInfo {
     status: 404,
     name: "NotFound",
   };
+}
+
+/**
+ * Updates the all the records with the given update
+ *
+ * @param records - the records to be updated
+ * @param update - the update to add to the records
+ * @returns - the updated records
+ */
+export function bulkUpdate<T extends Record<string, any>>(
+  records: T[],
+  update: Partial<T>
+): T[] {
+  return records.map((v) => ({ ...v, ...update }));
 }
 
 type ItemType =

@@ -135,6 +135,7 @@ export function TimeDialog({
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
+                          id="datetime-input"
                           variant={"outline"}
                           disabled={tokenEditing.isPending}
                           className={cn(

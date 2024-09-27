@@ -1,30 +1,24 @@
 /// <reference types="cypress" />
 /// <reference types="cypress-real-events" />
 
-// test for:
-//  - updating the lifespan of the selected token updates its value in the summary
-//  - updating the lifespan of the selected token updates its value in the table
-
 import userList from "../fixtures/users.json";
-import deviceList from "../fixtures/device-list.json";
 import tokenList from "../fixtures/tokens.json";
 import projectList from "../fixtures/projects.json";
-import { generateJwt } from "../../api/utils";
-import {
-  type Project,
-  type Device,
-  type User,
-  type AppToken,
-} from "../../types";
+import { bulkUpdate, generateJwt } from "../../api/utils";
+import { type Project, type User } from "../../types";
 import { extendAppToken } from "../support/utils";
+import { DateTime } from "luxon";
 
 const projects = [...projectList] as Project[];
 const projectsMap = Object.fromEntries(
   projects.map((v) => [v.ext_id, { ...v }])
 );
-const userIds = tokenList.map((v) => v.user_id);
+const updatedTokenList = bulkUpdate(tokenList, {
+  created_at: new Date().toISOString(),
+});
+const userIds = updatedTokenList.map((v) => v.user_id);
 const users = userList.filter((v) => userIds.includes(v.id)) as User[];
-const extendedTokens = tokenList
+const extendedTokens = updatedTokenList
   .filter((v) => projectsMap[v.project_ext_id])
   .map((v) => extendAppToken(v, projectsMap[v.project_ext_id]));
 const tokensTableHeaders = [
@@ -452,31 +446,216 @@ users.forEach((user) => {
       }
     });
 
-    //     it("updating the lifespan of the selected token updates its value in the table and summary", () => {
-    //   cy.viewport(1080, 750);
+    it("editing the lifespan of the live token with no project selected updates summary and table", () => {
+      cy.viewport(1080, 750);
 
-    //   for (const token of allUserTokens) {
-    //     cy.wrap(token).then((token) => {
-    //       cy.contains(".bg-card tbody tr", token.title).click();
+      for (let index = 0; index < allUserTokens.length; index++) {
+        cy.wrap(index).then((index) => {
+          const token = allUserTokens[index];
 
-    //       cy.contains(".bg-card tbody tr button", /edit lifespan/).click();
-    //       cy.contains("#token-summary h3", token.title).should("be.visible");
-    //       cy.contains("#token-summary h3", token.title).should("be.visible");
+          // live tokens only
+          if (token.lifespan_seconds > 0) {
+            const newExpiry = DateTime.now()
+              .plus({ month: 1 })
+              .set({ day: 23, hour: 12, minute: 0, second: 50 })
+              .toRelative();
+            cy.contains(
+              `.bg-card tbody tr[data-id='${index}']`,
+              token.title
+            ).click();
 
-    //       cy.contains(".bg-card tbody td", token.title).should("be.visible");
+            cy.contains(
+              `.bg-card tbody tr[data-id='${index}'] button`,
+              /edit lifespan/i
+            ).click();
 
-    //       cy.contains("#token-summary button", /delete/i).realClick();
+            cy.contains(
+              "#edit-lifespan-dialog #datetime-input",
+              /\d+ (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept|Oct|Nov|Dec) \d+, \d\d:\d\d:\d\d/i
+            ).click();
 
-    //       cy.contains(
-    //         "#delete-token-dialog button",
-    //         /I want to delete this token/i
-    //       ).click();
+            // set the month to the next month
+            cy.get(
+              "[data-radix-popper-content-wrapper] button[name='next-month']"
+            ).click();
 
-    //       cy.get("#delete-token-dialog").should("not.exist");
-    //       cy.contains(".bg-card tbody td", token.title).should("not.exist");
-    //       cy.get("#token-summary").should("not.exist");
-    //     });
-    //   }
-    // });
+            // set the day to 23rd of that month
+            cy.contains(
+              "[data-radix-popper-content-wrapper] button[name='day']",
+              "23"
+            ).click();
+
+            // set the time to 12:00:50
+            cy.get(
+              "[data-radix-popper-content-wrapper] input[type='time']"
+            ).type("12:00:50");
+
+            // save
+            cy.contains(
+              "#edit-lifespan-dialog button[type='submit']",
+              /save/i
+            ).click();
+
+            cy.get("#edit-lifespan-dialog").should("not.exist");
+
+            cy.contains("#token-summary h3", token.title).should("be.visible");
+
+            // summary updated
+            cy.contains("#token-summary div", /expires/i).within(() => {
+              cy.contains(newExpiry).should("be.visible");
+            });
+
+            // table updated
+            cy.contains(
+              `.bg-card tbody tr[data-id='${index}'] td[data-header='expires_at']`,
+              newExpiry
+            ).should("be.visible");
+          }
+        });
+      }
+    });
+
+    it("editing the lifespan of the expired token with no project selected is not allowed", () => {
+      cy.viewport(1080, 750);
+
+      for (let index = 0; index < allUserTokens.length; index++) {
+        cy.wrap(index).then((index) => {
+          const token = allUserTokens[index];
+          cy.contains(
+            `.bg-card tbody tr[data-id='${index}']`,
+            token.title
+          ).click();
+
+          if (token.lifespan_seconds <= 0) {
+            cy.contains(
+              `.bg-card tbody tr[data-id='${index}'] button`,
+              /edit lifespan/i
+            ).should("be.disabled");
+          }
+        });
+      }
+    });
+
+    it("editing the lifespan of the live token with project selected updates summary and table", () => {
+      cy.viewport(1080, 750);
+
+      for (const project of userProjects) {
+        cy.wrap(project).then((project) => {
+          // click on project
+          cy.contains('[data-testid="topbar"] button', /project:/i).click();
+          cy.contains('#project-selector [role="option"]', project.name, {
+            timeout: 500,
+          }).click();
+
+          const tokensForProject = allUserTokens.filter(
+            (v) => v.project_ext_id === project.ext_id
+          );
+          cy.wrap(tokensForProject).then((tokensForProject) => {
+            for (let index = 0; index < tokensForProject.length; index++) {
+              cy.wrap(index).then((index) => {
+                const token = tokensForProject[index];
+
+                // live tokens only
+                if (token.lifespan_seconds > 0) {
+                  const newExpiry = DateTime.now()
+                    .plus({ month: 1 })
+                    .set({ day: 23, hour: 12, minute: 0, second: 50 })
+                    .toRelative();
+                  cy.contains(
+                    `.bg-card tbody tr[data-id='${index}']`,
+                    token.title
+                  ).click();
+
+                  cy.contains(
+                    `.bg-card tbody tr[data-id='${index}'] button`,
+                    /edit lifespan/i
+                  ).realClick();
+
+                  cy.contains(
+                    "#edit-lifespan-dialog #datetime-input",
+                    /\d+ (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept|Oct|Nov|Dec) \d+, \d\d:\d\d:\d\d/i
+                  ).realClick();
+
+                  // set the month to the next month
+                  cy.get(
+                    "[data-radix-popper-content-wrapper] button[name='next-month']"
+                  ).realClick();
+
+                  // set the day to 23rd of that month
+                  cy.contains(
+                    "[data-radix-popper-content-wrapper] button[name='day']",
+                    "23"
+                  ).realClick();
+
+                  // set the time to 12:00:50
+                  cy.get(
+                    "[data-radix-popper-content-wrapper] input[type='time']"
+                  ).type("12:00:50");
+
+                  // save
+                  cy.contains(
+                    "#edit-lifespan-dialog button[type='submit']",
+                    /save/i
+                  ).realClick();
+
+                  cy.get("#edit-lifespan-dialog").should("not.exist");
+
+                  cy.contains("#token-summary h3", token.title).should(
+                    "be.visible"
+                  );
+
+                  // summary updated
+                  cy.contains("#token-summary div", /expires/i).within(() => {
+                    cy.contains(newExpiry).should("be.visible");
+                  });
+
+                  // table updated
+                  cy.contains(
+                    `.bg-card tbody tr[data-id='${index}'] td[data-header='expires_at']`,
+                    newExpiry
+                  ).should("be.visible");
+                }
+              });
+            }
+          });
+        });
+      }
+    });
+
+    it("editing the lifespan of the expired token with project selected is not allowed", () => {
+      cy.viewport(1080, 750);
+
+      for (const project of userProjects) {
+        cy.wrap(project).then((project) => {
+          // click on project
+          cy.contains('[data-testid="topbar"] button', /project:/i).click();
+          cy.contains('#project-selector [role="option"]', project.name, {
+            timeout: 500,
+          }).click();
+
+          const tokensForProject = allUserTokens.filter(
+            (v) => v.project_ext_id === project.ext_id
+          );
+          cy.wrap(tokensForProject).then((tokensForProject) => {
+            for (let index = 0; index < tokensForProject.length; index++) {
+              cy.wrap(index).then((index) => {
+                const token = tokensForProject[index];
+                cy.contains(
+                  `.bg-card tbody tr[data-id='${index}']`,
+                  token.title
+                ).click();
+
+                if (token.lifespan_seconds <= 0) {
+                  cy.contains(
+                    `.bg-card tbody tr[data-id='${index}'] button`,
+                    /edit lifespan/i
+                  ).should("be.disabled");
+                }
+              });
+            }
+          });
+        });
+      }
+    });
   });
 });
