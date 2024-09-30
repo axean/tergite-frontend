@@ -419,7 +419,7 @@ export function NotFound(message: string = "not found"): ErrorInfo {
  * @param update - the update to add to the records
  * @returns - the updated records
  */
-export function bulkUpdate<T extends Record<string, any>>(
+export function bulkUpdate<T extends Record<string, unknown>>(
   records: T[],
   update: Partial<T>
 ): T[] {
