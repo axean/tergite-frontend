@@ -1,0 +1,63 @@
+stages:
+  - lint
+  - tests
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+.setup_dashboard: &setup_dashboard
+  image: node:20.17.0
+  cache:
+    key:
+      files:
+        - apps/tergite-dashboard/package-lock.json
+    paths:
+      - apps/tergite-dashboard/.npm/
+  before_script:
+    - cd apps/tergite-dashboard
+    - npm ci --cache .npm --prefer-offline
+
+.setup_mss: &setup_mss
+  image: python:3.8
+  cache:
+    key:
+      files:
+        - apps/tergite-mss/requirements.txt
+    paths:
+      - .cache/pip
+  before_script:
+    - pip install --upgrade pip
+    - cd apps/tergite-mss
+    - pip install -r requirements.txt
+
+
+lint dashboard:
+  stage: lint
+  <<: *setup_dashboard
+  script:
+    - npm run lint
+
+test dashboard:
+  stage: tests
+  <<: *setup_dashboard
+  script:
+    - npm run test
+
+e2e test dashboard:
+  stage: tests
+  <<: *setup_dashboard
+  script:
+    - if [ -z "$TEST_THRESHOLD" ]; then echo "TEST_THRESHOLD=$TEST_THRESHOLD" >> .env.test; fi
+    - npm run e2e
+
+lint mss:
+  stage: lint
+  <<: *setup_mss
+  script:
+    - black --check .
+
+test mss:
+  stage: tests
+  <<: *setup_mss
+  script:
+    - pytest
