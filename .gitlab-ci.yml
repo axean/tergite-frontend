@@ -6,7 +6,7 @@ variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 
 .setup_dashboard: &setup_dashboard
-  image: node:20.17.0
+  image: cypress/base:20.17.0
   cache:
     key:
       files:
