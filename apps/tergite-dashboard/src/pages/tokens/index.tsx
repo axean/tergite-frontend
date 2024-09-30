@@ -50,7 +50,7 @@ export function Tokens() {
         setRowSelection({ [row.id]: true });
       }
     },
-    [setRowSelection, tokens]
+    [setRowSelection]
   );
 
   const handleTokenDelete = useCallback(async () => {

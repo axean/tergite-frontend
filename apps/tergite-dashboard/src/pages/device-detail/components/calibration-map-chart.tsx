@@ -167,7 +167,6 @@ export function CalibrationMapChart({
                   // localPoint returns coordinates relative to the nearest SVG, which
                   // is what containerRef is set to in this example.
                   const eventSvgCoords = localPoint(event);
-                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                   // @ts-ignore
                   const tooltipData = event.target.dataset;
 
