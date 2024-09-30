@@ -144,7 +144,7 @@ export function TimeDialog({
                           )}
                         >
                           {field.value?.date ? (
-                            mergeDatetime(field.value).toLocaleString(
+                            mergeDatetime(field.value).setLocale('en-gb').toLocaleString(
                               DateTime.DATETIME_MED_WITH_SECONDS
                             )
                           ) : (
