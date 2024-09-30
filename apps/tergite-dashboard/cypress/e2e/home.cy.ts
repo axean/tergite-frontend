@@ -189,7 +189,7 @@ users.forEach((user) => {
 
     it("renders the list of user's jobs in selected project", () => {
       cy.viewport(1080, 750);
-
+      cy.wait(500);
       for (const project of userProjects) {
         cy.wrap(project).then((project) => {
           cy.contains('[data-testid="topbar"] button', /project:/i).click();
