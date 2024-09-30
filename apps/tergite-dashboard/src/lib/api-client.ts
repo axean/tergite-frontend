@@ -1,17 +1,19 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
 import {
-  AppState,
-  Device,
-  DeviceCalibration,
-  ErrorInfo,
-  Job,
-  AuthProviderResponse,
-  Project,
-  AppTokenCreationRequest,
-  AppTokenCreationResponse,
-  PaginatedData,
+  type AppState,
+  type Device,
+  type DeviceCalibration,
+  type ErrorInfo,
+  type Job,
+  type AuthProviderResponse,
+  type Project,
+  type AppTokenCreationRequest,
+  type AppTokenCreationResponse,
+  type PaginatedData,
+  type AppToken,
+  type AppTokenUpdateRequest,
 } from "../../types";
-import { normalizeCalibrationData } from "./utils";
+import { normalizeCalibrationData, extendAppToken } from "./utils";
 
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 export const refetchInterval = parseFloat(
@@ -29,10 +31,16 @@ export const devicesQuery = queryOptions({
 
 /**
  * the single device query for using with react query
+ * @param options - extra options for filtering
+ *          - baseUrl - the base URL of the API
  */
-export function singleDeviceQuery(name: string) {
+export function singleDeviceQuery(
+  name: string,
+  options: { baseUrl?: string } = {}
+) {
+  const { baseUrl = apiBaseUrl } = options;
   return queryOptions({
-    queryKey: [apiBaseUrl, "devices", name],
+    queryKey: [baseUrl, "devices", name],
     queryFn: async () => await getDeviceDetail(name),
     refetchInterval,
   });
@@ -49,10 +57,16 @@ export const calibrationsQuery = queryOptions({
 
 /**
  * the single device's calibration query for using with react query
+ * @param options - extra options for filtering
+ *          - baseUrl - the base URL of the API
  */
-export function singleDeviceCalibrationQuery(name: string) {
+export function singleDeviceCalibrationQuery(
+  name: string,
+  options: { baseUrl?: string } = {}
+) {
+  const { baseUrl = apiBaseUrl } = options;
   return queryOptions({
-    queryKey: [apiBaseUrl, "calibrations", name],
+    queryKey: [baseUrl, "calibrations", name],
     queryFn: async () => await getCalibrationsForDevice(name),
     refetchInterval,
   });
@@ -61,14 +75,64 @@ export function singleDeviceCalibrationQuery(name: string) {
 /**
  * the my jobs query for using with react query
  * @param options - extra options for filtering the jobs
+ *          - baseUrl - the base URL of the API
  */
-export function myJobsQuery(options: { project_id?: string } = {}) {
-  const { project_id = "" } = options;
+export function myJobsQuery(
+  options: { project_id?: string; baseUrl?: string } = {}
+) {
+  const { project_id = "", baseUrl = apiBaseUrl } = options;
   return queryOptions({
-    queryKey: [apiBaseUrl, "me", "jobs", project_id],
+    queryKey: [baseUrl, "me", "jobs", project_id],
     queryFn: async () => await getMyJobs(options),
     refetchInterval,
   });
+}
+
+/**
+ * the my tokens query for using with react query
+ * @param options - extra options for filtering the tokens
+ *            - baseUrl - the base URL of the API
+ *            - project_ext_id - the external ID of the tokens' project
+ *            - projectList - List of all available projects
+ */
+export function myTokensQuery(options: {
+  project_ext_id?: string;
+  projectList: Project[];
+  baseUrl?: string;
+}) {
+  const { project_ext_id, projectList, baseUrl = apiBaseUrl } = options;
+  const queryKey = [baseUrl, "me", "tokens", project_ext_id];
+
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      const rawTokens = await getMyTokens({ project_ext_id });
+      const projectMap: { [k: string]: Project } = Object.fromEntries(
+        projectList.map((v) => [v.ext_id, { ...v }])
+      );
+
+      return rawTokens.map((v) =>
+        extendAppToken(v, projectMap[v.project_ext_id])
+      );
+    },
+    refetchInterval,
+  });
+}
+
+/**
+ *
+ * @param queryClient - the query client for making queries
+ * @param options - the options including:
+ *          - baseUrl - the base URL of the API
+ */
+export function refreshMyTokensQueries(
+  queryClient: QueryClient,
+  options: {
+    baseUrl?: string;
+  } = {}
+) {
+  const { baseUrl = apiBaseUrl } = options;
+  queryClient.invalidateQueries({ queryKey: [baseUrl, "me", "tokens"] });
 }
 
 /**
@@ -82,7 +146,7 @@ export const myProjectsQuery = queryOptions({
 
 /**
  * Generates a new app token
- * @param - the payload for a new app token
+ * @param payload - the payload for a new app token
  * @param options - the options for loging in including:
  *          - baseUrl - the base URL of the API
  */
@@ -95,6 +159,28 @@ export async function createAppToken(
   const { baseUrl = apiBaseUrl } = options;
   return await authenticatedFetch(`${baseUrl}/me/tokens/`, {
     method: "POST",
+    body: JSON.stringify(payload),
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+/**
+ * Updates the app token's lifespan
+ * @param id - the id for the token
+ * @param payload - the payload for the update
+ * @param options - the options including:
+ *          - baseUrl - the base URL of the API
+ */
+export async function updateAppToken(
+  id: string,
+  payload: AppTokenUpdateRequest,
+  options: {
+    baseUrl?: string;
+  } = {}
+): Promise<AppToken> {
+  const { baseUrl = apiBaseUrl } = options;
+  return await authenticatedFetch(`${baseUrl}/me/tokens/${id}`, {
+    method: "PUT",
     body: JSON.stringify(payload),
     headers: { "Content-Type": "application/json" },
   });
@@ -135,6 +221,26 @@ export async function logout(
   appState.clear();
   queryClient.clear();
   await authenticatedFetch(`${baseUrl}/auth/logout`, { method: "post" });
+}
+
+/**
+ * Deletes the token for the current user on the system
+ * @param id of the token
+ * @param options - extra options for querying the jobs
+ *           - baseUrl - the API base URL; default apiBaseUrl
+ */
+export async function deleteMyToken(
+  id: string,
+  options: { baseUrl?: string } = {}
+): Promise<void> {
+  const { baseUrl = apiBaseUrl } = options;
+  await authenticatedFetch(
+    `${baseUrl}/me/tokens/${id}`,
+    {
+      method: "delete",
+    },
+    { isJsonOutput: false }
+  );
 }
 
 /**
@@ -200,6 +306,20 @@ async function getMyJobs(
 }
 
 /**
+ * Retrieves the app tokens for the current user on the system
+ * @param options - extra options for querying the app tokens
+ *      e.g. - project external id
+ *           - baseUrl - the API base URL; default apiBaseUrl
+ */
+async function getMyTokens(
+  options: { project_ext_id?: string; baseUrl?: string } = {}
+): Promise<AppToken[]> {
+  const { project_ext_id, baseUrl = apiBaseUrl } = options;
+  const query = project_ext_id ? `?project_ext_id=${project_ext_id}` : "";
+  return await authenticatedFetch(`${baseUrl}/me/tokens${query}`);
+}
+
+/**
  * Retrieves the projects for the current user on the system
  * @param baseUrl - the API base URL
  */
@@ -235,11 +355,14 @@ async function extractError(response: Response): Promise<ErrorInfo> {
  *
  * @param input - the input to be passed to fetch
  * @param init - the init object to  pass to fetch
+ * @param options - the extra options that are not passed to fetch
+ *            - isJsonOutput: whether the output is JSON or not
  * @returns - the response from the backend
  */
 async function authenticatedFetch<T>(
   input: string | URL | globalThis.Request,
-  init: RequestInit = {}
+  init: RequestInit = {},
+  options: { isJsonOutput?: boolean } = {}
 ): Promise<T> {
   const response = await fetch(input, {
     ...init,
@@ -247,7 +370,8 @@ async function authenticatedFetch<T>(
   });
 
   if (response.ok) {
-    return await response.json();
+    const { isJsonOutput = true } = options;
+    return isJsonOutput ? await response.json() : await response.text();
   }
 
   throw await extractError(response);

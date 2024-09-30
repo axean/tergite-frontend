@@ -22,6 +22,7 @@ import {
   PaginatedData,
 } from "../../types";
 import { randomUUID } from "crypto";
+import { DateTime } from "luxon";
 
 const apiBaseUrl = process.env.VITE_API_BASE_URL;
 const router = Router();
@@ -79,7 +80,7 @@ router.post(
       return respond401(res);
     }
 
-    const payload = { ...req.body, userId: user_id };
+    const payload = { ...req.body, user_id };
     const project = mockDb.getOne<Project>(
       "projects",
       (v) =>
@@ -99,6 +100,76 @@ router.post(
       access_token,
       token_type: "bearer",
     } as AppTokenCreationResponse);
+  })
+);
+
+router.get(
+  "/me/tokens",
+  use(async (req, res) => {
+    const currentUserId = await getAuthenticatedUserId(req.cookies);
+    if (!currentUserId) {
+      return respond401(res);
+    }
+
+    const { project_ext_id } = req.query as { [k: string]: string };
+    const myTokens = mockDb.getMany<AppToken>("tokens", (v) =>
+      conformsToFilter(v, { user_id: currentUserId, project_ext_id })
+    );
+
+    res.json(myTokens);
+  })
+);
+
+router.delete(
+  "/me/tokens/:id",
+  use(async (req, res) => {
+    const currentUserId = await getAuthenticatedUserId(req.cookies);
+    if (!currentUserId) {
+      return respond401(res);
+    }
+
+    const { params } = req;
+    const token = mockDb.getOne<AppToken>("tokens", (v) =>
+      conformsToFilter(v, { user_id: currentUserId, id: params.id })
+    );
+    if (token === undefined) {
+      res.status(403).json({ detail: `Forbidden` });
+      return;
+    }
+
+    mockDb.del("tokens", token.id);
+
+    // no content
+    res.status(204).send();
+  })
+);
+
+router.put(
+  "/me/tokens/:id",
+  use(async (req, res) => {
+    const user_id = await getAuthenticatedUserId(req.cookies);
+    if (!user_id) {
+      return respond401(res);
+    }
+
+    const { body, params } = req;
+    const filterFn = (v) => conformsToFilter(v, { user_id, id: params.id });
+    const oldToken = mockDb.getOne<AppToken>("tokens", filterFn);
+    if (!oldToken) {
+      res.status(404).json({ detail: `Not Found` });
+      return;
+    }
+
+    const lifespan_seconds = DateTime.fromISO(body.expires_at).diff(
+      DateTime.fromISO(oldToken.created_at),
+      "seconds"
+    ).seconds;
+
+    const token = mockDb.update<AppToken>("tokens", filterFn, {
+      lifespan_seconds,
+    });
+
+    res.json(token);
   })
 );
 

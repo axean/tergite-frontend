@@ -19,10 +19,10 @@ import { QueryClient, useQuery } from "@tanstack/react-query";
 import { loadOrRedirectIf401 } from "@/lib/utils";
 
 export function Home() {
-  const { currentProjectObj } = useLoaderData() as HomeData;
+  const { currentProject } = useLoaderData() as HomeData;
   const { data: devices = [] } = useQuery(devicesQuery);
   const { data: jobs = [] } = useQuery(
-    myJobsQuery({ project_id: currentProjectObj?.id })
+    myJobsQuery({ project_id: currentProject?.id })
   );
   const devicesOnlineRatio = React.useMemo(
     () =>
@@ -69,7 +69,7 @@ export function Home() {
             <CardTitle>Jobs</CardTitle>
             <CardDescription>
               The status of your jobs in{" "}
-              {currentProjectObj?.name || "all projects"}
+              {currentProject?.name || "all projects"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -84,7 +84,7 @@ export function Home() {
 interface HomeData {
   devices: Device[];
   jobs: Job[];
-  currentProjectObj?: Project;
+  currentProject?: Project;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -102,15 +102,15 @@ export function loader(appState: AppState, queryClient: QueryClient) {
     const projects =
       cachedProjects ?? (await queryClient.fetchQuery(myProjectsQuery));
 
-    const currentProjectObj = projects.filter(
-      (v) => v.ext_id === appState.currentProject
+    const currentProject = projects.filter(
+      (v) => v.ext_id === appState.currentProjectExtId
     )[0];
 
     // jobs
-    const jobsQuery = myJobsQuery({ project_id: currentProjectObj?.id });
+    const jobsQuery = myJobsQuery({ project_id: currentProject?.id });
     const cachedJobs = queryClient.getQueryData(jobsQuery.queryKey);
     const jobs = cachedJobs ?? (await queryClient.fetchQuery(jobsQuery));
 
-    return { devices, jobs, currentProjectObj } as HomeData;
+    return { devices, jobs, currentProject } as HomeData;
   });
 }

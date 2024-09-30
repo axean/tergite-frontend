@@ -5,25 +5,44 @@ import { Label } from "../../../ui/label";
 import { useCallback, useContext } from "react";
 import { AppStateContext } from "@/lib/app-state";
 import { copyToClipboard } from "@/lib/utils";
-import { createAppToken } from "@/lib/api-client";
+import {
+  createAppToken,
+  refreshMyTokensQueries,
+  apiBaseUrl,
+} from "@/lib/api-client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function TopBanner() {
-  const {
-    apiToken,
-    setApiToken,
-    currentProject: project_ext_id,
-  } = useContext(AppStateContext);
-  const handleApiTokenRefresh = useCallback(() => {
-    if (project_ext_id) {
-      createAppToken({
-        title: `${project_ext_id}-${new Date().getTime()}`,
-        project_ext_id,
-        lifespan_seconds: 7_200,
-      }).then((appToken) => {
-        setApiToken(appToken.access_token);
-      });
-    }
-  }, [setApiToken, project_ext_id]);
+  const { apiToken, setApiToken, currentProjectExtId } =
+    useContext(AppStateContext);
+  const queryClient = useQueryClient();
+
+  const appTokenCreation = useMutation({
+    mutationKey: [
+      apiBaseUrl,
+      "me",
+      "tokens",
+      "?project_ext_id=",
+      currentProjectExtId,
+      "post",
+    ],
+    async mutationFn({ projectExtId }: { projectExtId?: string }) {
+      if (projectExtId) {
+        return await createAppToken({
+          title: `${projectExtId}-${new Date().getTime()}`,
+          project_ext_id: projectExtId,
+          lifespan_seconds: 7_200,
+        });
+      }
+    },
+    onSuccess(data) {
+      if (data) {
+        setApiToken(data.access_token);
+        refreshMyTokensQueries(queryClient);
+      }
+    },
+    throwOnError: true,
+  });
 
   const handleApiTokenCopy = useCallback(
     () => copyToClipboard(apiToken || ""),
@@ -46,8 +65,10 @@ export function TopBanner() {
           variant="outline"
           className="rounded-none focus:mr-[1px] disabled:text-muted-foreground disabled:bg-muted"
           Icon={RefreshCcw}
-          disabled={!project_ext_id}
-          onClick={handleApiTokenRefresh}
+          disabled={!currentProjectExtId || appTokenCreation.isPending}
+          onClick={() =>
+            appTokenCreation.mutate({ projectExtId: currentProjectExtId })
+          }
         />
         <IconButton
           variant="outline"

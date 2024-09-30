@@ -36,8 +36,8 @@ export function Dashboard() {
           className={`flex flex-col sm:gap-4 h-full sm:pt-4 ${contentAreaPaddingCls}`}
         >
           <Topbar
-            currentProject={appState.currentProject}
-            onProjectChange={appState.setCurrentProject}
+            currentProject={appState.currentProjectExtId}
+            onProjectChange={appState.setCurrentProjectExtId}
             projects={projects}
             onLogout={handleLogout}
           />
@@ -64,11 +64,3 @@ export function loader(_appState: AppState, queryClient: QueryClient) {
     return { projects } as DashboardData;
   });
 }
-
-// // eslint-disable-next-line react-refresh/only-export-components
-// export function action(appState: AppState, queryClient: QueryClient) {
-//   return loadOrRedirectIf401(async () => {
-//     await logout(queryClient, appState);
-//     return { projects: [] } as DashboardData;
-//   });
-// }

@@ -14,13 +14,13 @@ import { AppStateContext } from "./lib/app-state";
 import {
   Dashboard,
   loader as dashboardLoader,
-  // action as dashboardAction,
 } from "./components/layouts/dashboard";
 import {
   DeviceDetail,
   loader as deviceDetailLoader,
 } from "./pages/device-detail";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
+import { Tokens, loader as tokensLoader } from "./pages/tokens";
 
 export function AppRouter({ routerConstructor }: Props) {
   const appState = useContext(AppStateContext);
@@ -47,7 +47,6 @@ function getRoutes(appState: AppState, queryClient: QueryClient) {
         path="/"
         element={<Dashboard />}
         loader={dashboardLoader(appState, queryClient)}
-        // action={dashboardAction(appState, queryClient)}
         errorElement={<ErrorAlert className="h-screen bg-muted" />}
       >
         <Route errorElement={<ErrorAlert />}>
@@ -60,21 +59,22 @@ function getRoutes(appState: AppState, queryClient: QueryClient) {
             path="devices"
             element={<Devices />}
             loader={devicesLoader(appState, queryClient)}
-            // action={contactAction}
           />
           <Route
             path="devices/:deviceName"
             element={<DeviceDetail />}
             loader={deviceDetailLoader(appState, queryClient)}
-            // action={contactAction}
+          />
+          <Route
+            path="tokens"
+            element={<Tokens />}
+            loader={tokensLoader(appState, queryClient)}
           />
         </Route>
       </Route>
       <Route
         path="login"
         element={<LoginPage />}
-        //   loader={rootLoader}
-        //   action={rootAction}
         errorElement={<ErrorAlert />}
       />
     </>

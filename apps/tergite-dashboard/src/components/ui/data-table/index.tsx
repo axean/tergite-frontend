@@ -3,6 +3,7 @@ import {
   ColumnFiltersState,
   Row,
   SortingState,
+  TableOptions,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -20,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import React, { Fragment } from "react";
-import { Button, IconButton } from "../button";
+import { IconButton } from "../button";
 import { ChevronLeft, ChevronRight, Filter, RefreshCcw } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { DataFilterForm, DataTableFormConfig } from "./filter-form";
@@ -37,6 +38,7 @@ export function DataTable<TData, TValue>({
   onRefreshData,
   onRowClick,
   getDrawerContent,
+  options = {},
 }: Props<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -63,9 +65,11 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    ...options,
     state: {
       sorting,
       columnFilters,
+      ...(options.state || {}),
     },
   });
 
@@ -167,24 +171,20 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2">
-        <Button
+        <IconButton
+          Icon={ChevronLeft}
           className="rounded-none rounded-bl-md disabled:text-muted-foreground disabled:bg-muted"
           variant="outline"
-          size="icon"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <Button
+        />
+        <IconButton
+          Icon={ChevronRight}
           variant="outline"
           className="rounded-none rounded-br-md disabled:text-muted-foreground disabled:bg-muted"
-          size="icon"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
+        />
       </div>
     </div>
   );
@@ -197,6 +197,7 @@ interface Props<TData, TValue> {
   onRefreshData?: () => void;
   getDrawerContent?: (row: Row<TData>) => React.ReactElement;
   onRowClick?: (row: Row<TData>) => void;
+  options?: Partial<TableOptions<TData>>;
 }
 
 function DetailDrawer<TData>({

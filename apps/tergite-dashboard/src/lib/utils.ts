@@ -1,11 +1,16 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
-  AggregateValue,
-  CalibrationValue,
-  DeviceCalibration,
+  Time,
+  type AggregateValue,
+  type AppToken,
+  type CalibrationValue,
+  type DeviceCalibration,
+  type ExtendedAppToken,
+  type Project,
 } from "../../types";
 import { LoaderFunction, LoaderFunctionArgs, redirect } from "react-router-dom";
+import { DateTime } from "luxon";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -125,4 +130,83 @@ function secToMicrosec(value?: CalibrationValue): CalibrationValue | undefined {
   return value?.unit === "s"
     ? { ...value, unit: "us", value: value.value * 1000_000 }
     : value;
+}
+
+/**
+ * Converts an AppToken instance to an ExtendedAppToken instance
+ *
+ * It computes the computed properties
+ *
+ * @param token - the AppToken instance
+ * @param project - the project it is attached the app token is attached to
+ */
+export function extendAppToken(
+  token: AppToken,
+  project: Project
+): ExtendedAppToken {
+  const expires_at = DateTime.fromISO(token.created_at).plus({
+    seconds: token.lifespan_seconds,
+  });
+  const is_expired = DateTime.now() > expires_at;
+  const project_name = project.name;
+
+  return { ...token, expires_at, is_expired, project_name };
+}
+
+/**
+ * Converts a string into an integer or undefined if it has no equivalent
+ *
+ * @param value - the string value to parse to integer
+ * @returns - the values as an integer or undefined
+ */
+export function safeParseInt(value: string): number | undefined {
+  const result = parseInt(value);
+  return isNaN(result) ? undefined : result;
+}
+/**
+ * Extracts the Time value from an ISO time string (HH:mm:ss[.SSSSSS])
+ *
+ * @param value - the value in ISO time format
+ * @returns - the Time value from the string
+ */
+export function extractTime(value: string): Time {
+  const timeRegex = /(\d\d):(\d\d)(:(\d\d))?(\.(\d+))?/;
+  const [
+    _wholeValue,
+    hourStr,
+    minuteStr,
+    _colonAndSeconds,
+    secondStr,
+    _pointAndMillisecons,
+    millisecondStr,
+  ] = timeRegex.exec(value) ?? [];
+  return {
+    hour: safeParseInt(hourStr),
+    minute: safeParseInt(minuteStr),
+    second: safeParseInt(secondStr),
+    millisecond: safeParseInt(millisecondStr),
+  };
+}
+/**
+ * Converts a time instance into a string of ISO format (HH:mm:ss[.SSSSSS])
+ *
+ * @param value - the Time instance
+ * @returns - the ISO string representation of the value
+ */
+export function timeAsString({
+  hour,
+  minute,
+  second,
+  millisecond,
+}: Time): string {
+  const paddedMinute = `${minute}`.padStart(2, "0");
+  const paddedSecond = `${second}`.padStart(2, "0");
+  const paddedHour = `${hour}`.padStart(2, "0");
+  const secondStr = second === undefined ? "" : `:${paddedSecond}`;
+  const secondsAndMilliseconds =
+    millisecond === undefined
+      ? secondStr
+      : `${secondStr || "00"}.${millisecond}`; // if milliseconds exist without seconds, have 00 as seconds
+
+  return `${paddedHour}:${paddedMinute}${secondsAndMilliseconds}`;
 }

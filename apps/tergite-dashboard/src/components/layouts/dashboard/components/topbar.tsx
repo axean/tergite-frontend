@@ -80,7 +80,9 @@ export function Topbar({
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>Projects</DropdownMenuItem>
-          <DropdownMenuItem>Tokens</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/tokens">Tokens</Link>
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
 
           <DropdownMenuItem onClick={onLogout}>Logout</DropdownMenuItem>

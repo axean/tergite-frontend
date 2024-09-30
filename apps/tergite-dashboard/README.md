@@ -22,6 +22,15 @@ If you are reading this on GitHub, then you are looking at a mirror.
 
 ## Quick Start
 
+![Login screen](./docs/assets/login-screen.png)
+The login screen
+
+![Home screen](./docs/assets/home-screen.png)
+The home screen
+
+![Tergite dashboard showcase](./docs/assets/dashboard-showcase.gif)
+A preview of the the dashboard
+
 - Ensure you have [Nodejs +20.12](https://nodejs.org/) installed.
 - Clone the repo and enter its root folder
 
