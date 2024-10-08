@@ -20,6 +20,7 @@ import {
   AppToken,
   AppTokenCreationResponse,
   PaginatedData,
+  UserRequest,
 } from "../../types";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
@@ -40,6 +41,20 @@ router.options("*", (req, res, next) => {
 });
 
 router.get(
+  "/me",
+  use(async (req, res) => {
+    const currentUserId = await getAuthenticatedUserId(req.cookies);
+    if (!currentUserId) {
+      return respond401(res);
+    }
+
+    const data = mockDb.getOne<User>("users", (v) => v.id === currentUserId);
+
+    res.json(data);
+  })
+);
+
+router.get(
   "/me/projects",
   use(async (req, res) => {
     const currentUserId = await getAuthenticatedUserId(req.cookies);
@@ -47,11 +62,36 @@ router.get(
       return respond401(res);
     }
 
-    const data = mockDb.getMany<Project>("projects", (v) =>
-      v.user_ids.includes(currentUserId)
+    const data = mockDb.getMany<Project>(
+      "projects",
+      (v) => v.user_ids.includes(currentUserId) && !v.is_deleted
     );
 
     res.json({ skip: 0, limit: null, data } as PaginatedData<Project[]>);
+  })
+);
+
+router.delete(
+  "/me/projects/:id",
+  use(async (req, res) => {
+    const currentUserId = await getAuthenticatedUserId(req.cookies);
+    if (!currentUserId) {
+      return respond401(res);
+    }
+
+    const { params } = req;
+    const project = mockDb.getOne<Project>("projects", (v) =>
+      conformsToFilter(v, { admin_id: currentUserId, id: params.id })
+    );
+    if (project === undefined) {
+      res.status(403).json({ detail: `Forbidden` });
+      return;
+    }
+
+    mockDb.del("projects", project.id);
+
+    // no content
+    res.status(204).send();
   })
 );
 
@@ -85,7 +125,8 @@ router.post(
       "projects",
       (v) =>
         v.ext_id == (payload as AppToken).project_ext_id &&
-        v.user_ids.includes(user_id)
+        v.user_ids.includes(user_id) &&
+        !v.is_deleted
     );
     if (!project) {
       return respond401(res);
@@ -112,11 +153,11 @@ router.get(
     }
 
     const { project_ext_id } = req.query as { [k: string]: string };
-    const myTokens = mockDb.getMany<AppToken>("tokens", (v) =>
+    const data = mockDb.getMany<AppToken>("tokens", (v) =>
       conformsToFilter(v, { user_id: currentUserId, project_ext_id })
     );
 
-    res.json(myTokens);
+    res.json({ skip: 0, limit: null, data } as PaginatedData<AppToken[]>);
   })
 );
 
@@ -289,6 +330,31 @@ router.post(
     }
 
     res.json({ message: "logged out" });
+  })
+);
+
+router.post(
+  "/me/request-qpu-time",
+  use(async (req, res) => {
+    const requester_id = await getAuthenticatedUserId(req.cookies);
+    if (!requester_id) {
+      return respond401(res);
+    }
+
+    const currentTimestamp = new Date().toISOString();
+    const userRequest: UserRequest = {
+      request: { ...req.body },
+      requester_id,
+      updated_at: currentTimestamp,
+      created_at: currentTimestamp,
+      type: "project-qpu-seconds",
+      status: "pending",
+      id: randomUUID(),
+    };
+
+    mockDb.create<UserRequest>("approvals", userRequest);
+    res.status(201);
+    res.json(userRequest);
   })
 );
 

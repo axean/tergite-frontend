@@ -11,13 +11,13 @@ const invalidFormatEmailAddresses = [
 ];
 
 [...users].forEach((user) => {
-  const emailDomain = user.email.split("@")[1];
+  const [username, emailDomain] = user.email.split("@");
   const availableAuthProviders = authProviders.filter(
     (v) => v.email_domain === emailDomain
   );
   const isDomainSupported = availableAuthProviders.length > 0;
 
-  describe(`login page for authenticated user '${user.name}'`, () => {
+  describe(`login page for authenticated user '${username}'`, () => {
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");
@@ -85,7 +85,7 @@ const invalidFormatEmailAddresses = [
       });
   });
 
-  describe(`login page for unauthenticated user '${user.name}'`, () => {
+  describe(`login page for unauthenticated user '${username}'`, () => {
     let apiBaseUrl: string;
     beforeEach(() => {
       apiBaseUrl = Cypress.env("VITE_API_BASE_URL");

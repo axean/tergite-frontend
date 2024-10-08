@@ -34,8 +34,10 @@ users.forEach((user) => {
 
   let refetchIntervalMs: number;
   const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
+  const username = user.email.split("@")[0];
   const allUserJobs = jobs.filter((v) => v.user_id === user.id);
-  describe(`home page for ${user.name}`, () => {
+
+  describe(`home page for ${username}`, () => {
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");

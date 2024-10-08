@@ -7,7 +7,9 @@ import userList from "../fixtures/users.json";
 const users = [...userList] as User[];
 
 users.forEach((user) => {
-  describe(`error-alert page for '${user.name}'`, () => {
+  const username = user.email.split("@")[0];
+
+  describe(`error-alert page for '${username}'`, () => {
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");

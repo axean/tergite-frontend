@@ -207,7 +207,7 @@ class MockDb {
    */
   create<T extends DbRecord>(
     itemType: ItemType,
-    payload: UnknownObject,
+    payload: UnknownObject | T,
     unique_fields: string[] | undefined = undefined
   ): T {
     const filters = unique_fields?.reduce(

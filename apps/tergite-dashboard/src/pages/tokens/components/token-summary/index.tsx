@@ -6,12 +6,12 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { DetailItem } from "@/components/ui/detail-item";
-import { TokenStatusDiv } from "@/components/ui/token-status-div";
+import { HealthStatus } from "@/components/ui/health-status";
 import { deleteMyToken } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { ExtendedAppToken } from "types";
-import { DeleteDialog } from "./delete-dialog";
+import { TokenDeleteDialog } from "./delete-dialog";
 
 export function TokenSummary({ token, className = "", onDelete }: Props) {
   const tokenDeletion = useMutation({
@@ -38,7 +38,7 @@ export function TokenSummary({ token, className = "", onDelete }: Props) {
             <DetailItem label="Project">{token.project_name}</DetailItem>
 
             <DetailItem label="Status">
-              <TokenStatusDiv token={token} />
+              <HealthStatus isHealthy={!token.is_expired} />
             </DetailItem>
 
             <DetailItem label="Expires">
@@ -53,7 +53,7 @@ export function TokenSummary({ token, className = "", onDelete }: Props) {
         </div>
       </CardContent>
       <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
-        <DeleteDialog
+        <TokenDeleteDialog
           token={token}
           onDelete={() => tokenDeletion.mutate(token.id)}
           isDisabled={tokenDeletion.isPending}

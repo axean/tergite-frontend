@@ -10,8 +10,9 @@ const projects = [...projectList] as Project[];
 
 users.forEach((user) => {
   const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
+  const username = user.email.split("@")[0];
 
-  describe(`dashboard-layout for ${user.name}`, () => {
+  describe(`dashboard-layout for ${username}`, () => {
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");

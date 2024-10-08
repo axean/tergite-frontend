@@ -12,9 +12,9 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { type MouseEventHandler } from "react";
-import { type ExtendedAppToken } from "types";
+import { type Project } from "types";
 
-export function TokenDeleteDialog({ token, onDelete, isDisabled }: Props) {
+export function DeleteProjectDialog({ project, onDelete, isDisabled }: Props) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -26,9 +26,9 @@ export function TokenDeleteDialog({ token, onDelete, isDisabled }: Props) {
           Delete
         </Button>
       </DialogTrigger>
-      <DialogContent id="delete-token-dialog">
+      <DialogContent id="delete-project-dialog">
         <DialogHeader>
-          <DialogTitle>Delete token {token.title}?</DialogTitle>
+          <DialogTitle>Delete project {project.name}?</DialogTitle>
           <DialogDescription className="text-center py-5">
             This action cannot be undone.
           </DialogDescription>
@@ -41,7 +41,7 @@ export function TokenDeleteDialog({ token, onDelete, isDisabled }: Props) {
               className="mx-auto w-full"
               onClick={onDelete}
             >
-              I want to delete this token
+              I want to delete this project
             </Button>
           </DialogClose>
         </DialogFooter>
@@ -51,7 +51,7 @@ export function TokenDeleteDialog({ token, onDelete, isDisabled }: Props) {
 }
 
 interface Props {
-  token: ExtendedAppToken;
+  project: Project;
   isDisabled: boolean;
   onDelete?: MouseEventHandler<HTMLButtonElement>;
 }

@@ -12,6 +12,9 @@ import {
   type PaginatedData,
   type AppToken,
   type AppTokenUpdateRequest,
+  QpuTimeExtensionPostBody,
+  QpuTimeExtensionUserRequest,
+  User,
 } from "../../types";
 import { normalizeCalibrationData, extendAppToken } from "./utils";
 
@@ -53,6 +56,14 @@ export const calibrationsQuery = queryOptions({
   queryKey: [apiBaseUrl, "calibrations"],
   queryFn: async () => await getCalibrations(),
   refetchInterval,
+});
+
+/**
+ * the devices query for using with react query
+ */
+export const currentUserQuery = queryOptions({
+  queryKey: [apiBaseUrl, "me"],
+  queryFn: async () => await getCurrentUser(),
 });
 
 /**
@@ -120,6 +131,7 @@ export function myTokensQuery(options: {
 }
 
 /**
+ * Refreshes the queries for the tokens from the API
  *
  * @param queryClient - the query client for making queries
  * @param options - the options including:
@@ -133,6 +145,23 @@ export function refreshMyTokensQueries(
 ) {
   const { baseUrl = apiBaseUrl } = options;
   queryClient.invalidateQueries({ queryKey: [baseUrl, "me", "tokens"] });
+}
+
+/**
+ * Refreshes the queries for the projects from the API
+ *
+ * @param queryClient - the query client for making queries
+ * @param options - the options including:
+ *          - baseUrl - the base URL of the API
+ */
+export function refreshMyProjectsQueries(
+  queryClient: QueryClient,
+  options: {
+    baseUrl?: string;
+  } = {}
+) {
+  const { baseUrl = apiBaseUrl } = options;
+  queryClient.invalidateQueries({ queryKey: [baseUrl, "me", "projects"] });
 }
 
 /**
@@ -181,6 +210,27 @@ export async function updateAppToken(
   const { baseUrl = apiBaseUrl } = options;
   return await authenticatedFetch(`${baseUrl}/me/tokens/${id}`, {
     method: "PUT",
+    body: JSON.stringify(payload),
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+/**
+ * Requests for more QPU time for the given project
+ *
+ * @param payload - the body to be sent in the request
+ * @param options - the options including:
+ *          - baseUrl - the base URL of the API
+ */
+export async function requestQpuTimeExtension(
+  payload: QpuTimeExtensionPostBody,
+  options: {
+    baseUrl?: string;
+  } = {}
+): Promise<QpuTimeExtensionUserRequest> {
+  const { baseUrl = apiBaseUrl } = options;
+  return await authenticatedFetch(`${baseUrl}/admin/qpu-time-requests`, {
+    method: "POST",
     body: JSON.stringify(payload),
     headers: { "Content-Type": "application/json" },
   });
@@ -244,6 +294,26 @@ export async function deleteMyToken(
 }
 
 /**
+ * Deletes the project for the current user on the system
+ * @param id of the project
+ * @param options - extra options for querying the jobs
+ *           - baseUrl - the API base URL; default apiBaseUrl
+ */
+export async function deleteMyProject(
+  id: string,
+  options: { baseUrl?: string } = {}
+): Promise<void> {
+  const { baseUrl = apiBaseUrl } = options;
+  await authenticatedFetch(
+    `${baseUrl}/me/projects/${id}`,
+    {
+      method: "delete",
+    },
+    { isJsonOutput: false }
+  );
+}
+
+/**
  * Retrieves the devices on the system
  * @param baseUrl - the API base URL
  */
@@ -261,6 +331,14 @@ async function getDeviceDetail(
   baseUrl: string = apiBaseUrl
 ): Promise<Device> {
   return await authenticatedFetch(`${baseUrl}/devices/${name}`);
+}
+
+/**
+ * Retrieve the user who is currently logged in on the system
+ * @param baseUrl - the API base URL
+ */
+async function getCurrentUser(baseUrl: string = apiBaseUrl): Promise<User> {
+  return await authenticatedFetch(`${baseUrl}/me`);
 }
 
 /**
@@ -316,7 +394,10 @@ async function getMyTokens(
 ): Promise<AppToken[]> {
   const { project_ext_id, baseUrl = apiBaseUrl } = options;
   const query = project_ext_id ? `?project_ext_id=${project_ext_id}` : "";
-  return await authenticatedFetch(`${baseUrl}/me/tokens${query}`);
+  const { data } = await authenticatedFetch<PaginatedData<AppToken[]>>(
+    `${baseUrl}/me/tokens${query}`
+  );
+  return data;
 }
 
 /**
@@ -324,10 +405,10 @@ async function getMyTokens(
  * @param baseUrl - the API base URL
  */
 async function getMyProjects(baseUrl: string = apiBaseUrl): Promise<Project[]> {
-  const response: PaginatedData<Project[]> = await authenticatedFetch(
+  const { data } = await authenticatedFetch<PaginatedData<Project[]>>(
     `${baseUrl}/me/projects/`
   );
-  return response.data;
+  return data;
 }
 
 /**
