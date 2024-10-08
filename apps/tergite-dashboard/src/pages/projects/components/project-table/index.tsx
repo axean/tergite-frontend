@@ -1,6 +1,10 @@
 import { DataTable } from "@/components/ui/data-table";
 
-import { User, type Project } from "types";
+import {
+  type QpuTimeExtensionUserRequest,
+  type User,
+  type Project,
+} from "types";
 
 import { getColumns } from "./columns";
 import { filterFormProps } from "./filter-form";
@@ -13,8 +17,12 @@ export function ProjectsTable({
   rowSelection,
   onRowClick,
   currentUser,
+  qpuTimeRequests = [],
 }: Props) {
-  const columns = useMemo(() => getColumns({ currentUser }), [currentUser]);
+  const columns = useMemo(
+    () => getColumns({ currentUser, qpuTimeRequests }),
+    [currentUser, qpuTimeRequests]
+  );
   return (
     <DataTable
       columns={columns}
@@ -33,6 +41,7 @@ export function ProjectsTable({
 interface Props {
   data: Project[];
   currentUser: User;
+  qpuTimeRequests: QpuTimeExtensionUserRequest[];
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   rowSelection?: RowSelectionState;
   onRowClick: (row: Row<Project>) => void;

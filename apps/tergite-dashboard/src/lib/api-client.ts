@@ -15,6 +15,7 @@ import {
   QpuTimeExtensionPostBody,
   QpuTimeExtensionUserRequest,
   User,
+  UserRequestStatus,
 } from "../../types";
 import { normalizeCalibrationData, extendAppToken } from "./utils";
 
@@ -131,6 +132,29 @@ export function myTokensQuery(options: {
 }
 
 /**
+ * the query for getting the qpu time requests for my projects using with react query
+ * @param options - extra options for filtering the tokens
+ *            - baseUrl - the base URL of the API
+ *            - projectList - List of all available projects
+ */
+export function myProjectsQpuTimeRequestsQuery(options: {
+  status?: UserRequestStatus;
+  projects: Project[];
+  baseUrl?: string;
+}) {
+  const { status, projects, baseUrl = apiBaseUrl } = options;
+  const projectIds = projects.map((v) => v.id).sort();
+  const queryKey = [baseUrl, "admin", "qpu-time-requests", projectIds, status];
+
+  return queryOptions({
+    queryKey,
+    queryFn: async () =>
+      await getProjectQpuTimeRequests(baseUrl, projectIds, status),
+    refetchInterval,
+  });
+}
+
+/**
  * Refreshes the queries for the tokens from the API
  *
  * @param queryClient - the query client for making queries
@@ -162,6 +186,25 @@ export function refreshMyProjectsQueries(
 ) {
   const { baseUrl = apiBaseUrl } = options;
   queryClient.invalidateQueries({ queryKey: [baseUrl, "me", "projects"] });
+}
+
+/**
+ * Refreshes the queries for the QPU time requests from the API
+ *
+ * @param queryClient - the query client for making queries
+ * @param options - the options including:
+ *          - baseUrl - the base URL of the API
+ */
+export function refreshMyProjectsQpuTimeRequestsQueries(
+  queryClient: QueryClient,
+  options: {
+    baseUrl?: string;
+  } = {}
+) {
+  const { baseUrl = apiBaseUrl } = options;
+  queryClient.invalidateQueries({
+    queryKey: [baseUrl, "admin", "qpu-time-requests"],
+  });
 }
 
 /**
@@ -409,6 +452,27 @@ async function getMyProjects(baseUrl: string = apiBaseUrl): Promise<Project[]> {
     `${baseUrl}/me/projects/`
   );
   return data;
+}
+
+/**
+ * Retrieves the devices on the system
+ * @param baseUrl - the API base URL
+ * @param [projectIds=[]] - the ids of the projects whose requests are to be returned
+ */
+async function getProjectQpuTimeRequests(
+  baseUrl: string = apiBaseUrl,
+  projectIds: string[] = [],
+  status?: UserRequestStatus
+): Promise<QpuTimeExtensionUserRequest[]> {
+  let queryParams = projectIds.map((v) => `project_id=${v}`);
+  if (status) {
+    queryParams.push(`status=${status}`);
+  }
+
+  const queryString = queryParams.join("&");
+  return await authenticatedFetch(
+    `${baseUrl}/admin/qpu-time-requests?${queryString}`
+  );
 }
 
 /**

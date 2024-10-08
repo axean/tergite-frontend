@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/card";
 import {
   currentUserQuery,
+  myProjectsQpuTimeRequestsQuery,
   myProjectsQuery,
   refreshMyProjectsQueries,
 } from "@/lib/api-client";
@@ -22,6 +23,9 @@ export function Projects() {
   const queryClient = useQueryClient();
   const { currentUser } = useLoaderData() as ProjectsPageData;
   const { data: projects = [] } = useQuery(myProjectsQuery);
+  const { data: qpuTimeRequests = [] } = useQuery(
+    myProjectsQpuTimeRequestsQuery({ status: "pending", projects })
+  );
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const selectedProjectIdx = useMemo(() => {
     const selectedEntries = Object.entries(rowSelection).filter(
@@ -62,6 +66,7 @@ export function Projects() {
             rowSelection={rowSelection}
             onRowClick={handleRowClick}
             currentUser={currentUser}
+            qpuTimeRequests={qpuTimeRequests}
           />
         </CardContent>
       </Card>

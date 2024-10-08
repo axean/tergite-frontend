@@ -21,6 +21,7 @@ import {
   AppTokenCreationResponse,
   PaginatedData,
   UserRequest,
+  QpuTimeExtensionUserRequest,
 } from "../../types";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
@@ -333,8 +334,34 @@ router.post(
   })
 );
 
+router.get(
+  "/admin/qpu-time-requests",
+  use(async (req, res) => {
+    const requester_id = await getAuthenticatedUserId(req.cookies);
+    if (!requester_id) {
+      return respond401(res);
+    }
+
+    const { status, project_id: projectIds } = req.query;
+
+    const requestList = mockDb.getMany<QpuTimeExtensionUserRequest>(
+      "approvals",
+      (v) => {
+        return (
+          (status === undefined || v.status === status) &&
+          (projectIds === undefined ||
+            projectIds === v.request.project_id ||
+            // @ts-ignore
+            projectIds.includes(v.request.project_id))
+        );
+      }
+    );
+    res.json(requestList);
+  })
+);
+
 router.post(
-  "/me/request-qpu-time",
+  "/admin/qpu-time-requests",
   use(async (req, res) => {
     const requester_id = await getAuthenticatedUserId(req.cookies);
     if (!requester_id) {
@@ -342,7 +369,7 @@ router.post(
     }
 
     const currentTimestamp = new Date().toISOString();
-    const userRequest: UserRequest = {
+    const userRequest: QpuTimeExtensionUserRequest = {
       request: { ...req.body },
       requester_id,
       updated_at: currentTimestamp,
@@ -352,7 +379,7 @@ router.post(
       id: randomUUID(),
     };
 
-    mockDb.create<UserRequest>("approvals", userRequest);
+    mockDb.create<QpuTimeExtensionUserRequest>("approvals", userRequest);
     res.status(201);
     res.json(userRequest);
   })

@@ -14,10 +14,14 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { apiBaseUrl, requestQpuTimeExtension } from "@/lib/api-client";
+import {
+  apiBaseUrl,
+  refreshMyProjectsQpuTimeRequestsQueries,
+  requestQpuTimeExtension,
+} from "@/lib/api-client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Project,
@@ -54,9 +58,11 @@ export function QpuTimeDialog(props: Props) {
 
 function _QpuTimeDialog({
   project,
+  qpuTimeRequests,
   onSubmit = async () => {},
   className = "",
 }: Props) {
+  const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const editForm = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,6 +71,13 @@ function _QpuTimeDialog({
       reason: "",
     },
   });
+  const isRequestPending = useMemo(
+    () =>
+      qpuTimeRequests.filter(
+        (v) => v.request.project_id === project.id && v.status === "pending"
+      ).length > 0,
+    [qpuTimeRequests, project]
+  );
 
   const qpuExtension = useMutation({
     mutationKey: [
@@ -82,9 +95,11 @@ function _QpuTimeDialog({
           reason: reason,
           project_id: project.id,
         };
-        return await requestQpuTimeExtension(payload);
+        const response = await requestQpuTimeExtension(payload);
+        refreshMyProjectsQpuTimeRequestsQueries(queryClient);
+        return response;
       },
-      [project]
+      [project, queryClient]
     ),
     onSuccess: onSubmit,
     throwOnError: true,
@@ -97,8 +112,9 @@ function _QpuTimeDialog({
           className={cn("border-green-600 text-green-600", className)}
           type="button"
           variant="outline"
+          disabled={isRequestPending}
         >
-          More QPU time
+          {isRequestPending ? "Request Pending" : "More QPU time"}
         </Button>
       </DialogTrigger>
       <DialogContent id="qpu-time-dialog">
@@ -219,6 +235,7 @@ interface Props {
   project: Project;
   currentUser: User;
   className?: string;
+  qpuTimeRequests: QpuTimeExtensionUserRequest[];
   onSubmit?: (data: QpuTimeExtensionUserRequest) => Promise<void>;
 }
 
