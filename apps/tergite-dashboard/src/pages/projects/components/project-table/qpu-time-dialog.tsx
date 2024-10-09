@@ -140,7 +140,14 @@ function _QpuTimeDialog({
                   <FormItem className="">
                     <FormControl>
                       <div>
-                        <Input id="days" type="number" {...field} />
+                        <Input
+                          id="days"
+                          type="number"
+                          {...field}
+                          onChange={(ev) =>
+                            field.onChange(parseInt(ev.target.value))
+                          }
+                        />
                         <Label htmlFor="days">days</Label>
                       </div>
                     </FormControl>
@@ -156,7 +163,14 @@ function _QpuTimeDialog({
                   <FormItem className="">
                     <FormControl>
                       <div>
-                        <Input id="hrs" type="number" {...field} />
+                        <Input
+                          id="hrs"
+                          type="number"
+                          {...field}
+                          onChange={(ev) =>
+                            field.onChange(parseInt(ev.target.value))
+                          }
+                        />
                         <Label htmlFor="hrs">hrs</Label>
                       </div>
                     </FormControl>
@@ -172,7 +186,14 @@ function _QpuTimeDialog({
                   <FormItem className="">
                     <FormControl>
                       <div>
-                        <Input id="mins" type="number" {...field} />
+                        <Input
+                          id="mins"
+                          type="number"
+                          {...field}
+                          onChange={(ev) =>
+                            field.onChange(parseInt(ev.target.value))
+                          }
+                        />
                         <Label htmlFor="mins">mins</Label>
                       </div>
                     </FormControl>
@@ -188,7 +209,14 @@ function _QpuTimeDialog({
                   <FormItem className="">
                     <FormControl>
                       <div>
-                        <Input id="secs" type="number" {...field} />
+                        <Input
+                          id="secs"
+                          type="number"
+                          {...field}
+                          onChange={(ev) =>
+                            field.onChange(parseInt(ev.target.value))
+                          }
+                        />
                         <Label htmlFor="secs">secs</Label>
                       </div>
                     </FormControl>

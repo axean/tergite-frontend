@@ -45,7 +45,7 @@ export function getColumns({
       ),
     },
     {
-      id: "actions",
+      id: "requests",
       accessorFn: (row) => row.id,
       header: "Requests",
       cell: ({ row }) => (

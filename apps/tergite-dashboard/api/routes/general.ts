@@ -345,7 +345,7 @@ router.get(
     const { status, project_id: projectIds } = req.query;
 
     const requestList = mockDb.getMany<QpuTimeExtensionUserRequest>(
-      "approvals",
+      "user_requests",
       (v) => {
         return (
           (status === undefined || v.status === status) &&
@@ -379,7 +379,7 @@ router.post(
       id: randomUUID(),
     };
 
-    mockDb.create<QpuTimeExtensionUserRequest>("approvals", userRequest);
+    mockDb.create<QpuTimeExtensionUserRequest>("user_requests", userRequest);
     res.status(201);
     res.json(userRequest);
   })

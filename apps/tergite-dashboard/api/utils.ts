@@ -6,6 +6,7 @@ import jobList from "../cypress/fixtures/jobs.json";
 import projectList from "../cypress/fixtures/projects.json";
 import tokenList from "../cypress/fixtures/tokens.json";
 import userList from "../cypress/fixtures/users.json";
+import qpuRequestList from "../cypress/fixtures/qpu-time-requests.json";
 import { type ParsedQs } from "qs";
 import {
   type NextFunction,
@@ -97,7 +98,7 @@ class MockDb {
     devices: [...(deviceList as Device[])],
     calibrations: [...(deviceCalibrationList as DeviceCalibration[])],
     jobs: [...(jobList as Job[])],
-    approvals: [] as UserRequest[],
+    user_requests: [...(qpuRequestList as UserRequest[])],
     auth_providers: [...(authProviderList as AuthProvider[])],
   };
   deleted: { [k: string | ItemType]: DeletedIndex } = {
@@ -107,7 +108,7 @@ class MockDb {
     devices: {},
     calibrations: {},
     jobs: {},
-    approvals: {},
+    user_requests: {},
     auth_providers: {},
   };
 
@@ -136,7 +137,7 @@ class MockDb {
       devices: [...(deviceList as Device[])],
       calibrations: [...(deviceCalibrationList as DeviceCalibration[])],
       jobs: [...(jobList as Job[])],
-      approvals: [] as UserRequest[],
+      user_requests: [...(qpuRequestList as UserRequest[])],
       auth_providers: [...(authProviderList as AuthProvider[])],
     };
     this.deleted = {
@@ -146,7 +147,7 @@ class MockDb {
       devices: {},
       calibrations: {},
       jobs: {},
-      approvals: {},
+      user_requests: {},
       auth_providers: {},
     };
   }
@@ -433,7 +434,7 @@ type ItemType =
   | "devices"
   | "calibrations"
   | "jobs"
-  | "approvals"
+  | "user_requests"
   | "auth_providers";
 
 type DeletedIndex = { [k: string]: boolean };
