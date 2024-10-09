@@ -10,6 +10,7 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 ### Added
 
 - Add the tokens list page for viewing, editing and deleting tokens of current user
+- Add the projects list page for viewing, requesting QPU time and deleting projects for current user
 
 ### Changed
 

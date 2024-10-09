@@ -11,13 +11,12 @@
 # that they have been altered from the originals.
 
 """Router for my things"""
-import logging
 from typing import Optional
 
 from fastapi import APIRouter, Query
 
-from api.rest.dependencies import CurrentUserIdDep, MongoDbDep
-from services.auth import APP_TOKEN_AUTH, APP_TOKEN_BACKEND
+from api.rest.dependencies import CurrentUserDep, CurrentUserIdDep, MongoDbDep
+from services.auth import APP_TOKEN_AUTH, APP_TOKEN_BACKEND, User, UserRead
 from services.quantum_jobs import JobV1, JobV2, get_latest_many
 
 router = APIRouter(prefix="/me")
@@ -47,3 +46,9 @@ async def get_my_jobs_in_project(
         filters["project_id"] = project_id
     jobs = await get_latest_many(db, filters=filters)
     return [JobV2.from_v1(JobV1.validate(job)) for job in jobs]
+
+
+@router.get("", tags=["users"], response_model=UserRead)
+async def get_my_user_info(user: User = CurrentUserDep):
+    """Retrieves the information on the current user"""
+    return user.dict()

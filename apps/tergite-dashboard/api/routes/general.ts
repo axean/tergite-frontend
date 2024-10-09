@@ -20,7 +20,6 @@ import {
   AppToken,
   AppTokenCreationResponse,
   PaginatedData,
-  UserRequest,
   QpuTimeExtensionUserRequest,
 } from "../../types";
 import { randomUUID } from "crypto";

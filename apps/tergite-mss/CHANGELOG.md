@@ -7,6 +7,10 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 ## [Unreleased]
 
+### Added
+
+- Added GET `/v2/me` endpoint to get current user info
+
 ## [2024.09.1] - 2024-09-24
 
 ### Added

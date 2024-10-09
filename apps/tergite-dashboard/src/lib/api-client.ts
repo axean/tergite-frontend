@@ -464,7 +464,7 @@ async function getProjectQpuTimeRequests(
   projectIds: string[] = [],
   status?: UserRequestStatus
 ): Promise<QpuTimeExtensionUserRequest[]> {
-  let queryParams = projectIds.map((v) => `project_id=${v}`);
+  const queryParams = projectIds.map((v) => `project_id=${v}`);
   if (status) {
     queryParams.push(`status=${status}`);
   }
