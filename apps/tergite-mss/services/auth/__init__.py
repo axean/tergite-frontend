@@ -22,7 +22,6 @@ from .projects.dtos import (
     Project,
     ProjectAdminView,
     ProjectCreate,
-    ProjectListResponse,
     ProjectRead,
     ProjectUpdate,
 )
@@ -42,6 +41,7 @@ from .service import (
     register_oauth2_client,
 )
 from .users.dtos import User, UserCreate, UserRead, UserUpdate
+from .utils import PaginatedListResponse
 
 __all__ = [
     # DTOs
@@ -56,7 +56,7 @@ __all__ = [
     ProjectUpdate,
     ProjectRead,
     ProjectAdminView,
-    ProjectListResponse,
+    PaginatedListResponse,
     ProjectDatabase,
     AppToken,
     AppTokenRead,

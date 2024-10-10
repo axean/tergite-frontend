@@ -470,9 +470,11 @@ async function getProjectQpuTimeRequests(
   }
 
   const queryString = queryParams.join("&");
-  return await authenticatedFetch(
-    `${baseUrl}/admin/qpu-time-requests?${queryString}`
-  );
+  const { data } = await authenticatedFetch<
+    PaginatedData<QpuTimeExtensionUserRequest[]>
+  >(`${baseUrl}/admin/qpu-time-requests?${queryString}`);
+
+  return data;
 }
 
 /**

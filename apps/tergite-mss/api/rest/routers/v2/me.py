@@ -1,6 +1,6 @@
 # This code is part of Tergite
 #
-# (C) Copyright Martin Ahindura 2024
+# (C) Chalmers Next Labs AB 2024
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory

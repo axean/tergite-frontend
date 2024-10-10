@@ -343,7 +343,7 @@ router.get(
 
     const { status, project_id: projectIds } = req.query;
 
-    const requestList = mockDb.getMany<QpuTimeExtensionUserRequest>(
+    const data = mockDb.getMany<QpuTimeExtensionUserRequest>(
       "user_requests",
       (v) => {
         return (
@@ -355,7 +355,9 @@ router.get(
         );
       }
     );
-    res.json(requestList);
+    res.json({ skip: 0, limit: null, data } as PaginatedData<
+      QpuTimeExtensionUserRequest[]
+    >);
   })
 );
 

@@ -22,7 +22,7 @@ from fastapi_users.authentication import AuthenticationBackend
 import settings
 from utils.config import Oauth2ClientConfig, UserRole
 
-from . import app_tokens, projects, providers, users
+from . import app_tokens, projects, user_requests, users
 from .utils import get_oauth2_client
 
 # JWT-based authentication
@@ -76,6 +76,7 @@ async def on_startup(db: motor.motor_asyncio.AsyncIOMotorDatabase):
             users.dtos.User,
             app_tokens.dtos.AppToken,
             projects.dtos.Project,
+            user_requests.dtos.UserRequest,
         ],
     )
 

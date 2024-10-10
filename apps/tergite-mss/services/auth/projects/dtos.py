@@ -12,7 +12,7 @@
 """Data Transfer Objects for the projects submodule in the auth service"""
 import enum
 from datetime import datetime
-from typing import Any, Dict, Generic, List, Optional, TypeVar
+from typing import Any, Dict, List, Optional
 
 from beanie import Document, PydanticObjectId
 from pydantic import BaseModel, Field, validator
@@ -146,17 +146,6 @@ class Project(ProjectCreate, Document):
         indexes = [
             IndexModel("ext_id", unique=True),
         ]
-
-
-ITEM = TypeVar("ITEM")
-
-
-class ProjectListResponse(BaseModel, Generic[ITEM]):
-    """The response when sending paginated data"""
-
-    skip: int = 0
-    limit: Optional[int] = None
-    data: List[ITEM] = []
 
 
 def _is_required_in_v2_and_above(value: Any, other_values: Dict[str, Any]):

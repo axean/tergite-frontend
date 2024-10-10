@@ -10,6 +10,8 @@
     "created_at": "2024-10-09T10:37:05.267Z",
     "type": "project-qpu-seconds",
     "status": "rejected",
+    "rejection_reason": "It just does not look right",
+    "approver_id": "5ddc8d9fb69602723cd3c38f",
     "id": "7098315"
   },
   {
@@ -23,6 +25,8 @@
     "created_at": "2024-10-09T10:37:32.558Z",
     "type": "project-qpu-seconds",
     "status": "pending",
+    "rejection_reason": null,
+    "approver_id": null,
     "id": "8877110"
   }
 ]

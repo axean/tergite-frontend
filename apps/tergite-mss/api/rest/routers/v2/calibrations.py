@@ -5,7 +5,8 @@
 #               Björn Rosengren, and Jakob Wik 2022 (BSc project)
 # (C) Copyright Fabian Forslund, Niklas Botö 2022
 # (C) Copyright Abdullah-Al Amin 2022
-# (C) Copyright Martin Ahindura 2023, 2024
+# (C) Copyright Martin Ahindura 2023
+# (C) Chalmers Next Labs AB 2024
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,15 +16,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 from typing import List
-from uuid import UUID
 
 from fastapi import APIRouter
 
-from api.rest.dependencies import (
-    CurrentProjectDep,
-    CurrentSystemUserProjectDep,
-    MongoDbDep,
-)
+from api.rest.dependencies import CurrentSystemUserProjectDep, MongoDbDep
 from services import calibration as calibration_service
 
 router = APIRouter(prefix="/calibrations", tags=["calibrations"])
