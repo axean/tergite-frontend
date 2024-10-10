@@ -10,6 +10,7 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 ### Added
 
 - Added GET `/v2/me` endpoint to get current user info
+- Added DELETE `/v2/me/projects/{id}` endpoint to delete project current user administers
 
 ## [2024.09.1] - 2024-09-24
 

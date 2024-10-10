@@ -323,4 +323,40 @@ def get_my_projects_router(
 
         return schemas.model_validate(project_schema, project)
 
+    # route to destroy tokens
+    @router.delete(
+        "/{_id}",
+        status_code=status.HTTP_204_NO_CONTENT,
+        name=f"projects:destroy_my_administered_project",
+        responses={
+            **{
+                status.HTTP_401_UNAUTHORIZED: {
+                    "description": "user not authenticated."
+                },
+                status.HTTP_403_FORBIDDEN: {
+                    "description": "token is missing or is expired."
+                },
+            },
+        },
+    )
+    async def destroy(
+        _id: PydanticObjectId,
+        user_id: str = Depends(get_current_user_id),
+        user_manager: UserManager = Depends(get_user_manager),
+        project_manager: ProjectAppTokenManager = Depends(get_project_manager),
+    ):
+        try:
+            parsed_id = project_manager.parse_id(_id)
+            project = await project_manager.get(parsed_id)
+        except (exc.ProjectNotExists, exceptions.InvalidID) as e:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from e
+
+        user = await user_manager.get(PydanticObjectId(user_id))
+
+        if user is None or str(user.id) != project.admin_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+        await project_manager.delete(project)
+        return None
+
     return router
