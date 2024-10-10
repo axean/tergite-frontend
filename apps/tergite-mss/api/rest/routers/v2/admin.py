@@ -13,9 +13,10 @@
 """Routes for admin related operations"""
 from typing import List, Optional
 
-from fastapi import APIRouter, Query
+from beanie import PydanticObjectId
+from fastapi import APIRouter, HTTPException, Query, status
 
-from services.auth import PaginatedListResponse, user_requests
+from services.auth import PaginatedListResponse, Project, user_requests
 
 from ...dependencies import CurrentUserIdDep
 
@@ -43,12 +44,23 @@ async def get_qpu_time_requests(
     )
 
 
-@router.post("/qpu-time-requests/", tags=["user-requests"])
+@router.post(
+    "/qpu-time-requests/",
+    tags=["user-requests"],
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_qpu_time_request(
     request_body: user_requests.QpuTimeExtensionPostBody,
     requester_id: str = CurrentUserIdDep,
 ):
     """Creates a new QPU time request"""
-    return await user_requests.create_qpu_time_request(
+    project = await Project.find_one(
+        {"_id": PydanticObjectId(request_body.project_id), "user_ids": requester_id}
+    )
+    if project is None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    result = await user_requests.create_qpu_time_request(
         request_body=request_body, requester_id=requester_id
     )
+    return result.dict()
