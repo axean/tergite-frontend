@@ -24,6 +24,7 @@ import {
   Project,
   User,
   UserRequest,
+  UserRole,
 } from "../types";
 
 const jwtSecret = process.env.JWT_SECRET ?? "no-token-really-noooo";
@@ -338,6 +339,31 @@ export async function getAuthenticatedUserId(
     accessToken && console.error(error);
     return undefined;
   }
+}
+
+/**
+ * Checks if the given user has any of the given roles
+ *
+ * @param userId - the ID of the user to check
+ * @param roles - the roles to check for
+ */
+export function hasAnyOfRoles(userId: string, roles: UserRole[]): boolean {
+  const user = mockDb.getOne<User>("users", (v) => v.id === userId);
+  if (!user) {
+    return false;
+  }
+
+  if (roles.length === 0) {
+    return true;
+  }
+
+  for (const role of roles) {
+    if (user.roles.includes(role)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**

@@ -5,6 +5,7 @@ import {
   createCookieHeader,
   getAuthenticatedUserId,
   getQueryString,
+  hasAnyOfRoles,
   mockDb,
   respond401,
   use,
@@ -21,6 +22,7 @@ import {
   AppTokenCreationResponse,
   PaginatedData,
   QpuTimeExtensionUserRequest,
+  UserRequest,
 } from "../../types";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
@@ -336,8 +338,8 @@ router.post(
 router.get(
   "/admin/qpu-time-requests",
   use(async (req, res) => {
-    const requester_id = await getAuthenticatedUserId(req.cookies);
-    if (!requester_id) {
+    const user_id = await getAuthenticatedUserId(req.cookies);
+    if (!user_id) {
       return respond401(res);
     }
 
@@ -383,6 +385,35 @@ router.post(
     mockDb.create<QpuTimeExtensionUserRequest>("user_requests", userRequest);
     res.status(201);
     res.json(userRequest);
+  })
+);
+
+router.get(
+  "/admin/user-requests",
+  use(async (req, res) => {
+    const userId = await getAuthenticatedUserId(req.cookies);
+    if (!userId) {
+      return respond401(res);
+    }
+
+    // Only admins are permitted here
+    if (!hasAnyOfRoles(userId, ["admin"])) {
+      res.status(403).json({ detail: `Forbidden` });
+      return;
+    }
+
+    const { status, skip: skipAsString, limit: limitAsString } = req.query;
+    const skip = skipAsString ? parseInt(skipAsString as string) : undefined;
+    const limit = limitAsString ? parseInt(limitAsString as string) : undefined;
+
+    const data = mockDb.getMany<UserRequest>(
+      "user_requests",
+      (v) => status === undefined || v.status === status,
+      skip,
+      limit
+    );
+
+    res.json({ skip, limit, data } as PaginatedData<UserRequest[]>);
   })
 );
 

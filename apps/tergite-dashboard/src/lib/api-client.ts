@@ -16,6 +16,7 @@ import {
   QpuTimeExtensionUserRequest,
   User,
   UserRequestStatus,
+  UserRequest,
 } from "../../types";
 import { normalizeCalibrationData, extendAppToken } from "./utils";
 
@@ -132,10 +133,47 @@ export function myTokensQuery(options: {
 }
 
 /**
+ * the react query for getting all pending user requests
+ * @param options - extra options for filtering the tokens
+ *            - currentUser - the current user
+ *            - baseUrl - the base URL of the API
+ *            - status - the status of the requests
+ *            - skip - the number of records to skip
+ *            - limit - the maximum number of records to return
+ */
+export function allUserRequestsQuery(options: {
+  status?: UserRequestStatus;
+  currentUser: User;
+  baseUrl?: string;
+  skip?: number;
+  limit?: number;
+}) {
+  const {
+    status,
+    baseUrl = apiBaseUrl,
+    skip = 0,
+    limit,
+    currentUser,
+  } = options;
+  const queryKey = [baseUrl, "admin", "user-requests", status, limit, skip];
+  // run only for admins
+  const enabled = currentUser.roles.includes("admin");
+
+  return queryOptions({
+    queryKey,
+    queryFn: async () =>
+      await getUserRequests(baseUrl, { status, limit, skip }),
+    refetchInterval,
+    enabled,
+  });
+}
+
+/**
  * the query for getting the qpu time requests for my projects using with react query
  * @param options - extra options for filtering the tokens
  *            - baseUrl - the base URL of the API
  *            - projectList - List of all available projects
+ *            - status - the status of the queries
  */
 export function myProjectsQpuTimeRequestsQuery(options: {
   status?: UserRequestStatus;
@@ -455,8 +493,7 @@ async function getMyProjects(baseUrl: string = apiBaseUrl): Promise<Project[]> {
 }
 
 /**
- * Retrieves the user requests for more project QPU time
- *
+ * Retrieves the QPU time user requests for given project ID's
  * @param baseUrl - the API base URL
  * @param [projectIds=[]] - the ids of the projects whose requests are to be returned
  */
@@ -474,6 +511,34 @@ async function getProjectQpuTimeRequests(
   const { data } = await authenticatedFetch<
     PaginatedData<QpuTimeExtensionUserRequest[]>
   >(`${baseUrl}/admin/qpu-time-requests?${queryString}`);
+
+  return data;
+}
+
+/**
+ * Retrieves the QPU time user requests for given project ID's
+ * @param baseUrl - the API base URL
+ * @param options - extra options for filtering the requests
+ *            - status - the status of the requests
+ *            - skip - the number of records to skip
+ *            - limit - the maximum number of records to return
+ */
+async function getUserRequests(
+  baseUrl: string = apiBaseUrl,
+  options: {
+    status?: UserRequestStatus;
+    skip?: number;
+    limit?: number;
+  }
+): Promise<UserRequest[]> {
+  const queryString = Object.entries(options)
+    .filter(([_k, v]) => v != undefined)
+    .map(([k, v]) => `${k}=${v}`)
+    .join("&");
+
+  const { data } = await authenticatedFetch<PaginatedData<UserRequest[]>>(
+    `${baseUrl}/admin/user-requests?${queryString}`
+  );
 
   return data;
 }
