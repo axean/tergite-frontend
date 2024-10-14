@@ -32,6 +32,7 @@ variables:
     - pip install --upgrade pip
     - cd apps/tergite-mss
     - pip install -r requirements.txt
+    - sed -i 's/mongodb:\/\/localhost:27017/mongodb:\/\/mongo:27017/g' tests/fixtures/*
 
 
 lint dashboard:
