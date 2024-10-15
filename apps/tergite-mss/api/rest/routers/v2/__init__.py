@@ -14,6 +14,7 @@
 
 from fastapi import APIRouter
 
+from .admin import router as admin_router
 from .auth import router as auth_router
 from .calibrations import router as calibrations_router
 from .devices import router as devices_router
@@ -25,3 +26,4 @@ v2_router.include_router(auth_router)
 v2_router.include_router(calibrations_router)
 v2_router.include_router(devices_router)
 v2_router.include_router(my_router)
+v2_router.include_router(admin_router)

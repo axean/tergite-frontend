@@ -23,10 +23,11 @@ const medianCalibrationsDataMap: {
 users.forEach((user) => {
   devices.forEach((device) => {
     const calibrationMedians = medianCalibrationsDataMap[device.id];
+    const username = user.email.split("@")[0];
     let testThreshold: number;
     let platform: string;
 
-    describe(`${device.name} device detail  for ${user.name}`, () => {
+    describe(`${device.name} device detail  for ${username}`, () => {
       beforeEach(() => {
         const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
         const domain = Cypress.env("VITE_COOKIE_DOMAIN");

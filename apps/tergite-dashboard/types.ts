@@ -86,7 +86,8 @@ export type UserRequestStatus = "approved" | "rejected" | "pending";
 export type UserRequestType =
   | "create-project"
   | "close-project"
-  | "transfer-project";
+  | "transfer-project"
+  | "project-qpu-seconds";
 
 // the type for all requests made by users to be approved by an admin
 export interface UserRequest extends DbRecord {
@@ -97,7 +98,7 @@ export interface UserRequest extends DbRecord {
   requester_id: string;
   approver_id?: string; // id of admin who has handled it
   rejection_reason?: string;
-  request?: unknown;
+  request: unknown;
 }
 
 // the HTTP request body sent when creating a project.
@@ -128,6 +129,7 @@ export interface Project
   admin_id: string;
   version?: number;
   is_active: boolean;
+  is_deleted: boolean; // we have soft deletes for easy accounting
   created_at: string;
   updated_at: string;
 }
@@ -140,27 +142,17 @@ export interface UpdateProjectPutBody {
   qpu_seconds?: number;
 }
 
-// the HTTP request body when requesting to transfer project
-export interface TransferProjectPostBody {
+// the HTTP request body when requesting for a time extension
+export interface QpuTimeExtensionPostBody {
   project_id: string;
-  current_admin_id: string;
-  new_admin_id: string;
+  seconds: number;
   reason: string;
 }
 
-export interface TransferProjectUserRequest extends UserRequest {
-  type: "transfer-project";
-  request: TransferProjectPostBody;
-}
-
-export interface CloseProjectPostBody {
-  project_id: string;
-  reason: string;
-}
-
-export interface CloseProjectUserRequest extends UserRequest {
-  type: "close-project";
-  request: CloseProjectPostBody;
+// the record saved in the database for QPU time extension
+export interface QpuTimeExtensionUserRequest extends UserRequest {
+  type: "project-qpu-seconds";
+  request: QpuTimeExtensionPostBody;
 }
 
 export interface Job extends DbRecord {
@@ -179,7 +171,6 @@ export type UserRole = "admin" | "system" | "researcher" | "user" | "partner";
 export interface User extends DbRecord {
   roles: UserRole[];
   email: string;
-  name: string;
   organization?: string;
 }
 
@@ -257,4 +248,12 @@ export interface Time {
   minute?: number;
   second?: number;
   millisecond?: number;
+}
+
+export interface Duration {
+  days?: number;
+  hours?: number;
+  minutes?: number;
+  seconds?: number;
+  milliseconds?: number;
 }

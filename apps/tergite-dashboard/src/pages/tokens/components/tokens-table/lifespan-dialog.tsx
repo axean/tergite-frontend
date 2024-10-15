@@ -1,9 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-  DialogHeader,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
+import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
 import {
   Dialog,
   DialogTrigger,
@@ -33,7 +29,7 @@ import {
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Time,
@@ -58,11 +54,12 @@ const formSchema = z.object({
   }),
 });
 
-export function TimeDialog({
+export function TokenLifespanDialog({
   token,
   onEdit = async () => {},
   isDisabled,
 }: Props) {
+  const [dialogOpen, setDialogOpen] = useState(false);
   const yesterday = DateTime.now().minus({ day: 1 }).toJSDate();
   const queryClient = useQueryClient();
   const editForm = useForm<z.infer<typeof formSchema>>({
@@ -100,7 +97,7 @@ export function TimeDialog({
   });
 
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button
           className="border-green-600 text-green-600"
@@ -120,9 +117,10 @@ export function TimeDialog({
         </DialogHeader>
         <Form {...editForm}>
           <form
-            onSubmit={editForm.handleSubmit((values) =>
-              tokenEditing.mutate(values)
-            )}
+            onSubmit={editForm.handleSubmit((values) => {
+              setDialogOpen(false);
+              return tokenEditing.mutate(values);
+            })}
             className="grid gap-4 w-full"
           >
             <FormField
@@ -144,9 +142,11 @@ export function TimeDialog({
                           )}
                         >
                           {field.value?.date ? (
-                            mergeDatetime(field.value).setLocale('en-gb').toLocaleString(
-                              DateTime.DATETIME_MED_WITH_SECONDS
-                            )
+                            mergeDatetime(field.value)
+                              .setLocale("en-gb")
+                              .toLocaleString(
+                                DateTime.DATETIME_MED_WITH_SECONDS
+                              )
                           ) : (
                             <span>Pick a date and time</span>
                           )}
@@ -181,16 +181,14 @@ export function TimeDialog({
               )}
             />
             <DialogFooter>
-              <DialogClose asChild>
-                <Button
-                  type="submit"
-                  variant="outline"
-                  className="mx-auto w-full"
-                  disabled={!editForm.formState.isDirty}
-                >
-                  Save
-                </Button>
-              </DialogClose>
+              <Button
+                type="submit"
+                variant="outline"
+                className="mx-auto w-full"
+                disabled={!editForm.formState.isDirty}
+              >
+                Save
+              </Button>
             </DialogFooter>
           </form>
         </Form>

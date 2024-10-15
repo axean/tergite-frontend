@@ -23,16 +23,9 @@ from pydantic import EmailStr
 
 from ..users.dtos import CurrentSuperUserDependency, CurrentUserIdDependency
 from ..users.manager import UserManager, UserManagerDependency
-from ..utils import MAX_LIST_QUERY_LEN, TooManyListQueryParams
+from ..utils import MAX_LIST_QUERY_LEN, PaginatedListResponse, TooManyListQueryParams
 from . import exc
-from .dtos import (
-    Project,
-    ProjectAdminView,
-    ProjectCreate,
-    ProjectListResponse,
-    ProjectRead,
-    ProjectUpdate,
-)
+from .dtos import Project, ProjectAdminView, ProjectCreate, ProjectRead, ProjectUpdate
 from .manager import ProjectAppTokenManager, ProjectManagerDependency
 
 
@@ -119,7 +112,7 @@ def get_projects_router(
 
     @router.get(
         "/",
-        response_model=ProjectListResponse[project_schema],
+        response_model=PaginatedListResponse[project_schema],
         dependencies=[Depends(get_current_superuser)],
         name="projects:many_projects",
         responses={
@@ -183,7 +176,7 @@ def get_projects_router(
             filter_obj=filter_obj, skip=skip, limit=limit
         )
         data = [schemas.model_validate(project_schema, project) for project in projects]
-        return ProjectListResponse(data=data, skip=skip, limit=limit)
+        return PaginatedListResponse(data=data, skip=skip, limit=limit)
 
     @router.patch(
         "/{id}",
@@ -254,7 +247,7 @@ def get_my_projects_router(
 
     @router.get(
         "/",
-        response_model=ProjectListResponse[project_schema],
+        response_model=PaginatedListResponse[project_schema],
         name="projects:my_many_projects",
         responses={
             status.HTTP_401_UNAUTHORIZED: {
@@ -280,7 +273,7 @@ def get_my_projects_router(
             jsonable_encoder(schemas.model_validate(project_schema, project))
             for project in projects
         ]
-        return ProjectListResponse(data=data, skip=skip, limit=limit)
+        return PaginatedListResponse(data=data, skip=skip, limit=limit)
 
     @router.get(
         "/{id}",
@@ -322,5 +315,41 @@ def get_my_projects_router(
             )
 
         return schemas.model_validate(project_schema, project)
+
+    # route to destroy tokens
+    @router.delete(
+        "/{_id}",
+        status_code=status.HTTP_204_NO_CONTENT,
+        name=f"projects:destroy_my_administered_project",
+        responses={
+            **{
+                status.HTTP_401_UNAUTHORIZED: {
+                    "description": "user not authenticated."
+                },
+                status.HTTP_403_FORBIDDEN: {
+                    "description": "token is missing or is expired."
+                },
+            },
+        },
+    )
+    async def destroy(
+        _id: PydanticObjectId,
+        user_id: str = Depends(get_current_user_id),
+        user_manager: UserManager = Depends(get_user_manager),
+        project_manager: ProjectAppTokenManager = Depends(get_project_manager),
+    ):
+        try:
+            parsed_id = project_manager.parse_id(_id)
+            project = await project_manager.get(parsed_id)
+        except (exc.ProjectNotExists, exceptions.InvalidID) as e:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from e
+
+        user = await user_manager.get(PydanticObjectId(user_id))
+
+        if user is None or str(user.id) != project.admin_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+        await project_manager.delete(project)
+        return None
 
     return router

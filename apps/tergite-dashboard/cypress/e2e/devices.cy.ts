@@ -9,7 +9,9 @@ const users = [...userList] as User[];
 const devices = [...deviceList] as Device[];
 
 users.forEach((user) => {
-  describe(`devices list page for ${user.name}`, () => {
+  const username = user.email.split("@")[0];
+
+  describe(`devices list page for ${username}`, () => {
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");

@@ -3,42 +3,36 @@
     "id": "5ddc8d9fb69602723cd3c38f",
     "roles": ["admin", "user"],
     "email": "jane.doe@example.com",
-    "name": "Jane Doe",
     "organization": "CNL"
   },
   {
     "id": "40fbb5de7422a04fabd8d22a",
     "roles": ["partner", "user"],
     "email": "paul.doe@example.com",
-    "name": "Paul Doe",
     "organization": "CTH"
   },
   {
     "id": "858877267fe722a38619fa2e",
     "roles": ["researcher", "user"],
     "email": "david.doe@example.com",
-    "name": "David Doe",
     "organization": "Ex AB"
   },
   {
     "id": "4939a0b9a7742e2cc52289e0",
     "roles": ["user"],
     "email": "john.doe@example.com",
-    "name": "John Doe",
     "organization": "Goog AB"
   },
   {
     "id": "0558648bbf51b16948e818d3",
     "roles": ["user"],
     "email": "julie.doe@example.com",
-    "name": "Julie Doe",
     "organization": "Example AB"
   },
   {
     "id": "0558648bbf51b169dusiwe48e818d3",
     "roles": ["user"],
     "email": "wrong.domain@domain.com",
-    "name": "Wrong Domain",
     "organization": "Exe AB"
   }
 ]

@@ -5,14 +5,17 @@ from datetime import datetime, timedelta, timezone
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
-from services.auth import AppToken, AuthProvider
+from services.auth import AppToken, Project
 from tests._utils.auth import (
     TEST_APP_TOKEN_DICT,
     TEST_NO_QPU_APP_TOKEN_DICT,
     TEST_NO_QPU_PROJECT_V2_DICT,
     TEST_PROJECT_V2_DICT,
+    TEST_SUPERUSER_DICT,
     TEST_SUPERUSER_EMAIL,
     TEST_SUPERUSER_ID,
+    TEST_SYSTEM_USER_DICT,
+    TEST_USER_DICT,
     TEST_USER_EMAIL,
     TEST_USER_ID,
     get_db_record,
@@ -37,6 +40,20 @@ _MY_PROJECT_REQUESTS = [
     (user_id, get_auth_cookie(user_id), project)
     for project in PROJECT_V2_LIST
     for user_id in project["user_ids"]
+]
+_MY_ADMINISTERED_PROJECT_REQUESTS = [
+    (project["admin_id"], get_auth_cookie(project["admin_id"]), project)
+    for project in PROJECT_V2_LIST
+]
+_MY_NON_ADMINISTERED_PROJECT_REQUESTS = [
+    (user_id, get_auth_cookie(user_id), project)
+    for project in PROJECT_V2_LIST
+    for user_id in project["user_ids"]
+    if user_id != project["admin_id"]
+]
+_MY_USER_INFO_REQUESTS = [
+    (user, get_auth_cookie(str(user["_id"])))
+    for user in [TEST_USER_DICT, TEST_SUPERUSER_DICT, TEST_SYSTEM_USER_DICT]
 ]
 _OTHERS_PROJECT_REQUESTS = [
     (user_id, get_auth_cookie(user_id), project)
@@ -131,9 +148,9 @@ def test_view_my_project_in_less_detail(
 
 @pytest.mark.parametrize("user_id, cookies, project", _OTHERS_PROJECT_REQUESTS)
 def test_view_others_project_is_not_allowed(
-    user_id, cookies, project, client_v2, inserted_projects
+    user_id, cookies, project, client_v2, inserted_projects_v2
 ):
-    """No user can view only other's projects at /v2/me/projects/{id}"""
+    """No user can view other's projects at /v2/me/projects/{id}"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         project_id = project["_id"]
@@ -141,10 +158,50 @@ def test_view_others_project_is_not_allowed(
         response = client.get(url, cookies=cookies)
 
         got = response.json()
-        expected = {"detail": "Not Found"}
+        expected = {"detail": "the project does not exist."}
 
         assert response.status_code == 404
         assert got == expected
+
+
+@pytest.mark.parametrize("user_id, cookies, project", _MY_ADMINISTERED_PROJECT_REQUESTS)
+def test_delete_own_project(
+    user_id, cookies, project, client_v2, inserted_projects_v2, db
+):
+    """Any user can delete the project they administer at /v2/me/projects/{id}"""
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        project_id = project["_id"]
+        url = f"/v2/me/projects/{project_id}"
+
+        assert get_db_record(db, Project, project_id) is not None
+        response = client.delete(url, cookies=cookies)
+
+        assert response.status_code == 204
+        assert get_db_record(db, Project, project_id) is None
+
+
+@pytest.mark.parametrize(
+    "user_id, cookies, project", _MY_NON_ADMINISTERED_PROJECT_REQUESTS
+)
+def test_delete_others_project_is_not_allowed(
+    user_id, cookies, project, client_v2, inserted_projects_v2, db
+):
+    """No user can delete projects they don't administer at /v2/me/projects/{id}"""
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        project_id = project["_id"]
+        url = f"/v2/me/projects/{project_id}"
+
+        assert get_db_record(db, Project, project_id) is not None
+        response = client.delete(url, cookies=cookies)
+
+        got = response.json()
+        expected = {"detail": "Forbidden"}
+
+        assert response.status_code == 403
+        assert got == expected
+        assert get_db_record(db, Project, project_id) is not None
 
 
 @pytest.mark.parametrize("payload", APP_TOKEN_LIST)
@@ -394,7 +451,6 @@ def test_read_all_my_jobs(db, client_v2, user_id, cookies):
 @pytest.mark.parametrize("user_id, cookies, project", _MY_PROJECT_REQUESTS)
 def test_read_all_my_jobs_of_given_project(db, client_v2, user_id, cookies, project):
     """Get to /v2/me/jobs returns the jobs for the current user for the given project"""
-    # FIXME: the jobs need a user_id property on them
     insert_in_collection(
         database=db, collection_name=_JOBS_COLLECTION, data=_JOBS_LIST_IN_DB
     )
@@ -416,6 +472,26 @@ def test_read_all_my_jobs_of_given_project(db, client_v2, user_id, cookies, proj
             ],
             field="job_id",
         )
+
+        assert response.status_code == 200
+        assert got == expected
+
+
+@pytest.mark.parametrize("user, cookies", _MY_USER_INFO_REQUESTS)
+def test_view_my_user_info(user, cookies, client_v2):
+    """Any user can view only their own single user information at /v2/me"""
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        response = client.get("/v2/me", cookies=cookies)
+
+        got = response.json()
+        expected = {
+            "id": str(user["_id"]),
+            "email": user["email"],
+            "is_active": user.get("is_active", True),
+            "is_verified": user.get("is_verified", False),
+            "is_superuser": user.get("is_superuser", False),
+        }
 
         assert response.status_code == 200
         assert got == expected

@@ -39,9 +39,11 @@ const tokensTableDataProps = [
 ];
 
 users.forEach((user) => {
+  const username = user.email.split("@")[0];
   const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
   const allUserTokens = extendedTokens.filter((v) => v.user_id === user.id);
-  describe(`tokens page for ${user.name}`, () => {
+
+  describe(`tokens page for ${username}`, () => {
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");

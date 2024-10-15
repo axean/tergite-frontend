@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Project } from "../../../../../types";
+import { type Project, type User } from "../../../../../types";
 import {
   Sheet,
   SheetContent,
@@ -36,10 +36,13 @@ import { Fragment, useMemo } from "react";
 
 export function Topbar({
   currentProject = "",
+  currentUser,
   onProjectChange,
   projects,
   onLogout,
 }: TopbarProps) {
+  const username = currentUser?.email?.split("@")[0];
+
   return (
     <header
       data-testid="topbar"
@@ -77,9 +80,11 @@ export function Topbar({
           />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuLabel>{username}</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Projects</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/projects">Projects</Link>
+          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link to="/tokens">Tokens</Link>
           </DropdownMenuItem>
@@ -94,6 +99,7 @@ export function Topbar({
 
 interface TopbarProps {
   currentProject?: string;
+  currentUser: User;
   projects: Project[];
   onProjectChange: (projectExtId: string) => void;
   onLogout: () => void;

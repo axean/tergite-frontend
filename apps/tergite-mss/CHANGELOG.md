@@ -7,6 +7,13 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 ## [Unreleased]
 
+### Added
+
+- Added GET `/v2/me` endpoint to get current user info
+- Added DELETE `/v2/me/projects/{id}` endpoint to delete project current user administers
+- Added GET `/v2/admin/qpu-time-requests/` endpoint to get all user requests to increase QPU seconds on a project
+- Added POST `/v2/admin/qpu-time-requests/` endpoint for project members to request for more QPU seconds 
+
 ## [2024.09.1] - 2024-09-24
 
 ### Added

@@ -1,6 +1,6 @@
 # This code is part of Tergite
 #
-# (C) Copyright Martin Ahindura 2024
+# (C) Chalmers Next Labs AB 2024
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,9 +16,8 @@ from typing import List
 from fastapi import APIRouter, HTTPException, status
 
 import settings
-from services.auth import JWT_AUTH, JWT_COOKIE_BACKEND
-from services.auth.providers import AuthProviderRead
-from services.auth.service import providers, register_oauth2_client_v2
+from services.auth import JWT_AUTH, JWT_COOKIE_BACKEND, providers
+from services.auth.service import register_oauth2_client_v2
 from utils.config import Oauth2ClientConfig
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -44,7 +43,7 @@ router.include_router(
 )
 
 
-@router.get("/providers", response_model=List[AuthProviderRead])
+@router.get("/providers", response_model=List[providers.AuthProviderRead])
 def get_auth_providers(domain: str):
     """Returns the auth provider given an existing email domain"""
     data = providers.get_many_by_domain(domain)

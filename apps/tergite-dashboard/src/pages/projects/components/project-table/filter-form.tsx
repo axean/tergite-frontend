@@ -13,31 +13,23 @@ import {
 } from "@/components/ui/data-table";
 
 export const filterFormProps: DataTableFormConfig = {
-  title: {
+  name: {
     validation: z.string(),
     defaultValue: "",
-    label: "Title",
+    label: "Name",
     getFormElement: (field: DataTableFilterField) => (
       <Input {...field} className="" />
     ),
   },
-  project_ext_id: {
+  ext_id: {
     validation: z.string(),
     defaultValue: "",
-    label: "Project external ID",
+    label: "External ID",
     getFormElement: (field: DataTableFilterField) => (
       <Input {...field} className="" />
     ),
   },
-  project_name: {
-    validation: z.string(),
-    defaultValue: "",
-    label: "Project",
-    getFormElement: (field: DataTableFilterField) => (
-      <Input {...field} className="" />
-    ),
-  },
-  is_expired: {
+  is_active: {
     validation: z.boolean().optional(),
     defaultValue: undefined,
     label: "Status",
@@ -50,9 +42,9 @@ export const filterFormProps: DataTableFormConfig = {
         <SelectTrigger ref={ref}>
           <SelectValue placeholder="Select status" />
         </SelectTrigger>
-        <SelectContent data-cy-token-status-select>
-          <SelectItem value="false">Live</SelectItem>
-          <SelectItem value="true">Expired</SelectItem>
+        <SelectContent data-cy-project-status-select>
+          <SelectItem value="false">Expired</SelectItem>
+          <SelectItem value="true">Live</SelectItem>
         </SelectContent>
       </Select>
     ),
