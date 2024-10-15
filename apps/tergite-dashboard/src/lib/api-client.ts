@@ -455,7 +455,8 @@ async function getMyProjects(baseUrl: string = apiBaseUrl): Promise<Project[]> {
 }
 
 /**
- * Retrieves the devices on the system
+ * Retrieves the user requests for more project QPU time
+ *
  * @param baseUrl - the API base URL
  * @param [projectIds=[]] - the ids of the projects whose requests are to be returned
  */
