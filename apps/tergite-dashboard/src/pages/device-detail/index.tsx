@@ -14,7 +14,7 @@ import { CalibrationHeader } from "./components/calibration-header";
 import { CalibrationMapChart } from "./components/calibration-map-chart";
 import { useState } from "react";
 import { QueryClient } from "@tanstack/react-query";
-import { loadOrRedirectIf401 } from "@/lib/utils";
+import { loadOrRedirectIfAuthErr } from "@/lib/utils";
 
 const fieldLabels: { [k: string]: string } = {
   t1_decoherence: "T1 decoherence",
@@ -26,7 +26,9 @@ const fieldLabels: { [k: string]: string } = {
 
 export function DeviceDetail() {
   const { device, calibrationData } = useLoaderData() as DeviceDetailData;
-  const [currentData, setCurrentData] = useState<QubitProp>("t1_decoherence");
+  const [currentData, setCurrentData] = useState<QubitProp>(
+    QubitProp.T1_DECOHERENCE
+  );
 
   return (
     <main className="grid flex-1 items-start gap-4 grid-cols-1 p-4 sm:px-6 sm:py-0 md:gap-8 xl:grid-cols-4">
@@ -99,7 +101,7 @@ interface DeviceDetailData {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function loader(_appState: AppState, queryClient: QueryClient) {
-  return loadOrRedirectIf401(async ({ params }: LoaderFunctionArgs) => {
+  return loadOrRedirectIfAuthErr(async ({ params }: LoaderFunctionArgs) => {
     const { deviceName = "" } = params;
 
     // device

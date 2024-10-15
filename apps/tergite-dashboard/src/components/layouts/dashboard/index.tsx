@@ -9,11 +9,17 @@ import {
   currentUserQuery,
   allUserRequestsQuery,
 } from "@/lib/api-client";
-import { AppState, Project, User } from "../../../../types";
+import {
+  AppState,
+  Project,
+  User,
+  UserRequestStatus,
+  UserRole,
+} from "../../../../types";
 import { useCallback, useContext, useState } from "react";
 import { AppStateContext } from "@/lib/app-state";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
-import { loadOrRedirectIf401 } from "@/lib/utils";
+import { loadOrRedirectIfAuthErr } from "@/lib/utils";
 
 export function Dashboard() {
   const { projects, currentUser, isUserAdmin } =
@@ -28,7 +34,7 @@ export function Dashboard() {
   }, [setIsExpanded, isExpanded]);
   const { data: userRequests = [] } = useQuery(
     allUserRequestsQuery({
-      status: "pending",
+      status: UserRequestStatus.PENDING,
       currentUser,
     })
   );
@@ -76,7 +82,7 @@ interface DashboardData {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function loader(_appState: AppState, queryClient: QueryClient) {
-  return loadOrRedirectIf401(async () => {
+  return loadOrRedirectIfAuthErr(async () => {
     // projects
     const cachedProjects = queryClient.getQueryData(myProjectsQuery.queryKey);
     const projects =
@@ -89,7 +95,7 @@ export function loader(_appState: AppState, queryClient: QueryClient) {
     const currentUser =
       cachedCurrentUser ?? (await queryClient.fetchQuery(currentUserQuery));
 
-    const isUserAdmin = currentUser.roles.includes("admin");
+    const isUserAdmin = currentUser.roles.includes(UserRole.ADMIN);
 
     return { projects, currentUser, isUserAdmin } as DashboardData;
   });

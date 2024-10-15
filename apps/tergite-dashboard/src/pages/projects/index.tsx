@@ -10,10 +10,15 @@ import {
   myProjectsQuery,
   refreshMyProjectsQueries,
 } from "@/lib/api-client";
-import { loadOrRedirectIf401 } from "@/lib/utils";
+import { loadOrRedirectIfAuthErr } from "@/lib/utils";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
-import { User, type AppState, type Project } from "types";
+import {
+  User,
+  UserRequestStatus,
+  type AppState,
+  type Project,
+} from "../../../types";
 import { ProjectsTable } from "./components/project-table";
 import { ProjectSummary } from "./components/project-summary";
 import { Row, RowSelectionState } from "@tanstack/react-table";
@@ -24,7 +29,10 @@ export function Projects() {
   const { currentUser } = useLoaderData() as ProjectsPageData;
   const { data: projects = [] } = useQuery(myProjectsQuery);
   const { data: qpuTimeRequests = [] } = useQuery(
-    myProjectsQpuTimeRequestsQuery({ status: "pending", projects })
+    myProjectsQpuTimeRequestsQuery({
+      status: UserRequestStatus.PENDING,
+      projects,
+    })
   );
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const selectedProjectIdx = useMemo(() => {
@@ -85,7 +93,7 @@ export function Projects() {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function loader(_appState: AppState, queryClient: QueryClient) {
-  return loadOrRedirectIf401(async (): Promise<ProjectsPageData> => {
+  return loadOrRedirectIfAuthErr(async (): Promise<ProjectsPageData> => {
     const cachedCurrentUser = queryClient.getQueryData(
       currentUserQuery.queryKey
     );

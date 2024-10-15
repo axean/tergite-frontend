@@ -72,6 +72,10 @@ class User(Document):
             except KeyError:
                 pass
 
+    @property
+    def username(self):
+        return self.email.split("@")[0]
+
 
 CurrentUserDependency = DependencyCallable[User]
 CurrentSuperUserDependency = DependencyCallable[User]

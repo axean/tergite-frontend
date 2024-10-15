@@ -1,5 +1,5 @@
 import { SortHeader } from "@/components/ui/data-table";
-import { JobStatusDiv } from "@/components/ui/job-status-div";
+import { ProgressStatus } from "@/components/ui/progress-status";
 import { Job, JobStatus } from "../../../../../types";
 import { ColumnDef } from "@tanstack/react-table";
 import { DateTime, Duration } from "luxon";
@@ -54,7 +54,15 @@ export const jobTableColumns: ColumnDef<Job>[] = [
     header: () => <div className="text-right">Status</div>,
     cell: ({ row }) => {
       const status: JobStatus = row.getValue("status") || "pending";
-      return <JobStatusDiv className="ml-auto" status={status} />;
+      return (
+        <ProgressStatus
+          className="ml-auto"
+          status={status}
+          pendingValue={JobStatus.PENDING}
+          successValue={JobStatus.SUCCESSFUL}
+          failureValue={JobStatus.FAILED}
+        />
+      );
     },
   },
 ];

@@ -3,8 +3,8 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { JobStatusDiv } from "@/components/ui/job-status-div";
-import { Job } from "../../../../../types";
+import { ProgressStatus } from "@/components/ui/progress-status";
+import { Job, JobStatus } from "../../../../../types";
 import { DateTime, Duration } from "luxon";
 
 export function JobDetailDrawerContent({ job }: Props) {
@@ -22,7 +22,12 @@ export function JobDetailDrawerContent({ job }: Props) {
           <h4 className="text-md font-semibold mb-4">Details</h4>
           <div className="flex">
             <div className="mr-2 text-muted-foreground">Status: </div>
-            <JobStatusDiv status={job.status} />
+            <ProgressStatus
+              status={job.status}
+              pendingValue={JobStatus.PENDING}
+              successValue={JobStatus.SUCCESSFUL}
+              failureValue={JobStatus.FAILED}
+            />
           </div>
 
           <div className="flex">

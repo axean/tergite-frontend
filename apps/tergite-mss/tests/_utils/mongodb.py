@@ -14,6 +14,7 @@ from types import MappingProxyType
 from typing import Any, Dict, List
 
 import pymongo.database
+from bson import ObjectId
 
 
 def find_in_collection(
@@ -52,4 +53,9 @@ def insert_in_collection(
         collection_name: the name of the collection to insert them into
         data: the list of records to insert
     """
-    database[collection_name].insert_many([{**item} for item in data])
+    database[collection_name].insert_many(
+        [
+            {k: ObjectId(v) if k == "_id" else v for k, v in item.items()}
+            for item in data
+        ]
+    )

@@ -44,6 +44,7 @@ class QpuTimeExtensionPostBody(BaseModel):
     project_id: str
     seconds: float
     reason: str
+    project_name: Optional[str] = None
 
 
 class UserRequest(Document):
@@ -51,8 +52,10 @@ class UserRequest(Document):
 
     type: UserRequestType
     requester_id: str
+    requester_name: Optional[str] = None
     status: UserRequestStatus = UserRequestStatus.PENDING
     approver_id: Optional[str] = None
+    approver_name: Optional[str] = None
     rejection_reason: Optional[str] = None
     request: Union[QpuTimeExtensionPostBody, Dict[str, Any]] = Field(
         default_factory=dict
@@ -86,3 +89,24 @@ class UserRequest(Document):
         except (TypeError, KeyError):
             pass
         return v
+
+
+class UserRequestUpdate(UserRequest):
+    """The schema for updating user requests"""
+
+    type: Optional[UserRequestType] = None
+    requester_id: Optional[str] = None
+    requester_name: Optional[str] = None
+    status: Optional[UserRequestStatus] = None
+    approver_id: Optional[str] = None
+    approver_name: Optional[str] = None
+    rejection_reason: Optional[str] = None
+    request: Optional[Union[QpuTimeExtensionPostBody, Dict[str, Any]]] = None
+    updated_at: Optional[str] = Field(default_factory=get_current_timestamp)
+
+    def dict(self, *args, **kwargs):
+        exclude_none = kwargs.get("exclude_none", True)
+        exclude_unset = kwargs.get("exclude_unset", True)
+        return super().dict(
+            *args, **kwargs, exclude_none=exclude_none, exclude_unset=exclude_unset
+        )

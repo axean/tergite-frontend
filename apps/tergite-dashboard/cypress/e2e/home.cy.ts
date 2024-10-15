@@ -5,7 +5,7 @@ import userList from "../fixtures/users.json";
 import deviceList from "../fixtures/device-list.json";
 import jobList from "../fixtures/jobs.json";
 import projectList from "../fixtures/projects.json";
-import { generateJwt } from "../../api/utils";
+import { generateJwt, getUsername } from "../../api/utils";
 import { type Project, type Device, type Job, type User } from "../../types";
 
 const users = [...userList] as User[];
@@ -34,7 +34,7 @@ users.forEach((user) => {
 
   let refetchIntervalMs: number;
   const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
-  const username = user.email.split("@")[0];
+  const username = getUsername(user);
   const allUserJobs = jobs.filter((v) => v.user_id === user.id);
 
   describe(`home page for ${username}`, () => {

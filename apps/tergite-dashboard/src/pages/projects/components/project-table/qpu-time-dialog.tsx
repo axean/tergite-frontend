@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/form";
 import {
   apiBaseUrl,
+  refreshAllRequestsQueries,
   refreshMyProjectsQpuTimeRequestsQueries,
   requestQpuTimeExtension,
 } from "@/lib/api-client";
@@ -97,6 +98,7 @@ function _QpuTimeDialog({
         };
         const response = await requestQpuTimeExtension(payload);
         refreshMyProjectsQpuTimeRequestsQueries(queryClient);
+        refreshAllRequestsQueries(queryClient);
         return response;
       },
       [project, queryClient]

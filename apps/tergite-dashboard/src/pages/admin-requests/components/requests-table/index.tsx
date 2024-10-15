@@ -1,12 +1,12 @@
 import { DataTable } from "@/components/ui/data-table";
 
-import { type ExtendedAppToken } from "types";
+import { type UserRequest } from "types";
 
 import { columns } from "./columns";
 import { filterFormProps } from "./filter-form";
 import { OnChangeFn, Row, RowSelectionState } from "@tanstack/react-table";
 
-export function TokensTable({
+export function AdminRequestsTable({
   data,
   onRowSelectionChange,
   rowSelection,
@@ -22,15 +22,14 @@ export function TokensTable({
         onRowSelectionChange,
         state: { rowSelection },
       }}
-      //
       onRowClick={onRowClick}
     />
   );
 }
 
 interface Props {
-  data: ExtendedAppToken[];
+  data: UserRequest[];
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   rowSelection?: RowSelectionState;
-  onRowClick: (row: Row<ExtendedAppToken>) => void;
+  onRowClick: (row: Row<UserRequest>) => void;
 }

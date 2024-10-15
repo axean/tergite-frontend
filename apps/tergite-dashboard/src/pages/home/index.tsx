@@ -12,11 +12,11 @@ import { Link, useLoaderData } from "react-router-dom";
 import DonutChart from "@/components/ui/donut-chart";
 
 import { devicesQuery, myJobsQuery, myProjectsQuery } from "@/lib/api-client";
-import { Job, Device, AppState, Project } from "../../../types";
+import { Job, Device, AppState, Project } from "types";
 import { JobsTable } from "./components/jobs-table";
 import { DevicesTable } from "./components/devices-table";
 import { QueryClient, useQuery } from "@tanstack/react-query";
-import { loadOrRedirectIf401 } from "@/lib/utils";
+import { loadOrRedirectIfAuthErr } from "@/lib/utils";
 
 export function Home() {
   const { currentProject } = useLoaderData() as HomeData;
@@ -89,7 +89,7 @@ interface HomeData {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function loader(appState: AppState, queryClient: QueryClient) {
-  return loadOrRedirectIf401(async () => {
+  return loadOrRedirectIfAuthErr(async () => {
     // devices
     const cachedDevices = queryClient.getQueryData(devicesQuery.queryKey);
     const devices =

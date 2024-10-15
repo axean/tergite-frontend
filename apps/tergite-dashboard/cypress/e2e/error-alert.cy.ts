@@ -1,13 +1,13 @@
 /// <reference types="cypress" />
 
-import { generateJwt } from "../../api/utils";
+import { generateJwt, getUsername } from "../../api/utils";
 import { type User } from "../../types";
 import userList from "../fixtures/users.json";
 
 const users = [...userList] as User[];
 
 users.forEach((user) => {
-  const username = user.email.split("@")[0];
+  const username = getUsername(user);
 
   describe(`error-alert page for '${username}'`, () => {
     beforeEach(() => {

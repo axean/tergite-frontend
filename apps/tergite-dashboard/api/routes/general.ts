@@ -5,6 +5,7 @@ import {
   createCookieHeader,
   getAuthenticatedUserId,
   getQueryString,
+  getUsername,
   hasAnyOfRoles,
   mockDb,
   respond401,
@@ -23,6 +24,9 @@ import {
   PaginatedData,
   QpuTimeExtensionUserRequest,
   UserRequest,
+  UserRequestType,
+  UserRequestStatus,
+  UserRole,
 } from "../../types";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
@@ -371,14 +375,33 @@ router.post(
       return respond401(res);
     }
 
+    const project = mockDb.getOne<Project>(
+      "projects",
+      (v) => v.id === req.body.project_id
+    );
+    const requester = mockDb.getOne<User>(
+      "users",
+      (v) => v.id === requester_id
+    );
+    if (!project || !requester) {
+      res.status(404).json({ detail: `Not Found` });
+      return;
+    }
+
+    if (!project.user_ids.includes(requester_id)) {
+      res.status(403).json({ detail: `Forbidden` });
+      return;
+    }
+
     const currentTimestamp = new Date().toISOString();
     const userRequest: QpuTimeExtensionUserRequest = {
-      request: { ...req.body },
+      request: { ...req.body, project_name: project.name },
       requester_id,
+      requester_name: getUsername(requester),
       updated_at: currentTimestamp,
       created_at: currentTimestamp,
-      type: "project-qpu-seconds",
-      status: "pending",
+      type: UserRequestType.PROJECT_QPU_SECONDS,
+      status: UserRequestStatus.PENDING,
       id: randomUUID(),
     };
 
@@ -397,7 +420,7 @@ router.get(
     }
 
     // Only admins are permitted here
-    if (!hasAnyOfRoles(userId, ["admin"])) {
+    if (!hasAnyOfRoles(userId, [UserRole.ADMIN])) {
       res.status(403).json({ detail: `Forbidden` });
       return;
     }
@@ -414,6 +437,68 @@ router.get(
     );
 
     res.json({ skip, limit, data } as PaginatedData<UserRequest[]>);
+  })
+);
+
+router.put(
+  "/admin/user-requests/:id",
+  use(async (req, res) => {
+    const userId = await getAuthenticatedUserId(req.cookies);
+    if (!userId) {
+      return respond401(res);
+    }
+
+    const approver = mockDb.getOne<User>("users", (v) => v.id === userId);
+    // Only admins are permitted here
+    if (!approver || !approver.roles.includes(UserRole.ADMIN)) {
+      res.status(403).json({ detail: `Forbidden` });
+      return;
+    }
+
+    const userReqId = req.params.id;
+    const body = req.body as Partial<UserRequest>;
+
+    const newUpdate = { ...body, updated_at: new Date().toISOString() };
+    // only update approver details when status is being updated
+    if (body.status !== undefined) {
+      newUpdate.approver_name = getUsername(approver);
+      newUpdate.approver_id = userId;
+    }
+    const userRequest = mockDb.update<UserRequest>(
+      "user_requests",
+      (v) => v.id === userReqId,
+      newUpdate
+    );
+    if (!userRequest) {
+      res.status(404).json({ detail: `Not Found` });
+      return;
+    }
+
+    if (body.status === UserRequestStatus.APPROVED) {
+      // update qpu seconds if it is a QpuTimeExtensionUserRequest
+      if (userRequest.type === UserRequestType.PROJECT_QPU_SECONDS) {
+        const record = userRequest as QpuTimeExtensionUserRequest;
+        const original = mockDb.getOne<Project>(
+          "projects",
+          (v) => v.id === record.request.project_id
+        );
+        if (!original) {
+          res.status(404).json({ detail: `Project not found` });
+          return;
+        }
+
+        const qpu_seconds = original.qpu_seconds + record.request.seconds;
+        mockDb.update<Project>(
+          "projects",
+          (v) => v.id === record.request.project_id,
+          { qpu_seconds }
+        );
+      }
+
+      // TODO: add more branches for other user request types
+    }
+
+    res.json(userRequest);
   })
 );
 

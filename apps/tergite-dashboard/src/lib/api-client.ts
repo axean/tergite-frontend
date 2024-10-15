@@ -17,6 +17,7 @@ import {
   User,
   UserRequestStatus,
   UserRequest,
+  UserRole,
 } from "../../types";
 import { normalizeCalibrationData, extendAppToken } from "./utils";
 
@@ -157,7 +158,7 @@ export function allUserRequestsQuery(options: {
   } = options;
   const queryKey = [baseUrl, "admin", "user-requests", status, limit, skip];
   // run only for admins
-  const enabled = currentUser.roles.includes("admin");
+  const enabled = currentUser.roles.includes(UserRole.ADMIN);
 
   return queryOptions({
     queryKey,
@@ -242,6 +243,25 @@ export function refreshMyProjectsQpuTimeRequestsQueries(
   const { baseUrl = apiBaseUrl } = options;
   queryClient.invalidateQueries({
     queryKey: [baseUrl, "admin", "qpu-time-requests"],
+  });
+}
+
+/**
+ * Refreshes the queries for the user requests from the API
+ *
+ * @param queryClient - the query client for making queries
+ * @param options - the options including:
+ *          - baseUrl - the base URL of the API
+ */
+export function refreshAllRequestsQueries(
+  queryClient: QueryClient,
+  options: {
+    baseUrl?: string;
+  } = {}
+) {
+  const { baseUrl = apiBaseUrl } = options;
+  queryClient.invalidateQueries({
+    queryKey: [baseUrl, "admin", "user-requests"],
   });
 }
 
@@ -392,6 +412,44 @@ export async function deleteMyProject(
     },
     { isJsonOutput: false }
   );
+}
+
+/**
+ * Approves a user request
+ *
+ * @param id - the unique identifier of the user request
+ * @param options - extra options e.g.
+ *             - baseUrl - the API base URL; default apiBaseUrl
+ */
+export async function approveUserRequest(
+  id: string,
+  options: { baseUrl?: string } = {}
+): Promise<UserRequest> {
+  const { baseUrl = apiBaseUrl } = options;
+  return await authenticatedFetch(`${baseUrl}/admin/user-requests/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ status: UserRequestStatus.APPROVED }),
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+/**
+ * Rejects a user request
+ *
+ * @param id - the unique identifier of the user request
+ * @param options - extra options e.g.
+ *             - baseUrl - the API base URL; default apiBaseUrl
+ */
+export async function rejectUserRequest(
+  id: string,
+  options: { baseUrl?: string } = {}
+): Promise<UserRequest> {
+  const { baseUrl = apiBaseUrl } = options;
+  return await authenticatedFetch(`${baseUrl}/admin/user-requests/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ status: UserRequestStatus.REJECTED }),
+    headers: { "Content-Type": "application/json" },
+  });
 }
 
 /**

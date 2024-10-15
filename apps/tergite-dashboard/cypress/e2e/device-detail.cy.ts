@@ -4,7 +4,7 @@
 import userList from "../fixtures/users.json";
 import deviceList from "../fixtures/device-list.json";
 import medianCalibrations from "../fixtures/median-calibrations.json";
-import { generateJwt } from "../../api/utils";
+import { generateJwt, getUsername } from "../../api/utils";
 import { type Device, type User } from "../../types";
 
 const users = [...userList] as User[];
@@ -23,7 +23,7 @@ const medianCalibrationsDataMap: {
 users.forEach((user) => {
   devices.forEach((device) => {
     const calibrationMedians = medianCalibrationsDataMap[device.id];
-    const username = user.email.split("@")[0];
+    const username = getUsername(user);
     let testThreshold: number;
     let platform: string;
 

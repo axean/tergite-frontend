@@ -11,13 +11,18 @@
 # that they have been altered from the originals.
 from typing import Any, Dict, List, Optional, Union
 
-from beanie import PydanticObjectId
+from beanie import PydanticObjectId, UpdateResponse
 
+from utils.mongodb import DocumentNotFoundError
+
+from ..projects.dtos import Project
+from ..users.dtos import User
 from .dtos import (
     QpuTimeExtensionPostBody,
     UserRequest,
     UserRequestStatus,
     UserRequestType,
+    UserRequestUpdate,
 )
 
 
@@ -43,20 +48,20 @@ async def get_many_qpu_time_requests(
 
 
 async def create_qpu_time_request(
-    request_body: QpuTimeExtensionPostBody, requester_id: Union[PydanticObjectId, str]
+    request_body: QpuTimeExtensionPostBody, requester: User
 ) -> UserRequest:
     """Creates a new user request given the request body, requester_id and request type
 
     Args:
         request_body: the POST body of the request
-        requester_id: the ID of the user making the request
+        requester: the user making the request
 
     Returns:
         the created UserRequest object
     """
     return await create(
         request_body=request_body,
-        requester_id=str(requester_id),
+        requester=requester,
         request_type=UserRequestType.PROJECT_QPU_SECONDS,
     )
 
@@ -80,21 +85,76 @@ async def get_many(
 
 async def create(
     request_body: Union[QpuTimeExtensionPostBody, Dict[str, Any]],
-    requester_id: Union[PydanticObjectId, str],
+    requester: User,
     request_type: UserRequestType,
 ) -> UserRequest:
     """Creates a new user request given the request body, requester_id and request type
 
     Args:
         request_body: the POST body of the request
-        requester_id: the ID of the user making the request
+        requester: the user making the request
         request_type: the type of request being made
 
     Returns:
         the created UserRequest object
     """
+    requester_name = requester.username
     record = UserRequest(
-        request=request_body, requester_id=str(requester_id), type=request_type
+        request=request_body,
+        requester_id=str(requester.id),
+        type=request_type,
+        requester_name=requester_name,
     )
     await record.create()
     return record
+
+
+async def update(
+    _id: PydanticObjectId,
+    payload: UserRequestUpdate,
+    admin_user: User,
+) -> UserRequest:
+    """Creates a new user request given the request body, requester_id and request type
+
+    Args:
+        _id: the unique identifier of the user request
+        payload: the PUT body of the request
+        admin_user: the user making the request
+
+    Returns:
+        the updated UserRequest object
+
+    Raises:
+        DocumentNotFoundError: {_id} not found
+    """
+    defaults = UserRequestUpdate()
+
+    # if the status is changing, we must update the approver
+    if payload.status is not None:
+        defaults.approver_name = admin_user.username
+        defaults.approver_id = str(admin_user.id)
+
+    result: UserRequest = await UserRequest.find_one({"_id": _id}).update(
+        {"$set": {**payload.dict(), **defaults.dict()}},
+        response_type=UpdateResponse.NEW_DOCUMENT,
+    )
+    if result is None:
+        raise DocumentNotFoundError(f"{_id} not found")
+
+    # if approved, we have to react to the approval
+    if payload.status == UserRequestStatus.APPROVED:
+        if result.type == UserRequestType.PROJECT_QPU_SECONDS:
+            new_project = await Project.find_one(
+                {"_id": PydanticObjectId(result.request.project_id)}
+            ).update(
+                {"$inc": {"qpu_seconds": result.request.seconds}},
+                response_type=UpdateResponse.NEW_DOCUMENT,
+            )
+            if new_project is None:
+                raise DocumentNotFoundError(
+                    f"project {result.request.project_id} not found"
+                )
+
+        # TODO: deal with other request types
+
+    return result
