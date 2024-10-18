@@ -11,6 +11,7 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 - Added the tokens list page for viewing, editing and deleting tokens of current user
 - Added the projects list page for viewing, requesting QPU time and deleting projects for current user
+- Added admin page for viewing, and approving user requests
 
 ### Changed
 
