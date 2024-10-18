@@ -25,7 +25,7 @@ from utils.config import UserRole
 
 
 class UserRead(schemas.BaseUser[PydanticObjectId]):
-    pass
+    roles: Set[UserRole] = {}
 
 
 class UserCreate(schemas.BaseUserCreate):

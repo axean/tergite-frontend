@@ -491,6 +491,7 @@ def test_view_my_user_info(user, cookies, client_v2):
             "is_active": user.get("is_active", True),
             "is_verified": user.get("is_verified", False),
             "is_superuser": user.get("is_superuser", False),
+            "roles": user.get("roles", []),
         }
 
         assert response.status_code == 200
