@@ -18,6 +18,9 @@ import {
   UserRequestStatus,
   UserRequest,
   UserRole,
+  AdminProject,
+  UpdateProjectPutBody,
+  AdminCreateProjectBody,
 } from "../../types";
 import { normalizeCalibrationData, extendAppToken } from "./utils";
 
@@ -49,6 +52,7 @@ export function singleDeviceQuery(
     queryKey: [baseUrl, "devices", name],
     queryFn: async () => await getDeviceDetail(name),
     refetchInterval,
+    throwOnError: true,
   });
 }
 
@@ -59,6 +63,7 @@ export const calibrationsQuery = queryOptions({
   queryKey: [apiBaseUrl, "calibrations"],
   queryFn: async () => await getCalibrations(),
   refetchInterval,
+  throwOnError: true,
 });
 
 /**
@@ -134,8 +139,8 @@ export function myTokensQuery(options: {
 }
 
 /**
- * the react query for getting all pending user requests
- * @param options - extra options for filtering the tokens
+ * the react query for getting all user requests
+ * @param options - extra options for filtering the requests
  *            - currentUser - the current user
  *            - baseUrl - the base URL of the API
  *            - status - the status of the requests
@@ -164,6 +169,41 @@ export function allUserRequestsQuery(options: {
     queryKey,
     queryFn: async () =>
       await getUserRequests(baseUrl, { status, limit, skip }),
+    refetchInterval,
+    enabled,
+  });
+}
+
+/**
+ * the react query for getting all admin projects
+ * @param options - extra options for filtering the projects
+ *            - baseUrl - the base URL of the API
+ *            - is_active - whether the project is active or not
+ *            - skip - the number of records to skip
+ *            - limit - the maximum number of records to return
+ */
+export function allAdminProjectsQuery(options: {
+  is_active?: boolean;
+  currentUser: User;
+  baseUrl?: string;
+  skip?: number;
+  limit?: number;
+}) {
+  const {
+    is_active,
+    baseUrl = apiBaseUrl,
+    skip = 0,
+    limit,
+    currentUser,
+  } = options;
+  const queryKey = [baseUrl, "admin", "user-requests", status, limit, skip];
+  // run only for admins
+  const enabled = currentUser.roles.includes(UserRole.ADMIN);
+
+  return queryOptions({
+    queryKey,
+    queryFn: async () =>
+      await getAdminProjects(baseUrl, { is_active, limit, skip }),
     refetchInterval,
     enabled,
   });
@@ -200,14 +240,14 @@ export function myProjectsQpuTimeRequestsQuery(options: {
  * @param options - the options including:
  *          - baseUrl - the base URL of the API
  */
-export function refreshMyTokensQueries(
+export async function refreshMyTokensQueries(
   queryClient: QueryClient,
   options: {
     baseUrl?: string;
   } = {}
 ) {
   const { baseUrl = apiBaseUrl } = options;
-  queryClient.invalidateQueries({ queryKey: [baseUrl, "me", "tokens"] });
+  await queryClient.invalidateQueries({ queryKey: [baseUrl, "me", "tokens"] });
 }
 
 /**
@@ -217,14 +257,16 @@ export function refreshMyTokensQueries(
  * @param options - the options including:
  *          - baseUrl - the base URL of the API
  */
-export function refreshMyProjectsQueries(
+export async function refreshMyProjectsQueries(
   queryClient: QueryClient,
   options: {
     baseUrl?: string;
   } = {}
 ) {
   const { baseUrl = apiBaseUrl } = options;
-  queryClient.invalidateQueries({ queryKey: [baseUrl, "me", "projects"] });
+  await queryClient.invalidateQueries({
+    queryKey: [baseUrl, "me", "projects"],
+  });
 }
 
 /**
@@ -234,14 +276,14 @@ export function refreshMyProjectsQueries(
  * @param options - the options including:
  *          - baseUrl - the base URL of the API
  */
-export function refreshMyProjectsQpuTimeRequestsQueries(
+export async function refreshMyProjectsQpuTimeRequestsQueries(
   queryClient: QueryClient,
   options: {
     baseUrl?: string;
   } = {}
 ) {
   const { baseUrl = apiBaseUrl } = options;
-  queryClient.invalidateQueries({
+  await queryClient.invalidateQueries({
     queryKey: [baseUrl, "admin", "qpu-time-requests"],
   });
 }
@@ -253,16 +295,33 @@ export function refreshMyProjectsQpuTimeRequestsQueries(
  * @param options - the options including:
  *          - baseUrl - the base URL of the API
  */
-export function refreshAllRequestsQueries(
+export async function refreshAllRequestsQueries(
   queryClient: QueryClient,
   options: {
     baseUrl?: string;
   } = {}
 ) {
   const { baseUrl = apiBaseUrl } = options;
-  queryClient.invalidateQueries({
+  await queryClient.invalidateQueries({
     queryKey: [baseUrl, "admin", "user-requests"],
   });
+}
+
+/**
+ * Refreshes the queries for any admin htings
+ *
+ * @param queryClient - the query client for making queries
+ * @param options - the options including:
+ *          - baseUrl - the base URL of the API
+ */
+export async function refreshAllAdminQueries(
+  queryClient: QueryClient,
+  options: {
+    baseUrl?: string;
+  } = {}
+) {
+  const { baseUrl = apiBaseUrl } = options;
+  await queryClient.invalidateQueries({ queryKey: [baseUrl, "admin"] });
 }
 
 /**
@@ -295,7 +354,7 @@ export async function createAppToken(
 }
 
 /**
- * Updates the app token's lifespan
+ * Updates the app token
  * @param id - the id for the token
  * @param payload - the payload for the update
  * @param options - the options including:
@@ -412,6 +471,69 @@ export async function deleteMyProject(
     },
     { isJsonOutput: false }
   );
+}
+
+/**
+ * Deletes the given project
+ * @param id of the project
+ * @param options - extra options for querying the jobs
+ *           - baseUrl - the API base URL; default apiBaseUrl
+ */
+export async function deleteAdminProject(
+  id: string,
+  options: { baseUrl?: string } = {}
+): Promise<void> {
+  const { baseUrl = apiBaseUrl } = options;
+  await authenticatedFetch(
+    `${baseUrl}/admin/projects/${id}`,
+    {
+      method: "delete",
+    },
+    { isJsonOutput: false }
+  );
+}
+
+/**
+ * Updates the admin project
+ * @param id - the id for the project
+ * @param payload - the payload for the update
+ * @param options - the options including:
+ *          - baseUrl - the base URL of the API
+ */
+export async function updateAdminProject(
+  id: string,
+  payload: UpdateProjectPutBody,
+  options: {
+    baseUrl?: string;
+  } = {}
+): Promise<AdminProject> {
+  const { baseUrl = apiBaseUrl } = options;
+  return await authenticatedFetch(`${baseUrl}/admin/projects/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+/**
+ * Creates a new project, when logged in as an admin
+ *
+ * @param payload - the payload for the creation
+ * @param options - the options including:
+ *          - baseUrl - the base URL of the API
+ */
+export async function createAdminProject(
+  payload: AdminCreateProjectBody,
+  options: {
+    baseUrl?: string;
+  } = {}
+): Promise<AdminProject> {
+  const { baseUrl = apiBaseUrl } = options;
+  return await authenticatedFetch(`${baseUrl}/admin/projects`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+    headers: { "Content-Type": "application/json" },
+  });
 }
 
 /**
@@ -574,7 +696,7 @@ async function getProjectQpuTimeRequests(
 }
 
 /**
- * Retrieves the QPU time user requests for given project ID's
+ * Retrieves the QPU time user requests
  * @param baseUrl - the API base URL
  * @param options - extra options for filtering the requests
  *            - status - the status of the requests
@@ -596,6 +718,34 @@ async function getUserRequests(
 
   const { data } = await authenticatedFetch<PaginatedData<UserRequest[]>>(
     `${baseUrl}/admin/user-requests?${queryString}`
+  );
+
+  return data;
+}
+
+/**
+ * Retrieves the projects in admin view
+ * @param baseUrl - the API base URL
+ * @param options - extra options for filtering the requests
+ *            - is_active - whether the project is active or not
+ *            - skip - the number of records to skip
+ *            - limit - the maximum number of records to return
+ */
+async function getAdminProjects(
+  baseUrl: string = apiBaseUrl,
+  options: {
+    is_active?: boolean;
+    skip?: number;
+    limit?: number;
+  }
+): Promise<AdminProject[]> {
+  const queryString = Object.entries(options)
+    .filter(([_k, v]) => v != undefined)
+    .map(([k, v]) => `${k}=${v}`)
+    .join("&");
+
+  const { data } = await authenticatedFetch<PaginatedData<AdminProject[]>>(
+    `${baseUrl}/admin/projects?${queryString}`
   );
 
   return data;

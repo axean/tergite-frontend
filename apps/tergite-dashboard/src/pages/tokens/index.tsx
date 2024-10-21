@@ -54,7 +54,7 @@ export function Tokens() {
   );
 
   const handleTokenDelete = useCallback(async () => {
-    refreshMyTokensQueries(queryClient);
+    await refreshMyTokensQueries(queryClient);
     // clear selected rows
     setRowSelection({});
   }, [queryClient, setRowSelection]);

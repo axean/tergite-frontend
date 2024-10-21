@@ -9,21 +9,17 @@ import {
   currentUserQuery,
   allUserRequestsQuery,
 } from "@/lib/api-client";
-import {
-  AppState,
-  Project,
-  User,
-  UserRequestStatus,
-  UserRole,
-} from "../../../../types";
+import { AppState, User, UserRequestStatus, UserRole } from "../../../../types";
 import { useCallback, useContext, useState } from "react";
 import { AppStateContext } from "@/lib/app-state";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { loadOrRedirectIfAuthErr } from "@/lib/utils";
+import { Toaster } from "@/components/ui/toaster";
 
 export function Dashboard() {
-  const { projects, currentUser, isUserAdmin } =
-    useLoaderData() as DashboardData;
+  const { currentUser, isUserAdmin } = useLoaderData() as DashboardData;
+
+  const { data: projects = [] } = useQuery(myProjectsQuery);
   const appState = useContext(AppStateContext);
   const queryClient = useQueryClient();
   const [isExpanded, setIsExpanded] = useState(true);
@@ -68,6 +64,7 @@ export function Dashboard() {
 
           <TopBanner />
           <Outlet />
+          <Toaster />
         </div>
       </div>
     </TooltipProvider>
@@ -75,7 +72,6 @@ export function Dashboard() {
 }
 
 interface DashboardData {
-  projects: Project[];
   currentUser: User;
   isUserAdmin: boolean;
 }
@@ -83,11 +79,6 @@ interface DashboardData {
 // eslint-disable-next-line react-refresh/only-export-components
 export function loader(_appState: AppState, queryClient: QueryClient) {
   return loadOrRedirectIfAuthErr(async () => {
-    // projects
-    const cachedProjects = queryClient.getQueryData(myProjectsQuery.queryKey);
-    const projects =
-      cachedProjects ?? (await queryClient.fetchQuery(myProjectsQuery));
-
     // current user
     const cachedCurrentUser = queryClient.getQueryData(
       currentUserQuery.queryKey
@@ -97,6 +88,6 @@ export function loader(_appState: AppState, queryClient: QueryClient) {
 
     const isUserAdmin = currentUser.roles.includes(UserRole.ADMIN);
 
-    return { projects, currentUser, isUserAdmin } as DashboardData;
+    return { currentUser, isUserAdmin } as DashboardData;
   });
 }
