@@ -5,17 +5,6 @@ import { ColumnDef } from "@tanstack/table-core";
 import { DateTime } from "luxon";
 import type { UserRequest } from "types";
 
-// created_at: string;
-// updated_at: string;
-// status: UserRequestStatus;
-// type: UserRequestType;
-// requester_id: string;
-// requester_name?: string;
-// approver_id?: string; // id of admin who has handled it
-// approver_name?: string;
-// rejection_reason?: string;
-// request: unknown;
-
 export const columns: ColumnDef<UserRequest>[] = [
   {
     id: "title",
