@@ -484,14 +484,15 @@ def test_view_my_user_info(user, cookies, client_v2):
     with client_v2 as client:
         response = client.get("/v2/me", cookies=cookies)
 
-        got = response.json()
+        raw_data = response.json()
+        got = {**raw_data, "roles": sorted(raw_data.get("roles", []))}
         expected = {
             "id": str(user["_id"]),
             "email": user["email"],
             "is_active": user.get("is_active", True),
             "is_verified": user.get("is_verified", False),
             "is_superuser": user.get("is_superuser", False),
-            "roles": user.get("roles", []),
+            "roles": sorted(user.get("roles", [])),
         }
 
         assert response.status_code == 200
