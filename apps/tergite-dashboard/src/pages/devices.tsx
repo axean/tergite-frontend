@@ -8,7 +8,7 @@ import { DetailItem } from "@/components/ui/detail-item";
 import { DeviceStatusDiv } from "@/components/ui/device-status-div";
 import { devicesQuery } from "@/lib/api-client";
 import { AppState, Device } from "../../types";
-import { loadOrRedirectIf401 } from "@/lib/utils";
+import { loadOrRedirectIfAuthErr } from "@/lib/utils";
 import { QueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { Link, useLoaderData } from "react-router-dom";
@@ -53,7 +53,7 @@ interface DeviceData {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function loader(_appState: AppState, queryClient: QueryClient) {
-  return loadOrRedirectIf401(async () => {
+  return loadOrRedirectIfAuthErr(async () => {
     const cachedDevices = queryClient.getQueryData(devicesQuery.queryKey);
     const devices =
       cachedDevices ?? (await queryClient.fetchQuery(devicesQuery));

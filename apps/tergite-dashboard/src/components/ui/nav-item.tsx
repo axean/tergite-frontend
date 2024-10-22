@@ -8,7 +8,8 @@ export function NavItem({
   Icon,
   text,
   isExpanded = true,
-}: Props) {
+  children,
+}: React.PropsWithChildren<Props>) {
   const location = useLocation();
   const colorsClass = React.useMemo(
     () =>
@@ -28,15 +29,20 @@ export function NavItem({
       : { icon: "h-4 w-4", text: "text-sm", gap: "gap-2" };
   }, [isBig]);
 
+  const showText = isExpanded || Icon === undefined;
+
   return (
     <Link
       to={to}
-      className={`flex h-9 px-2 items-center ${colorsClass} rounded-sm  transition-colors hover:text-foreground`}
+      className={`flex h-9 px-2 items-center ${colorsClass} rounded-sm  transition-colors hover:text-foreground hover:bg-accent`}
     >
       <div className={`flex ${sizeClass.gap} items-center`}>
-        <Icon aria-label={Icon.displayName} className={sizeClass.icon} />
-        {isExpanded && <span className={sizeClass.text}>{text}</span>}
+        {Icon && (
+          <Icon aria-label={Icon.displayName} className={sizeClass.icon} />
+        )}
+        {showText && <span className={sizeClass.text}>{text}</span>}
         <span className="sr-only">{text}</span>
+        {children}
       </div>
     </Link>
   );
@@ -47,7 +53,7 @@ interface Props {
   text: string;
   isBig?: boolean;
   isExpanded?: boolean;
-  Icon: React.ForwardRefExoticComponent<
+  Icon?: React.ForwardRefExoticComponent<
     Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
   >;
 }

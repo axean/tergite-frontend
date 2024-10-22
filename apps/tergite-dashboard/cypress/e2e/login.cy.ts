@@ -1,7 +1,8 @@
 /// <reference types="cypress" />
 
-import users from "../fixtures/users.json";
+import userList from "../fixtures/users.json";
 import authProviders from "../fixtures/auth-providers.json";
+import { User } from "../../types";
 
 const invalidFormatEmailAddresses = [
   "john",
@@ -10,7 +11,9 @@ const invalidFormatEmailAddresses = [
   "http://example.com",
 ];
 
-[...users].forEach((user) => {
+const users = [...userList] as User[];
+
+users.forEach((user) => {
   const [username, emailDomain] = user.email.split("@");
   const availableAuthProviders = authProviders.filter(
     (v) => v.email_domain === emailDomain

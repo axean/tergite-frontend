@@ -22,6 +22,14 @@ import {
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { Tokens, loader as tokensLoader } from "./pages/tokens";
 import { Projects, loader as projectsLoader } from "./pages/projects";
+import {
+  AdminProjects,
+  loader as adminProjectsLoader,
+} from "./pages/admin-projects";
+import {
+  AdminRequests,
+  loader as adminRequestsLoader,
+} from "./pages/admin-requests";
 
 export function AppRouter({ routerConstructor }: Props) {
   const appState = useContext(AppStateContext);
@@ -75,6 +83,16 @@ function getRoutes(appState: AppState, queryClient: QueryClient) {
             path="projects"
             element={<Projects />}
             loader={projectsLoader(appState, queryClient)}
+          />
+          <Route
+            path="admin-projects"
+            element={<AdminProjects />}
+            loader={adminProjectsLoader(appState, queryClient)}
+          />
+          <Route
+            path="admin-requests"
+            element={<AdminRequests />}
+            loader={adminRequestsLoader(appState, queryClient)}
           />
         </Route>
       </Route>

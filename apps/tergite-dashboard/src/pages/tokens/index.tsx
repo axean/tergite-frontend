@@ -9,7 +9,7 @@ import {
   myTokensQuery,
   refreshMyTokensQueries,
 } from "@/lib/api-client";
-import { loadOrRedirectIf401 } from "@/lib/utils";
+import { loadOrRedirectIfAuthErr } from "@/lib/utils";
 import {
   QueryClient,
   useQuery,
@@ -98,7 +98,7 @@ export function Tokens() {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function loader(appState: AppState, queryClient: QueryClient) {
-  return loadOrRedirectIf401(async () => {
+  return loadOrRedirectIfAuthErr(async () => {
     // project object
     const cachedProjects: Project[] | undefined = queryClient.getQueryData(
       myProjectsQuery.queryKey

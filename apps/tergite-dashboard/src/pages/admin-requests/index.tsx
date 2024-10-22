@@ -5,37 +5,39 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import {
+  allUserRequestsQuery,
   currentUserQuery,
-  myProjectsQpuTimeRequestsQuery,
-  myProjectsQuery,
+  refreshAllRequestsQueries,
   refreshMyProjectsQueries,
 } from "@/lib/api-client";
 import { loadOrRedirectIfAuthErr } from "@/lib/utils";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
+import { useLoaderData } from "react-router-dom";
 import {
+  ErrorInfo,
   User,
   UserRequestStatus,
+  UserRole,
   type AppState,
-  type Project,
+  type UserRequest,
 } from "../../../types";
-import { ProjectsTable } from "./components/project-table";
-import { ProjectSummary } from "./components/project-summary";
+import { AdminRequestsTable } from "./components/requests-table";
+import { RequestSummary } from "./components/request-summary";
 import { Row, RowSelectionState } from "@tanstack/react-table";
-import { useLoaderData } from "react-router-dom";
 
-export function Projects() {
+export function AdminRequests() {
   const queryClient = useQueryClient();
-  const { currentUser } = useLoaderData() as ProjectsPageData;
-  const { data: projects = [] } = useQuery(myProjectsQuery);
-  const { data: qpuTimeRequests = [] } = useQuery(
-    myProjectsQpuTimeRequestsQuery({
+  const { currentUser } = useLoaderData() as AdminRequestsData;
+  const { data: requests = [] } = useQuery(
+    allUserRequestsQuery({
       status: UserRequestStatus.PENDING,
-      projects,
+      currentUser,
     })
   );
+
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const selectedProjectIdx = useMemo(() => {
+  const selectedRequestIdx = useMemo(() => {
     const selectedEntries = Object.entries(rowSelection).filter(
       ([_k, v]) => v === true
     );
@@ -46,7 +48,7 @@ export function Projects() {
   }, [rowSelection]);
 
   const handleRowClick = useCallback(
-    (row: Row<Project>) => {
+    (row: Row<UserRequest>) => {
       if (!row.getIsSelected()) {
         row.toggleSelected();
         setRowSelection({ [row.id]: true });
@@ -55,7 +57,8 @@ export function Projects() {
     [setRowSelection]
   );
 
-  const handleProjectDelete = useCallback(async () => {
+  const handleRequestReaction = useCallback(async () => {
+    refreshAllRequestsQueries(queryClient);
     refreshMyProjectsQueries(queryClient);
     // clear selected rows
     setRowSelection({});
@@ -65,26 +68,24 @@ export function Projects() {
     <main className="grid flex-1 items-start gap-4 grid-cols-1 p-4 sm:px-6 sm:py-0 md:gap-8 xl:grid-cols-4">
       <Card className="col-span-1 mt-14  xl:pt-3 xl:col-span-3">
         <CardHeader>
-          <CardDescription>Projects</CardDescription>
+          <CardDescription>Pending User requests</CardDescription>
         </CardHeader>
         <CardContent>
-          <ProjectsTable
-            data={projects}
+          <AdminRequestsTable
+            data={requests}
             onRowSelectionChange={setRowSelection}
             rowSelection={rowSelection}
             onRowClick={handleRowClick}
-            currentUser={currentUser}
-            qpuTimeRequests={qpuTimeRequests}
           />
         </CardContent>
       </Card>
 
-      {projects[selectedProjectIdx] && (
-        <ProjectSummary
-          project={projects[selectedProjectIdx]}
+      {requests[selectedRequestIdx] && (
+        <RequestSummary
+          request={requests[selectedRequestIdx]}
           className="order-first xl:order-none mt-14 col-span-1"
-          onDelete={handleProjectDelete}
-          canDelete={projects[selectedProjectIdx].admin_id === currentUser.id}
+          onApproval={handleRequestReaction}
+          onRejection={handleRequestReaction}
         />
       )}
     </main>
@@ -93,16 +94,23 @@ export function Projects() {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function loader(_appState: AppState, queryClient: QueryClient) {
-  return loadOrRedirectIfAuthErr(async (): Promise<ProjectsPageData> => {
+  return loadOrRedirectIfAuthErr(async (): Promise<AdminRequestsData> => {
     const cachedCurrentUser = queryClient.getQueryData(
       currentUserQuery.queryKey
     );
     const currentUser =
       cachedCurrentUser ?? (await queryClient.fetchQuery(currentUserQuery));
+
+    if (!currentUser.roles.includes(UserRole.ADMIN)) {
+      const error = new Error("user should be an admin") as ErrorInfo;
+      error.status = 403;
+      throw error;
+    }
+
     return { currentUser };
   });
 }
 
-interface ProjectsPageData {
+interface AdminRequestsData {
   currentUser: User;
 }

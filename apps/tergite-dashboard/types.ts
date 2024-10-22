@@ -1,5 +1,9 @@
 import { DateTime } from "luxon";
 
+export type AnyValue = number | string | null | undefined | number[] | string[];
+
+export type AnyFlatRecord = Record<string, AnyValue>;
+
 export enum JobStatus {
   PENDING = "pending",
   SUCCESSFUL = "successful",
@@ -12,12 +16,13 @@ export interface DbRecord {
   updated_at?: string;
 }
 
-export type QubitProp =
-  | "t1_decoherence"
-  | "t2_decoherence"
-  | "frequency"
-  | "anharmonicity"
-  | "readout_assignment_error";
+export enum QubitProp {
+  T1_DECOHERENCE = "t1_decoherence",
+  T2_DECOHERENCE = "t2_decoherence",
+  FREQUENCY = "frequency",
+  ANHARMONICITY = "anharmonicity",
+  READOUT_ASSIGNMENT_ERROR = "readout_assignment_error",
+}
 
 export interface Qubit {
   t1_decoherence?: CalibrationValue;
@@ -82,12 +87,18 @@ export interface Device extends DbRecord {
   is_simulator: boolean;
 }
 
-export type UserRequestStatus = "approved" | "rejected" | "pending";
-export type UserRequestType =
-  | "create-project"
-  | "close-project"
-  | "transfer-project"
-  | "project-qpu-seconds";
+export enum UserRequestStatus {
+  APPROVED = "approved",
+  REJECTED = "rejected",
+  PENDING = "pending",
+}
+
+export enum UserRequestType {
+  CREATE_PROJECT = "create-project",
+  CLOSE_PROJECT = "close-project",
+  TRANSFER_PROJECT = "transfer-project",
+  PROJECT_QPU_SECONDS = "project-qpu-seconds",
+}
 
 // the type for all requests made by users to be approved by an admin
 export interface UserRequest extends DbRecord {
@@ -96,7 +107,9 @@ export interface UserRequest extends DbRecord {
   status: UserRequestStatus;
   type: UserRequestType;
   requester_id: string;
+  requester_name?: string;
   approver_id?: string; // id of admin who has handled it
+  approver_name?: string;
   rejection_reason?: string;
   request: unknown;
 }
@@ -117,7 +130,7 @@ export interface CreateProjectPostBody {
 //
 // the type below is of that request
 export interface CreateProjectUserRequest extends UserRequest {
-  type: "create-project";
+  type: UserRequestType.CREATE_PROJECT;
   request: CreateProjectPostBody;
 }
 
@@ -145,13 +158,14 @@ export interface UpdateProjectPutBody {
 // the HTTP request body when requesting for a time extension
 export interface QpuTimeExtensionPostBody {
   project_id: string;
+  project_name?: string;
   seconds: number;
   reason: string;
 }
 
 // the record saved in the database for QPU time extension
 export interface QpuTimeExtensionUserRequest extends UserRequest {
-  type: "project-qpu-seconds";
+  type: UserRequestType.PROJECT_QPU_SECONDS;
   request: QpuTimeExtensionPostBody;
 }
 
@@ -166,7 +180,13 @@ export interface Job extends DbRecord {
   created_at: string;
 }
 
-export type UserRole = "admin" | "system" | "researcher" | "user" | "partner";
+export enum UserRole {
+  ADMIN = "admin",
+  SYSTEM = "system",
+  RESEARCHER = "researcher",
+  USER = "user",
+  PARTNER = "partner",
+}
 
 export interface User extends DbRecord {
   roles: UserRole[];

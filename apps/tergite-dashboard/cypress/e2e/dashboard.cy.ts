@@ -2,7 +2,7 @@
 
 import userList from "../fixtures/users.json";
 import projectList from "../fixtures/projects.json";
-import { generateJwt } from "../../api/utils";
+import { generateJwt, getUsername } from "../../api/utils";
 import { type Project, type User } from "../../types";
 
 const users = [...userList] as User[];
@@ -10,7 +10,7 @@ const projects = [...projectList] as Project[];
 
 users.forEach((user) => {
   const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
-  const username = user.email.split("@")[0];
+  const username = getUsername(user);
 
   describe(`dashboard-layout for ${username}`, () => {
     beforeEach(() => {

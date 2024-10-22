@@ -6,7 +6,7 @@ import jobList from "../cypress/fixtures/jobs.json";
 import projectList from "../cypress/fixtures/projects.json";
 import tokenList from "../cypress/fixtures/tokens.json";
 import userList from "../cypress/fixtures/users.json";
-import qpuRequestList from "../cypress/fixtures/qpu-time-requests.json";
+import userRequestList from "../cypress/fixtures/user-requests.json";
 import { type ParsedQs } from "qs";
 import {
   type NextFunction,
@@ -24,6 +24,7 @@ import {
   Project,
   User,
   UserRequest,
+  UserRole,
 } from "../types";
 
 const jwtSecret = process.env.JWT_SECRET ?? "no-token-really-noooo";
@@ -98,7 +99,7 @@ class MockDb {
     devices: [...(deviceList as Device[])],
     calibrations: [...(deviceCalibrationList as DeviceCalibration[])],
     jobs: [...(jobList as Job[])],
-    user_requests: [...(qpuRequestList as UserRequest[])],
+    user_requests: [...(userRequestList as UserRequest[])],
     auth_providers: [...(authProviderList as AuthProvider[])],
   };
   deleted: { [k: string | ItemType]: DeletedIndex } = {
@@ -137,7 +138,7 @@ class MockDb {
       devices: [...(deviceList as Device[])],
       calibrations: [...(deviceCalibrationList as DeviceCalibration[])],
       jobs: [...(jobList as Job[])],
-      user_requests: [...(qpuRequestList as UserRequest[])],
+      user_requests: [...(userRequestList as UserRequest[])],
       auth_providers: [...(authProviderList as AuthProvider[])],
     };
     this.deleted = {
@@ -247,7 +248,7 @@ class MockDb {
   update<T extends DbRecord>(
     itemType: ItemType,
     filterFn: FilterFunc<T>,
-    payload: UnknownObject
+    payload: Partial<T>
   ): T {
     const preExistingItem = this.getOne(itemType, filterFn);
     if (!preExistingItem) {
@@ -341,6 +342,31 @@ export async function getAuthenticatedUserId(
 }
 
 /**
+ * Checks if the given user has any of the given roles
+ *
+ * @param userId - the ID of the user to check
+ * @param roles - the roles to check for
+ */
+export function hasAnyOfRoles(userId: string, roles: UserRole[]): boolean {
+  const user = mockDb.getOne<User>("users", (v) => v.id === userId);
+  if (!user) {
+    return false;
+  }
+
+  if (roles.length === 0) {
+    return true;
+  }
+
+  for (const role of roles) {
+    if (user.roles.includes(role)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * A wrapper around the request handler that handles common tasks on request handlers
  *
  * @param reqHandler - the async request handler for express
@@ -411,6 +437,16 @@ export function NotFound(message: string = "not found"): ErrorInfo {
     status: 404,
     name: "NotFound",
   };
+}
+
+/**
+ * Retrieves the username of the user
+ *
+ * @param user - the user
+ * @returns - the username of the user
+ */
+export function getUsername(user: User): string {
+  return user.email.split("@")[0];
 }
 
 /**

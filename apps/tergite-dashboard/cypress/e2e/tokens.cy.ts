@@ -4,7 +4,7 @@
 import userList from "../fixtures/users.json";
 import tokenList from "../fixtures/tokens.json";
 import projectList from "../fixtures/projects.json";
-import { bulkUpdate, generateJwt } from "../../api/utils";
+import { bulkUpdate, generateJwt, getUsername } from "../../api/utils";
 import { type Project, type User } from "../../types";
 import { extendAppToken } from "../support/utils";
 import { DateTime } from "luxon";
@@ -39,7 +39,7 @@ const tokensTableDataProps = [
 ];
 
 users.forEach((user) => {
-  const username = user.email.split("@")[0];
+  const username = getUsername(user);
   const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
   const allUserTokens = extendedTokens.filter((v) => v.user_id === user.id);
 

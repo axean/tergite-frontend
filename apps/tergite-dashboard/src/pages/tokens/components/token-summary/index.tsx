@@ -43,7 +43,6 @@ export function TokenSummary({ token, className = "", onDelete }: Props) {
 
             <DetailItem label="Expires">
               {token.expires_at.toRelative()}{" "}
-              {/* TODO: add a button to allow extension of this token */}
             </DetailItem>
 
             <DetailItem label="Project external ID">

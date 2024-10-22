@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
+  AnyFlatRecord,
   Time,
   type AggregateValue,
   type AppToken,
@@ -8,6 +9,7 @@ import {
   type DeviceCalibration,
   type ExtendedAppToken,
   type Project,
+  type UserRequest,
 } from "../../types";
 import { LoaderFunction, LoaderFunctionArgs, redirect } from "react-router-dom";
 import { DateTime } from "luxon";
@@ -67,12 +69,12 @@ export function getCalibrationMedians(
 }
 
 /**
- * Wraps the loader function in a handler for 401 errors to redirect to login page
+ * Wraps the loader function in a handler for 401, 403 errors to redirect to login page
  *
  * @param loaderFn - the actual loader function
  * @returns - a new loader function
  */
-export function loadOrRedirectIf401(loaderFn: LoaderFunction) {
+export function loadOrRedirectIfAuthErr(loaderFn: LoaderFunction) {
   return async (params: LoaderFunctionArgs) => {
     try {
       return await loaderFn(params);
@@ -80,6 +82,11 @@ export function loadOrRedirectIf401(loaderFn: LoaderFunction) {
       // @ts-expect-error error can be any
       if (error.status === 401) {
         return redirect("/login");
+      }
+
+      // @ts-expect-error error can be any
+      if (error.status === 403) {
+        return redirect("/");
       }
 
       throw error;
@@ -209,4 +216,26 @@ export function timeAsString({
       : `${secondStr || "00"}.${millisecond}`; // if milliseconds exist without seconds, have 00 as seconds
 
   return `${paddedHour}:${paddedMinute}${secondsAndMilliseconds}`;
+}
+
+/**
+ * Generates an user-friendly title for the request
+ *
+ * @param request - the request instance as returned from the API
+ * @returns - the title for the given request
+ */
+export function getUserRequestTitle(request: UserRequest): string {
+  const requestBody = request.request as AnyFlatRecord;
+  switch (request.type) {
+    case "close-project":
+      return `Close project '${requestBody.project_name}'`;
+    case "create-project":
+      return `Create new project '${requestBody.name}'`;
+    case "project-qpu-seconds":
+      return `Add QPU time on project: '${requestBody.project_name}'`;
+    case "transfer-project":
+      return `Transfer project '${requestBody.project_name}'`;
+    default:
+      return "User request";
+  }
 }

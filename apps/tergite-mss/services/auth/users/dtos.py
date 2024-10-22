@@ -25,7 +25,7 @@ from utils.config import UserRole
 
 
 class UserRead(schemas.BaseUser[PydanticObjectId]):
-    pass
+    roles: Set[UserRole] = {}
 
 
 class UserCreate(schemas.BaseUserCreate):
@@ -71,6 +71,10 @@ class User(Document):
                 self.roles.remove(UserRole.ADMIN)
             except KeyError:
                 pass
+
+    @property
+    def username(self):
+        return self.email.split("@")[0]
 
 
 CurrentUserDependency = DependencyCallable[User]
