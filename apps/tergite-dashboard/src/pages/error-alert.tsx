@@ -10,11 +10,14 @@ import {
 import { ErrorInfo } from "../../types";
 import { cn } from "@/lib/utils";
 import { useNavigate, useRouteError } from "react-router-dom";
+import { PropsWithChildren } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 
-export default function ErrorAlert({ className = "" }: Props) {
-  const error = useRouteError() as ErrorInfo;
+export default function ErrorAlert({ className = "", error }: Props) {
+  const routeError = useRouteError() as ErrorInfo;
   const navigate = useNavigate();
-  console.error(error);
+  const displayedError = error ?? routeError;
+  console.error(displayedError);
 
   return (
     <div
@@ -26,7 +29,9 @@ export default function ErrorAlert({ className = "" }: Props) {
     >
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">{error.status ?? "Oops!"}</CardTitle>
+          <CardTitle className="text-2xl">
+            {displayedError.status ?? "Oops!"}
+          </CardTitle>
           <CardDescription className="text-lg">
             Sorry, an unexpected error has occurred.
           </CardDescription>
@@ -34,8 +39,8 @@ export default function ErrorAlert({ className = "" }: Props) {
         <CardContent>
           <div className="text-destructive">
             <i>
-              {error?.statusText ||
-                error?.message ||
+              {displayedError?.statusText ||
+                displayedError?.message ||
                 "Sorry, an unexpected error has occurred."}
             </i>
           </div>
@@ -52,4 +57,13 @@ export default function ErrorAlert({ className = "" }: Props) {
 
 interface Props {
   className?: string;
+  error?: ErrorInfo;
 }
+
+export function ErrorBound({ children }: PropsWithChildren<ErrorBoundProps>) {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorAlert}>{children}</ErrorBoundary>
+  );
+}
+
+interface ErrorBoundProps {}

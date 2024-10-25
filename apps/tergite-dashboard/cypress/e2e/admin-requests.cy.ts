@@ -183,6 +183,158 @@ users.forEach((user) => {
       });
 
     isAdmin &&
+      it("filters the list of user requests", () => {
+        const filterMaps = [
+          {
+            input: { title: "close" },
+            result: pendingUserRequests.filter((v) =>
+              /close/i.test(getTitle(v))
+            ),
+          },
+          {
+            input: {
+              title: "test 2",
+              type: UserRequestType.PROJECT_QPU_SECONDS,
+            },
+            result: pendingUserRequests.filter(
+              (v) =>
+                /test 2/i.test(getTitle(v)) &&
+                v.type == UserRequestType.PROJECT_QPU_SECONDS
+            ),
+          },
+          {
+            input: { requester_name: "pa" },
+            result: pendingUserRequests.filter((v) =>
+              /pa/i.test(v.requester_name ?? "")
+            ),
+          },
+          {
+            input: { status: UserRequestStatus.REJECTED },
+            result: pendingUserRequests.filter(
+              (v) => v.status === UserRequestStatus.REJECTED
+            ),
+          },
+          {
+            input: { type: UserRequestType.CLOSE_PROJECT },
+            result: pendingUserRequests.filter(
+              (v) => v.type === UserRequestType.CLOSE_PROJECT
+            ),
+          },
+          {
+            input: {
+              title: "test",
+              requester_name: "j",
+              status: UserRequestStatus.PENDING,
+              type: UserRequestType.PROJECT_QPU_SECONDS,
+            },
+            result: pendingUserRequests.filter(
+              (v) =>
+                /test/i.test(getTitle(v)) &&
+                v.status === UserRequestStatus.PENDING &&
+                /j/i.test(v.requester_name ?? "") &&
+                v.type == UserRequestType.PROJECT_QPU_SECONDS
+            ),
+          },
+        ];
+
+        cy.viewport(1728, 1117);
+        cy.get(".bg-card table").as("request-list-table");
+        cy.get(".bg-card [aria-label='Filter']").as("filterBtn");
+
+        cy.get("@filterBtn")
+          .click()
+          .then(() => {
+            cy.get("[data-cy-filter-form] input[name='title']").as(
+              "titleInput"
+            );
+            cy.get("[data-cy-filter-form] input[name='requester_name']").as(
+              "requesterNameInput"
+            );
+            cy.get("[data-cy-filter-form] #request-type-select").as(
+              "typeSelect"
+            );
+            cy.get("[data-cy-filter-form] #request-status-select").as(
+              "statusSelect"
+            );
+
+            cy.get("[data-cy-filter-form] button[type='submit']").as(
+              "submitBtn"
+            );
+            cy.get("[data-cy-filter-form] button[type='reset']").as("clearBtn");
+
+            for (const filterMap of filterMaps) {
+              cy.wrap(filterMap).then(({ input, result }) => {
+                input.title && cy.get("@titleInput").type(input.title);
+                input.requester_name &&
+                  cy.get("@requesterNameInput").type(input.requester_name);
+                input.type &&
+                  cy
+                    .get("@typeSelect")
+                    .click()
+                    .then(() => {
+                      cy.get("[data-cy-user-request-type-select]").within(
+                        () => {
+                          cy.contains(input.type).click();
+                        }
+                      );
+                    });
+                input.status &&
+                  cy
+                    .get("@statusSelect")
+                    .click()
+                    .then(() => {
+                      cy.get("[data-cy-user-request-status-select]").within(
+                        () => {
+                          cy.contains(new RegExp(input.status, "i")).click();
+                        }
+                      );
+                    });
+                cy.get("@submitBtn")
+                  .click()
+                  .then(() => {
+                    cy.get("@request-list-table")
+                      .find("tbody tr")
+                      .should("have.length", result.length || 1);
+
+                    for (const request of result) {
+                      cy.wrap(request).then((request) => {
+                        cy.get("@request-list-table").within(() =>
+                          cy
+                            .get("tr td:first-child")
+                            .contains(getTitle(request))
+                            .should("be.visible")
+                        );
+                      });
+                    }
+
+                    cy.get("@clearBtn")
+                      .click()
+                      .then(() => {
+                        cy.get("@request-list-table")
+                          .find("tbody tr")
+                          .should(
+                            "have.length",
+                            pendingUserRequests.length || 1
+                          );
+
+                        for (const request of pendingUserRequests) {
+                          cy.wrap(request).then((request) => {
+                            cy.get("@request-list-table").within(() =>
+                              cy
+                                .get("tr td:first-child")
+                                .contains(getTitle(request))
+                                .should("be.visible")
+                            );
+                          });
+                        }
+                      });
+                  });
+              });
+            }
+          });
+      });
+
+    isAdmin &&
       it("renders user request summary when row is clicked", () => {
         cy.viewport(1080, 750);
         cy.wait(100);

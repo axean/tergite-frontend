@@ -4,7 +4,7 @@ import {
   Route,
   RouterProvider,
 } from "react-router-dom";
-import ErrorAlert from "./pages/error-alert";
+import ErrorAlert, { ErrorBound } from "./pages/error-alert";
 import LoginPage from "./pages/login";
 import { Home, loader as homeLoader } from "./pages/home";
 import { Devices, loader as devicesLoader } from "./pages/devices";
@@ -54,51 +54,87 @@ function getRoutes(appState: AppState, queryClient: QueryClient) {
     <>
       <Route
         path="/"
-        element={<Dashboard />}
+        element={
+          <ErrorBound>
+            <Dashboard />
+          </ErrorBound>
+        }
         loader={dashboardLoader(appState, queryClient)}
         errorElement={<ErrorAlert className="h-screen bg-muted" />}
       >
         <Route errorElement={<ErrorAlert />}>
           <Route
             index
-            element={<Home />}
+            element={
+              <ErrorBound>
+                <Home />
+              </ErrorBound>
+            }
             loader={homeLoader(appState, queryClient)}
           />
           <Route
             path="devices"
-            element={<Devices />}
+            element={
+              <ErrorBound>
+                <Devices />
+              </ErrorBound>
+            }
             loader={devicesLoader(appState, queryClient)}
           />
           <Route
             path="devices/:deviceName"
-            element={<DeviceDetail />}
+            element={
+              <ErrorBound>
+                <DeviceDetail />
+              </ErrorBound>
+            }
             loader={deviceDetailLoader(appState, queryClient)}
           />
           <Route
             path="tokens"
-            element={<Tokens />}
+            element={
+              <ErrorBound>
+                <Tokens />
+              </ErrorBound>
+            }
             loader={tokensLoader(appState, queryClient)}
           />
           <Route
             path="projects"
-            element={<Projects />}
+            element={
+              <ErrorBound>
+                <Projects />
+              </ErrorBound>
+            }
             loader={projectsLoader(appState, queryClient)}
           />
           <Route
             path="admin-projects"
-            element={<AdminProjects />}
+            element={
+              <ErrorBound>
+                <AdminProjects />
+              </ErrorBound>
+            }
             loader={adminProjectsLoader(appState, queryClient)}
           />
           <Route
             path="admin-requests"
-            element={<AdminRequests />}
+            element={
+              <ErrorBound>
+                <AdminRequests />
+              </ErrorBound>
+            }
             loader={adminRequestsLoader(appState, queryClient)}
           />
         </Route>
       </Route>
       <Route
         path="login"
-        element={<LoginPage />}
+        element={
+          <ErrorBound>
+            <LoginPage />
+          </ErrorBound>
+        }
         errorElement={<ErrorAlert />}
       />
     </>

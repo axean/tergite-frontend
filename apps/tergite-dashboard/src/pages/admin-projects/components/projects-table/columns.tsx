@@ -16,6 +16,10 @@ export const columns: ColumnDef<AdminProject>[] = [
     header: ({ column }) => <SortHeader label="Admin" column={column} />,
   },
   {
+    accessorKey: "qpu_seconds",
+    header: ({ column }) => <SortHeader label="QPU seconds" column={column} />,
+  },
+  {
     accessorKey: "is_active",
     header: "Status",
     cell: ({ row }) => (
@@ -24,9 +28,9 @@ export const columns: ColumnDef<AdminProject>[] = [
         isHealthy={row.original.is_active}
       />
     ),
-  },
-  {
-    accessorKey: "qpu_seconds",
-    header: ({ column }) => <SortHeader label="QPU seconds" column={column} />,
+    meta: {
+      headerClassName: "text-right lg:text-left",
+      rowClassName: "",
+    },
   },
 ];

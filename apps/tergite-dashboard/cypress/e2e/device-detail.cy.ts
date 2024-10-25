@@ -62,7 +62,6 @@ users.forEach((user) => {
         }
 
         cy.visit(`/devices/${device.name}`);
-        cy.wait("@my-project-list");
         cy.wait("@devices-detail");
         cy.wait("@calibrations-detail");
       });

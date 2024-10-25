@@ -36,6 +36,7 @@ export const devicesQuery = queryOptions({
   queryKey: [apiBaseUrl, "devices"],
   queryFn: async () => await getDevices(),
   refetchInterval,
+  throwOnError: true,
 });
 
 /**
@@ -72,6 +73,7 @@ export const calibrationsQuery = queryOptions({
 export const currentUserQuery = queryOptions({
   queryKey: [apiBaseUrl, "me"],
   queryFn: async () => await getCurrentUser(),
+  throwOnError: true,
 });
 
 /**
@@ -88,6 +90,7 @@ export function singleDeviceCalibrationQuery(
     queryKey: [baseUrl, "calibrations", name],
     queryFn: async () => await getCalibrationsForDevice(name),
     refetchInterval,
+    throwOnError: true,
   });
 }
 
@@ -104,6 +107,7 @@ export function myJobsQuery(
     queryKey: [baseUrl, "me", "jobs", project_id],
     queryFn: async () => await getMyJobs(options),
     refetchInterval,
+    throwOnError: true,
   });
 }
 
@@ -135,8 +139,19 @@ export function myTokensQuery(options: {
       );
     },
     refetchInterval,
+    throwOnError: true,
   });
 }
+
+/**
+ * the my projects query for using with react query
+ */
+export const myProjectsQuery = queryOptions({
+  queryKey: [apiBaseUrl, "me", "projects"],
+  queryFn: async () => await getMyProjects(),
+  refetchInterval,
+  throwOnError: true,
+});
 
 /**
  * the react query for getting all user requests
@@ -171,6 +186,7 @@ export function allUserRequestsQuery(options: {
       await getUserRequests(baseUrl, { status, limit, skip }),
     refetchInterval,
     enabled,
+    throwOnError: true,
   });
 }
 
@@ -206,6 +222,7 @@ export function allAdminProjectsQuery(options: {
       await getAdminProjects(baseUrl, { is_active, limit, skip }),
     refetchInterval,
     enabled,
+    throwOnError: true,
   });
 }
 
@@ -230,6 +247,7 @@ export function myProjectsQpuTimeRequestsQuery(options: {
     queryFn: async () =>
       await getProjectQpuTimeRequests(baseUrl, projectIds, status),
     refetchInterval,
+    throwOnError: true,
   });
 }
 
@@ -323,15 +341,6 @@ export async function refreshAllAdminQueries(
   const { baseUrl = apiBaseUrl } = options;
   await queryClient.invalidateQueries({ queryKey: [baseUrl, "admin"] });
 }
-
-/**
- * the my projects query for using with react query
- */
-export const myProjectsQuery = queryOptions({
-  queryKey: [apiBaseUrl, "me", "projects"],
-  queryFn: async () => await getMyProjects(),
-  refetchInterval,
-});
 
 /**
  * Generates a new app token

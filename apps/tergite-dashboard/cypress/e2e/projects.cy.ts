@@ -173,6 +173,113 @@ users.forEach((user) => {
       });
     });
 
+    it("filters the list of projects", () => {
+      const filterMaps = [
+        {
+          input: { name: "ate" },
+          result: userProjects.filter((v) => /ate/i.test(v.name)),
+        },
+        {
+          input: { name: "te", is_active: true },
+          result: userProjects.filter((v) => /te/i.test(v.name) && v.is_active),
+        },
+        {
+          input: { ext_id: "est1" },
+          result: userProjects.filter((v) => /est1/i.test(v.ext_id)),
+        },
+        {
+          input: { name: "te", is_active: false },
+          result: userProjects.filter(
+            (v) => /te/i.test(v.name) && !v.is_active
+          ),
+        },
+        {
+          input: { is_active: false },
+          result: userProjects.filter((v) => !v.is_active),
+        },
+        {
+          input: { is_active: true },
+          result: userProjects.filter((v) => v.is_active),
+        },
+        {
+          input: { name: "te", is_active: true, ext_id: "test2" },
+          result: projects.filter(
+            (v) => /te/i.test(v.name) && v.is_active && /test2/i.test(v.ext_id)
+          ),
+        },
+      ];
+
+      cy.viewport(1080, 750);
+      cy.get(".bg-card table").as("project-list-table");
+      cy.get(".bg-card [aria-label='Filter']").as("filterBtn");
+
+      cy.get("@filterBtn")
+        .click()
+        .then(() => {
+          cy.get("[data-cy-filter-form] input[name='name']").as("nameInput");
+          cy.get("[data-cy-filter-form] input[name='ext_id']").as("extIdInput");
+          cy.get("[data-cy-filter-form] button[role='combobox']").as(
+            "isActiveSelect"
+          );
+          cy.get("[data-cy-filter-form] button[type='submit']").as("submitBtn");
+          cy.get("[data-cy-filter-form] button[type='reset']").as("clearBtn");
+
+          for (const filterMap of filterMaps) {
+            cy.wrap(filterMap).then(({ input, result }) => {
+              input.name && cy.get("@nameInput").type(input.name);
+              input.ext_id && cy.get("@extIdInput").type(input.ext_id);
+              input.is_active !== undefined &&
+                cy
+                  .get("@isActiveSelect")
+                  .click()
+                  .then(() => {
+                    cy.get("[data-cy-project-status-select]").within(() => {
+                      const statusText = input.is_active ? /live/i : /expired/i;
+                      cy.contains(statusText).click();
+                    });
+                  });
+              cy.get("@submitBtn")
+                .click()
+                .then(() => {
+                  cy.get("@project-list-table")
+                    .find("tbody tr")
+                    .should("have.length", result.length || 1);
+
+                  for (const project of result) {
+                    cy.wrap(project).then((project) => {
+                      cy.get("@project-list-table").within(() =>
+                        cy
+                          .get("tr td:first-child")
+                          .contains(project.name)
+                          .should("be.visible")
+                      );
+                    });
+                  }
+
+                  cy.get("@clearBtn")
+                    .click()
+                    .then(() => {
+                      cy.get("@project-list-table")
+                        .find("tbody tr")
+                        .should("have.length", userProjects.length || 1);
+
+                      for (const project of userProjects) {
+                        cy.wrap(project).then((project) => {
+                          cy.get("@project-list-table").within(() =>
+                            cy
+                              .get("tr td:first-child")
+                              .contains(project.name)
+                              .should("be.visible")
+                          );
+                        });
+                      }
+                    });
+                });
+            });
+          }
+        });
+    });
+
     it("renders user's project' summary when row is clicked", () => {
       cy.viewport(1080, 750);
       cy.wait(100);

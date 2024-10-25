@@ -22,12 +22,13 @@ import { type AppState, type ExtendedAppToken, type Project } from "types";
 import { TokensTable } from "./components/tokens-table";
 import { TokenSummary } from "./components/token-summary";
 import { Row, RowSelectionState } from "@tanstack/react-table";
+import { Progress } from "@/components/ui/progress";
 
 export function Tokens() {
   const queryClient = useQueryClient();
   const { currentProject, tokensQuery } = useLoaderData() as TokensPageData;
   const [previousProject, setPreviousProject] = useState<Project>();
-  const { data: tokens = [] } = useQuery<ExtendedAppToken[]>(tokensQuery);
+  const { data: tokens, isPending } = useQuery(tokensQuery);
   const projectName = useMemo(
     () => currentProject?.name ?? "all projects",
     [currentProject]
@@ -76,16 +77,19 @@ export function Tokens() {
           <CardDescription>API tokens for {projectName}</CardDescription>
         </CardHeader>
         <CardContent>
-          <TokensTable
-            data={tokens}
-            onRowSelectionChange={setRowSelection}
-            rowSelection={rowSelection}
-            onRowClick={handleRowClick}
-          />
+          {isPending && <Progress className="my-auto mx-auto" value={50} />}
+          {!isPending && (
+            <TokensTable
+              data={tokens || []}
+              onRowSelectionChange={setRowSelection}
+              rowSelection={rowSelection}
+              onRowClick={handleRowClick}
+            />
+          )}
         </CardContent>
       </Card>
 
-      {tokens[selectedTokenIdx] && (
+      {tokens && tokens[selectedTokenIdx] && (
         <TokenSummary
           token={tokens[selectedTokenIdx]}
           className="order-first xl:order-none mt-14 col-span-1"

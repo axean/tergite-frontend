@@ -14,6 +14,8 @@ import {
 import { LoaderFunction, LoaderFunctionArgs, redirect } from "react-router-dom";
 import { DateTime } from "luxon";
 
+const MAX_YEARS = 273_000;
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -170,6 +172,7 @@ export function safeParseInt(value: string): number | undefined {
   const result = parseInt(value);
   return isNaN(result) ? undefined : result;
 }
+
 /**
  * Extracts the Time value from an ISO time string (HH:mm:ss[.SSSSSS])
  *
@@ -194,6 +197,16 @@ export function extractTime(value: string): Time {
     millisecond: safeParseInt(millisecondStr),
   };
 }
+
+/**
+ * Converts a datetime into a relative datetime string like 'in 5 days'
+ * @param date - the DateTime instant to return as a relative datetime string
+ */
+export function toRelative(date: DateTime): string {
+  // luxon seems to become invalid if the date time is bigger than 273,000 years
+  return date.toRelative() ?? `in +${MAX_YEARS.toLocaleString()} years`;
+}
+
 /**
  * Converts a time instance into a string of ISO format (HH:mm:ss[.SSSSSS])
  *

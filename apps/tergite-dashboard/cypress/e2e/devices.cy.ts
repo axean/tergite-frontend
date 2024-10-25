@@ -21,7 +21,6 @@ users.forEach((user) => {
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
-      cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
 
       if (user.id) {
         cy.wrap(generateJwt(user, cookieExpiry, { secret, audience })).then(
@@ -37,7 +36,6 @@ users.forEach((user) => {
       }
 
       cy.visit("/devices");
-      cy.wait("@my-project-list");
       cy.wait("@devices-list");
     });
 

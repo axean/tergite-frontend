@@ -79,7 +79,10 @@ export function AdminProjects() {
 
   return (
     <main className="grid flex-1 items-start gap-4 grid-cols-1 p-4 sm:px-6 sm:py-0 md:gap-8 xl:grid-cols-5 2xl:grid-cols-4">
-      <Card className="col-span-1 mt-14  xl:pt-3 xl:col-span-3">
+      <Card
+        id="projects-table"
+        className="col-span-1 mt-14  xl:pt-3 xl:col-span-3"
+      >
         <CardHeader>
           <div className="flex justify-between">
             <CardDescription>Projects</CardDescription>

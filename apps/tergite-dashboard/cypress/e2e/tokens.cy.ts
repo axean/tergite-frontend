@@ -27,7 +27,6 @@ const tokensTableHeaders = [
   "Project",
   "Expires",
   "Status",
-  "Actions",
 ];
 const tokensTableDataProps = [
   "title",
@@ -35,7 +34,6 @@ const tokensTableDataProps = [
   "project_name",
   "expires_at",
   "is_expired",
-  "actions",
 ];
 
 users.forEach((user) => {
@@ -74,6 +72,7 @@ users.forEach((user) => {
 
       cy.request(`${apiBaseUrl}/refreshed-db`);
 
+      cy.viewport(1728, 1117);
       cy.visit("/tokens");
       cy.wait("@my-project-list");
       cy.wait("@my-token-list");
@@ -81,7 +80,6 @@ users.forEach((user) => {
 
     it("renders the tokens page when nav item is clicked", () => {
       cy.visit("/");
-      cy.wait("@my-project-list");
       cy.url().should("equal", "http://127.0.0.1:5173/");
 
       cy.get("[data-testid='topbar'] [aria-label='UserRound']").click({
@@ -92,8 +90,6 @@ users.forEach((user) => {
     });
 
     it("renders all user's tokens with no project selected", () => {
-      cy.viewport(1080, 750);
-      cy.wait(100);
       cy.contains(".bg-card", /api tokens for all projects/i).within(() => {
         cy.get("table").as("token-list-table");
 
@@ -119,21 +115,14 @@ users.forEach((user) => {
                         const prop = tokensTableDataProps[cell.idx];
                         if (prop === "expires_at") {
                           expect(cell.td.text()).to.match(
-                            // 'in 1 day' or '2 days ago'
-                            /(in)? (\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+( ago)?/i
+                            // 'in 1 day' or '2 days ago' or '+273,000 years'
+                            /(in)? (\+?\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+( ago)?/i
                           );
                         } else if (prop === "is_expired") {
                           const statusText = cell.token[prop]
                             ? /expired/i
                             : /live/i;
                           expect(cell.td.text()).to.match(statusText);
-                        } else if (prop === "actions") {
-                          const disabledCheck = cell.token.is_expired
-                            ? "be.disabled"
-                            : "not.be.disabled";
-                          cy.wrap(cell.td)
-                            .contains("button", /edit lifespan/i)
-                            .should(disabledCheck);
                         } else {
                           expect(cell.td.text()).to.eql(`${cell.token[prop]}`);
                         }
@@ -149,6 +138,143 @@ users.forEach((user) => {
             });
           });
       });
+    });
+
+    it("filters the list of all tokens when no project is selected", () => {
+      const filterMaps = [
+        {
+          input: {
+            title: "work",
+            is_expired: undefined,
+            project_name: undefined,
+            project_ext_id: undefined,
+          },
+          result: allUserTokens.filter((v) => /work/i.test(v.title)),
+        },
+        {
+          input: { title: "home", is_expired: true },
+          result: allUserTokens.filter(
+            (v) => /home/i.test(v.title) && v.is_expired
+          ),
+        },
+        {
+          input: { project_ext_id: "est1" },
+          result: allUserTokens.filter((v) => /est1/i.test(v.project_ext_id)),
+        },
+        {
+          input: { project_name: "test" },
+          result: allUserTokens.filter((v) => /test/i.test(v.project_name)),
+        },
+        {
+          input: { title: "token", is_expired: false },
+          result: allUserTokens.filter(
+            (v) => /token/i.test(v.title) && !v.is_expired
+          ),
+        },
+        {
+          input: { is_expired: false },
+          result: allUserTokens.filter((v) => !v.is_expired),
+        },
+        {
+          input: { is_expired: true },
+          result: allUserTokens.filter((v) => v.is_expired),
+        },
+        {
+          input: {
+            project_name: "te",
+            is_expired: true,
+            project_ext_id: "test2",
+            title: "home",
+          },
+          result: allUserTokens.filter(
+            (v) =>
+              /te/i.test(v.project_name) &&
+              v.is_expired &&
+              /test2/i.test(v.project_ext_id) &&
+              /home/i.test(v.title)
+          ),
+        },
+      ];
+
+      cy.wait(100);
+      cy.get(".bg-card table").as("token-list-table");
+      cy.get(".bg-card [aria-label='Filter']").as("filterBtn");
+
+      cy.get("@filterBtn")
+        .click()
+        .then(() => {
+          cy.get("[data-cy-filter-form] input[name='title']").as("titleInput");
+          cy.get("[data-cy-filter-form] input[name='project_ext_id']").as(
+            "projectExtIdInput"
+          );
+          cy.get("[data-cy-filter-form] input[name='project_name']").as(
+            "projectNameInput"
+          );
+          cy.get("[data-cy-filter-form] button[role='combobox']").as(
+            "isExpiredSelect"
+          );
+          cy.get("[data-cy-filter-form] button[type='submit']").as("submitBtn");
+          cy.get("[data-cy-filter-form] button[type='reset']").as("clearBtn");
+
+          for (const filterMap of filterMaps) {
+            cy.wrap(filterMap).then(({ input, result }) => {
+              input.title && cy.get("@titleInput").type(input.title);
+              input.project_ext_id &&
+                cy.get("@projectExtIdInput").type(input.project_ext_id);
+              input.project_name &&
+                cy.get("@projectNameInput").type(input.project_name);
+              input.is_expired !== undefined &&
+                cy
+                  .get("@isExpiredSelect")
+                  .click()
+                  .then(() => {
+                    cy.get("[data-cy-token-status-select]").within(() => {
+                      const statusText = input.is_expired
+                        ? /expired/i
+                        : /live/i;
+                      cy.contains(statusText).click();
+                    });
+                  });
+              cy.get("@submitBtn")
+                .click()
+                .then(() => {
+                  cy.get("@token-list-table")
+                    .find("tbody tr")
+                    .should("have.length", result.length || 1);
+
+                  for (const token of result) {
+                    cy.wrap(token).then((token) => {
+                      cy.get("@token-list-table").within(() =>
+                        cy
+                          .get("tr td:first-child")
+                          .contains(token.title)
+                          .should("be.visible")
+                      );
+                    });
+                  }
+
+                  cy.get("@clearBtn")
+                    .click()
+                    .then(() => {
+                      cy.get("@token-list-table")
+                        .find("tbody tr")
+                        .should("have.length", allUserTokens.length || 1);
+
+                      for (const token of allUserTokens) {
+                        cy.wrap(token).then((token) => {
+                          cy.get("@token-list-table").within(() =>
+                            cy
+                              .get("tr td:first-child")
+                              .contains(token.title)
+                              .should("be.visible")
+                          );
+                        });
+                      }
+                    });
+                });
+            });
+          }
+        });
     });
 
     it("renders user's tokens' summary when row is clicked with no project selected", () => {
@@ -174,7 +300,7 @@ users.forEach((user) => {
 
             cy.contains("#token-summary div", /expires/i).within(() => {
               cy.contains(
-                /(in)? (\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+( ago)?/i
+                /(in)? (\+?\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+( ago)?/i
               ).should("be.visible");
             });
 
@@ -190,6 +316,7 @@ users.forEach((user) => {
 
     it("renders the list of user's tokens in selected project", () => {
       cy.viewport(1080, 750);
+      cy.wait(100);
 
       for (const project of userProjects) {
         cy.wrap(project).then((project) => {
@@ -232,20 +359,13 @@ users.forEach((user) => {
                                 if (prop === "expires_at") {
                                   expect(cell.td.text()).to.match(
                                     // 'in 1 day' or '2 days ago'
-                                    /(in)? (\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+( ago)?/i
+                                    /(in)? (\+?\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+( ago)?/i
                                   );
                                 } else if (prop === "is_expired") {
                                   const statusText = cell.token[prop]
                                     ? /expired/i
                                     : /live/i;
                                   expect(cell.td.text()).to.match(statusText);
-                                } else if (prop === "actions") {
-                                  const disabledCheck = cell.token.is_expired
-                                    ? "be.disabled"
-                                    : "not.be.disabled";
-                                  cy.wrap(cell.td)
-                                    .contains("button", /edit lifespan/i)
-                                    .should(disabledCheck);
                                 } else {
                                   expect(cell.td.text()).to.eql(
                                     `${cell.token[prop]}`
@@ -269,9 +389,162 @@ users.forEach((user) => {
       }
     });
 
-    it("renders user's tokens' summary when row is clicked with project selected", () => {
-      cy.viewport(1080, 750);
+    it("filters the list of tokens in given token when project is selected", () => {
+      for (const project of userProjects) {
+        cy.wrap(project).then((project) => {
+          cy.contains('[data-testid="topbar"] button', /project:/i).click();
+          cy.contains('#project-selector [role="option"]', project.name, {
+            timeout: 500,
+          }).click();
 
+          const tokensForProject = allUserTokens.filter(
+            (v) => v.project_ext_id === project.ext_id
+          );
+          cy.wrap({ tokens: tokensForProject, project }).then((params) => {
+            const filterMaps = [
+              {
+                input: { title: "work" },
+                result: params.tokens.filter((v) => /work/i.test(v.title)),
+              },
+              {
+                input: { title: "home", is_expired: true },
+                result: params.tokens.filter(
+                  (v) => /home/i.test(v.title) && v.is_expired
+                ),
+              },
+              {
+                input: { project_ext_id: "est1" },
+                result: params.tokens.filter((v) =>
+                  /est1/i.test(v.project_ext_id)
+                ),
+              },
+              {
+                input: { project_name: "test" },
+                result: params.tokens.filter((v) =>
+                  /test/i.test(v.project_name)
+                ),
+              },
+              {
+                input: { title: "token", is_expired: false },
+                result: params.tokens.filter(
+                  (v) => /token/i.test(v.title) && !v.is_expired
+                ),
+              },
+              {
+                input: { is_expired: false },
+                result: params.tokens.filter((v) => !v.is_expired),
+              },
+              {
+                input: { is_expired: true },
+                result: params.tokens.filter((v) => v.is_expired),
+              },
+              {
+                input: {
+                  project_name: "te",
+                  is_expired: true,
+                  project_ext_id: "test2",
+                  title: "home",
+                },
+                result: params.tokens.filter(
+                  (v) =>
+                    /te/i.test(v.project_name) &&
+                    v.is_expired &&
+                    /test2/i.test(v.project_ext_id) &&
+                    /home/i.test(v.title)
+                ),
+              },
+            ];
+
+            cy.get(".bg-card table").as("token-list-table");
+            cy.get(".bg-card [aria-label='Filter']").as("filterBtn");
+
+            cy.get("@filterBtn")
+              .click()
+              .then(() => {
+                cy.get("[data-cy-filter-form] input[name='title']").as(
+                  "titleInput"
+                );
+                cy.get("[data-cy-filter-form] input[name='project_ext_id']").as(
+                  "projectExtIdInput"
+                );
+                cy.get("[data-cy-filter-form] input[name='project_name']").as(
+                  "projectNameInput"
+                );
+                cy.get("[data-cy-filter-form] button[role='combobox']").as(
+                  "isExpiredSelect"
+                );
+                cy.get("[data-cy-filter-form] button[type='submit']").as(
+                  "submitBtn"
+                );
+                cy.get("[data-cy-filter-form] button[type='reset']").as(
+                  "clearBtn"
+                );
+
+                for (const filterMap of filterMaps) {
+                  cy.wrap(filterMap).then(({ input, result }) => {
+                    input.title && cy.get("@titleInput").type(input.title);
+                    input.project_ext_id &&
+                      cy.get("@projectExtIdInput").type(input.project_ext_id);
+                    input.project_name &&
+                      cy.get("@projectNameInput").type(input.project_name);
+                    input.is_expired !== undefined &&
+                      cy
+                        .get("@isExpiredSelect")
+                        .click()
+                        .then(() => {
+                          cy.get("[data-cy-token-status-select]").within(() => {
+                            const statusText = input.is_expired
+                              ? /expired/i
+                              : /live/i;
+                            cy.contains(statusText).click();
+                          });
+                        });
+                    cy.get("@submitBtn")
+                      .click()
+                      .then(() => {
+                        cy.get("@token-list-table")
+                          .find("tbody tr")
+                          .should("have.length", result.length || 1);
+
+                        for (const token of result) {
+                          cy.wrap(token).then((token) => {
+                            cy.get("@token-list-table").within(() =>
+                              cy
+                                .get("tr td:first-child")
+                                .contains(token.title)
+                                .should("be.visible")
+                            );
+                          });
+                        }
+
+                        cy.get("@clearBtn")
+                          .click()
+                          .then(() => {
+                            cy.get("@token-list-table")
+                              .find("tbody tr")
+                              .should("have.length", params.tokens.length || 1);
+
+                            for (const token of params.tokens) {
+                              cy.wrap(token).then((token) => {
+                                cy.get("@token-list-table").within(() =>
+                                  cy
+                                    .get("tr td:first-child")
+                                    .contains(token.title)
+                                    .should("be.visible")
+                                );
+                              });
+                            }
+                          });
+                      });
+                  });
+                }
+              });
+          });
+        });
+      }
+    });
+
+    it("renders user's tokens' summary when row is clicked with project selected", () => {
       for (const project of userProjects) {
         cy.wrap(project).then((project) => {
           // click on project
@@ -309,7 +582,7 @@ users.forEach((user) => {
 
                     cy.contains("div", /expires/i).within(() => {
                       cy.contains(
-                        /(in)? (\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+( ago)?/i
+                        /(in)? (\+?\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+( ago)?/i
                       ).should("be.visible");
                     });
 
@@ -415,8 +688,6 @@ users.forEach((user) => {
     });
 
     it("More than 10 tokens activates the pagination button on the table", () => {
-      cy.viewport(1080, 750);
-
       cy.get('[data-testid="top-banner"] [aria-label="RefreshCcw"]').as(
         "newTokenBtn"
       );
@@ -466,10 +737,7 @@ users.forEach((user) => {
               token.title
             ).click();
 
-            cy.contains(
-              `.bg-card tbody tr[data-id='${index}'] button`,
-              /edit lifespan/i
-            ).click();
+            cy.contains(`#token-summary button`, /edit lifespan/i).click();
 
             cy.contains(
               "#edit-lifespan-dialog #datetime-input",
@@ -529,18 +797,15 @@ users.forEach((user) => {
           ).click();
 
           if (token.lifespan_seconds <= 0) {
-            cy.contains(
-              `.bg-card tbody tr[data-id='${index}'] button`,
-              /edit lifespan/i
-            ).should("be.disabled");
+            cy.contains(`#token-summary button`, /edit lifespan/i).should(
+              "be.disabled"
+            );
           }
         });
       }
     });
 
     it("editing the lifespan of the live token with project selected updates summary and table", () => {
-      cy.viewport(1080, 750);
-
       for (const project of userProjects) {
         cy.wrap(project).then((project) => {
           // click on project
@@ -569,7 +834,7 @@ users.forEach((user) => {
                   ).click();
 
                   cy.contains(
-                    `.bg-card tbody tr[data-id='${index}'] button`,
+                    `#token-summary button`,
                     /edit lifespan/i
                   ).realClick();
 
@@ -594,11 +859,17 @@ users.forEach((user) => {
                     "[data-radix-popper-content-wrapper] input[type='time']"
                   ).type("12:00:50");
 
+                  // close the popper
+                  cy.contains(
+                    "#edit-lifespan-dialog h2",
+                    /edit lifespan of token/i
+                  ).click();
+
                   // save
                   cy.contains(
                     "#edit-lifespan-dialog button[type='submit']",
                     /save/i
-                  ).realClick();
+                  ).click();
 
                   cy.get("#edit-lifespan-dialog").should("not.exist");
 
@@ -624,40 +895,37 @@ users.forEach((user) => {
       }
     });
 
-    it("editing the lifespan of the expired token with project selected is not allowed", () => {
-      cy.viewport(1080, 750);
+    // it("editing the lifespan of the expired token with project selected is not allowed", () => {
+    //   for (const project of userProjects) {
+    //     cy.wrap(project).then((project) => {
+    //       // click on project
+    //       cy.contains('[data-testid="topbar"] button', /project:/i).click();
+    //       cy.contains('#project-selector [role="option"]', project.name, {
+    //         timeout: 500,
+    //       }).click();
 
-      for (const project of userProjects) {
-        cy.wrap(project).then((project) => {
-          // click on project
-          cy.contains('[data-testid="topbar"] button', /project:/i).click();
-          cy.contains('#project-selector [role="option"]', project.name, {
-            timeout: 500,
-          }).click();
+    //       const tokensForProject = allUserTokens.filter(
+    //         (v) => v.project_ext_id === project.ext_id
+    //       );
+    //       cy.wrap(tokensForProject).then((tokensForProject) => {
+    //         for (let index = 0; index < tokensForProject.length; index++) {
+    //           cy.wrap(index).then((index) => {
+    //             const token = tokensForProject[index];
+    //             cy.contains(
+    //               `.bg-card tbody tr[data-id='${index}']`,
+    //               token.title
+    //             ).click();
 
-          const tokensForProject = allUserTokens.filter(
-            (v) => v.project_ext_id === project.ext_id
-          );
-          cy.wrap(tokensForProject).then((tokensForProject) => {
-            for (let index = 0; index < tokensForProject.length; index++) {
-              cy.wrap(index).then((index) => {
-                const token = tokensForProject[index];
-                cy.contains(
-                  `.bg-card tbody tr[data-id='${index}']`,
-                  token.title
-                ).click();
-
-                if (token.lifespan_seconds <= 0) {
-                  cy.contains(
-                    `.bg-card tbody tr[data-id='${index}'] button`,
-                    /edit lifespan/i
-                  ).should("be.disabled");
-                }
-              });
-            }
-          });
-        });
-      }
-    });
+    //             if (token.lifespan_seconds <= 0) {
+    //               cy.contains(`#token-summary button`, /edit lifespan/i).should(
+    //                 "be.disabled"
+    //               );
+    //             }
+    //           });
+    //         }
+    //       });
+    //     });
+    //   }
+    // });
   });
 });

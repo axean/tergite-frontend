@@ -255,7 +255,7 @@ export function AdminProjectSummary({
               type="submit"
               variant="default"
             >
-              Edit
+              Update
             </Button>
 
             <ConfirmDialog

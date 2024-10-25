@@ -2,7 +2,7 @@ import { SortHeader } from "@/components/ui/data-table";
 import { HealthStatus } from "@/components/ui/health-status";
 import { ColumnDef } from "@tanstack/table-core";
 import type { ExtendedAppToken } from "types";
-import { TokenLifespanDialog } from "./lifespan-dialog";
+import { toRelative } from "@/lib/utils";
 
 export const columns: ColumnDef<ExtendedAppToken>[] = [
   {
@@ -24,7 +24,7 @@ export const columns: ColumnDef<ExtendedAppToken>[] = [
   },
   {
     id: "expires_at",
-    accessorFn: (row) => row.expires_at.toRelative(),
+    accessorFn: (row) => toRelative(row.expires_at),
     header: ({ column }) => <SortHeader label="Expires" column={column} />,
   },
   {
@@ -34,17 +34,6 @@ export const columns: ColumnDef<ExtendedAppToken>[] = [
       <HealthStatus
         className="ml-auto lg:ml-0"
         isHealthy={!row.original.is_expired}
-      />
-    ),
-  },
-  {
-    id: "actions",
-    accessorFn: (row) => row.id,
-    header: "Actions",
-    cell: ({ row }) => (
-      <TokenLifespanDialog
-        token={row.original}
-        isDisabled={row.original.is_expired}
       />
     ),
   },
