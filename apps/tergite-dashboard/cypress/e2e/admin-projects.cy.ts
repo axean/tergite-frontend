@@ -6,9 +6,6 @@ import projectList from "../fixtures/projects.json";
 import { generateJwt, getUsername } from "../../api/utils";
 import { type User, UserRole, type AdminProject } from "../../types";
 
-// Can view list of preojects
-// can view details of single project
-// can edit details of a single project
 // can delete a project
 //    - updates the user's projects in the top bar
 //    - updates the admin projects
@@ -269,100 +266,319 @@ users.forEach((user) => {
           });
       });
 
-    // isAdmin &&
-    //   it("renders project summary when row is clicked", () => {
-    //     cy.viewport(1080, 750);
-    //     cy.wait(100);
-    //     cy.get("#project-table tbody tr").each((el, idx) => {
-    //       cy.wrap({ el, idx }).then((obj) => {
-    //         const project = projects[obj.idx];
+    isAdmin &&
+      it("renders project summary when row is clicked", () => {
+        cy.viewport(1080, 750);
+        cy.wait(100);
+        cy.get("#projects-table tbody tr").each((el, idx) => {
+          cy.wrap({ el, idx }).then((obj) => {
+            const project = projects[obj.idx];
 
-    //         if (project) {
-    //           cy.wrap(obj.el).realClick();
+            if (project) {
+              cy.wrap(obj.el).click();
 
-    //           cy.contains("#project-summary h3", project.name).should(
-    //             "be.visible"
-    //           );
+              cy.contains("#project-summary h3", project.name).should(
+                "be.visible"
+              );
 
-    //           cy.contains("#project-summary div", /name/i).within(() => {
-    //             cy.get("input").should("have.value", project.name);
-    //           });
+              cy.contains("#project-summary div", /name/i).within(() => {
+                cy.get("input").should("have.value", project.name);
+              });
 
-    //           cy.contains("#project-summary div", /external id/i).within(() => {
-    //             cy.contains(project.ext_id).should("be.visible");
-    //           });
+              cy.contains("#project-summary div", /external id/i).within(() => {
+                cy.contains(project.ext_id).should("be.visible");
+              });
 
-    //           cy.contains("#project-summary div", /description/i).within(() => {
-    //             cy.get("textarea").should("contain.text", project.description);
-    //           });
+              cy.contains("#project-summary div", /description/i).within(() => {
+                cy.get("textarea").should("contain.text", project.description);
+              });
 
-    //           cy.contains("#project-summary div", /live/i).within(() => {
-    //             cy.get('button[role="switch"]').should(
-    //               "have.value",
-    //               project.is_active ? "on" : "off"
-    //             );
-    //           });
+              cy.contains("#project-summary div", /live/i).within(() => {
+                cy.get(
+                  `button[role="switch"][data-state="${
+                    project.is_active ? "checked" : "unchecked"
+                  }"]`
+                ).should("be.visible");
+              });
 
-    //           cy.contains("#project-summary div", /qpu seconds/i).within(() => {
-    //             cy.get("input").should("have.value", `${project.qpu_seconds}`);
-    //           });
+              cy.contains("#project-summary div", /qpu seconds/i).within(() => {
+                cy.get("input").should("have.value", `${project.qpu_seconds}`);
+              });
 
-    //           cy.contains("#project-summary div", /admin/i).within(() => {
-    //             cy.contains(project.admin_email).should("be.visible");
-    //           });
+              cy.contains("#project-summary div", /admin/i).within(() => {
+                cy.get("input").should("have.value", project.admin_email);
+              });
 
-    //           cy.contains("#project-summary div", /members/i).within(() => {
-    //             // cy.contains(project.ext_id).should("be.visible");
-    //             for (
-    //               let index = 0;
-    //               index < project.user_emails.length;
-    //               index++
-    //             ) {
-    //               const email = project.user_emails[index];
+              cy.contains("#project-summary div", /members/i).within(() => {
+                for (
+                  let index = 0;
+                  index < project.user_emails.length;
+                  index++
+                ) {
+                  const email = project.user_emails[index];
 
-    //               cy.wrap({ index, email }).then(({ email, index }) => {
-    //                 const wrapperId = `#user_emails-${index}-wrapper`;
-    //                 const inputId = `#user_emails-${index}`;
-    //                 const closeBtnId = `#user_emails-${index}-del-btn`;
-    //                 cy.get(`${wrapperId} ${inputId}`).should(
-    //                   "have.value",
-    //                   email
-    //                 );
-    //                 cy.get(`${wrapperId} ${closeBtnId}[aria-label="X"]`).should(
-    //                   "be.visible"
-    //                 );
-    //               });
-    //             }
-    //             cy.get('button[aria-label="plus"]').should("be.visible");
-    //           });
+                  cy.wrap({ index, email }).then(({ email, index }) => {
+                    const wrapperId = `#user_emails-${index}-wrapper`;
+                    const inputId = `#user_emails-${index}`;
+                    const closeBtnId = `#user_emails-${index}-del-btn`;
+                    cy.get(`${wrapperId} ${inputId}`).should(
+                      "have.value",
+                      email
+                    );
+                    cy.get(`${wrapperId} ${closeBtnId}[aria-label="X"]`).should(
+                      "be.visible"
+                    );
+                  });
+                }
+                cy.get('button[aria-label="Plus"]').should("be.visible");
+              });
 
-    //           cy.contains("#project-summary div", /created/i).within(() => {
-    //             cy.contains(
-    //               /(\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+( ago)?/i
-    //             ).should("be.visible");
-    //           });
+              cy.contains("#project-summary div", /created/i).within(() => {
+                cy.contains(
+                  /(\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+( ago)?/i
+                ).should("be.visible");
+              });
 
-    //           cy.contains("#project-summary div", /last updated/i).within(
-    //             () => {
-    //               cy.contains(
-    //                 /(\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+( ago)?/i
-    //               ).should("be.visible");
-    //             }
-    //           );
+              cy.contains("#project-summary div", /last updated/i).within(
+                () => {
+                  cy.contains(
+                    /(\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+( ago)?/i
+                  ).should("be.visible");
+                }
+              );
 
-    //           cy.contains("#project-summary button", /update/i).should(
-    //             "be.visible"
-    //           );
+              cy.contains("#project-summary button", /update/i).should(
+                "be.visible"
+              );
 
-    //           cy.contains("#project-summary button", /delete/i).should(
-    //             "be.visible"
-    //           );
-    //         }
-    //       });
-    //     });
-    //   });
+              cy.contains("#project-summary button", /delete/i).should(
+                "be.visible"
+              );
+            }
+          });
+        });
+      });
 
-    ////////////////////////
+    isAdmin &&
+      it("editing project details updates the details of the project in the table and in the summary", () => {
+        const testData: Partial<AdminProject>[] = [
+          {
+            admin_email: "david.doe@example.com",
+            user_emails: undefined,
+            is_active: true,
+            name: "fooo bar",
+            description: "fancy description",
+            qpu_seconds: 36_000,
+          },
+          {
+            admin_email: undefined,
+            user_emails: ["tom.doe@example.com", "jane.doe@example.com"],
+            is_active: false,
+            name: "fenecansi owenyini",
+            description: "Musa yateeza amajju",
+            qpu_seconds: 340_000_000,
+          },
+          {
+            admin_email: "john.doe@example.com",
+            user_emails: ["paul.doe@example.com"],
+            is_active: true,
+            name: undefined,
+            description: "Bulyomu akajunwa hwabwembazi za Ruhanga",
+            qpu_seconds: undefined,
+          },
+          {
+            admin_email: "new.user@xample.com",
+            user_emails: [],
+            is_active: false,
+            name: "Mukama ahaisibwe",
+            description: undefined,
+            qpu_seconds: 1_000,
+          },
+        ];
+
+        cy.viewport(1080, 750);
+        cy.wait(100);
+        cy.get("#projects-table tbody tr").each((el, idx) => {
+          cy.wrap({ el, idx }).then((obj) => {
+            const project = projects[obj.idx];
+            const updates = testData[obj.idx % 4];
+            const expected = Object.fromEntries(
+              Object.entries(project).map(([k, v]) => [k, updates[k] ?? v])
+            ) as AdminProject;
+            expected.user_emails = [
+              ...new Set([expected.admin_email, ...expected.user_emails]),
+            ];
+
+            if (project) {
+              cy.wrap(obj.el).click();
+
+              cy.contains("#project-summary h3", project.name).should(
+                "be.visible"
+              );
+
+              cy.contains("#project-summary div", /name/i).within(() => {
+                updates.name && cy.get("input").clear().type(updates.name);
+              });
+
+              cy.contains("#project-summary div", /external id/i).within(() => {
+                cy.contains(project.ext_id).should("be.visible");
+              });
+
+              cy.contains("#project-summary div", /description/i).within(() => {
+                updates.description &&
+                  cy.get("textarea").clear().type(updates.description);
+              });
+
+              cy.contains("#project-summary div", /live/i).within(() => {
+                if (
+                  updates.is_active != undefined &&
+                  project.is_active !== updates.is_active
+                ) {
+                  cy.get('button[role="switch"]').click();
+                }
+              });
+
+              cy.contains("#project-summary div", /qpu seconds/i).within(() => {
+                updates.qpu_seconds != undefined &&
+                  cy.get("input").clear().type(`${updates.qpu_seconds}`);
+              });
+
+              cy.contains("#project-summary div", /admin/i).within(() => {
+                updates.admin_email &&
+                  cy.get("input").clear().type(updates.admin_email);
+              });
+
+              cy.contains("#project-summary div", /members/i).within(() => {
+                if (updates.user_emails != undefined) {
+                  for (let i = project.user_emails.length - 1; i >= 0; i--) {
+                    // remove all users
+                    cy.wrap({ i }).then(({ i }) => {
+                      cy.get(
+                        `#user_emails-${i}-del-btn[aria-label="X"]`
+                      ).click();
+                    });
+                  }
+
+                  // Add new user emails
+                  for (let i = 0; i < updates.user_emails.length; i++) {
+                    const newEmail = updates.user_emails[i];
+
+                    cy.get('button[aria-label="Plus"]')
+                      .click()
+                      .then(() => {
+                        cy.get(`#user_emails-${i}`).clear().type(newEmail);
+                      });
+                  }
+                }
+              });
+
+              cy.contains("#project-summary button", /update/i).click();
+
+              // Assertions
+
+              // the summary should be updated
+              cy.contains("#project-summary h3", expected.name).should(
+                "be.visible"
+              );
+
+              cy.contains("#project-summary div", /name/i).within(() => {
+                cy.get("input").should("have.value", expected.name);
+              });
+
+              cy.contains("#project-summary div", /external id/i).within(() => {
+                cy.contains(project.ext_id).should("be.visible");
+              });
+
+              cy.contains("#project-summary div", /description/i).within(() => {
+                cy.get("textarea").should("contain.text", expected.description);
+              });
+
+              cy.contains("#project-summary div", /live/i).within(() => {
+                cy.get(
+                  `button[role="switch"][data-state="${
+                    expected.is_active ? "checked" : "unchecked"
+                  }"]`
+                ).should("be.visible");
+              });
+
+              cy.contains("#project-summary div", /qpu seconds/i).within(() => {
+                cy.get("input").should("have.value", `${expected.qpu_seconds}`);
+              });
+
+              cy.contains("#project-summary div", /admin/i).within(() => {
+                cy.get("input").should("have.value", expected.admin_email);
+              });
+
+              cy.contains("#project-summary div", /members/i).within(() => {
+                for (
+                  let index = 0;
+                  index < expected.user_emails.length;
+                  index++
+                ) {
+                  const email = expected.user_emails[index];
+
+                  cy.wrap({ index, email }).then(({ email, index }) => {
+                    const wrapperId = `#user_emails-${index}-wrapper`;
+                    const inputId = `#user_emails-${index}`;
+                    const closeBtnId = `#user_emails-${index}-del-btn`;
+                    cy.get(`${wrapperId} ${inputId}`).should(
+                      "have.value",
+                      email
+                    );
+                    cy.get(`${wrapperId} ${closeBtnId}[aria-label="X"]`).should(
+                      "be.visible"
+                    );
+                  });
+                }
+                cy.get('button[aria-label="Plus"]').should("be.visible");
+              });
+
+              cy.contains("#project-summary div", /created/i).within(() => {
+                cy.contains(
+                  /(\d+ (seconds?)|(minutes?)|(hours?)|(days?)|(weeks?)|(months?)|(years?),?)+( ago)?/i
+                ).should("be.visible");
+              });
+
+              cy.contains("#project-summary div", /last updated/i).within(
+                () => {
+                  cy.contains(/\d+ (seconds?)( ago)?/i).should("be.visible");
+                }
+              );
+
+              cy.contains("#project-summary button", /delete/i).should(
+                "be.visible"
+              );
+
+              cy.contains("#project-summary button", /update/i).should(
+                "be.disabled"
+              );
+
+              // the table should be updated
+              cy.get(`#projects-table tbody tr[data-id='${obj.idx}']`).within(
+                () => {
+                  cy.contains("td[data-header='name']", expected.name).should(
+                    "be.visible"
+                  );
+                  cy.contains(
+                    "td[data-header='admin_email']",
+                    expected.admin_email
+                  ).should("be.visible");
+                  cy.contains(
+                    "td[data-header='qpu_seconds']",
+                    `${expected.qpu_seconds}`
+                  ).should("be.visible");
+                  cy.contains(
+                    "td[data-header='is_active']",
+                    expected.is_active ? /live/i : /expired/i
+                  ).should("be.visible");
+                }
+              );
+            }
+          });
+        });
+      });
+
+    //////
 
     // isAdmin &&
     //   it("approving a QPU time request increases project QPU time and removes request from pending list", () => {

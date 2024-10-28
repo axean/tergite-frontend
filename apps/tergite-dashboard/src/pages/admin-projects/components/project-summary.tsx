@@ -211,9 +211,26 @@ export function AdminProjectSummary({
                   )}
                 />
 
-                <DetailItem label="Admin" className="flex-col">
-                  {project.admin_email}
-                </DetailItem>
+                <FormField
+                  control={editForm.control}
+                  name="admin_email"
+                  render={({ field }) => (
+                    <FormItem className="">
+                      <FormControl>
+                        <div className="">
+                          <Label
+                            className="mr-2 text-muted-foreground"
+                            htmlFor="admin_email"
+                          >
+                            Admin
+                          </Label>
+                          <Input id="admin_email" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={editForm.control}
