@@ -1,5 +1,5 @@
 import { UserRound } from "lucide-react";
-import { IconButton } from "@/components/ui/button";
+import { Button, IconButton } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +20,7 @@ import { Link } from "react-router-dom";
 
 import { MobileMenu } from "./mobile-menu";
 import { TopbarBreadcrumb } from "./breadcrumb";
+import { useState } from "react";
 
 export function Topbar({
   currentProject = "",
@@ -31,6 +32,7 @@ export function Topbar({
   isUserAdmin,
 }: TopbarProps) {
   const username = currentUser?.email?.split("@")[0];
+  const [selectKey, setSelectKey] = useState(+new Date());
 
   return (
     <header
@@ -45,6 +47,7 @@ export function Topbar({
       <TopbarBreadcrumb />
 
       <Select
+        key={selectKey}
         data-testid="project-select"
         value={currentProject}
         onValueChange={onProjectChange}
@@ -56,6 +59,19 @@ export function Topbar({
           <SelectValue placeholder="Select project" />
         </SelectTrigger>
         <SelectContent id="project-selector">
+          <Button
+            role="option"
+            className="w-full px-2 justify-start text-muted-foreground"
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              onProjectChange(undefined);
+              // to make sure the select element re-renders
+              setSelectKey(+new Date());
+            }}
+          >
+            None
+          </Button>
           {projects.map((project) => (
             <SelectItem value={project.ext_id} key={project.ext_id}>
               {project.name}
@@ -93,7 +109,7 @@ interface TopbarProps {
   currentProject?: string;
   currentUser: User;
   projects: Project[];
-  onProjectChange: (projectExtId: string) => void;
+  onProjectChange: (projectExtId?: string) => void;
   onLogout: () => void;
   pendingRequestsTotal: number;
   isUserAdmin: boolean;

@@ -6,9 +6,6 @@ import projectList from "../fixtures/projects.json";
 import { generateJwt, getUsername } from "../../api/utils";
 import { type User, UserRole, type AdminProject } from "../../types";
 
-// can delete a project
-//    - updates the user's projects in the top bar
-//    - updates the admin projects
 // can create a new project
 //    - updates the user's projects in the top bar
 //    - updates the admin projects
@@ -576,6 +573,97 @@ users.forEach((user) => {
             }
           });
         });
+      });
+
+    isAdmin &&
+      it("deleting of project removes project from list, summary and top bar", () => {
+        cy.viewport(1080, 750);
+
+        for (const project of projects) {
+          cy.wrap(project).then((project) => {
+            cy.contains("#projects-table tbody tr", project.name).click();
+            cy.contains("#project-summary h3", project.name).should(
+              "be.visible"
+            );
+            cy.contains('[data-testid="topbar"] button', /project:/i).as(
+              "project-selector"
+            );
+            if (project.user_ids.includes(user.id)) {
+              // if current user is a member of the given project, open the project selector
+              cy.get("@project-selector").click();
+              cy.contains('#project-selector [role="option"]', project.name, {
+                timeout: 500,
+              }).should("be.visible");
+              // to close the dropdown
+              cy.contains('#project-selector [role="option"]', /none/i, {
+                timeout: 500,
+              }).click();
+            }
+
+            cy.contains("#project-summary button", /delete/i)
+              .realClick()
+              .then(() => {
+                cy.contains("#confirm-dialog button", /confirm/i).realClick();
+
+                cy.get("#confirm-dialog").should("not.exist");
+                cy.contains("#projects-table tbody td", project.name).should(
+                  "not.exist"
+                );
+                cy.get("#project-summary").should("not.exist");
+
+                if (project.user_ids.includes(user.id)) {
+                  // if current user is a member of the given project, open the project selector
+                  cy.get("@project-selector").click();
+                  cy.contains(
+                    '#project-selector [role="option"]',
+                    project.name,
+                    { timeout: 500 }
+                  ).should("not.exist");
+                  // close the project selector drop down
+                  cy.contains('#project-selector [role="option"]', /none/i, {
+                    timeout: 500,
+                  }).click();
+                }
+              });
+          });
+        }
+      });
+
+    isAdmin &&
+      it("cancelling deletion of project does nothing", () => {
+        cy.viewport(1080, 750);
+
+        for (const project of projects) {
+          cy.wrap(project).then((project) => {
+            cy.contains("#projects-table tbody tr", project.name).click();
+            cy.contains("#project-summary h3", project.name).should(
+              "be.visible"
+            );
+
+            cy.contains("#project-summary button", /delete/i).realClick();
+
+            cy.contains("#confirm-dialog button", /cancel/i).click();
+
+            cy.get("#confirm-dialog").should("not.exist");
+            cy.contains("#projects-table tbody td", project.name).should(
+              "be.visible"
+            );
+            cy.contains("#project-summary h3", project.name).should(
+              "be.visible"
+            );
+
+            if (project.user_ids.includes(user.id)) {
+              // if current user is a member of the given project, open the project selector
+              cy.contains('[data-testid="topbar"] button', /project:/i).click();
+              cy.contains('#project-selector [role="option"]', project.name, {
+                timeout: 500,
+              }).should("be.visible");
+              cy.contains('#project-selector [role="option"]', /none/i, {
+                timeout: 500,
+              }).click();
+            }
+          });
+        }
       });
 
     //////
