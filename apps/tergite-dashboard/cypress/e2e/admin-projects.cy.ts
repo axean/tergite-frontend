@@ -6,10 +6,10 @@ import projectList from "../fixtures/projects.json";
 import { generateJwt, getUsername } from "../../api/utils";
 import { type User, UserRole, type AdminProject } from "../../types";
 
-// can create a new project
-//    - updates the user's projects in the top bar
-//    - updates the admin projects
-//    - sets the current project being viewd as the newest project
+type ProjectFormData = Omit<
+  AdminProject,
+  "id" | "user_ids" | "admin_id" | "admin_email"
+>;
 
 const users = [...userList] as User[];
 const userIdEmailMap = Object.fromEntries(users.map((v) => [v.id, v.email]));
@@ -576,6 +576,263 @@ users.forEach((user) => {
       });
 
     isAdmin &&
+      it("creating new project adds the project in the table, the summary and the top bar", () => {
+        const initialRowCount = projects.length;
+        const now = new Date();
+        const defaultValues: ProjectFormData = {
+          name: `${now.toLocaleDateString()} project`,
+          ext_id: `project-${now.getTime()}`,
+          description: `Project created on ${now.toLocaleDateString()}`,
+          is_active: true,
+          qpu_seconds: 0,
+          user_emails: [],
+          created_at: now.toISOString(),
+          updated_at: now.toISOString(),
+        };
+        const testData: Partial<AdminProject>[] = [
+          {
+            admin_email: "david.doe@example.com",
+            user_emails: undefined,
+            ext_id: undefined,
+            is_active: true,
+            name: "fooo bar",
+            description: "fancy description",
+            qpu_seconds: 36_000,
+          },
+          {
+            admin_email: "david.doe@example.com",
+            user_emails: ["tom.doe@example.com", "jane.doe@example.com"],
+            ext_id: "ebyaheru",
+            is_active: true,
+            name: "fenecansi owenyini",
+            description: "Musa yateeza amajju",
+            qpu_seconds: 340_000_000,
+          },
+          {
+            admin_email: "john.doe@example.com",
+            user_emails: ["paul.doe@example.com"],
+            ext_id: "default project",
+            is_active: false,
+            name: undefined,
+            description: "Bulyomu akajunwa hwabwembazi za Ruhanga",
+            qpu_seconds: undefined,
+          },
+          {
+            admin_email: "new.user@xample.com",
+            user_emails: [],
+            ext_id: "some-other-ext-id-5",
+            is_active: false,
+            name: "Mukama ahaisibwe",
+            description: undefined,
+            qpu_seconds: 1_000,
+          },
+        ];
+
+        cy.viewport(1728, 1117);
+
+        for (let idx = 0; idx < testData.length; idx++) {
+          cy.wrap(idx).then((idx) => {
+            const project = testData[idx];
+            const expected = Object.fromEntries(
+              Object.entries(project).map(([k, v]) => [
+                k,
+                v ?? defaultValues[k],
+              ])
+            ) as ProjectFormData & { admin_email: string };
+
+            expected.user_emails = [
+              ...new Set([
+                project.admin_email as string,
+                ...expected.user_emails,
+              ]),
+            ];
+
+            cy.contains("#projects-table button", /new/i).click();
+
+            cy.contains("#create-project h3", /new project/i).should(
+              "be.visible"
+            );
+
+            cy.contains("#create-project div", /name/i).within(() => {
+              project.name && cy.get("input").clear().type(project.name);
+            });
+
+            cy.contains("#create-project div", /external id/i).within(() => {
+              project.ext_id && cy.get("input").clear().type(project.ext_id);
+            });
+
+            cy.contains("#create-project div", /description/i).within(() => {
+              project.description &&
+                cy.get("textarea").clear().type(project.description);
+            });
+
+            cy.contains("#create-project div", /live/i).within(() => {
+              if (project.is_active !== defaultValues.is_active) {
+                cy.get('button[role="switch"]').click();
+              }
+            });
+
+            cy.contains("#create-project div", /qpu seconds/i).within(() => {
+              project.qpu_seconds != undefined &&
+                cy.get("input").clear().type(`${project.qpu_seconds}`);
+            });
+
+            cy.contains("#create-project div", /admin/i).within(() => {
+              project.admin_email &&
+                cy.get("input").clear().type(project.admin_email);
+            });
+
+            cy.contains("#create-project div", /member emails/i).within(() => {
+              if (project.user_emails != undefined) {
+                // Add new user emails
+                for (let i = 0; i < project.user_emails.length; i++) {
+                  const newEmail = project.user_emails[i];
+
+                  cy.get('button[aria-label="Plus"]')
+                    .click()
+                    .then(() => {
+                      cy.get(`#user_emails-${i}`).clear().type(newEmail);
+                    });
+                }
+              }
+            });
+
+            cy.contains("#create-project button", /submit/i).click();
+
+            // Assertions
+
+            // the summary should be updated
+            cy.contains(
+              "#project-summary h3",
+              project.name ?? /\d+ project/i
+            ).should("be.visible");
+
+            cy.contains("#project-summary div", /name/i).within(() => {
+              cy.get("input")
+                .should("have.attr", "value")
+                .and(
+                  "match",
+                  project.name !== undefined
+                    ? new RegExp(project.name)
+                    : /\d+ project/i
+                );
+            });
+
+            cy.contains("#project-summary div", /external id/i).within(() => {
+              cy.contains(project.ext_id ?? /project-\d+/i).should(
+                "be.visible"
+              );
+            });
+
+            cy.contains("#project-summary div", /description/i).within(() => {
+              cy.contains(
+                "textarea",
+                project.description ?? /project created on \d+/i
+              ).should("be.visible");
+            });
+
+            cy.contains("#project-summary div", /live/i).within(() => {
+              cy.get(
+                `button[role="switch"][data-state="${
+                  expected.is_active ? "checked" : "unchecked"
+                }"]`
+              ).should("be.visible");
+            });
+
+            cy.contains("#project-summary div", /qpu seconds/i).within(() => {
+              cy.get("input").should("have.value", `${expected.qpu_seconds}`);
+            });
+
+            cy.contains("#project-summary div", /admin/i).within(() => {
+              cy.get("input").should("have.value", expected.admin_email);
+            });
+
+            cy.contains("#project-summary div", /members/i).within(() => {
+              for (
+                let index = 0;
+                index < expected.user_emails.length;
+                index++
+              ) {
+                const email = expected.user_emails[index];
+
+                cy.wrap({ index, email }).then(({ email, index }) => {
+                  const wrapperId = `#user_emails-${index}-wrapper`;
+                  const inputId = `#user_emails-${index}`;
+                  const closeBtnId = `#user_emails-${index}-del-btn`;
+                  cy.get(`${wrapperId} ${inputId}`).should("have.value", email);
+                  cy.get(`${wrapperId} ${closeBtnId}[aria-label="X"]`).should(
+                    "be.visible"
+                  );
+                });
+              }
+              cy.get('button[aria-label="Plus"]').should("be.visible");
+            });
+
+            cy.contains("#project-summary div", /Created/)
+              .scrollIntoView()
+              .within(() => {
+                cy.contains(/\d+ (seconds?)( ago)?/i).should("be.visible");
+              });
+
+            cy.contains("#project-summary div", /Last updated/)
+              .scrollIntoView()
+              .within(() => {
+                cy.contains(/\d+ (seconds?)( ago)?/i).should("be.visible");
+              });
+
+            cy.contains("#project-summary button", /delete/i).should(
+              "be.enabled"
+            );
+
+            cy.contains("#project-summary button", /update/i).should(
+              "be.disabled"
+            );
+
+            // the table should be updated
+            cy.get(
+              `#projects-table tbody tr[data-id='${initialRowCount + idx}']`
+            ).within(() => {
+              cy.contains("td[data-header='name']", expected.name).should(
+                "be.visible"
+              );
+              cy.contains(
+                "td[data-header='admin_email']",
+                expected.admin_email
+              ).should("be.visible");
+              cy.contains(
+                "td[data-header='qpu_seconds']",
+                `${expected.qpu_seconds}`
+              ).should("be.visible");
+              cy.contains(
+                "td[data-header='is_active']",
+                expected.is_active ? /live/i : /expired/i
+              ).should("be.visible");
+            });
+
+            if (
+              expected.user_emails.includes(user.email) &&
+              expected.is_active
+            ) {
+              cy.wait("@my-project-list");
+              // the projects drop down in the top bar should be updated if user is project member
+              cy.contains('[data-testid="topbar"] button', /project:/i).as(
+                "project-selector"
+              );
+              // if current user is a member of the given project, open the project selector
+              cy.get("@project-selector").click();
+              cy.contains('#project-selector [role="option"]', expected.name, {
+                timeout: 500,
+              }).should("be.visible");
+              // close the project selector drop down
+              cy.contains('#project-selector [role="option"]', /none/i, {
+                timeout: 500,
+              }).click();
+            }
+          });
+        }
+      });
+
+    isAdmin &&
       it("deleting of project removes project from list, summary and top bar", () => {
         cy.viewport(1080, 750);
 
@@ -665,151 +922,5 @@ users.forEach((user) => {
           });
         }
       });
-
-    //////
-
-    // isAdmin &&
-    //   it("approving a QPU time request increases project QPU time and removes request from pending list", () => {
-    //     cy.viewport(1080, 750);
-    //     const projectsMap = Object.fromEntries(
-    //       projects.map((v) => [v.id, { ...v }])
-    //     );
-    //     const counts = { pending: pendingUserRequests.length };
-
-    //     for (const request of qpuTimeRequests) {
-    //       cy.wrap({ request, projectsMap, counts }).then((obj) => {
-    //         const projectId = obj.request.request.project_id;
-    //         const project = obj.projectsMap[projectId];
-    //         const projectIdx = projectsIndex[projectId];
-    //         const isProjectMember = project.user_ids.includes(user.id);
-
-    //         // visit projects page if user is project member
-    //         if (isProjectMember) {
-    //           cy.visit("/projects");
-    //           cy.wait("@my-project-list");
-
-    //           cy.contains(
-    //             `.bg-card tbody tr[data-id='${projectIdx}'] td[data-header='qpu_seconds']`,
-    //             new RegExp(
-    //               `${obj.projectsMap[projectId].qpu_seconds} seconds`,
-    //               "i"
-    //             )
-    //           ).should("be.visible");
-    //         }
-
-    //         // visit requests page
-    //         cy.visit("/admin-requests");
-    //         cy.wait("@user-requests-list");
-
-    //         const reqTitle = getTitle(obj.request);
-    //         cy.contains(".bg-card tbody tr", reqTitle).click();
-
-    //         cy.contains("#project-summary h3", reqTitle).should("be.visible");
-    //         cy.contains(".bg-card tbody td", reqTitle).should("be.visible");
-
-    //         cy.contains("#project-summary button", /approve/i).realClick();
-
-    //         cy.contains(".bg-card tbody td", reqTitle).should("not.exist");
-    //         cy.get("#project-summary").should("not.exist");
-
-    //         // update data
-    //         obj.counts.pending -= 1;
-    //         obj.projectsMap[projectId].qpu_seconds +=
-    //           obj.request.request.seconds;
-
-    //         // sidebar shows correct number
-    //         cy.contains("[data-testid='sidebar'] div", /requests/i).within(
-    //           () => {
-    //             cy.contains(".bg-primary", `${obj.counts.pending}`);
-    //           }
-    //         );
-
-    //         // visit projects page again if user is project member; QPU seconds is incremented
-    //         if (isProjectMember) {
-    //           cy.visit("/projects");
-    //           cy.wait("@my-project-list");
-
-    //           cy.contains(
-    //             `.bg-card tbody tr[data-id='${projectIdx}'] td[data-header='qpu_seconds']`,
-    //             new RegExp(
-    //               `${obj.projectsMap[projectId].qpu_seconds} seconds`,
-    //               "i"
-    //             )
-    //           ).should("be.visible");
-    //         }
-    //       });
-    //     }
-    //   });
-
-    // isAdmin &&
-    //   it("rejecting a QPU time request removes request from pending list", () => {
-    //     cy.viewport(1080, 750);
-    //     const projectsMap = Object.fromEntries(
-    //       projects.map((v) => [v.id, { ...v }])
-    //     );
-    //     const counts = { pending: pendingUserRequests.length };
-
-    //     for (const request of qpuTimeRequests) {
-    //       cy.wrap({ request, projectsMap, counts }).then((obj) => {
-    //         const projectId = obj.request.request.project_id;
-    //         const project = obj.projectsMap[projectId];
-    //         const projectIdx = projectsIndex[projectId];
-    //         const isProjectMember = project.user_ids.includes(user.id);
-
-    //         // visit projects page if user is project member
-    //         if (isProjectMember) {
-    //           cy.visit("/projects");
-    //           cy.wait("@my-project-list");
-
-    //           cy.contains(
-    //             `.bg-card tbody tr[data-id='${projectIdx}'] td[data-header='qpu_seconds']`,
-    //             new RegExp(
-    //               `${obj.projectsMap[projectId].qpu_seconds} seconds`,
-    //               "i"
-    //             )
-    //           ).should("be.visible");
-    //         }
-
-    //         // visit requests page
-    //         cy.visit("/admin-requests");
-    //         cy.wait("@user-requests-list");
-
-    //         const reqTitle = getTitle(obj.request);
-    //         cy.contains(".bg-card tbody tr", reqTitle).click();
-
-    //         cy.contains("#project-summary h3", reqTitle).should("be.visible");
-    //         cy.contains(".bg-card tbody td", reqTitle).should("be.visible");
-
-    //         cy.contains("#project-summary button", /reject/i).realClick();
-
-    //         cy.contains(".bg-card tbody td", reqTitle).should("not.exist");
-    //         cy.get("#project-summary").should("not.exist");
-
-    //         // update data
-    //         obj.counts.pending -= 1;
-
-    //         // sidebar shows correct number
-    //         cy.contains("[data-testid='sidebar'] div", /requests/i).within(
-    //           () => {
-    //             cy.contains(".bg-primary", `${obj.counts.pending}`);
-    //           }
-    //         );
-
-    //         // visit projects page again if user is project member; QPU seconds is unchanged
-    //         if (isProjectMember) {
-    //           cy.visit("/projects");
-    //           cy.wait("@my-project-list");
-
-    //           cy.contains(
-    //             `.bg-card tbody tr[data-id='${projectIdx}'] td[data-header='qpu_seconds']`,
-    //             new RegExp(
-    //               `${obj.projectsMap[projectId].qpu_seconds} seconds`,
-    //               "i"
-    //             )
-    //           ).should("be.visible");
-    //         }
-    //       });
-    //     }
-    //   });
   });
 });
