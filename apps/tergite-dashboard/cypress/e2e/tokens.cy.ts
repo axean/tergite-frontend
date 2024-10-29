@@ -895,37 +895,37 @@ users.forEach((user) => {
       }
     });
 
-    // it("editing the lifespan of the expired token with project selected is not allowed", () => {
-    //   for (const project of userProjects) {
-    //     cy.wrap(project).then((project) => {
-    //       // click on project
-    //       cy.contains('[data-testid="topbar"] button', /project:/i).click();
-    //       cy.contains('#project-selector [role="option"]', project.name, {
-    //         timeout: 500,
-    //       }).click();
+    it("editing the lifespan of the expired token with project selected is not allowed", () => {
+      for (const project of userProjects) {
+        cy.wrap(project).then((project) => {
+          // click on project
+          cy.contains('[data-testid="topbar"] button', /project:/i).click();
+          cy.contains('#project-selector [role="option"]', project.name, {
+            timeout: 500,
+          }).click();
 
-    //       const tokensForProject = allUserTokens.filter(
-    //         (v) => v.project_ext_id === project.ext_id
-    //       );
-    //       cy.wrap(tokensForProject).then((tokensForProject) => {
-    //         for (let index = 0; index < tokensForProject.length; index++) {
-    //           cy.wrap(index).then((index) => {
-    //             const token = tokensForProject[index];
-    //             cy.contains(
-    //               `.bg-card tbody tr[data-id='${index}']`,
-    //               token.title
-    //             ).click();
+          const tokensForProject = allUserTokens.filter(
+            (v) => v.project_ext_id === project.ext_id
+          );
+          cy.wrap(tokensForProject).then((tokensForProject) => {
+            for (let index = 0; index < tokensForProject.length; index++) {
+              cy.wrap(index).then((index) => {
+                const token = tokensForProject[index];
+                cy.contains(
+                  `.bg-card tbody tr[data-id='${index}']`,
+                  token.title
+                ).click();
 
-    //             if (token.lifespan_seconds <= 0) {
-    //               cy.contains(`#token-summary button`, /edit lifespan/i).should(
-    //                 "be.disabled"
-    //               );
-    //             }
-    //           });
-    //         }
-    //       });
-    //     });
-    //   }
-    // });
+                if (token.lifespan_seconds <= 0) {
+                  cy.contains(`#token-summary button`, /edit lifespan/i).should(
+                    "be.disabled"
+                  );
+                }
+              });
+            }
+          });
+        });
+      }
+    });
   });
 });
