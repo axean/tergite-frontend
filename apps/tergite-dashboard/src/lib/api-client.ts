@@ -665,7 +665,7 @@ async function getMyTokens(
   const { project_ext_id, baseUrl = apiBaseUrl } = options;
   const query = project_ext_id ? `?project_ext_id=${project_ext_id}` : "";
   const { data } = await authenticatedFetch<PaginatedData<AppToken[]>>(
-    `${baseUrl}/me/tokens${query}`
+    `${baseUrl}/me/tokens/${query}`
   );
   return data;
 }
