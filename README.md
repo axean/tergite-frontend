@@ -7,6 +7,15 @@ The Frontend in the [Tergite software stack](https://tergite.github.io/) of the 
 **This project is developed by a core group of collaborators.**
 **Chalmers Next Labs AB (CNL) takes on the role of managing and maintaining this project.**
 
+![Login screen](./apps/tergite-dashboard/docs/assets/login-screen.png)
+The login screen
+
+![Home screen](./apps/tergite-dashboard/docs/assets/home-screen.png)
+The home screen
+
+![Tergite dashboard showcase](./apps/tergite-dashboard/docs/assets/dashboard-showcase.gif)
+A preview of the the dashboard
+
 ## Version Control
 
 The tergite stack is developed on a separate version control system and mirrored on Github.
