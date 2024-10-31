@@ -326,7 +326,7 @@ export async function refreshAllRequestsQueries(
 }
 
 /**
- * Refreshes the queries for any admin htings
+ * Refreshes the queries for any admin things
  *
  * @param queryClient - the query client for making queries
  * @param options - the options including:

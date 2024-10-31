@@ -76,6 +76,7 @@ _EXTRA_PROJECT_DEFAULTS = {
     "description": None,
     "version": None,
     "admin_id": None,
+    "admin_email": None,
     "resource_ids": [],
 }
 
