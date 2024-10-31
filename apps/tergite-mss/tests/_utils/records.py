@@ -1,6 +1,7 @@
 # This code is part of Tergite
 #
 # (C) Copyright Martin Ahindura 2023
+# (C) Copyright Chalmers Next Labs AB 2024
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -10,6 +11,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Test utilities for handling records"""
+import copy
 from datetime import datetime
 from typing import Any, Dict, List, Tuple
 
@@ -31,6 +33,26 @@ def pop_field(records: List[Dict[str, Any]], field: str) -> List[Any]:
         results.append(item.pop(field))
 
     return results
+
+
+def prune(
+    record: Dict[str, Any], fields: List[str]
+) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """Removes given fields from a record and returns the record and the dict of popped values.
+
+    This does not mutate the record
+
+    Args:
+        record: the dictionary to prune
+        fields: the key to pop from the records
+
+    Returns:
+        a new record and the dict of popped values
+    """
+    new_record = copy.deepcopy(record)
+    popped_values = {k: new_record.pop(k, None) for k in fields}
+
+    return new_record, popped_values
 
 
 def order_by(

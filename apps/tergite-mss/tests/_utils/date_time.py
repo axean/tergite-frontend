@@ -43,3 +43,15 @@ def of_this_month(timestamp_str: str) -> str:
     timestamp = date_time.parse_datetime_string(timestamp_str)
     timestamp = timestamp.replace(year=now.year, month=now.month)
     return date_time.datetime_to_zulu(timestamp)
+
+
+def get_timestamp_str(timestamp: datetime) -> str:
+    """Converts a timestamp to a string
+
+    Args:
+        timestamp: the datetime value
+
+    Returns:
+        the timestamp as a string
+    """
+    return timestamp.isoformat("T", timespec="milliseconds").replace("+00:00", "Z")

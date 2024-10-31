@@ -7,9 +7,13 @@ import pytest
 from pytest_lazyfixture import lazy_fixture
 
 from services.auth import Project
+from services.auth.projects.dtos import DeletedProject
 from services.auth.user_requests import UserRequest
 
 from ...._utils.auth import (
+    TEST_NO_QPU_PROJECT_V2_DICT,
+    TEST_PROJECT_ID,
+    TEST_PROJECT_V2_DICT,
     TEST_SUPERUSER_DICT,
     TEST_SUPERUSER_ID,
     TEST_SYSTEM_USER_DICT,
@@ -18,13 +22,17 @@ from ...._utils.auth import (
     TEST_USER_ID,
     get_db_record,
 )
+from ...._utils.date_time import get_timestamp_str
 from ...._utils.fixtures import load_json_fixture
-from ...._utils.mongodb import insert_in_collection
+from ...._utils.mongodb import find_in_collection, insert_in_collection
+from ...._utils.records import prune
 from ....conftest import PROJECT_V2_LIST, get_auth_cookie
 
 _REQ_STATUSES = ["pending", "rejected", "approved"]
 _USER_REQUEST_COLLECTION = "auth_user_requests"
 _USER_REQUESTS_IN_DB = load_json_fixture("user_requests.json")
+_PROJECT_CREATE_LIST = load_json_fixture("project_create_list_v2.json")
+_PROJECT_UPDATE_LIST = load_json_fixture("project_update_list_v2.json")
 _QPU_TIME_USER_REQUESTS_IN_DB = [
     item for item in _USER_REQUESTS_IN_DB if item["type"] == "project-qpu-seconds"
 ]
@@ -84,6 +92,13 @@ _NON_MEMBER_ID_COOKIE_QPU_TIME_REQUESTS = [
     for user_id in [TEST_USER_ID, TEST_SUPERUSER_ID, TEST_SYSTEM_USER_ID]
     if user_id not in project["user_ids"]
 ]
+
+_EXTRA_PROJECT_DEFAULTS = {
+    "resource_ids": [],
+    "source": "internal",
+    "user_emails": None,
+    "admin_email": None,
+}
 
 
 @pytest.mark.parametrize("user_id, cookies", _USER_ID_COOKIES_FIXTURE)
@@ -529,6 +544,286 @@ def test_update_non_existent_user_requests(
 
 
 # TODO: test for other user request types
+
+
+@pytest.mark.parametrize("project", _PROJECT_CREATE_LIST)
+def test_admin_create_project(db, project, client_v2, admin_jwt_cookie, freezer):
+    """Admins can create projects at /v2/admin/projects"""
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        response = client.post(
+            "/v2/admin/projects", json=project, cookies=admin_jwt_cookie
+        )
+
+        got = response.json()
+        assert response.status_code == 201
+        now = get_timestamp_str(datetime.now(timezone.utc))
+
+        user_emails = [*project["user_emails"]]
+        if project["admin_email"] not in user_emails:
+            user_emails.append(project["admin_email"])
+
+        users = find_in_collection(
+            db, "auth_users", _filter={"email": {"$in": user_emails}}
+        )
+        user_email_id_map = {v["email"]: str(v["_id"]) for v in users}
+        user_ids = [user_email_id_map[k] for k in user_emails]
+        admin_id = user_email_id_map[project["admin_email"]]
+
+        expected = {
+            "id": got["id"],
+            "ext_id": project["ext_id"],
+            "version": 2,
+            "is_active": True,
+            "qpu_seconds": project.get("qpu_seconds", 0),
+            "name": project["name"],
+            "description": project["description"],
+            "user_ids": user_ids,
+            "admin_id": admin_id,
+            "created_at": now,
+            "updated_at": now,
+        }
+        assert got == expected
+
+
+@pytest.mark.parametrize("project", _PROJECT_CREATE_LIST)
+def test_non_admin_cannot_create_project(project, client_v2, user_jwt_cookie):
+    """Non-admins cannot create projects at /v2/admin/projects"""
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        response = client.post(
+            "/v2/admin/projects", json=project, cookies=user_jwt_cookie
+        )
+
+        got = response.json()
+        assert response.status_code == 403
+        expected = {"detail": "Forbidden"}
+        assert got == expected
+
+
+@pytest.mark.parametrize("payload", _PROJECT_UPDATE_LIST)
+def test_admin_update_project(db, payload, client_v2, admin_jwt_cookie, freezer):
+    """Admins can create projects at /v2/admin/projects/{id}"""
+    payload = copy.deepcopy(payload)
+    created_at = get_timestamp_str(datetime.now(timezone.utc))
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        post_body = _PROJECT_CREATE_LIST[0]
+        response = client.post(
+            "/v2/admin/projects", json=post_body, cookies=admin_jwt_cookie
+        )
+        assert response.status_code == 201
+        project = response.json()
+        _id = project["id"]
+
+        freezer.move_to("2024-05-20")
+        updated_at = get_timestamp_str(datetime.now(timezone.utc))
+        url = f"/v2/admin/projects/{_id}"
+        response = client.put(url, json=payload, cookies=admin_jwt_cookie)
+
+        new_user_emails = [*payload.get("user_emails", [])]
+        is_admin_to_change = "admin_email" in payload
+        if is_admin_to_change:
+            new_user_emails.append(payload["admin_email"])
+
+        users = find_in_collection(
+            db,
+            "auth_users",
+            _filter={
+                "$or": [
+                    {"email": {"$in": new_user_emails}},
+                    {"_id": {"$in": project["user_ids"]}},
+                ]
+            },
+        )
+        user_email_id_map = {v["email"]: str(v["_id"]) for v in users}
+        admin_email = payload.get("admin_email", project.get("admin_email"))
+        user_ids = project["user_ids"]
+        admin_id = user_email_id_map.get(admin_email, project["admin_id"])
+
+        if "user_emails" in payload:
+            # the user_ids and user_emails have been updated
+            user_ids = [user_email_id_map[k] for k in payload["user_emails"]]
+
+        if admin_id not in user_ids:
+            # admin id should always be in the user ids
+            user_ids.append(admin_id)
+
+        expected = {
+            "id": _id,
+            "ext_id": project["ext_id"],
+            "is_active": payload.get("is_active", project["is_active"]),
+            "qpu_seconds": payload.get("qpu_seconds", project["qpu_seconds"]),
+            "name": payload.get("name", project["name"]),
+            "description": payload.get("description", project["description"]),
+            "user_ids": user_ids,
+            "admin_id": admin_id,
+            "created_at": created_at,
+            "updated_at": updated_at,
+            "version": 2,
+        }
+
+        got = response.json()
+        assert response.status_code == 200
+        assert got == expected
+        assert updated_at != created_at
+
+
+@pytest.mark.parametrize("payload", _PROJECT_UPDATE_LIST)
+def test_non_admin_cannot_update_project(payload, client_v2, user_jwt_cookie):
+    """Non-admins cannot create projects at /v2/admin/projects/{id}"""
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        url = f"/v2/admin/projects/{TEST_PROJECT_ID}"
+        response = client.put(url, json=payload, cookies=user_jwt_cookie)
+
+        got = response.json()
+        assert response.status_code == 403
+        expected = {"detail": "Forbidden"}
+        assert got == expected
+
+
+def test_admin_view_all_projects_in_detail(
+    client_v2, inserted_project_ids_v2, admin_jwt_cookie, freezer
+):
+    """Admins can view projects at /v2/admin/projects/ in full detail"""
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        response = client.get("/v2/admin/projects", cookies=admin_jwt_cookie)
+
+        got = response.json()
+        project_list = [
+            {
+                "id": str(item["_id"]),
+                "ext_id": item["ext_id"],
+                "qpu_seconds": item["qpu_seconds"],
+                "is_active": item.get("is_active", True),
+                "user_ids": item.get("user_ids"),
+                "admin_id": item.get("admin_id"),
+                "name": item.get("name"),
+                "description": item.get("description"),
+                "created_at": item.get("created_at"),
+                "updated_at": item.get("updated_at"),
+                "version": item.get("version"),
+            }
+            for item in [TEST_PROJECT_V2_DICT, TEST_NO_QPU_PROJECT_V2_DICT]
+            + PROJECT_V2_LIST
+        ]
+
+        assert response.status_code == 200
+        assert got == {"skip": 0, "limit": None, "data": project_list}
+
+
+@pytest.mark.parametrize("project", PROJECT_V2_LIST)
+def test_non_admin_cannot_view_all_projects_in_detail(
+    project, db, client_v2, inserted_project_ids_v2, user_jwt_cookie
+):
+    """Non-admins cannot view projects at /v2/admin/projects"""
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        response = client.get("/v2/admin/projects", cookies=user_jwt_cookie)
+
+        got = response.json()
+        expected = {"detail": "Forbidden"}
+        assert response.status_code == 403
+        assert got == expected
+
+
+@pytest.mark.parametrize("project", PROJECT_V2_LIST)
+def test_admin_view_single_project_in_detail(
+    project, client_v2, inserted_projects_v2, admin_jwt_cookie, freezer
+):
+    """Admins can view single project at /v2/admin/projects/{id} in full detail"""
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        _id = project["_id"]
+        url = f"/v2/admin/projects/{_id}"
+        response = client.get(url, cookies=admin_jwt_cookie)
+
+        got = response.json()
+        expected = {
+            "id": _id,
+            "ext_id": project["ext_id"],
+            "qpu_seconds": project["qpu_seconds"],
+            "is_active": project["is_active"],
+            "user_ids": project.get("user_ids"),
+            "admin_id": project.get("admin_id"),
+            "name": project.get("name"),
+            "description": project.get("description"),
+            "created_at": project.get("created_at"),
+            "updated_at": project.get("updated_at"),
+            "version": project.get("version"),
+        }
+
+        assert response.status_code == 200
+        assert got == expected
+
+
+@pytest.mark.parametrize("project", PROJECT_V2_LIST)
+def test_non_admin_cannot_view_single_project_in_detail(
+    project, db, client_v2, inserted_project_ids_v2, user_jwt_cookie
+):
+    """Non-admins cannot view single project at /v2/admin/projects/{_id}"""
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        _id = project["_id"]
+        url = f"/v2/admin/projects/{_id}"
+        response = client.get(url, cookies=user_jwt_cookie)
+
+        got = response.json()
+        expected = {"detail": "Forbidden"}
+        assert response.status_code == 403
+        assert got == expected
+
+
+@pytest.mark.parametrize("project", PROJECT_V2_LIST)
+def test_admin_delete_project(
+    project, db, client_v2, inserted_project_ids_v2, admin_jwt_cookie, freezer
+):
+    """Admins can delete projects at /v2/admin/projects/{id}"""
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        _id = project["_id"]
+        original = get_db_record(db, Project, _id)
+        assert original is not None
+
+        url = f"/v2/admin/projects/{_id}"
+        response = client.delete(url, cookies=admin_jwt_cookie)
+
+        now = get_timestamp_str(datetime.now(timezone.utc))
+        deleted_project = get_db_record(db, DeletedProject, _id)
+        pruned_fields = ["created_at", "updated_at"]
+        pruned_deleted_project, deleted_project_timestamps = prune(
+            deleted_project, pruned_fields
+        )
+        pruned_original, _ = prune(original, pruned_fields)
+        pruned_original.update(_EXTRA_PROJECT_DEFAULTS)
+
+        assert response.status_code == 204
+        assert get_db_record(db, Project, _id) is None
+        assert pruned_deleted_project == pruned_original
+        for timestamp in deleted_project_timestamps.values():
+            assert timestamp == now
+
+
+@pytest.mark.parametrize("project", PROJECT_V2_LIST)
+def test_non_admin_cannot_delete_project(
+    project, db, client_v2, inserted_project_ids_v2, user_jwt_cookie
+):
+    """Non-admins cannot delete projects at /v2/admin/projects/{id}"""
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        _id = project["_id"]
+        assert get_db_record(db, Project, _id) is not None
+
+        url = f"/v2/admin/projects/{_id}"
+        response = client.delete(url, cookies=user_jwt_cookie)
+
+        got = response.json()
+        expected = {"detail": "Forbidden"}
+        assert response.status_code == 403
+        assert got == expected
+        assert get_db_record(db, Project, _id) is not None
 
 
 def _db_to_http_item(db_item: Dict[str, Any]) -> Dict[str, Any]:

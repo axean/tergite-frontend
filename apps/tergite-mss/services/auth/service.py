@@ -76,6 +76,7 @@ async def on_startup(db: motor.motor_asyncio.AsyncIOMotorDatabase):
             users.dtos.User,
             app_tokens.dtos.AppToken,
             projects.dtos.Project,
+            projects.dtos.DeletedProject,
             user_requests.dtos.UserRequest,
         ],
     )

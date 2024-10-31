@@ -19,6 +19,7 @@ from .app_tokens.dtos import (
 )
 from .projects import ProjectDatabase, get_project_db
 from .projects.dtos import (
+    DeletedProject,
     Project,
     ProjectAdminView,
     ProjectCreate,
@@ -52,6 +53,7 @@ __all__ = [
     UserRole,
     Oauth2ClientConfig,
     Project,
+    DeletedProject,
     ProjectCreate,
     ProjectUpdate,
     ProjectRead,
