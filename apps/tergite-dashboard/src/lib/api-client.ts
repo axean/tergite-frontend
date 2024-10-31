@@ -134,9 +134,13 @@ export function myTokensQuery(options: {
         projectList.map((v) => [v.ext_id, { ...v }])
       );
 
-      return rawTokens.map((v) =>
-        extendAppToken(v, projectMap[v.project_ext_id])
-      );
+      return rawTokens
+        .map(
+          (v) =>
+            projectMap[v.project_ext_id] &&
+            extendAppToken(v, projectMap[v.project_ext_id])
+        )
+        .filter((v) => !!v);
     },
     refetchInterval,
     throwOnError: true,
