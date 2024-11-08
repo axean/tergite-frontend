@@ -25,7 +25,7 @@ from ..users.database import UserDatabase
 from ..users.dtos import User
 from . import exc
 from .database import ProjectDatabase
-from .dtos import Project, ProjectCreate, ProjectUpdate
+from .dtos import DeletedProject, Project, ProjectCreate, ProjectUpdate
 
 
 class ProjectAppTokenManager(ObjectIDIDMixin):
@@ -213,6 +213,10 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
         """
         await self.on_before_delete(project, request)
         await self.project_db.delete(project)
+        deleted_project = DeletedProject(
+            **project.dict(exclude={"created_at", "updated_at"})
+        )
+        await deleted_project.create()
 
     async def on_before_update(
         self, original: Project, update_dict: Dict[str, Any]
@@ -233,6 +237,13 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
 
             filter_obj = {
                 "user_id": {"$nin": user_ids},
+                "project_ext_id": original.ext_id,
+            }
+            await self.app_token_db.delete_many(filter_obj)
+
+        if "user_ids" in update_dict:
+            filter_obj = {
+                "user_id": {"$nin": update_dict["user_ids"]},
                 "project_ext_id": original.ext_id,
             }
             await self.app_token_db.delete_many(filter_obj)

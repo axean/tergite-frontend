@@ -29,7 +29,7 @@ import {
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Time,
@@ -64,18 +64,6 @@ export function TokenLifespanDialog({
   const queryClient = useQueryClient();
   const editForm = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      expiration: {
-        date: token.expires_at.toJSDate(),
-        time: toTime(token.expires_at),
-      },
-    },
-    values: {
-      expiration: {
-        date: token.expires_at.toJSDate(),
-        time: token.expires_at,
-      },
-    },
   });
 
   const tokenEditing = useMutation({
@@ -87,14 +75,26 @@ export function TokenLifespanDialog({
         };
         return await updateAppToken(token.id, payload);
       },
-      [token]
+      [token.id]
     ),
-    onSuccess: async (data) => {
-      refreshMyTokensQueries(queryClient);
-      return await onEdit(data);
-    },
+    onSuccess: useCallback(
+      async (data: AppToken) => {
+        refreshMyTokensQueries(queryClient);
+        return await onEdit(data);
+      },
+      [onEdit, queryClient]
+    ),
     throwOnError: true,
   });
+
+  useEffect(() => {
+    editForm.reset({
+      expiration: {
+        date: token.expires_at.toJSDate(),
+        time: token.expires_at,
+      },
+    });
+  }, [editForm, token.expires_at]);
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

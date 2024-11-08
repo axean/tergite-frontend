@@ -38,12 +38,17 @@ export const filterFormProps: DataTableFormConfig = {
     ),
   },
   is_expired: {
-    validation: z.boolean().optional(),
-    defaultValue: undefined,
+    validation: z
+      .boolean()
+      .or(z.enum(["", "true", "false"]))
+      .optional(),
+    defaultValue: "",
     label: "Status",
     getFormElement: ({ ref, value, ...props }: DataTableFilterField) => (
       <Select
-        onValueChange={(v) => props.onChange(v === "true")}
+        onValueChange={(v) =>
+          props.onChange(v === "" ? undefined : v === "true")
+        }
         value={String(value) as string | undefined}
         {...props}
       >

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import cors from "cors";
 import {
+  archiveDb,
   conformsToFilter,
   createCookieHeader,
   getAuthenticatedUserId,
@@ -27,6 +28,9 @@ import {
   UserRequestType,
   UserRequestStatus,
   UserRole,
+  AdminProject,
+  UpdateProjectPutBody,
+  AdminCreateProjectBody,
 } from "../../types";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
@@ -68,9 +72,8 @@ router.get(
       return respond401(res);
     }
 
-    const data = mockDb.getMany<Project>(
-      "projects",
-      (v) => v.user_ids.includes(currentUserId) && !v.is_deleted
+    const data = mockDb.getMany<Project>("projects", (v) =>
+      v.user_ids.includes(currentUserId)
     );
 
     res.json({ skip: 0, limit: null, data } as PaginatedData<Project[]>);
@@ -95,6 +98,11 @@ router.delete(
     }
 
     mockDb.del("projects", project.id);
+    // Archive this project
+    archiveDb.create<Project>("projects", {
+      ...project,
+      updated_at: new Date().toISOString(),
+    });
 
     // no content
     res.status(204).send();
@@ -131,8 +139,7 @@ router.post(
       "projects",
       (v) =>
         v.ext_id == (payload as AppToken).project_ext_id &&
-        v.user_ids.includes(user_id) &&
-        !v.is_deleted
+        v.user_ids.includes(user_id)
     );
     if (!project) {
       return respond401(res);
@@ -502,9 +509,210 @@ router.put(
   })
 );
 
+router.get(
+  "/admin/projects",
+  use(async (req, res) => {
+    const userId = await getAuthenticatedUserId(req.cookies);
+    if (!userId) {
+      return respond401(res);
+    }
+
+    // Only admins are permitted here
+    if (!hasAnyOfRoles(userId, [UserRole.ADMIN])) {
+      res.status(403).json({ detail: `Forbidden` });
+      return;
+    }
+
+    const {
+      is_active: isActiveStr,
+      skip: skipAsString,
+      limit: limitAsString,
+    } = req.query;
+    const skip = skipAsString ? parseInt(skipAsString as string) : undefined;
+    const limit = limitAsString ? parseInt(limitAsString as string) : undefined;
+    const is_active = isActiveStr ? Boolean(isActiveStr as string) : undefined;
+
+    const projects = mockDb.getMany<Project>(
+      "projects",
+      (v) => is_active === undefined || v.is_active === is_active,
+      skip,
+      limit
+    );
+
+    const users = mockDb.getMany<User>("users");
+    const userIdEmailMap = Object.fromEntries(
+      users.map((v) => [v.id, v.email])
+    );
+
+    const data: AdminProject[] = projects.map((v) => ({
+      ...v,
+      user_emails: v.user_ids.map((item) => userIdEmailMap[item]),
+      admin_email: userIdEmailMap[v.admin_id],
+    }));
+
+    res.json({ skip, limit, data });
+  })
+);
+
+router.post(
+  "/admin/projects",
+  use(async (req, res) => {
+    const userId = await getAuthenticatedUserId(req.cookies);
+    if (!userId) {
+      return respond401(res);
+    }
+
+    // Only admins are permitted here
+    if (!hasAnyOfRoles(userId, [UserRole.ADMIN])) {
+      res.status(403).json({ detail: `Forbidden` });
+      return;
+    }
+
+    const body = req.body as AdminCreateProjectBody;
+    const { user_emails, admin_email, ...restOfBody } = body;
+    const allEmails = [
+      ...new Set([admin_email].concat(user_emails || [])),
+    ].filter((v) => v != undefined);
+    const users = mockDb.getMany<User>("users");
+    const userEmailIdMap = Object.fromEntries(
+      users.map((v) => [v.email, v.id])
+    );
+
+    // TODO: Create the users if the emails don't exist
+    for (const email of allEmails) {
+      if (!userEmailIdMap[email]) {
+        const newUser = mockDb.create<User>("users", {
+          email,
+          id: randomUUID(),
+          roles: [UserRole.USER],
+        });
+
+        userEmailIdMap[email] = newUser.id;
+      }
+    }
+
+    const timestamp = new Date().toISOString();
+    const newProject = {
+      ...restOfBody,
+      updated_at: timestamp,
+      created_at: timestamp,
+      id: randomUUID(),
+    } as Partial<Project>;
+
+    newProject.user_ids = allEmails.map((v) => userEmailIdMap[v]);
+    newProject.admin_id = userEmailIdMap[admin_email];
+
+    const project = mockDb.create<Project>("projects", newProject);
+
+    res.json(project);
+  })
+);
+
+router.put(
+  "/admin/projects/:id",
+  use(async (req, res) => {
+    const userId = await getAuthenticatedUserId(req.cookies);
+    if (!userId) {
+      return respond401(res);
+    }
+
+    // Only admins are permitted here
+    if (!hasAnyOfRoles(userId, [UserRole.ADMIN])) {
+      res.status(403).json({ detail: `Forbidden` });
+      return;
+    }
+
+    const projectId = req.params.id;
+    const body = req.body as UpdateProjectPutBody;
+    const { user_emails, admin_email, ...restOfBody } = body;
+    const allEmails = [
+      ...new Set([admin_email].concat(user_emails || [])),
+    ].filter((v) => v != undefined);
+    const users = mockDb.getMany<User>("users");
+    const userEmailIdMap = Object.fromEntries(
+      users.map((v) => [v.email, v.id])
+    );
+
+    // TODO: Create the users if the emails don't exist
+    for (const email of allEmails) {
+      if (!userEmailIdMap[email]) {
+        const newUser = mockDb.create<User>("users", {
+          email,
+          id: randomUUID(),
+          roles: [UserRole.USER],
+        });
+
+        userEmailIdMap[email] = newUser.id;
+      }
+    }
+
+    const newUpdate = {
+      ...restOfBody,
+      updated_at: new Date().toISOString(),
+    } as Partial<Project>;
+    if (user_emails) {
+      newUpdate.user_ids = allEmails.map((v) => userEmailIdMap[v]);
+    }
+
+    if (admin_email) {
+      newUpdate.admin_id = userEmailIdMap[admin_email];
+    }
+
+    const project = mockDb.update<Project>(
+      "projects",
+      (v) => v.id === projectId,
+      newUpdate
+    );
+    if (!project) {
+      res.status(404).json({ detail: `Not Found` });
+      return;
+    }
+
+    res.json(project);
+  })
+);
+
+router.delete(
+  "/admin/projects/:id",
+  use(async (req, res) => {
+    const userId = await getAuthenticatedUserId(req.cookies);
+    if (!userId) {
+      return respond401(res);
+    }
+
+    // Only admins are permitted here
+    if (!hasAnyOfRoles(userId, [UserRole.ADMIN])) {
+      res.status(403).json({ detail: `Forbidden` });
+      return;
+    }
+
+    const { params } = req;
+    const project = mockDb.getOne<Project>(
+      "projects",
+      (v) => v.id == params.id
+    );
+    if (!project) {
+      res.status(404).json({ detail: `Not Found` });
+      return;
+    }
+
+    mockDb.del("projects", project.id);
+    // Archive this project
+    archiveDb.create<Project>("projects", {
+      ...project,
+      updated_at: new Date().toISOString(),
+    });
+
+    // no content
+    res.status(204).send();
+  })
+);
+
 // NOTE: this mutates the database. I am using GET to avoid CORS issues
 router.get("/refreshed-db", (req, res) => {
   mockDb.refresh();
+  archiveDb.refresh();
+
   res.json(mockDb);
 });
 

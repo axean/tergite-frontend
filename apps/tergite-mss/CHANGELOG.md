@@ -15,6 +15,13 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 - Added POST `/v2/admin/qpu-time-requests` endpoint for project members to request for more QPU seconds 
 - Added GET `/v2/admin/user-requests` endpoint for admins to retrieve a list of user requests
 - Added PUT `/v2/admin/user-requests/{id}` endpoint for admins to update (e.g. approve/reject) as user request
+- Added POST `/v2/admin/projects/` endpoint for admins to create a new project
+    - Creates new empty user if non-existent emails are passed as user_emails or admin_email
+- Added GET `/v2/admin/projects/` endpoint for admins to retireve a list of projects
+- Added GET `/v2/admin/projects/{id}` endpoint for admins to view a project of given id
+- Added PUT `/v2/admin/projects/{id}` endpoint for admins to update a project of given id
+    - Creates new empty user if non-existent emails are passed as user_emails or admin_email
+- Added DELETE `/v2/admin/projects/{id}` endpoint for admins to soft delete a project
 
 ## [2024.09.1] - 2024-09-24
 

@@ -6,6 +6,7 @@ import pytest
 from pytest_lazyfixture import lazy_fixture
 
 from services.auth import AppToken, Project
+from services.auth.projects.dtos import DeletedProject
 from tests._utils.auth import (
     TEST_APP_TOKEN_DICT,
     TEST_NO_QPU_APP_TOKEN_DICT,
@@ -20,9 +21,10 @@ from tests._utils.auth import (
     TEST_USER_ID,
     get_db_record,
 )
+from tests._utils.date_time import get_timestamp_str
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import insert_in_collection
-from tests._utils.records import order_by
+from tests._utils.records import order_by, prune
 from tests.conftest import (
     APP_TOKEN_LIST,
     PROJECT_V2_LIST,
@@ -76,6 +78,12 @@ _OTHERS_TOKENS_REQUESTS = [
     for user_id in [TEST_USER_ID, TEST_SUPERUSER_ID]
     if user_id != token["user_id"]
 ]
+_EXTRA_PROJECT_DEFAULTS = {
+    "resource_ids": [],
+    "source": "internal",
+    "user_emails": None,
+    "admin_email": None,
+}
 
 _JOBS_LIST_IN_DB = load_json_fixture("jobs_v2_in_db.json")
 _JOBS_LIST_AS_RESPONSES = load_json_fixture("jobs_v2_as_responses.json")
@@ -166,19 +174,32 @@ def test_view_others_project_is_not_allowed(
 
 @pytest.mark.parametrize("user_id, cookies, project", _MY_ADMINISTERED_PROJECT_REQUESTS)
 def test_delete_own_project(
-    user_id, cookies, project, client_v2, inserted_projects_v2, db
+    user_id, cookies, project, client_v2, inserted_projects_v2, db, freezer
 ):
     """Any user can delete the project they administer at /v2/me/projects/{id}"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        project_id = project["_id"]
-        url = f"/v2/me/projects/{project_id}"
+        _id = project["_id"]
+        url = f"/v2/me/projects/{_id}"
 
-        assert get_db_record(db, Project, project_id) is not None
+        now = get_timestamp_str(datetime.now(timezone.utc))
+        original = get_db_record(db, Project, _id)
+        assert original is not None
         response = client.delete(url, cookies=cookies)
 
+        deleted_project = get_db_record(db, DeletedProject, _id)
+        pruned_fields = ["created_at", "updated_at"]
+        pruned_deleted_project, deleted_project_timestamps = prune(
+            deleted_project, pruned_fields
+        )
+        pruned_original, _ = prune(original, pruned_fields)
+        pruned_original.update(_EXTRA_PROJECT_DEFAULTS)
+
         assert response.status_code == 204
-        assert get_db_record(db, Project, project_id) is None
+        assert get_db_record(db, Project, _id) is None
+        assert pruned_deleted_project == pruned_original
+        for timestamp in deleted_project_timestamps.values():
+            assert timestamp == now
 
 
 @pytest.mark.parametrize(

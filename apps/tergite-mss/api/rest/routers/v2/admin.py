@@ -17,12 +17,24 @@ from beanie import PydanticObjectId
 from fastapi import APIRouter, HTTPException, Query
 from fastapi import status as http_status
 
-from services.auth import PaginatedListResponse, Project, User, user_requests
+from services.auth import (
+    APP_TOKEN_AUTH,
+    PaginatedListResponse,
+    Project,
+    User,
+    user_requests,
+)
 from utils.mongodb import DocumentNotFoundError
 
 from ...dependencies import CurrentSuperuserDep, CurrentUserDep, CurrentUserIdDep
 
 router = APIRouter(prefix="/admin")
+
+router.include_router(
+    APP_TOKEN_AUTH.get_projects_router_v2(),
+    prefix="/projects",
+    tags=["projects"],
+)
 
 
 @router.get(

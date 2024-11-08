@@ -8,6 +8,7 @@ import pytest
 from pytest_lazyfixture import lazy_fixture
 
 from services.auth import AppToken, Project
+from services.auth.projects.dtos import DeletedProject
 from tests._utils.auth import (
     TEST_APP_TOKEN_DICT,
     TEST_NO_QPU_APP_TOKEN_DICT,
@@ -21,7 +22,9 @@ from tests._utils.auth import (
     get_db_record,
     is_valid_jwt,
 )
+from tests._utils.date_time import get_timestamp_str
 from tests._utils.fixtures import load_json_fixture
+from tests._utils.records import prune
 from tests.conftest import (
     APP_TOKEN_LIST,
     PROJECT_LIST,
@@ -65,6 +68,17 @@ _OTHERS_TOKENS_REQUESTS = [
 _AUTH_COOKIE_REGEX = re.compile(
     r"some-cookie=(.*); Domain=testserver; HttpOnly; Max-Age=3600; Path=/; SameSite=lax; Secure"
 )
+
+_EXTRA_PROJECT_DEFAULTS = {
+    "user_ids": None,
+    "source": "internal",
+    "name": None,
+    "description": None,
+    "version": None,
+    "admin_id": None,
+    "admin_email": None,
+    "resource_ids": [],
+}
 
 
 def test_is_auth_enabled(client):
@@ -328,7 +342,7 @@ def test_admin_create_project(project, client, admin_jwt_header, freezer):
         got = response.json()
         assert response.status_code == 201
         got.pop("id")
-        now = _get_timestamp_str(datetime.now(timezone.utc))
+        now = get_timestamp_str(datetime.now(timezone.utc))
         expected = {**project, "is_active": True, "created_at": now, "updated_at": now}
         assert got == expected
 
@@ -349,7 +363,7 @@ def test_non_admin_cannot_create_project(project, client, user_jwt_header):
 @pytest.mark.parametrize("payload", _PROJECT_UPDATE_LIST)
 def test_admin_update_project(payload, client, admin_jwt_header, freezer):
     """Admins can create projects at /auth/projects/{id}"""
-    created_at = _get_timestamp_str(datetime.now(timezone.utc))
+    created_at = get_timestamp_str(datetime.now(timezone.utc))
     # using context manager to ensure on_startup runs
     with client as client:
         post_body = _PROJECT_CREATE_LIST[0]
@@ -361,7 +375,7 @@ def test_admin_update_project(payload, client, admin_jwt_header, freezer):
         project_id = project["id"]
 
         freezer.move_to("2024-05-20")
-        updated_at = _get_timestamp_str(datetime.now(timezone.utc))
+        updated_at = get_timestamp_str(datetime.now(timezone.utc))
         url = f"/auth/projects/{project_id}"
         response = client.patch(url, json=payload, headers=admin_jwt_header)
 
@@ -397,19 +411,32 @@ def test_non_admin_cannot_update_project(payload, client, user_jwt_header):
 
 @pytest.mark.parametrize("project", PROJECT_LIST)
 def test_admin_delete_project(
-    project, db, client, inserted_project_ids, admin_jwt_header
+    project, db, client, inserted_project_ids, admin_jwt_header, freezer
 ):
     """Admins can delete projects at /auth/projects/{id}"""
     # using context manager to ensure on_startup runs
     with client as client:
         _id = project["_id"]
-        assert get_db_record(db, Project, _id) is not None
+        original = get_db_record(db, Project, _id)
+        assert original is not None
 
         url = f"/auth/projects/{_id}"
         response = client.delete(url, headers=admin_jwt_header)
 
+        now = get_timestamp_str(datetime.now(timezone.utc))
+        deleted_project = get_db_record(db, DeletedProject, _id)
+        pruned_fields = ["created_at", "updated_at"]
+        pruned_deleted_project, deleted_project_timestamps = prune(
+            deleted_project, pruned_fields
+        )
+        pruned_original, _ = prune(original, pruned_fields)
+        pruned_original.update(_EXTRA_PROJECT_DEFAULTS)
+
         assert response.status_code == 204
         assert get_db_record(db, Project, _id) is None
+        assert pruned_deleted_project == pruned_original
+        for timestamp in deleted_project_timestamps.values():
+            assert timestamp == now
 
 
 @pytest.mark.parametrize("project", PROJECT_LIST)
@@ -440,7 +467,7 @@ def test_admin_view_all_projects_in_detail(
     with client as client:
         response = client.get("/auth/projects", headers=admin_jwt_header)
 
-        now = _get_timestamp_str(datetime.now(timezone.utc))
+        now = get_timestamp_str(datetime.now(timezone.utc))
         got = response.json()
         project_list = [
             {
@@ -459,6 +486,21 @@ def test_admin_view_all_projects_in_detail(
         assert got == {"skip": 0, "limit": None, "data": project_list}
 
 
+@pytest.mark.parametrize("project", PROJECT_LIST)
+def test_non_admin_cannot_view_all_projects_in_detail(
+    project, db, client, inserted_project_ids, user_jwt_header
+):
+    """Non-admins cannot view projects at /auth/projects"""
+    # using context manager to ensure on_startup runs
+    with client as client:
+        response = client.get("/auth/projects", headers=user_jwt_header)
+
+        got = response.json()
+        expected = {"detail": "Forbidden"}
+        assert response.status_code == 403
+        assert got == expected
+
+
 @pytest.mark.parametrize("user_email, headers", _USER_EMAIL_HEADERS_FIXTURE)
 def test_view_own_projects_in_less_detail(
     user_email, headers, client, inserted_project_ids, freezer
@@ -469,7 +511,7 @@ def test_view_own_projects_in_less_detail(
     with client as client:
         response = client.get("/auth/me/projects", headers=headers)
 
-        now = _get_timestamp_str(datetime.now(timezone.utc))
+        now = get_timestamp_str(datetime.now(timezone.utc))
         got = response.json()
         project_list = [
             {
@@ -499,7 +541,7 @@ def test_admin_view_single_project_in_detail(
         url = f"/auth/projects/{_id}"
         response = client.get(url, headers=admin_jwt_header)
 
-        now = _get_timestamp_str(datetime.now(timezone.utc))
+        now = get_timestamp_str(datetime.now(timezone.utc))
         got = response.json()
         expected = {
             "id": _id,
@@ -515,6 +557,23 @@ def test_admin_view_single_project_in_detail(
         assert got == expected
 
 
+@pytest.mark.parametrize("project", PROJECT_LIST)
+def test_non_admin_cannot_view_single_project_in_detail(
+    project, db, client, inserted_project_ids, user_jwt_header
+):
+    """Non-admins cannot view single project at /auth/projects/{_id}"""
+    # using context manager to ensure on_startup runs
+    with client as client:
+        _id = project["_id"]
+        url = f"/auth/projects/{_id}"
+        response = client.get(url, headers=user_jwt_header)
+
+        got = response.json()
+        expected = {"detail": "Forbidden"}
+        assert response.status_code == 403
+        assert got == expected
+
+
 @pytest.mark.parametrize("user_email, headers, project", _MY_PROJECT_REQUESTS)
 def test_view_my_project_in_less_detail(
     user_email, headers, project, client, inserted_projects, freezer
@@ -527,7 +586,7 @@ def test_view_my_project_in_less_detail(
         url = f"/auth/me/projects/{project_id}"
         response = client.get(url, headers=headers)
 
-        now = _get_timestamp_str(datetime.now(timezone.utc))
+        now = get_timestamp_str(datetime.now(timezone.utc))
         got = response.json()
         expected = {
             "id": project_id,
@@ -778,15 +837,3 @@ def test_app_token_of_unallocated_projects_fails(
 def _get_token_from_cookie(resp: httpx.Response) -> Optional[str]:
     """Extracts the acces token from the cookie"""
     return _AUTH_COOKIE_REGEX.match(resp.headers["set-cookie"]).group(1)
-
-
-def _get_timestamp_str(timestamp: datetime) -> str:
-    """Converts a timestamp to a string
-
-    Args:
-        timestamp: the datetime value
-
-    Returns:
-        the timestamp as a string
-    """
-    return timestamp.isoformat("T", timespec="milliseconds").replace("+00:00", "Z")

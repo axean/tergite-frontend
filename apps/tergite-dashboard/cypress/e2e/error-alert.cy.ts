@@ -18,9 +18,13 @@ users.forEach((user) => {
       const audience = Cypress.env("AUTH_AUDIENCE");
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
-      cy.intercept("GET", `${apiBaseUrl}/me/projects`, (req) => {
+      cy.intercept("GET", `${apiBaseUrl}/devices`, (req) => {
         req.reply(500, { detail: "dummy server error" });
-      }).as("my-project-list");
+      }).as("devices-list");
+
+      cy.intercept("GET", `${apiBaseUrl}/devices/loke`, (req) => {
+        req.reply(500, { detail: "dummy server error" });
+      }).as("loke-device");
 
       if (user.id) {
         cy.wrap(generateJwt(user, cookieExpiry, { secret, audience })).then(
@@ -38,7 +42,7 @@ users.forEach((user) => {
 
     it("renders on unexpected error on home screen", () => {
       cy.visit("/");
-      cy.wait("@my-project-list");
+      cy.wait("@devices-list");
       cy.contains(500).should("be.visible");
       cy.contains("dummy server error").should("be.visible");
       cy.contains("button", /back/i).click();
@@ -46,7 +50,7 @@ users.forEach((user) => {
 
     it("renders on unexpected error on devices screen", () => {
       cy.visit("/devices");
-      cy.wait("@my-project-list");
+      cy.wait("@devices-list");
       cy.contains(500).should("be.visible");
       cy.contains("dummy server error").should("be.visible");
       cy.contains("button", /back/i).click();
@@ -54,7 +58,8 @@ users.forEach((user) => {
 
     it("renders on unexpected error on device-detail screen", () => {
       cy.visit("/devices/loke");
-      cy.wait("@my-project-list");
+      cy.wait("@loke-device");
+      cy.wait(100);
       cy.contains(500).should("be.visible");
       cy.contains("dummy server error").should("be.visible");
       cy.contains("button", /back/i).click();

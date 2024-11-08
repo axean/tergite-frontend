@@ -8,10 +8,11 @@ import {
 import { DetailItem } from "@/components/ui/detail-item";
 import { HealthStatus } from "@/components/ui/health-status";
 import { deleteMyToken } from "@/lib/api-client";
-import { cn } from "@/lib/utils";
+import { cn, toRelative } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { ExtendedAppToken } from "types";
 import { TokenDeleteDialog } from "./delete-dialog";
+import { TokenLifespanDialog } from "./lifespan-dialog";
 
 export function TokenSummary({ token, className = "", onDelete }: Props) {
   const tokenDeletion = useMutation({
@@ -42,7 +43,7 @@ export function TokenSummary({ token, className = "", onDelete }: Props) {
             </DetailItem>
 
             <DetailItem label="Expires">
-              {token.expires_at.toRelative()}{" "}
+              {toRelative(token.expires_at)}
             </DetailItem>
 
             <DetailItem label="Project external ID">
@@ -51,7 +52,8 @@ export function TokenSummary({ token, className = "", onDelete }: Props) {
           </ul>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
+      <CardFooter className="grid grid-cols-2 gap-2 border-t bg-muted/50 px-6 py-3">
+        <TokenLifespanDialog token={token} isDisabled={token.is_expired} />
         <TokenDeleteDialog
           token={token}
           onDelete={() => tokenDeletion.mutate(token.id)}

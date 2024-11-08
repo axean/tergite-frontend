@@ -38,7 +38,6 @@ users.forEach((user) => {
       });
 
       cy.visit("/");
-      cy.wait("@my-project-list");
       cy.wait("@devices-list");
 
       cy.get("input[name=email]").as("emailInput");
@@ -102,7 +101,6 @@ users.forEach((user) => {
       ).as("auth-providers");
 
       cy.visit("/");
-      cy.wait("@my-project-list");
       cy.wait("@devices-list");
 
       cy.get("input[name=email]").as("emailInput");
@@ -142,7 +140,6 @@ invalidFormatEmailAddresses.forEach((email) =>
       cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
 
       cy.visit("/");
-      cy.wait("@my-project-list");
       cy.wait("@devices-list");
     });
 

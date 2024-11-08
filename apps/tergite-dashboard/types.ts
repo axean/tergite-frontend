@@ -142,17 +142,26 @@ export interface Project
   admin_id: string;
   version?: number;
   is_active: boolean;
-  is_deleted: boolean; // we have soft deletes for easy accounting
   created_at: string;
   updated_at: string;
 }
 
+// the enhanced response an admin user sees when looking at a project
+export interface AdminProject extends Project {
+  user_emails: string[];
+  admin_email: string;
+}
+
 // the HTTP request body when updating a project
-export interface UpdateProjectPutBody {
-  name?: string;
-  description?: string;
-  user_emails?: string[];
-  qpu_seconds?: number;
+export interface UpdateProjectPutBody
+  extends Partial<Omit<CreateProjectPostBody, "ext_id">> {
+  admin_email?: string;
+  is_active?: boolean;
+}
+
+// the HTTP request body when creating a project as admin
+export interface AdminCreateProjectBody extends CreateProjectPostBody {
+  admin_email: string;
 }
 
 // the HTTP request body when requesting for a time extension

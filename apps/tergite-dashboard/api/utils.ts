@@ -289,6 +289,11 @@ export function conformsToFilter<T extends DbRecord>(
 export const mockDb = new MockDb();
 
 /**
+ * An instance of the mock database where deleted archives go
+ */
+export const archiveDb = new MockDb();
+
+/**
  * Clears a given object
  * @param obj - the object to clear
  */

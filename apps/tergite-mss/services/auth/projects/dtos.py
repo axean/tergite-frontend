@@ -22,6 +22,7 @@ from utils.date_time import datetime_to_zulu, get_current_timestamp
 from utils.models import ZEncodedBaseModel
 
 PROJECT_DB_COLLECTION = "auth_projects"
+DELETED_PROJECT_DB_COLLECTION = "deleted_auth_projects"
 
 
 class ProjectSource(str, enum.Enum):
@@ -39,6 +40,7 @@ class ProjectCreate(ZEncodedBaseModel):
     name: Optional[str] = None
     version: Optional[int] = None
     admin_id: Optional[str] = None
+    admin_email: Optional[str] = None
     user_emails: Optional[List[str]] = None
     user_ids: Optional[List[str]] = None
     qpu_seconds: int = 0
@@ -117,6 +119,11 @@ class ProjectAdminView(ProjectRead):
 class ProjectUpdate(BaseModel):
     """The schema for updating a project"""
 
+    name: Optional[str]
+    is_active: Optional[bool]
+    description: Optional[str]
+    admin_email: Optional[str]
+    admin_id: Optional[str]
     user_emails: Optional[List[str]]
     user_ids: Optional[List[str]]
     qpu_seconds: Optional[int]
@@ -146,6 +153,13 @@ class Project(ProjectCreate, Document):
         indexes = [
             IndexModel("ext_id", unique=True),
         ]
+
+
+class DeletedProject(Project):
+    """The schema of all deleted projects"""
+
+    class Settings:
+        name = DELETED_PROJECT_DB_COLLECTION
 
 
 def _is_required_in_v2_and_above(value: Any, other_values: Dict[str, Any]):

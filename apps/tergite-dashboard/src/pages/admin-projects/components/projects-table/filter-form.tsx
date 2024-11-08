@@ -21,10 +21,10 @@ export const filterFormProps: DataTableFormConfig = {
       <Input {...field} className="" />
     ),
   },
-  ext_id: {
+  admin_email: {
     validation: z.string(),
     defaultValue: "",
-    label: "External ID",
+    label: "Admin",
     getFormElement: (field: DataTableFilterField) => (
       <Input {...field} className="" />
     ),
@@ -32,14 +32,14 @@ export const filterFormProps: DataTableFormConfig = {
   is_active: {
     validation: z
       .boolean()
-      .or(z.enum(["", "true", "false"]))
+      .or(z.enum(["", "false", "true"]))
       .optional(),
     defaultValue: "",
     label: "Status",
     getFormElement: ({ ref, value, ...props }: DataTableFilterField) => (
       <Select
         onValueChange={(v) =>
-          props.onChange(v === "" ? undefined : v === "true")
+          props.onChange(v == "" ? undefined : v === "true")
         }
         value={String(value) as string | undefined}
         {...props}

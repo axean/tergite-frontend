@@ -40,7 +40,7 @@ export const filterFormProps: DataTableFormConfig = {
         value={value as string | undefined}
         {...props}
       >
-        <SelectTrigger ref={ref}>
+        <SelectTrigger id="request-type-select" ref={ref}>
           <SelectValue placeholder="Select type" />
         </SelectTrigger>
         <SelectContent data-cy-user-request-type-select>
@@ -70,7 +70,7 @@ export const filterFormProps: DataTableFormConfig = {
         value={value as string | undefined}
         {...props}
       >
-        <SelectTrigger ref={ref}>
+        <SelectTrigger id="request-status-select" ref={ref}>
           <SelectValue placeholder="Select status" />
         </SelectTrigger>
         <SelectContent data-cy-user-request-status-select>
