@@ -13,6 +13,7 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 - Added the projects list page for viewing, requesting QPU time and deleting projects for current user
 - Added admin page for viewing, and approving user requests
 - Added admin page for viewing, editing, deleting and creating new projects
+- Added close button on the job detail drawer on the home page
 
 ### Changed
 

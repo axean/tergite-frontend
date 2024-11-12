@@ -1,4 +1,5 @@
 import {
+  DrawerClose,
   DrawerDescription,
   DrawerHeader,
   DrawerTitle,
@@ -6,6 +7,8 @@ import {
 import { ProgressStatus } from "@/components/ui/progress-status";
 import { Job, JobStatus } from "../../../../../types";
 import { DateTime, Duration } from "luxon";
+import { IconButton } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 export function JobDetailDrawerContent({ job }: Props) {
   return (
@@ -14,6 +17,9 @@ export function JobDetailDrawerContent({ job }: Props) {
       className="h-full w-[300px] md:w-[500px] lg:w-[600px] xl:w-[700px] mt-4"
     >
       <DrawerHeader>
+        <DrawerClose asChild>
+          <IconButton variant="outline" className="ml-auto" Icon={X} />
+        </DrawerClose>
         <DrawerTitle>Job: {job.job_id}</DrawerTitle>
         <DrawerDescription>Details about this job.</DrawerDescription>
       </DrawerHeader>
