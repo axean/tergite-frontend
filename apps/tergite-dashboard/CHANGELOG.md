@@ -18,6 +18,7 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 ### Changed
 
 - Changed devices page to show 'no devices found' when no devices are available.
+- Changed to show sidebar placeholder on admin user requests page when no user request is selected
 
 ### Fixed
 

@@ -16,13 +16,27 @@ import { DateTime } from "luxon";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useMemo } from "react";
+import { SidebarPlaceholder } from "@/components/ui/sidebar-placeholder";
 
-export function RequestSummary({
+export function RequestsSidebar(props: SidebarProps) {
+  return props.request ? (
+    <RequestSummary {...(props as RequestSummaryProps)} />
+  ) : (
+    <SidebarPlaceholder
+      mainTitle="User request title"
+      contentTitle="Request details"
+      contentDetail="Click any row to show details here"
+      className={props.className}
+    />
+  );
+}
+
+function RequestSummary({
   request,
   className = "",
   onApproval,
   onRejection,
-}: Props) {
+}: RequestSummaryProps) {
   const requestApproval = useMutation({
     mutationFn: approveUserRequest,
     onSuccess: async () => {
@@ -129,11 +143,15 @@ export function RequestSummary({
   );
 }
 
-interface Props {
-  request: UserRequest;
+interface SidebarProps {
+  request?: UserRequest;
   className?: string;
   onApproval: (id: string) => Promise<void>;
   onRejection: (id: string) => Promise<void>;
+}
+
+interface RequestSummaryProps extends SidebarProps {
+  request: UserRequest;
 }
 
 /**

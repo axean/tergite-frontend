@@ -335,6 +335,24 @@ users.forEach((user) => {
       });
 
     isAdmin &&
+      it("renders sidebar placeholder by default", () => {
+        cy.viewport(1080, 750);
+        // request summary should not exist
+        cy.get("#request-summary").should("not.exist");
+        cy.contains("#sidebar-placeholder h3", /user request title/i).should(
+          "be.visible"
+        );
+        cy.contains(
+          "#sidebar-placeholder .font-semibold",
+          /request details/i
+        ).should("be.visible");
+        cy.contains(
+          "#sidebar-placeholder .text-muted-foreground",
+          /click any row to show details here/i
+        ).should("be.visible");
+      });
+
+    isAdmin &&
       it("renders user request summary when row is clicked", () => {
         cy.viewport(1080, 750);
         cy.wait(100);
@@ -347,6 +365,9 @@ users.forEach((user) => {
               const requestBody = request.request as AnyFlatRecord;
 
               cy.wrap(obj.el).realClick();
+
+              // sidebar placeholder should not exist
+              cy.get("#sidebar-placeholder").should("not.exist");
 
               cy.contains("#request-summary h3", requestTitle).should(
                 "be.visible"
