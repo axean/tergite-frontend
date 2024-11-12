@@ -18,6 +18,7 @@ export function Devices() {
 
   return (
     <main className="grid  auto-rows-fr gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      {devices.length === 0 ? <div>No devices found.</div> : null}
       {devices.map((device) => (
         <Link key={device.name} to={`/devices/${device.name}`}>
           <Card className="text-sm flex flex-col justify-between h-full">
