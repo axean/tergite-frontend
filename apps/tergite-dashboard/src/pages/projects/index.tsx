@@ -20,7 +20,7 @@ import {
   type Project,
 } from "../../../types";
 import { ProjectsTable } from "./components/project-table";
-import { ProjectsSidebar } from "./components/project-sidebar";
+import { ProjectsSidebar } from "./components/projects-sidebar";
 import { Row, RowSelectionState } from "@tanstack/react-table";
 import { useLoaderData } from "react-router-dom";
 

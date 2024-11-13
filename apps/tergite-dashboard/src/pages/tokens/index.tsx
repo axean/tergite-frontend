@@ -20,7 +20,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 import { type AppState, type ExtendedAppToken, type Project } from "types";
 import { TokensTable } from "./components/tokens-table";
-import { TokenSummary } from "./components/token-summary";
+import { TokensSidebar } from "./components/tokens-sidebar";
 import { Row, RowSelectionState } from "@tanstack/react-table";
 import { Progress } from "@/components/ui/progress";
 
@@ -89,8 +89,8 @@ export function Tokens() {
         </CardContent>
       </Card>
 
-      {tokens && tokens[selectedTokenIdx] && (
-        <TokenSummary
+      {tokens && (
+        <TokensSidebar
           token={tokens[selectedTokenIdx]}
           className="order-first xl:order-none mt-14 col-span-1"
           onDelete={handleTokenDelete}

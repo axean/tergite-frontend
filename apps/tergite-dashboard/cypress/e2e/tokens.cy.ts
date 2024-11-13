@@ -277,6 +277,23 @@ users.forEach((user) => {
         });
     });
 
+    it("renders sidebar placeholder by default with no project selected", () => {
+      cy.viewport(1080, 750);
+      // token summary should not exist
+      cy.get("#token-summary").should("not.exist");
+      cy.contains("#sidebar-placeholder h3", /token title/i).should(
+        "be.visible"
+      );
+      cy.contains(
+        "#sidebar-placeholder .font-semibold",
+        /token details/i
+      ).should("be.visible");
+      cy.contains(
+        "#sidebar-placeholder .text-muted-foreground",
+        /click any row to show details here/i
+      ).should("be.visible");
+    });
+
     it("renders user's tokens' summary when row is clicked with no project selected", () => {
       cy.viewport(1080, 750);
       cy.wait(100);
@@ -286,6 +303,9 @@ users.forEach((user) => {
 
           if (token) {
             cy.wrap(obj.el).realClick();
+
+            // sidebar placeholder should not exist
+            cy.get("#sidebar-placeholder").should("not.exist");
 
             cy.contains("#token-summary h3", token.title).should("be.visible");
 
@@ -544,6 +564,36 @@ users.forEach((user) => {
       }
     });
 
+    it("renders sidebar placeholder by default with project selected", () => {
+      cy.viewport(1080, 750);
+
+      for (const project of userProjects) {
+        cy.wrap(project)
+          .then((project) => {
+            // click on project
+            cy.contains('[data-testid="topbar"] button', /project:/i).click();
+            cy.contains('#project-selector [role="option"]', project.name, {
+              timeout: 500,
+            }).click();
+
+            // token summary should not exist
+            cy.get("#token-summary").should("not.exist");
+            cy.contains("#sidebar-placeholder h3", /token title/i).should(
+              "be.visible"
+            );
+            cy.contains(
+              "#sidebar-placeholder .font-semibold",
+              /token details/i
+            ).should("be.visible");
+            cy.contains(
+              "#sidebar-placeholder .text-muted-foreground",
+              /click any row to show details here/i
+            ).should("be.visible");
+          })
+          .then(() => cy.reload());
+      }
+    });
+
     it("renders user's tokens' summary when row is clicked with project selected", () => {
       for (const project of userProjects) {
         cy.wrap(project).then((project) => {
@@ -564,6 +614,9 @@ users.forEach((user) => {
                 if (token) {
                   // click on row
                   cy.wrap(el).click();
+
+                  // sidebar placeholder should not exist
+                  cy.get("#sidebar-placeholder").should("not.exist");
 
                   // token summary is displayed accordingly
                   cy.get("#token-summary").within(() => {
