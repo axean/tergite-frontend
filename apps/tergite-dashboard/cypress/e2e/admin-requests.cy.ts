@@ -98,6 +98,23 @@ users.forEach((user) => {
       });
 
     isAdmin &&
+      it("does not render number of pending requests when sidebar is collapsed", () => {
+        cy.visit("/");
+        cy.wait("@my-user-info");
+        cy.url().should("equal", "http://127.0.0.1:5173/");
+
+        cy.get("[data-testid='sidebar'] [aria-label='PanelLeftClose']")
+          .parent()
+          .click();
+
+        cy.contains("[data-testid='sidebar'] div", /requests/i).within(() => {
+          cy.contains(".bg-primary", `${pendingUserRequests.length}`).should(
+            "not.exist"
+          );
+        });
+      });
+
+    isAdmin &&
       it("renders the admin requests page when nav item is clicked", () => {
         cy.visit("/");
         cy.wait("@my-user-info");

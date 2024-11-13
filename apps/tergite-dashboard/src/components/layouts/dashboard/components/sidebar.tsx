@@ -22,6 +22,7 @@ export function Sidebar({
   pendingRequestsCount,
 }: Props) {
   const widthClass = isExpanded ? "w-48" : "w-18";
+  const adminNavClass = isExpanded ? "ml-4 -mr-4" : "";
   const [isAdminOpen, setIsAdminOpen] = useState(true);
 
   return (
@@ -58,7 +59,9 @@ export function Sidebar({
                 {isExpanded ? "Admin" : null}
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="flex flex-col gap-4 my-4 ml-4 -mr-4">
+            <CollapsibleContent
+              className={`flex flex-col gap-4 my-4 ${adminNavClass}`}
+            >
               <NavItem
                 Icon={HelpingHand}
                 to="/admin-requests"
@@ -66,7 +69,7 @@ export function Sidebar({
                 text="Requests"
               >
                 {" "}
-                {!!pendingRequestsCount && (
+                {!!pendingRequestsCount && isExpanded && (
                   <Badge variant="default">{pendingRequestsCount}</Badge>
                 )}
               </NavItem>

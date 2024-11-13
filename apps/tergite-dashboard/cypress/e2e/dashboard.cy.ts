@@ -2,15 +2,28 @@
 
 import userList from "../fixtures/users.json";
 import projectList from "../fixtures/projects.json";
+import userRequestList from "../fixtures/user-requests.json";
 import { generateJwt, getUsername } from "../../api/utils";
-import { type Project, type User } from "../../types";
+import {
+  UserRequest,
+  UserRequestStatus,
+  UserRole,
+  type Project,
+  type User,
+} from "../../types";
 
 const users = [...userList] as User[];
 const projects = [...projectList] as Project[];
+const userRequests = [...userRequestList] as UserRequest[];
 
 users.forEach((user) => {
   const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
   const username = getUsername(user);
+  const isAdmin = user.roles.includes(UserRole.ADMIN);
+  const pendingUserRequests = userRequests.filter(
+    (v) => v.status === UserRequestStatus.PENDING
+  );
+  const requestsCount = pendingUserRequests.length;
 
   describe(`dashboard-layout for ${username}`, () => {
     beforeEach(() => {
@@ -59,13 +72,23 @@ users.forEach((user) => {
           .contains(/devices/i)
           .should("be.visible");
 
+        if (isAdmin) {
+          cy.get("nav")
+            .contains(/requests/i)
+            .should("be.visible");
+
+          cy.get("nav")
+            .contains(/projects/i)
+            .should("be.visible");
+        }
+
         // collapse button
         cy.get("[aria-label='PanelLeftClose']").should("be.visible");
       });
     });
 
     it("renders the mobile-menu in mobile mode", () => {
-      cy.viewport(320, 400);
+      cy.viewport(320, 700);
       cy.contains("button", "Toggle Menu").should("be.visible");
 
       cy.get('[data-testid="mobile-menu"]').should("not.exist");
@@ -79,6 +102,16 @@ users.forEach((user) => {
         cy.get("nav")
           .contains(/devices/i)
           .should("be.visible");
+
+        if (isAdmin) {
+          cy.get("nav")
+            .contains(/requests/i)
+            .should("be.visible");
+
+          cy.get("nav")
+            .contains(/projects/i)
+            .should("be.visible");
+        }
       });
     });
 
@@ -90,6 +123,15 @@ users.forEach((user) => {
         cy.get("nav")
           .contains("div", /devices/i)
           .should("have.text", "DevicesDevices");
+        if (isAdmin) {
+          cy.get("nav")
+            .contains(/requests/i)
+            .should("have.text", `RequestsRequests ${requestsCount}`);
+
+          cy.get("nav")
+            .contains(/projects/i)
+            .should("have.text", "ProjectsProjects");
+        }
         cy.get("[aria-label='PanelLeftClose']").should("be.visible");
         cy.get("[aria-label='PanelRightClose']").should("not.exist");
 
@@ -100,12 +142,27 @@ users.forEach((user) => {
 
         cy.get("nav [aria-label='Home']").should("be.visible");
         cy.get("nav [aria-label='Cpu']").should("be.visible");
+        if (isAdmin) {
+          cy.get("nav [aria-label='HandHelping']").should("be.visible");
+          cy.get("nav [aria-label='HardHat']").should("be.visible");
+        }
+
         cy.get("nav")
           .contains("div", /dashboard/i)
           .should("have.text", "Dashboard");
         cy.get("nav")
           .contains("div", /devices/i)
           .should("have.text", "Devices");
+
+        if (isAdmin) {
+          cy.get("nav")
+            .contains(/requests/i)
+            .should("have.text", "Requests ");
+
+          cy.get("nav")
+            .contains(/projects/i)
+            .should("have.text", "Projects");
+        }
 
         cy.get("[aria-label='PanelRightClose']").parent().click();
 
@@ -115,12 +172,26 @@ users.forEach((user) => {
         cy.get("nav [aria-label='Home']").should("be.visible");
         cy.get("nav [aria-label='Cpu']").should("be.visible");
 
+        if (isAdmin) {
+          cy.get("nav [aria-label='HandHelping']").should("be.visible");
+          cy.get("nav [aria-label='HardHat']").should("be.visible");
+        }
+
         cy.get("nav")
           .contains("div", /dashboard/i)
           .should("have.text", "DashboardDashboard");
         cy.get("nav")
           .contains("div", /devices/i)
           .should("have.text", "DevicesDevices");
+        if (isAdmin) {
+          cy.get("nav")
+            .contains(/requests/i)
+            .should("have.text", `RequestsRequests ${requestsCount}`);
+
+          cy.get("nav")
+            .contains(/projects/i)
+            .should("have.text", "ProjectsProjects");
+        }
       });
     });
 
