@@ -13,7 +13,7 @@ import { AdminProject } from "types";
 import { useCallback, useMemo } from "react";
 import { DateTime } from "luxon";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Button } from "@/components/ui/button";
+import { Button, IconButton } from "@/components/ui/button";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MultiInput } from "@/components/ui/multi-input";
 import { useToast } from "@/hooks/use-toast";
 import { SidebarPlaceholder } from "@/components/ui/sidebar-placeholder";
+import { X } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(1).optional(),
@@ -59,6 +60,7 @@ function AdminProjectSummary({
   className = "",
   onDelete,
   onEdit,
+  onClose,
 }: ProjectSummaryProps) {
   const { toast } = useToast();
   const editForm = useForm<z.infer<typeof formSchema>>({
@@ -117,12 +119,13 @@ function AdminProjectSummary({
         className={cn("overflow-hidden", className)}
       >
         <Card id="project-summary">
-          <CardHeader className="flex flex-row items-start bg-muted/50 justify-between">
+          <CardHeader className="flex flex-row items-center bg-muted/50 justify-between space-y-0">
             <div className="grid gap-0.5">
               <CardTitle className="group flex items-center gap-2 text-lg">
                 {project.name}
               </CardTitle>
             </div>
+            <IconButton Icon={X} variant="ghost" onClick={onClose} />
           </CardHeader>
           <CardContent className="p-6 text-sm xl:max-h-[60vh] overflow-y-auto">
             <div className="grid gap-3">
@@ -316,6 +319,7 @@ interface SidebarProps {
   className?: string;
   onDelete: (id: string) => Promise<void>;
   onEdit: (id: string) => Promise<void>;
+  onClose: () => Promise<void>;
 }
 
 interface ProjectSummaryProps extends SidebarProps {

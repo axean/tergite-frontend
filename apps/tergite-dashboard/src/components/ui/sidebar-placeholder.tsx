@@ -11,7 +11,7 @@ export function SidebarPlaceholder({
     <Card
       id="sidebar-placeholder"
       className={cn(
-        "overflow-hidden order-first xl:order-none mt-14 col-span-1",
+        "overflow-hidden order-first xl:order-none col-span-1",
         className
       )}
     >
