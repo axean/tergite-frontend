@@ -30,6 +30,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { MultiInput } from "@/components/ui/multi-input";
 import { useToast } from "@/hooks/use-toast";
+import { SidebarPlaceholder } from "@/components/ui/sidebar-placeholder";
 
 const formSchema = z.object({
   name: z.string().min(1).optional(),
@@ -40,12 +41,25 @@ const formSchema = z.object({
   is_active: z.boolean().optional(),
 });
 
-export function AdminProjectSummary({
+export function AdminProjectsSidebar(props: SidebarProps) {
+  return props.project ? (
+    <AdminProjectSummary {...(props as ProjectsSummaryProps)} />
+  ) : (
+    <SidebarPlaceholder
+      mainTitle="Project title"
+      contentTitle="Project details"
+      contentDetail="Click any row to show details here or click 'New' to create a project"
+      className={props.className}
+    />
+  );
+}
+
+function AdminProjectSummary({
   project,
   className = "",
   onDelete,
   onEdit,
-}: Props) {
+}: ProjectsSummaryProps) {
   const { toast } = useToast();
   const editForm = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -297,9 +311,13 @@ export function AdminProjectSummary({
   );
 }
 
-interface Props {
-  project: AdminProject;
+interface SidebarProps {
+  project?: AdminProject;
   className?: string;
   onDelete: (id: string) => Promise<void>;
   onEdit: (id: string) => Promise<void>;
+}
+
+interface ProjectsSummaryProps extends SidebarProps {
+  project: AdminProject;
 }
