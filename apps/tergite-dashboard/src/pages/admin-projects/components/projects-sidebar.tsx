@@ -43,7 +43,7 @@ const formSchema = z.object({
 
 export function AdminProjectsSidebar(props: SidebarProps) {
   return props.project ? (
-    <AdminProjectSummary {...(props as ProjectsSummaryProps)} />
+    <AdminProjectSummary {...(props as ProjectSummaryProps)} />
   ) : (
     <SidebarPlaceholder
       mainTitle="Project title"
@@ -59,7 +59,7 @@ function AdminProjectSummary({
   className = "",
   onDelete,
   onEdit,
-}: ProjectsSummaryProps) {
+}: ProjectSummaryProps) {
   const { toast } = useToast();
   const editForm = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -318,6 +318,6 @@ interface SidebarProps {
   onEdit: (id: string) => Promise<void>;
 }
 
-interface ProjectsSummaryProps extends SidebarProps {
+interface ProjectSummaryProps extends SidebarProps {
   project: AdminProject;
 }

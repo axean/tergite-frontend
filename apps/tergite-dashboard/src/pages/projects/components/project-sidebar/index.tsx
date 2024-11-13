@@ -14,13 +14,27 @@ import { Project } from "types";
 import { DeleteProjectDialog } from "./delete-dialog";
 import { useMemo } from "react";
 import { DateTime, Duration } from "luxon";
+import { SidebarPlaceholder } from "@/components/ui/sidebar-placeholder";
 
-export function ProjectSummary({
+export function ProjectsSidebar(props: SidebarProps) {
+  return props.project ? (
+    <ProjectSummary {...(props as ProjectSummaryProps)} />
+  ) : (
+    <SidebarPlaceholder
+      mainTitle="Project title"
+      contentTitle="Project details"
+      contentDetail="Click any row to show details here"
+      className={props.className}
+    />
+  );
+}
+
+function ProjectSummary({
   project,
   className = "",
   onDelete,
   canDelete,
-}: Props) {
+}: ProjectSummaryProps) {
   const projectDeletion = useMutation({
     mutationFn: deleteMyProject,
     onSuccess: async () => {
@@ -75,9 +89,13 @@ export function ProjectSummary({
   );
 }
 
-interface Props {
-  project: Project;
+interface SidebarProps {
+  project?: Project;
   canDelete: boolean;
   className?: string;
   onDelete: (id: string) => Promise<void>;
+}
+
+interface ProjectSummaryProps extends SidebarProps {
+  project: Project;
 }

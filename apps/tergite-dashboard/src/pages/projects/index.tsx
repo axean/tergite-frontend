@@ -20,7 +20,7 @@ import {
   type Project,
 } from "../../../types";
 import { ProjectsTable } from "./components/project-table";
-import { ProjectSummary } from "./components/project-summary";
+import { ProjectsSidebar } from "./components/project-sidebar";
 import { Row, RowSelectionState } from "@tanstack/react-table";
 import { useLoaderData } from "react-router-dom";
 
@@ -79,14 +79,12 @@ export function Projects() {
         </CardContent>
       </Card>
 
-      {projects[selectedProjectIdx] && (
-        <ProjectSummary
-          project={projects[selectedProjectIdx]}
-          className="order-first xl:order-none mt-14 col-span-1"
-          onDelete={handleProjectDelete}
-          canDelete={projects[selectedProjectIdx].admin_id === currentUser.id}
-        />
-      )}
+      <ProjectsSidebar
+        project={projects[selectedProjectIdx]}
+        className="order-first xl:order-none mt-14 col-span-1"
+        onDelete={handleProjectDelete}
+        canDelete={projects[selectedProjectIdx]?.admin_id === currentUser.id}
+      />
     </main>
   );
 }
