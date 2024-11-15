@@ -13,8 +13,12 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 - Added the projects list page for viewing, requesting QPU time and deleting projects for current user
 - Added admin page for viewing, and approving user requests
 - Added admin page for viewing, editing, deleting and creating new projects
+- Added close button on the job detail drawer on the home page
 
 ### Changed
+
+- Changed devices page to show 'no devices found' when no devices are available.
+- Changed to show sidebar placeholder on admin user requests page when no user request is selected
 
 ### Fixed
 

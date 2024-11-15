@@ -21,7 +21,7 @@ import {
   type AdminProject,
 } from "../../../types";
 import { AdminProjectsTable } from "./components/projects-table";
-import { AdminProjectSummary } from "./components/project-summary";
+import { AdminProjectsSidebar } from "./components/projects-sidebar";
 import { Row, RowSelectionState } from "@tanstack/react-table";
 import { useLoaderData } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -49,12 +49,13 @@ export function AdminProjects() {
 
   const handleRowClick = useCallback(
     (row: Row<AdminProject>) => {
+      setIsCreating(false);
       if (!row.getIsSelected()) {
         row.toggleSelected();
         setRowSelection({ [row.id]: true });
       }
     },
-    [setRowSelection]
+    [setRowSelection, setIsCreating]
   );
 
   const handleProjectDelete = useCallback(async () => {
@@ -71,18 +72,19 @@ export function AdminProjects() {
 
   const handleProjectCreate = useCallback(async () => {
     setIsCreating(false);
-    const lastIndex = projects.length;
     await refreshMyProjectsQueries(queryClient);
     await refreshAllAdminQueries(queryClient);
-    setRowSelection({ [`${lastIndex}`]: true });
-  }, [queryClient, setIsCreating, setRowSelection, projects]);
+    setRowSelection({});
+  }, [queryClient, setIsCreating, setRowSelection]);
+
+  const handleSidebarClose = useCallback(async () => {
+    setIsCreating(false);
+    setRowSelection({});
+  }, [setIsCreating, setRowSelection]);
 
   return (
-    <main className="grid flex-1 items-start gap-4 grid-cols-1 p-4 sm:px-6 sm:py-0 md:gap-8 xl:grid-cols-5 2xl:grid-cols-4">
-      <Card
-        id="projects-table"
-        className="col-span-1 mt-14  xl:pt-3 xl:col-span-3"
-      >
+    <main className="grid flex-1 items-start gap-4 grid-cols-1 p-4 sm:px-6 sm:py-0 xl:grid-cols-4">
+      <Card id="projects-table" className="col-span-1 xl:pt-3 xl:col-span-3">
         <CardHeader>
           <div className="flex justify-between">
             <CardDescription>Projects</CardDescription>
@@ -102,20 +104,22 @@ export function AdminProjects() {
         </CardContent>
       </Card>
 
-      {!isCreating && projects[selectedProjectIdx] && (
-        <AdminProjectSummary
+      {!isCreating && (
+        <AdminProjectsSidebar
           project={projects[selectedProjectIdx]}
-          className="order-first xl:order-none mt-14 col-span-1 xl:col-span-2 2xl:col-span-1"
+          className="order-first xl:order-none col-span-1"
           onDelete={handleProjectDelete}
           onEdit={handleProjectEdit}
+          onClose={handleSidebarClose}
         />
       )}
 
       {isCreating && (
         <CreateProjectForm
-          className="order-first xl:order-none mt-14 col-span-1 xl:col-span-2 2xl:col-span-1"
+          className="order-first xl:order-none col-span-1"
           onCreate={handleProjectCreate}
-          onCancel={() => setIsCreating(false)}
+          onCancel={handleSidebarClose}
+          onClose={handleSidebarClose}
         />
       )}
     </main>

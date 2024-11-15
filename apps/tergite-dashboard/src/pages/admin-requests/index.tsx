@@ -23,7 +23,7 @@ import {
   type UserRequest,
 } from "../../../types";
 import { AdminRequestsTable } from "./components/requests-table";
-import { RequestSummary } from "./components/request-summary";
+import { RequestsSidebar } from "./components/requests-sidebar";
 import { Row, RowSelectionState } from "@tanstack/react-table";
 
 export function AdminRequests() {
@@ -65,8 +65,8 @@ export function AdminRequests() {
   }, [queryClient, setRowSelection]);
 
   return (
-    <main className="grid flex-1 items-start gap-4 grid-cols-1 p-4 sm:px-6 sm:py-0 md:gap-8 xl:grid-cols-4">
-      <Card className="col-span-1 mt-14  xl:pt-3 xl:col-span-3">
+    <main className="grid flex-1 items-start gap-4 grid-cols-1 p-4 sm:px-6 sm:py-0 xl:grid-cols-4">
+      <Card className="col-span-1 xl:col-span-3">
         <CardHeader>
           <CardDescription>Pending User requests</CardDescription>
         </CardHeader>
@@ -80,14 +80,12 @@ export function AdminRequests() {
         </CardContent>
       </Card>
 
-      {requests[selectedRequestIdx] && (
-        <RequestSummary
-          request={requests[selectedRequestIdx]}
-          className="order-first xl:order-none mt-14 col-span-1"
-          onApproval={handleRequestReaction}
-          onRejection={handleRequestReaction}
-        />
-      )}
+      <RequestsSidebar
+        request={requests[selectedRequestIdx]}
+        className="order-first xl:order-none col-span-1"
+        onApproval={handleRequestReaction}
+        onRejection={handleRequestReaction}
+      />
     </main>
   );
 }

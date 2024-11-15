@@ -280,6 +280,23 @@ users.forEach((user) => {
         });
     });
 
+    it("renders sidebar placeholder by default", () => {
+      cy.viewport(1080, 750);
+      // project summary should not exist
+      cy.get("#project-summary").should("not.exist");
+      cy.contains("#sidebar-placeholder h3", /project title/i).should(
+        "be.visible"
+      );
+      cy.contains(
+        "#sidebar-placeholder .font-semibold",
+        /project details/i
+      ).should("be.visible");
+      cy.contains(
+        "#sidebar-placeholder .text-muted-foreground",
+        /click any row to show details here/i
+      ).should("be.visible");
+    });
+
     it("renders user's project' summary when row is clicked", () => {
       cy.viewport(1080, 750);
       cy.wait(100);
@@ -289,6 +306,9 @@ users.forEach((user) => {
 
           if (project) {
             cy.wrap(obj.el).realClick();
+
+            // sidebar placeholder should not exist
+            cy.get("#sidebar-placeholder").should("not.exist");
 
             cy.contains("#project-summary h3", project.name).should(
               "be.visible"

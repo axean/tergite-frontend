@@ -12,15 +12,14 @@ users.forEach((user) => {
   const username = getUsername(user);
 
   describe(`devices list page for ${username}`, () => {
+    let apiBaseUrl: string = "";
     beforeEach(() => {
-      const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
+      apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");
       const cookieName = Cypress.env("VITE_COOKIE_NAME");
       const secret = Cypress.env("JWT_SECRET");
       const audience = Cypress.env("AUTH_AUDIENCE");
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
-
-      cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
 
       if (user.id) {
         cy.wrap(generateJwt(user, cookieExpiry, { secret, audience })).then(
@@ -34,12 +33,14 @@ users.forEach((user) => {
           }
         );
       }
-
-      cy.visit("/devices");
-      cy.wait("@devices-list");
     });
 
     it("renders the summaries of all devices", () => {
+      cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
+
+      cy.visit("/devices");
+      cy.wait("@devices-list");
+
       cy.viewport(1080, 750);
       for (const device of devices) {
         cy.wrap(device).then((device) => {
@@ -60,6 +61,18 @@ users.forEach((user) => {
           });
         });
       }
+    });
+
+    it("renders no devices found if no devices are returned", () => {
+      cy.intercept("GET", `${apiBaseUrl}/devices`, { body: [] }).as(
+        "devices-list"
+      );
+
+      cy.visit("/devices");
+      cy.wait("@devices-list");
+
+      cy.viewport(1080, 750);
+      cy.contains("main", /no devices found/i).should("exist");
     });
   });
 });
