@@ -12,7 +12,7 @@
 """Data Transfer Objects for calibration"""
 import enum
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 from beanie import PydanticObjectId
 from bson import ObjectId
@@ -39,6 +39,7 @@ class CalibrationValue(ZEncodedBaseModel):
     value: float
 
 
+
 class QubitCalibration(ZEncodedBaseModel, extra=Extra.allow):
     """Schema for the calibration data of the qubit"""
 
@@ -47,6 +48,54 @@ class QubitCalibration(ZEncodedBaseModel, extra=Extra.allow):
     frequency: Optional[CalibrationValue] = None
     anharmonicity: Optional[CalibrationValue] = None
     readout_assignment_error: Optional[CalibrationValue] = None
+    # parameters for x gate
+    pi_pulse_amplitude: Optional[CalibrationValue] = None
+    pi_pulse_duration: Optional[CalibrationValue] = None
+    pulse_type: Optional[CalibrationValue] = None
+    pulse_sigma: Optional[CalibrationValue] = None
+    id: Optional[int] = None
+    index: Optional[CalibrationValue] = None
+    x_position: Optional[CalibrationValue] = None
+    y_position: Optional[CalibrationValue] = None
+    xy_drive_line: Optional[CalibrationValue] = None
+    z_drive_line: Optional[CalibrationValue] = None
+
+
+
+class ResonatorCalibration(ZEncodedBaseModel, extra=Extra.allow):
+    """Schema for the calibration data of the resonator"""
+
+    acq_delay: Optional[CalibrationValue] = None
+    acq_integration_time: Optional[CalibrationValue] = None
+    frequency: Optional[CalibrationValue] = None
+    pulse_amplitude: Optional[CalibrationValue] = None
+    pulse_delay: Optional[CalibrationValue] = None
+    pulse_duration: Optional[CalibrationValue] = None
+    pulse_type: Optional[CalibrationValue] = None
+    id: Optional[int] = None
+    index: Optional[CalibrationValue] = None
+    x_position: Optional[CalibrationValue] = None
+    y_position: Optional[CalibrationValue] = None
+    readout_line: Optional[CalibrationValue] = None
+
+
+class CouplersCalibration(ZEncodedBaseModel, extra=Extra.allow):
+    """Schema for the calibration data of the coupler"""
+
+    frequency: Optional[CalibrationValue] = None
+    frequency_detuning: Optional[CalibrationValue] = None
+    anharmonicity: Optional[CalibrationValue] = None
+    coupling_strength_02: Optional[CalibrationValue] = None
+    coupling_strength_12: Optional[CalibrationValue] = None
+    cz_pulse_amplitude: Optional[CalibrationValue] = None
+    cz_pulse_dc_bias: Optional[CalibrationValue] = None
+    cz_pulse_phase_offset: Optional[CalibrationValue] = None
+    cz_pulse_duration_before: Optional[CalibrationValue] = None
+    cz_pulse_duration_rise: Optional[CalibrationValue] = None
+    cz_pulse_duration_constant: Optional[CalibrationValue] = None
+    pulse_type: Optional[CalibrationValue] = None
+    id: Optional[int] = None
+
 
 
 class DeviceCalibrationV2(ZEncodedBaseModel):
@@ -56,6 +105,9 @@ class DeviceCalibrationV2(ZEncodedBaseModel):
     name: str
     version: str
     qubits: List[QubitCalibration]
+    resonators: List[ResonatorCalibration]
+    couplers: List[CouplersCalibration]
+    discriminators: Optional[Dict[str, Any]]
     last_calibrated: datetime
 
     class Config:
