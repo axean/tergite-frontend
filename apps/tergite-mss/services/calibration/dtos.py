@@ -41,7 +41,6 @@ class CalibrationValue(ZEncodedBaseModel):
     value: Union[float, str, int]
 
 
-
 class QubitCalibration(ZEncodedBaseModel, extra=Extra.allow):
     """Schema for the calibration data of the qubit"""
 
@@ -61,7 +60,6 @@ class QubitCalibration(ZEncodedBaseModel, extra=Extra.allow):
     y_position: Optional[CalibrationValue] = None
     xy_drive_line: Optional[CalibrationValue] = None
     z_drive_line: Optional[CalibrationValue] = None
-
 
 
 class ResonatorCalibration(ZEncodedBaseModel, extra=Extra.allow):
@@ -97,7 +95,6 @@ class CouplersCalibration(ZEncodedBaseModel, extra=Extra.allow):
     cz_pulse_duration_constant: Optional[CalibrationValue] = None
     pulse_type: Optional[CalibrationValue] = None
     id: Optional[int] = None
-
 
 
 class DeviceCalibrationV2(ZEncodedBaseModel):
