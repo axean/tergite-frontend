@@ -12,7 +12,7 @@
 """Data Transfer Objects for calibration"""
 import enum
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 
 from beanie import PydanticObjectId
 from bson import ObjectId
@@ -28,6 +28,8 @@ class CalibrationUnit(str, enum.Enum):
     GHz = "GHz"
     MHz = "MHz"
     Hz = "Hz"
+    rad = "rad"
+    deg = "deg"
     EMPTY = ""
 
 
@@ -36,7 +38,7 @@ class CalibrationValue(ZEncodedBaseModel):
 
     date: datetime
     unit: CalibrationUnit
-    value: float
+    value: Union[float, str, int]
 
 
 
@@ -105,9 +107,9 @@ class DeviceCalibrationV2(ZEncodedBaseModel):
     name: str
     version: str
     qubits: List[QubitCalibration]
-    resonators: List[ResonatorCalibration]
-    couplers: List[CouplersCalibration]
-    discriminators: Optional[Dict[str, Any]]
+    resonators: Optional[List[ResonatorCalibration]] = None
+    couplers: Optional[List[CouplersCalibration]] = None
+    discriminators: Optional[Dict[str, Any]] = None
     last_calibrated: datetime
 
     class Config:
