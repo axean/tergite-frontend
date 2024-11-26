@@ -16,7 +16,7 @@ import jwt
 from beanie import Document, PydanticObjectId
 from fastapi_users.jwt import decode_jwt, generate_jwt
 from fastapi_users.password import PasswordHelper
-from pymongo import collection, database, errors
+from pymongo import ReturnDocument, collection, database, errors
 
 from services.auth.app_tokens.dtos import AppToken
 from services.auth.projects.dtos import Project
@@ -211,6 +211,24 @@ def get_db_record(
     if _filter is not None:
         filter_obj.update(_filter)
     return col.find_one(filter_obj)
+
+
+def update_db_record(
+    db: database.Database,
+    schema: Type[T],
+    _id: Optional[str] = None,
+    _filter: Optional[dict] = None,
+    update: Optional[dict] = None,
+) -> Optional[dict]:
+    """Updates the given auth document"""
+    col: collection.Collection = db[schema.Settings.name]
+    filter_obj = {"_id": PydanticObjectId(_id)} if _id else {}
+    if _filter is not None:
+        filter_obj.update(_filter)
+    payload = update if isinstance(update, dict) else {}
+    return col.find_one_and_update(
+        filter_obj, payload, return_document=ReturnDocument.AFTER
+    )
 
 
 def get_jwt_token(

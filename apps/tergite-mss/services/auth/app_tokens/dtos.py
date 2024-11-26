@@ -42,6 +42,12 @@ class AppTokenRead(AppTokenCreate):
         orm_mode = True
 
 
+class AppTokenUpdate(BaseModel):
+    """The record used to update the app token"""
+
+    lifespan_seconds: int
+
+
 class AppToken(BeanieBaseAccessToken, AppTokenCreate, Document):
     """App token stored in the database"""
 

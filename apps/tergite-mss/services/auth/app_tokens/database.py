@@ -12,7 +12,7 @@
 
 """Definition of the FastAPIUsers-specific Database adapter for app tokens"""
 from datetime import datetime, timedelta, timezone
-from typing import Any, List, Mapping, Optional
+from typing import Any, Dict, List, Mapping, Optional
 
 from beanie import PydanticObjectId
 from fastapi_users_db_beanie.access_token import BeanieAccessTokenDatabase
@@ -54,6 +54,34 @@ class AppTokenDatabase(BeanieAccessTokenDatabase):
         filters["_id"] = _id
         return await self._find_one(filters)
 
+    async def update(
+        self,
+        _id: PydanticObjectId,
+        filters: Optional[Dict[str, Any]] = None,
+        payload: Optional[Dict[str, Any]] = None,
+    ) -> Optional[AppToken]:
+        """Updates an AppToken of _id, and given filters, with the given payload
+
+        Args:
+            _id: the ID of the AppToken to get
+            filters: any extra filters to match against apart from the _id
+            payload: the update object
+
+        Returns:
+            the matched AppToken or None if no document was matched
+        """
+        if filters is None:
+            filters = {}
+        if payload is None:
+            payload = {}
+
+        filters["_id"] = _id
+        token: Optional[AppToken] = await self._find_one(filters)
+        if isinstance(token, AppToken):
+            return await token.set(payload)
+
+        return token
+
     async def _find_one(self, _filter) -> Optional[AppToken]:
         """Finds the given token by the given filter.
 
@@ -63,16 +91,14 @@ class AppTokenDatabase(BeanieAccessTokenDatabase):
         Returns:
             the matched AppToken or None if no document was matched
         """
-        response: Optional[AppToken] = await self.access_token_model.find_one(_filter)
-        if response:
+        token: Optional[AppToken] = await self.access_token_model.find_one(_filter)
+        if _is_token_expired(token):
             # return None for tokens that are past their age
-            lifespan = datetime.now(timezone.utc) - response.created_at
-            if lifespan >= timedelta(seconds=response.lifespan_seconds):
-                # delete expired tokens automatically
-                await response.delete()
-                return None
+            # delete expired tokens automatically
+            await token.delete()
+            return None
 
-        return response
+        return token
 
     @staticmethod
     async def delete_many(
@@ -117,3 +143,19 @@ class AppTokenDatabase(BeanieAccessTokenDatabase):
             skip=skip,
             limit=limit,
         ).to_list()
+
+
+def _is_token_expired(token: Optional[AppToken]) -> bool:
+    """Checks whether the token is expired or not
+
+    Args:
+        token: the app token to be checked
+
+    Returns:
+        True if token is expired or False
+    """
+    try:
+        lifespan = datetime.now(timezone.utc) - token.created_at
+        return lifespan >= timedelta(seconds=token.lifespan_seconds)
+    except AttributeError:
+        return False

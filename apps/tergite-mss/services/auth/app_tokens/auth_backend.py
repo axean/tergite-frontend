@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """FastAPIUsers-specific definition of Authentication Backend"""
+from typing import Optional
+
 from beanie import PydanticObjectId
 from fastapi import status
 from fastapi.responses import Response
@@ -18,7 +20,7 @@ from fastapi_users.authentication.strategy import StrategyDestroyNotSupportedErr
 from fastapi_users.authentication.transport import TransportLogoutNotSupportedError
 from fastapi_users.types import DependencyCallable
 
-from .dtos import AppTokenCreate
+from .dtos import AppTokenCreate, AppTokenRead, AppTokenUpdate
 from .strategy import AppTokenStrategy
 
 
@@ -98,3 +100,28 @@ class AppTokenAuthenticationBackend:
             response = Response(status_code=status.HTTP_204_NO_CONTENT)
 
         return response
+
+    async def update_token(
+        self,
+        strategy: AppTokenStrategy,
+        _id: PydanticObjectId,
+        user_id: PydanticObjectId,
+        payload: AppTokenUpdate,
+        **kwargs
+    ) -> Optional[AppTokenRead]:
+        """Updates a given token.
+
+        Returns None if the token is already expired, is non-existent or belongs to another user
+
+        Args:
+            strategy: the FastAPIUsers strategy to use
+            _id: the ID of the token to update
+            user_id: the id of the user this token should belong to
+            payload: the update to add to the token
+
+        Returns:
+            the updated token or None if the token was expired, belonged to another user or did not exist
+        """
+        return await strategy.update_token(
+            token_id=_id, user_id=user_id, payload=payload
+        )

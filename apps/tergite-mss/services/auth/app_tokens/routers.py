@@ -25,7 +25,7 @@ from ..users.manager import UserManager, UserManagerDependency
 from ..utils import MAX_LIST_QUERY_LEN, TooManyListQueryParams
 from . import exc
 from .auth_backend import AppTokenAuthenticationBackend
-from .dtos import AppTokenCreate, AppTokenListResponse, AppTokenRead
+from .dtos import AppTokenCreate, AppTokenListResponse, AppTokenRead, AppTokenUpdate
 from .strategy import AppTokenStrategy
 
 
@@ -182,6 +182,27 @@ def get_app_tokens_router(
             strategy=strategy, payload=payload, user_id=parsed_user_id
         )
         return response
+
+    # route to update tokens
+    @router.put(
+        "/{_id}",
+        name=f"app_tokens:{backend.name}.update_token",
+    )
+    async def update_app_token(
+        _id: PydanticObjectId,
+        payload: AppTokenUpdate,
+        user_manager: UserManager = Depends(get_user_manager),
+        strategy: AppTokenStrategy = Depends(backend.get_strategy),
+        user_id: str = Depends(get_current_user_id),
+    ):
+        parsed_user_id = user_manager.parse_id(user_id)
+        updated_token = await backend.update_token(
+            strategy=strategy, _id=_id, payload=payload, user_id=parsed_user_id
+        )
+        if updated_token is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+        return schemas.model_validate(AppTokenRead, updated_token)
 
     # route to destroy tokens
     @router.delete(

@@ -22,6 +22,8 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 - Added PUT `/v2/admin/projects/{id}` endpoint for admins to update a project of given id
     - Creates new empty user if non-existent emails are passed as user_emails or admin_email
 - Added DELETE `/v2/admin/projects/{id}` endpoint for admins to soft delete a project
+- Added the PUT `/auth/me/app-tokens/{token_id}` endpoint for extending app token's lifetimes
+- Added the PUT `/v2/me/tokens/{token_id}` endpoint for extending app token's lifetimes
 
 ## [2024.09.1] - 2024-09-24
 
