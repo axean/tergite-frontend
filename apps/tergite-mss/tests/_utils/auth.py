@@ -93,6 +93,11 @@ TEST_SYSTEM_USER_DICT = dict(
     hashed_password=_password_helper.hash(_password_helper.generate()),
     is_verified=True,
 )
+USER_ID_EMAIL_MAP = {
+    TEST_USER_ID: TEST_USER_EMAIL,
+    TEST_SUPERUSER_ID: TEST_SUPERUSER_EMAIL,
+    TEST_SYSTEM_USER_ID: TEST_SYSTEM_USER_EMAIL,
+}
 TEST_PROJECT_DICT = dict(
     _id=PydanticObjectId(TEST_PROJECT_ID),
     ext_id=TEST_PROJECT_EXT_ID,

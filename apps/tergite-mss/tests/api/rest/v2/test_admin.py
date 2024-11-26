@@ -20,6 +20,7 @@ from ...._utils.auth import (
     TEST_SYSTEM_USER_ID,
     TEST_USER_DICT,
     TEST_USER_ID,
+    USER_ID_EMAIL_MAP,
     get_db_record,
 )
 from ...._utils.date_time import get_timestamp_str
@@ -580,6 +581,8 @@ def test_admin_create_project(db, project, client_v2, admin_jwt_cookie, freezer)
             "description": project["description"],
             "user_ids": user_ids,
             "admin_id": admin_id,
+            "admin_email": project["admin_email"],
+            "user_emails": user_emails,
             "created_at": now,
             "updated_at": now,
         }
@@ -640,6 +643,8 @@ def test_admin_update_project(db, payload, client_v2, admin_jwt_cookie, freezer)
         admin_email = payload.get("admin_email", project.get("admin_email"))
         user_ids = project["user_ids"]
         admin_id = user_email_id_map.get(admin_email, project["admin_id"])
+        user_id_email_map = {v: k for k, v in user_email_id_map.items()}
+        user_id_email_map[admin_id] = admin_email
 
         if "user_emails" in payload:
             # the user_ids and user_emails have been updated
@@ -658,6 +663,8 @@ def test_admin_update_project(db, payload, client_v2, admin_jwt_cookie, freezer)
             "description": payload.get("description", project["description"]),
             "user_ids": user_ids,
             "admin_id": admin_id,
+            "admin_email": payload.get("admin_email", project["admin_email"]),
+            "user_emails": [user_id_email_map[v] for v in user_ids],
             "created_at": created_at,
             "updated_at": updated_at,
             "version": 2,
@@ -700,6 +707,10 @@ def test_admin_view_all_projects_in_detail(
                 "is_active": item.get("is_active", True),
                 "user_ids": item.get("user_ids"),
                 "admin_id": item.get("admin_id"),
+                "admin_email": USER_ID_EMAIL_MAP.get(item.get("admin_id")),
+                "user_emails": [
+                    USER_ID_EMAIL_MAP.get(v) for v in item.get("user_ids", [])
+                ],
                 "name": item.get("name"),
                 "description": item.get("description"),
                 "created_at": item.get("created_at"),
@@ -748,6 +759,10 @@ def test_admin_view_single_project_in_detail(
             "is_active": project["is_active"],
             "user_ids": project.get("user_ids"),
             "admin_id": project.get("admin_id"),
+            "admin_email": USER_ID_EMAIL_MAP.get(project.get("admin_id")),
+            "user_emails": [
+                USER_ID_EMAIL_MAP.get(v) for v in project.get("user_ids", [])
+            ],
             "name": project.get("name"),
             "description": project.get("description"),
             "created_at": project.get("created_at"),

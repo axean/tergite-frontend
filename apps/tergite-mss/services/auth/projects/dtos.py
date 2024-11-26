@@ -107,6 +107,7 @@ class ProjectAdminView(ProjectRead):
     """The schema for viewing a project as an admin"""
 
     user_emails: Optional[List[str]] = None
+    admin_email: Optional[str] = None
 
     class Config:
         orm_mode = True
