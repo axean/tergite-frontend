@@ -1,6 +1,7 @@
 """Integration tests for the 'me v2' router"""
 
 from datetime import datetime, timedelta, timezone
+from random import randint
 
 import pytest
 from pytest_lazyfixture import lazy_fixture
@@ -20,6 +21,8 @@ from tests._utils.auth import (
     TEST_USER_EMAIL,
     TEST_USER_ID,
     get_db_record,
+    get_jwt_token,
+    update_db_record,
 )
 from tests._utils.date_time import get_timestamp_str
 from tests._utils.fixtures import load_json_fixture
@@ -400,19 +403,124 @@ def test_view_others_tokens_is_not_allowed(
         assert got == expected
 
 
-@pytest.mark.parametrize("app_token", APP_TOKEN_LIST)
-def test_expired_app_token_fails(
-    app_token, client_v2, inserted_projects, app_tokens_with_timestamps, freezer
+@pytest.mark.parametrize("token", APP_TOKEN_LIST)
+def test_extend_own_token_lifespan(
+    db,
+    token,
+    client_v2,
+    inserted_projects,
+    inserted_app_tokens,
+    freezer,
 ):
-    """Expired app tokens raise 401 HTTP error"""
-    app_token_ttl = app_token["lifespan_seconds"]
-    cookies = {"some-token": app_token["token"]}
-    time_in_future = datetime.now(timezone.utc) + timedelta(seconds=app_token_ttl + 1)
+    """PUT at /v2/me/tokens/{token_id}, user can update an app token for project they are attached to"""
+    lifespan_secs = randint(1000, 300000)
+    user_id = token["user_id"]
+    cookies = {"some-cookie": get_jwt_token(user_id, ttl=lifespan_secs)}
+    payload = {
+        "lifespan_seconds": lifespan_secs,
+        "title": "foo bar",
+        "created_at": "1997-11-25T14:25:47.239Z",
+        "id": "anot-p",
+        "project_ext_id": "a-certain-proj",
+    }
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        token_id = token["_id"]
+        url = f"/v2/me/tokens/{token_id}"
+
+        original_token = get_db_record(db, AppToken, token_id)
+        response = client.put(url, cookies=cookies, json=payload)
+
+        got = response.json()
+        expected_response = {
+            "id": token_id,
+            "project_ext_id": token["project_ext_id"],
+            "title": token["title"],
+            "lifespan_seconds": lifespan_secs,
+            "created_at": datetime.now(timezone.utc).isoformat("T"),
+        }
+        token_after_update = get_db_record(db, AppToken, token_id)
+
+        assert response.status_code == 200
+        assert got == expected_response
+        assert token_after_update == {
+            **original_token,
+            "lifespan_seconds": lifespan_secs,
+        }
+
+
+@pytest.mark.parametrize("token", APP_TOKEN_LIST)
+def test_extend_own_expired_token_lifespan(
+    db,
+    token,
+    client_v2,
+    inserted_projects,
+    app_tokens_with_timestamps,
+):
+    """Updating expired app tokens raises 404 HTTP error"""
+    lifespan_secs = randint(1000, 300000)
+    user_id = token["user_id"]
+    app_token_ttl = token["lifespan_seconds"]
+    cookies = {"some-cookie": get_jwt_token(user_id, ttl=app_token_ttl + lifespan_secs)}
+    payload = {
+        "lifespan_seconds": lifespan_secs,
+        "title": "foo bar",
+        "created_at": "1997-11-25T14:25:47.239Z",
+        "id": "anot-p",
+        "project_ext_id": "a-certain-proj",
+    }
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        # shift time to the future after startup has run
-        freezer.move_to(time_in_future.isoformat())
+        token_id = token["_id"]
+        url = f"/v2/me/tokens/{token_id}"
+        original_token = get_db_record(db, AppToken, token_id)
+        app_token_ttl = token["lifespan_seconds"]
+
+        # shift back the created_at date to a time that would make this token expired
+        new_created_at = datetime.now(timezone.utc) - timedelta(
+            seconds=app_token_ttl + 1
+        )
+        update_db_record(
+            db,
+            AppToken,
+            token_id,
+            update={"$set": {"created_at": new_created_at.isoformat(sep="T")}},
+        )
+
+        response = client.put(url, cookies=cookies, json=payload)
+        token_after_request = get_db_record(db, AppToken, token_id)
+
+        got = response.json()
+        expected = {"detail": "Not Found"}
+
+        assert response.status_code == 404
+        assert got == expected
+        assert original_token is not None
+        assert token_after_request is None
+
+
+@pytest.mark.parametrize("app_token", APP_TOKEN_LIST)
+def test_expired_app_token_fails(
+    db, app_token, client_v2, inserted_projects, app_tokens_with_timestamps
+):
+    """Expired app tokens raise 401 HTTP error"""
+    token_id = app_token["_id"]
+    app_token_ttl = app_token["lifespan_seconds"]
+    cookies = {"some-token": app_token["token"]}
+
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        # shift back the created_at date to a time that would make this token expired
+        new_created_at = datetime.now(timezone.utc) - timedelta(
+            seconds=app_token_ttl + 1
+        )
+        update_db_record(
+            db,
+            AppToken,
+            token_id,
+            update={"$set": {"created_at": new_created_at.isoformat(sep="T")}},
+        )
 
         response = client.get("/", cookies=cookies)
 

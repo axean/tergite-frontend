@@ -16,13 +16,14 @@ from typing import Optional, Tuple
 from beanie import PydanticObjectId
 from fastapi_users.authentication.strategy import DatabaseStrategy
 
+from .. import AppTokenRead
 from ..projects.dtos import Project
 from ..projects.exc import ProjectNotExists
 from ..projects.manager import ProjectAppTokenManager
 from ..users.dtos import User
 from . import exc
 from .database import AppTokenDatabase
-from .dtos import AppTokenCreate
+from .dtos import AppTokenCreate, AppTokenUpdate
 
 
 class AppTokenStrategy(DatabaseStrategy):
@@ -83,3 +84,13 @@ class AppTokenStrategy(DatabaseStrategy):
             )
         except ProjectNotExists:
             return None
+
+    async def update_token(
+        self,
+        token_id: PydanticObjectId,
+        user_id: PydanticObjectId,
+        payload: AppTokenUpdate,
+    ) -> Optional[AppTokenRead]:
+        return await self.database.update(
+            token_id, filters=dict(user_id=user_id), payload=payload.dict()
+        )
