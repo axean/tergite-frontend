@@ -11,13 +11,13 @@ import { ErrorInfo } from "../../types";
 import { cn } from "@/lib/utils";
 import { useNavigate, useRouteError } from "react-router-dom";
 import { PropsWithChildren } from "react";
-import { ErrorBoundary } from "react-error-boundary";
+import { ErrorBoundary, useErrorBoundary } from "react-error-boundary";
 
 export default function ErrorAlert({ className = "", error }: Props) {
+  const { resetBoundary } = useErrorBoundary();
   const routeError = useRouteError() as ErrorInfo;
   const navigate = useNavigate();
   const displayedError = error ?? routeError;
-  console.error(displayedError);
 
   return (
     <div
@@ -45,8 +45,11 @@ export default function ErrorAlert({ className = "", error }: Props) {
             </i>
           </div>
         </CardContent>
-        <CardFooter>
-          <Button variant="link" onClick={() => navigate(-1)}>
+        <CardFooter className="flex justify-between">
+          <Button variant="default" onClick={resetBoundary}>
+            Try again
+          </Button>
+          <Button variant="secondary" onClick={() => navigate(-1)}>
             Back
           </Button>
         </CardFooter>

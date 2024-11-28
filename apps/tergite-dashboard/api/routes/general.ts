@@ -578,7 +578,7 @@ router.post(
       users.map((v) => [v.email, v.id])
     );
 
-    // TODO: Create the users if the emails don't exist
+    // Create the users if the emails don't exist
     for (const email of allEmails) {
       if (!userEmailIdMap[email]) {
         const newUser = mockDb.create<User>("users", {
@@ -633,7 +633,7 @@ router.put(
       users.map((v) => [v.email, v.id])
     );
 
-    // TODO: Create the users if the emails don't exist
+    // Create the users if the emails don't exist
     for (const email of allEmails) {
       if (!userEmailIdMap[email]) {
         const newUser = mockDb.create<User>("users", {
