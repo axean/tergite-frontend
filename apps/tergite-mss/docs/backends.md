@@ -29,3 +29,10 @@ cp mss-config.example.toml mss-config.toml
 ```shell
 ./start_mss
 ```
+
+### FAQs
+
+#### - How does the frontend know when the backend is offline?
+
+Currently, there is no realtime monitoring of the status of the backend.
+This is something we hope to implement in future.
