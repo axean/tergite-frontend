@@ -121,7 +121,6 @@ class ProjectBasedAuth:
         return routers.get_projects_router_v2(
             get_project_manager=self.get_project_manager,
             get_current_superuser=self.get_current_superuser,
-            project_schema=ProjectAdminView,
             project_update_schema=ProjectUpdate,
             project_create_schema=ProjectCreate,
         )

@@ -11,7 +11,8 @@
 # that they have been altered from the originals.
 
 """A collection of routers for the projects submodule of the auth service"""
-from typing import Dict, List, Optional, Type
+import asyncio
+from typing import Dict, List, Optional, Type, Union
 
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
@@ -20,7 +21,7 @@ from fastapi.responses import Response
 from fastapi_users import exceptions, schemas
 from fastapi_users.password import PasswordHelper
 from fastapi_users.router.common import ErrorModel
-from pydantic import EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 from ..users.dtos import CurrentSuperUserDependency, CurrentUserIdDependency, User
 from ..users.manager import UserManager, UserManagerDependency
@@ -361,7 +362,6 @@ def get_my_projects_router(
 def get_projects_router_v2(
     get_project_manager: ProjectManagerDependency,
     get_current_superuser: CurrentSuperUserDependency,
-    project_schema: Type[ProjectAdminView],
     project_update_schema: Type[ProjectUpdate],
     project_create_schema: Type[ProjectCreate],
     **kwargs,
@@ -381,7 +381,7 @@ def get_projects_router_v2(
 
     @router.post(
         "",
-        response_model=project_schema,
+        response_model=ProjectAdminView,
         dependencies=[Depends(get_current_superuser)],
         status_code=status.HTTP_201_CREATED,
         name="projects:create_project_v2",
@@ -401,11 +401,10 @@ def get_projects_router_v2(
                 detail=exc.ExtendedErrorCode.PROJECT_ALREADY_EXISTS,
             )
 
-        return schemas.model_validate(project_schema, created_project)
+        return await _get_full_admin_project(created_project)
 
     @router.get(
         "/{id}",
-        response_model=project_schema,
         dependencies=[Depends(get_current_superuser)],
         name="projects:single_project_v2",
         responses={
@@ -421,11 +420,11 @@ def get_projects_router_v2(
         },
     )
     async def get_project(project=Depends(get_project_or_404)):
-        return schemas.model_validate(project_schema, project)
+        return await _get_full_admin_project(project)
 
     @router.get(
         "",
-        response_model=PaginatedListResponse[project_schema],
+        response_model=PaginatedListResponse[ProjectAdminView],
         dependencies=[Depends(get_current_superuser)],
         name="projects:many_projects_v2",
         responses={
@@ -488,12 +487,14 @@ def get_projects_router_v2(
         projects = await project_manager.get_many(
             filter_obj=filter_obj, skip=skip, limit=limit
         )
-        data = [schemas.model_validate(project_schema, project) for project in projects]
+        data = await asyncio.gather(
+            *(_get_full_admin_project(project) for project in projects)
+        )
         return PaginatedListResponse(data=data, skip=skip, limit=limit)
 
     @router.put(
         "/{id}",
-        response_model=project_schema,
+        response_model=ProjectAdminView,
         dependencies=[Depends(get_current_superuser)],
         name="projects:put_project",
         responses={
@@ -520,7 +521,7 @@ def get_projects_router_v2(
             project_update, project, safe=False, request=request
         )
 
-        return schemas.model_validate(project_schema, updated_project)
+        return await _get_full_admin_project(updated_project)
 
     @router.delete(
         "/{id}",
@@ -657,3 +658,50 @@ async def _get_user_email_id_map(user_emails: List[str]) -> Dict[str, str]:
     )
 
     return email_id_map
+
+
+async def _get_full_admin_project(
+    project: Union[ProjectAdminView, Project]
+) -> ProjectAdminView:
+    """Returns a project admin view with user_emails and admin_email fields filled
+
+    Args:
+        project: the admin project to enhance
+
+    Returns:
+        the enhanced admin project
+
+    Raises:
+        KeyError: user id does not exist in database
+    """
+    if project.version is None or project.version < 2:
+        return project
+
+    id_email_map = await _get_user_id_email_map([*project.user_ids, project.admin_id])
+    props = project.dict()
+    props["user_emails"] = [id_email_map[v] for v in project.user_ids]
+    props["admin_email"] = id_email_map[project.admin_id]
+    return ProjectAdminView(**props)
+
+
+class _TrimmedUser(BaseModel):
+    """A user object with only email and _id"""
+
+    email: str
+    id: PydanticObjectId = Field(alias="_id")
+
+
+async def _get_user_id_email_map(user_ids: List[str]) -> Dict[str, str]:
+    """Gets the user emails for the given user ids as a map
+
+    Args:
+        user_ids: the ids of the users in string form
+
+    Returns:
+        the map of the user id and email
+    """
+    parsed_user_ids = [PydanticObjectId(v) for v in user_ids]
+    users = await User.find(
+        {"_id": {"$in": parsed_user_ids}}, projection_model=_TrimmedUser
+    ).to_list()
+    return {str(v.id): v.email for v in users}
