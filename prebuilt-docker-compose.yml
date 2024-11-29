@@ -13,7 +13,7 @@ services:
       - ./mss-config.toml:/code/mss-config.toml:ro
     env_file:
       - .env
-    network_mode: host
+    network_mode: ${NETWORK_MODE:-none}
 
   dashboard:
     restart: always
