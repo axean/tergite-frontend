@@ -29,7 +29,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.006299999999999972
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":0,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -56,7 +82,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.007099999999999995
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":1,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -83,7 +135,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.022699999999999942
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":2,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -110,7 +188,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.019299999999999984
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":3,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -137,7 +241,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.013399999999999967
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":4,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -164,7 +294,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.04960000000000009
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":5,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -191,7 +347,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.0373
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":6,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -218,7 +400,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.016699999999999937
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":7,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -245,9 +453,38 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.03520000000000001
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":8,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       }
-    ]
+    ],
+    "couplers": null,
+    "discriminators": null, 
+    "resonators": null
   },
   {
     "name": "Thor",
@@ -279,7 +516,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.028900000000000037
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":0,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -306,7 +569,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.011199999999999988
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":1,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -333,7 +622,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.009700000000000042
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":2,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -360,7 +675,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.017800000000000038
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":3,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -387,9 +728,38 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.042100000000000026
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":4,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       }
-    ]
+    ],
+    "couplers": null,
+    "discriminators": null, 
+    "resonators": null
   },
   {
     "name": "Pingu",
@@ -421,7 +791,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.015100000000000002
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":0,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -448,7 +844,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.09149999999999991
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":1,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -475,7 +897,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.0696
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":2,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -502,7 +950,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.012599999999999945
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":3,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -529,7 +1003,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.025700000000000056
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":4,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -556,7 +1056,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.06340000000000001
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":5,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -583,7 +1109,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.46730000000000005
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":6,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -610,7 +1162,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.2813
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":7,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -637,7 +1215,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.020299999999999985
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":8,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -664,7 +1268,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.013299999999999979
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":9,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -691,7 +1321,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.01649999999999996
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":10,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -718,7 +1374,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.02200000000000002
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":11,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -745,7 +1427,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.008399999999999963
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":12,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -772,7 +1480,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.006900000000000017
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":13,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -799,7 +1533,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.040200000000000014
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":14,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -826,7 +1586,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.010299999999999976
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":15,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -853,7 +1639,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.00869999999999993
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":16,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -880,7 +1692,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.009500000000000064
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":17,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -907,7 +1745,33 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.025800000000000045
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":18,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       },
       {
         "t1_decoherence": {
@@ -934,8 +1798,37 @@
           "date": "2024-07-08T06:16:05.000Z",
           "unit": "",
           "value": 0.009299999999999975
-        }
+        },
+        "pi_pulse_amplitude":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 0.03
+        },
+        "pi_pulse_duration":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 5.6e-8
+        },
+        "pulse_type":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": "Gaussian"
+        },
+        "pulse_sigma":{
+          "date": "2024-07-08T06:16:05.000Z",
+          "unit": "",
+          "value": 7e-9
+        },
+        "id":19,
+        "index":null,
+        "x_position":null,
+        "y_position":null,
+        "xy_drive_line":null,
+        "z_drive_line":null
       }
-    ]
+    ],
+    "couplers": null,
+    "discriminators": null, 
+    "resonators": null
   }
 ]
