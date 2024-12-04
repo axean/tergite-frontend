@@ -1,0 +1,52 @@
+---
+services:
+  mss:
+    restart: always
+    image: "tergite/tergite-mss:${MSS_VERSION:-v0.4.0}"
+    build:
+      context: apps/tergite-mss
+      dockerfile: Dockerfile
+    logging:
+      driver: ${LOGGING_DRIVER}
+    ports:
+      - "8002:${MSS_PORT:-80}"
+    environment:
+      - MSS_CONFIG_FILE=/code/mss-config.toml
+    volumes:
+      - ./mss-config.toml:/code/mss-config.toml:ro
+    env_file:
+      - .env
+    #network_mode: host
+
+  dashboard:
+    restart: always
+    depends_on:
+      - mss
+    image: "tergite/tergite-dashboard:${DASHBOARD_VERSION:-v0.5.0}"
+    build:
+      context: apps/tergite-dashboard
+      dockerfile: Dockerfile
+      additional_contexts:
+        parent-folder: ./
+      args:
+        - VITE_API_BASE_URL=${MSS_V2_API_URL}
+        - MSS_CONFIG_FILE=./mss-config.toml
+    logging:
+      driver: ${LOGGING_DRIVER}
+    ports:
+      - "3000:80"
+    env_file:
+      - .env
+
+  loki-promtail:
+    restart: always
+    image: grafana/promtail:${PROMTAIL_VERSION:-2.8.3}
+    logging:
+      driver: ${LOGGING_DRIVER}
+    volumes:
+      - ./promtail.yaml:/etc/promtail/config.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./.data/promtail:/tmp
+    command: "-config.expand-env=true -config.file=/etc/promtail/config.yaml"
+    env_file:
+      - .env
