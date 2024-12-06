@@ -88,6 +88,7 @@ class JobCreate(ZEncodedBaseModel):
     """The schema used when creating a job"""
 
     backend: str
+    calibration_date: Optional[str] = None
     job_id: str = Field(default_factory=get_uuid4_str)
     project_id: Optional[str] = None
     user_id: Optional[str] = None

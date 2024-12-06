@@ -1,4 +1,6 @@
 """Tests for calibrations v2"""
+import copy
+from datetime import datetime, timezone
 
 import pytest
 
@@ -10,6 +12,7 @@ from tests._utils.records import order_by, pop_field
 _CALIBRATIONS_LIST = load_json_fixture("calibrations_v2.json")
 _DEVICE_NAMES = [item["name"] for item in _CALIBRATIONS_LIST]
 _COLLECTION = "calibrations_v2"
+_LOGS_COLLECTION = "calibrations_logs"
 _EXCLUDED_FIELDS = ["_id"]
 
 
@@ -48,9 +51,22 @@ def test_read_calibration(name: str, db, client, app_token_header):
         assert expected == got
 
 
-def test_create_calibrations(db, client, system_app_token_header):
-    """POST list of calibration-like dicts to `/v2/calibrations` creates them"""
-    original_data_in_db = find_in_collection(
+def test_create_calibrations(db, client, system_app_token_header, freezer):
+    """POST calibrations to `/v2/calibrations` upserts them in calibrations_v2, and in calibrations_logs if not exist"""
+    now = (
+        datetime.now(timezone.utc)
+        .isoformat(sep="T", timespec="milliseconds")
+        .replace("+00:00", "Z")
+    )
+    # insert only some of the calibrations in collection to show upsert is done
+    original_calibrations = _CALIBRATIONS_LIST[:2]
+    insert_in_collection(
+        database=db, collection_name=_COLLECTION, data=original_calibrations
+    )
+    insert_in_collection(
+        database=db, collection_name=_LOGS_COLLECTION, data=original_calibrations
+    )
+    original_calibrations_in_db = find_in_collection(
         db, collection_name=_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
     )
 
@@ -61,19 +77,26 @@ def test_create_calibrations(db, client, system_app_token_header):
             json=_CALIBRATIONS_LIST,
             headers=system_app_token_header,
         )
-        final_data_in_db = find_in_collection(
+        final_calibrations_in_db = find_in_collection(
             db, collection_name=_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
         )
-        final_data_in_db = order_by(final_data_in_db, "name")
-        expected_data_in_db = order_by(_CALIBRATIONS_LIST, field="name")
-        timelogs = pop_field(final_data_in_db, "timelog")
+        final_calibration_logs_in_db = find_in_collection(
+            db, collection_name=_LOGS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
+        )
+        final_calibrations_in_db = order_by(final_calibrations_in_db, "name")
+        final_calibration_logs_in_db = order_by(final_calibration_logs_in_db, "name")
+        new_calibrations = [{**v, "last_calibrated": now} for v in _CALIBRATIONS_LIST]
+        expected_calibrations_in_db = order_by(new_calibrations, field="name")
+        expected_calibration_logs_in_db = order_by(
+            original_calibrations + new_calibrations[2:], field="name"
+        )
 
         assert response.status_code == 200
         assert response.json() == "OK"
 
-        assert original_data_in_db == []
-        assert final_data_in_db == expected_data_in_db
-        assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
+        assert original_calibrations_in_db == original_calibrations
+        assert final_calibrations_in_db == expected_calibrations_in_db
+        assert final_calibration_logs_in_db == expected_calibration_logs_in_db
 
 
 def test_create_calibrations_non_system_user(db, client, user_jwt_cookie):
