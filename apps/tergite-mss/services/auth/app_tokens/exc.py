@@ -22,9 +22,13 @@ class ExtendedErrorCode(str, Enum):
 
 
 class AppTokenNotFound(HTTPException):
-    def __init__(self, headers: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        headers: Optional[Dict[str, Any]] = None,
+        detail: str = "app token does not exist or is expired.",
+    ):
         super().__init__(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="app token does not exist or is expired.",
+            detail=detail,
             headers=headers,
         )

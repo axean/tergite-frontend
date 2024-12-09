@@ -25,6 +25,10 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 - Added the PUT `/auth/me/app-tokens/{token_id}` endpoint for extending app token's lifetimes
 - Added the PUT `/v2/me/tokens/{token_id}` endpoint for extending app token's lifetimes
 
+### Fixed
+
+- Fixed the not found error when deleting expired app tokens
+
 ## [2024.09.1] - 2024-09-24
 
 ### Added

@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Mapping, Optional
 from beanie import PydanticObjectId
 from fastapi_users_db_beanie.access_token import BeanieAccessTokenDatabase
 
+from . import exc
 from .dtos import AppToken
 
 
@@ -85,6 +86,8 @@ class AppTokenDatabase(BeanieAccessTokenDatabase):
     async def _find_one(self, _filter) -> Optional[AppToken]:
         """Finds the given token by the given filter.
 
+        It deletes expired tokens automatically
+
         Args:
             _filter: the filter object to match against
 
@@ -105,7 +108,7 @@ class AppTokenDatabase(BeanieAccessTokenDatabase):
         filter_obj: Mapping[str, Any], skip: int = 0, limit: Optional[int] = None
     ) -> None:
         """
-        Deleted a list of projects to basing on filter.
+        Deletes a list of tokens to basing on filter.
 
         Args:
             filter_obj: the PyMongo-like filter object e.g. `{"user_id": "uidufiud"}`.
@@ -114,13 +117,31 @@ class AppTokenDatabase(BeanieAccessTokenDatabase):
                 If None, all possible records are returned.
 
         Returns:
-            the list of matched projects
+            the list of matched tokens
         """
         return await AppToken.find(
             filter_obj,
             skip=skip,
             limit=limit,
         ).delete()
+
+    @staticmethod
+    async def delete_one(filters: Mapping[str, Any]) -> None:
+        """
+        Deleted the first token to match the given filter.
+
+        Args:
+            filters: the PyMongo-like filter object e.g. `{"user_id": "uidufiud"}`.
+
+        Returns:
+            the deleted token
+
+        Raises:
+            exc.AppTokenNotFound: app token does not exist.
+        """
+        result = await AppToken.find_one(filters).delete()
+        if result.deleted_count == 0:
+            raise exc.AppTokenNotFound(detail="app token does not exist.")
 
     @staticmethod
     async def get_many(

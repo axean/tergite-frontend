@@ -293,6 +293,33 @@ def test_destroy_app_token(
 
 
 @pytest.mark.parametrize("payload", APP_TOKEN_LIST)
+def test_destroy_expired_app_token(
+    payload, db, client_v2, inserted_projects, inserted_app_tokens
+):
+    """At /v2/me/tokens/{token}, user can destroy their own expired app token"""
+    # using context manager to ensure on_startup runs
+    with client_v2 as client:
+        _id = payload["_id"]
+        user_id = payload["user_id"]
+        token = get_db_record(db, AppToken, _id)
+        assert token is not None
+
+        # shift back the created_at date to a time that would make this token expired
+        new_created_at = datetime.now(timezone.utc) - timedelta(
+            seconds=token["lifespan_seconds"] + 1
+        )
+        update_obj = {"$set": {"created_at": new_created_at.isoformat(sep="T")}}
+        update_db_record(db, AppToken, _id, update=update_obj)
+
+        url = f"/v2/me/tokens/{_id}"
+        cookies = get_auth_cookie(user_id)
+        response = client.delete(url, cookies=cookies)
+
+        assert response.status_code == 204
+        assert get_db_record(db, AppToken, _id) is None
+
+
+@pytest.mark.parametrize("payload", APP_TOKEN_LIST)
 def test_unauthenticated_app_token_deletion(
     payload, db, client_v2, inserted_projects, inserted_app_tokens
 ):
@@ -326,7 +353,7 @@ def test_unauthorized_app_token_deletion(
         response = client.delete(url, cookies=cookies)
 
         got = response.json()
-        expected = {"detail": "app token does not exist or is expired."}
+        expected = {"detail": "app token does not exist."}
         assert response.status_code == 403
         assert got == expected
 
