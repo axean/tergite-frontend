@@ -99,8 +99,9 @@ async def create_job(
     bcc_clients_map: BccClientsMapDep,
     project_user_id_pair: CurrentStrictProjectUserIds,
     backend: str = "pingu",
+    calibration_date: Optional[str] = None,
 ):
-    """Creates a job in the given backend"""
+    """Creates a job in the given backend and given calibration_date"""
     app_token = get_bearer_token(
         request, raise_if_error=settings.CONFIG.auth.is_enabled
     )
@@ -114,7 +115,12 @@ async def create_job(
 
     try:
         project_id, user_id = project_user_id_pair
-        job = JobCreate(backend=backend, project_id=project_id, user_id=user_id)
+        job = JobCreate(
+            backend=backend,
+            project_id=project_id,
+            user_id=user_id,
+            calibration_date=calibration_date,
+        )
         return await jobs_service.create_job(
             db, bcc_client=bcc_client, job=job, app_token=app_token
         )

@@ -12,7 +12,7 @@
 """Data Transfer Objects for calibration"""
 import enum
 from datetime import datetime
-from typing import List, Optional, Dict, Any, Union
+from typing import Any, Dict, List, Optional, Union
 
 from beanie import PydanticObjectId
 from bson import ObjectId

@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Tuple
 
 import pymongo
 from motor.motor_asyncio import (
@@ -145,27 +145,36 @@ async def find(
     return response
 
 
-def get_time_logged_documents(original: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def get_time_logged_documents(
+    original: List[Dict[str, Any]], timestamp_path: Tuple[str, ...]
+) -> List[Dict[str, Any]]:
     """Adds a timelog to each of the documents that are passed
 
     Args:
         original: the list of dicts to add a timelog to
+        timestamp_path: the path to the timestamp value with nested fields defined by a tuple e.g.
+            ("timelog", "REGISTERED") transforms to {"timelog": {"REGISTERED": get_current_timestamp()}}
 
     Returns:
         a list of documents with a timelog of current timestamp
     """
-    current_timelog = _get_current_timelog()
-    return [{**document, **current_timelog} for document in original]
+    current_timestamp_dict = _get_current_timestamp_dict(timestamp_path=timestamp_path)
+    return [{**document, **current_timestamp_dict} for document in original]
 
 
 async def insert_many(
-    collection: AsyncIOMotorCollection, documents: List[Dict[str, Any]]
+    collection: AsyncIOMotorCollection,
+    documents: List[Dict[str, Any]],
+    timestamp_path: Tuple[str, ...] = ("timelog", "REGISTERED"),
 ):
     """Inserts many documents into the given collection
 
     Args:
         collection: the mongo AsyncIOMotorCollection to insert the documents into
         documents: the list of dictionaries to insert into the collection
+        timestamp_path: the path to the timestamp value with nested fields defined by a tuple e.g.
+            ("timelog", "REGISTERED") transforms to {"timelog": {"REGISTERED": get_current_timestamp()}};
+            default: ("timelog", "REGISTERED")
 
     Returns:
         the inserted documents
@@ -173,24 +182,33 @@ async def insert_many(
     Raises:
         ValueError: server failed insertion of the documents
     """
-    time_logged_documents = get_time_logged_documents(documents)
-    result = await collection.insert_many(time_logged_documents, ordered=True)
+    timestamped_documents = get_time_logged_documents(
+        documents, timestamp_path=timestamp_path
+    )
+    result = await collection.insert_many(timestamped_documents, ordered=True)
 
-    if result.acknowledged and len(result.inserted_ids) == len(time_logged_documents):
+    if result.acknowledged and len(result.inserted_ids) == len(timestamped_documents):
         for i, _id in enumerate(result.inserted_ids):
-            time_logged_documents[i]["_id"] = str(_id)
+            timestamped_documents[i]["_id"] = str(_id)
 
-        return time_logged_documents
+        return timestamped_documents
 
     raise ValueError("server failed insertion of the documents")
 
 
-async def insert_one(collection: AsyncIOMotorCollection, document: Dict[str, Any]):
+async def insert_one(
+    collection: AsyncIOMotorCollection,
+    document: Dict[str, Any],
+    timestamp_path: Tuple[str, ...] = ("timelog", "REGISTERED"),
+):
     """Inserts one document into the given collection
 
     Args:
         collection: the mongo AsyncIOMotorCollection to insert the documents into
         document: the dictionary to insert into the collection
+        timestamp_path: the path to the timestamp value with nested fields defined by a tuple e.g.
+            ("timelog", "REGISTERED") transforms to {"timelog": {"REGISTERED": get_current_timestamp()}};
+            default: ("timelog", "REGISTERED")
 
     Returns:
         the inserted document
@@ -198,13 +216,13 @@ async def insert_one(collection: AsyncIOMotorCollection, document: Dict[str, Any
     Raises:
         ValueError: server failed to insert document
     """
-    current_timelog = _get_current_timelog()
-    time_logged_document = {**document, **current_timelog}
+    current_timestamp_dict = _get_current_timestamp_dict(timestamp_path=timestamp_path)
+    timestamped_document = {**document, **current_timestamp_dict}
 
-    result = await collection.insert_one(time_logged_document)
+    result = await collection.insert_one(timestamped_document)
     if result.acknowledged:
-        time_logged_document["_id"] = str(result.inserted_id)
-        return time_logged_document
+        timestamped_document["_id"] = str(result.inserted_id)
+        return timestamped_document
 
     raise ValueError("server failed to insert document")
 
@@ -213,6 +231,7 @@ async def insert_one_if_not_exists(
     collection: AsyncIOMotorCollection,
     document: Dict[str, Any],
     unique_fields: Tuple[str, ...] = (),
+    timestamp_path: Tuple[str, ...] = ("timelog", "REGISTERED"),
 ) -> Dict[str, Any]:
     """Inserts a given document in the given collection if it does not exist
 
@@ -220,6 +239,9 @@ async def insert_one_if_not_exists(
         collection: the mongo AsyncIOMotorCollection to insert the documents into
         document: the dictionary to insert into the collection
         unique_fields: the tuple of properties that constitute a composite primary key
+        timestamp_path: the path to the timestamp value with nested fields defined by a tuple e.g.
+            ("timelog", "REGISTERED") transforms to {"timelog": {"REGISTERED": get_current_timestamp()}};
+            default: ("timelog", "REGISTERED")
 
     Returns:
         the inserted document
@@ -231,13 +253,16 @@ async def insert_one_if_not_exists(
     doc_exists = await collection.count_documents(_filter, limit=1) == 1
 
     if not doc_exists:
-        return await insert_one(collection=collection, document=document)
+        return await insert_one(
+            collection=collection, document=document, timestamp_path=timestamp_path
+        )
 
 
 async def update_many(
     collection: AsyncIOMotorCollection,
     _filter: dict,
     payload: Dict[str, Any],
+    timestamp_path: Tuple[str, ...] = ("timelog.LAST_UPDATED",),
 ):
     """Updates many documents in the given collection for the given filter
 
@@ -245,6 +270,9 @@ async def update_many(
         collection: the mongo AsyncIOMotorCollection to insert the documents into
         _filter: the filter for the documents
         payload: the partial dict to update the documents
+        timestamp_path: the path to the timestamp value with nested fields defined by a tuple e.g.
+            ("timelog", "REGISTERED") transforms to {"timelog": {"REGISTERED": get_current_timestamp()}};
+            default: ("timelog.LAST_UPDATED",)
 
     Returns:
         the number of documents that were modified
@@ -253,7 +281,8 @@ async def update_many(
         ValueError: server failed updating documents
         DocumentNotFoundError: no documents matching {filter} were found
     """
-    update = {"$set": {**payload, "timelog.LAST_UPDATED": get_current_timestamp()}}
+    current_timestamp_dict = _get_current_timestamp_dict(timestamp_path=timestamp_path)
+    update = {"$set": {**payload, **current_timestamp_dict}}
     result = await collection.update_many(filter=_filter, update=update)
 
     if not result.acknowledged:
@@ -269,8 +298,10 @@ async def update_one(
     collection: AsyncIOMotorCollection,
     _filter: dict,
     payload: Dict[str, Any],
-    return_document: ReturnDocument = ReturnDocument.BEFORE,
-) -> Dict[str, Any]:
+    return_document: bool = ReturnDocument.BEFORE,
+    timestamp_path: Tuple[str, ...] = ("timelog.LAST_UPDATED",),
+    upsert: bool = False,
+) -> Mapping[str, Any]:
     """Updates one document in the given collection for the given filter
 
     Args:
@@ -279,6 +310,10 @@ async def update_one(
         payload: the partial dict to update the documents
         return_document:  If ReturnDocument.BEFORE (the default), returns the original document before it was updated.
             If ReturnDocument.AFTER, returns the updated or inserted document.
+        timestamp_path: the path to the timestamp value with nested fields defined by a tuple e.g.
+            ("timelog", "REGISTERED") transforms to {"timelog": {"REGISTERED": get_current_timestamp()}};
+            default: ("timelog.LAST_UPDATED",)
+        upsert: whether we should insert the document if it does not exist
 
     Returns:
         either the modified document or the original document
@@ -286,11 +321,13 @@ async def update_one(
     Raises:
         DocumentNotFoundError: no documents matching {filter} were found
     """
-    update = {"$set": {**payload, "timelog.LAST_UPDATED": get_current_timestamp()}}
+    current_timestamp_dict = _get_current_timestamp_dict(timestamp_path=timestamp_path)
+    update = {"$set": {**payload, **current_timestamp_dict}}
     result = await collection.find_one_and_update(
         filter=_filter,
         update=update,
         return_document=return_document,
+        upsert=upsert,
     )
 
     if result is None:
@@ -299,9 +336,21 @@ async def update_one(
     return result
 
 
-def _get_current_timelog():
-    """Gets the dict of the current timelog"""
-    return {"timelog": {"REGISTERED": get_current_timestamp()}}
+def _get_current_timestamp_dict(timestamp_path: Tuple[str, ...]):
+    """Gets the dict of the current timelog
+
+    Args:
+        timestamp_path: the path to the timestamp value with nested fields defined by a tuple e.g.
+            ("timelog", "REGISTERED") transforms to {"timelog": {"REGISTERED": get_current_timestamp()}}
+
+    Returns:
+        A dictionary containing only the timestamp field set to the current timestamp
+    """
+    timestamp_dict = {timestamp_path[-1]: get_current_timestamp()}
+    for k in reversed(timestamp_path[:-1]):
+        timestamp_dict = {k: {**timestamp_dict}}
+
+    return timestamp_dict
 
 
 def _extract_filter_obj(document: Dict[str, Any], unique_fields: Tuple[str, ...]):

@@ -21,6 +21,7 @@ from typing import Any, Dict
 from fastapi import FastAPI
 
 import settings
+from services import calibration as calib_service
 from services.auth import service as auth_service
 from services.device_info import service as device_info_service
 from services.external import bcc, puhuri
@@ -53,6 +54,7 @@ async def lifespan(_app: FastAPI):
     await device_info_service.on_startup()
     db = await get_default_mongodb()
     await auth_service.on_startup(db)
+    await calib_service.on_startup(db)
     await puhuri.initialize_db(db)
 
     yield

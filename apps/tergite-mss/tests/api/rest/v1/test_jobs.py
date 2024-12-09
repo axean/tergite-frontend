@@ -36,6 +36,10 @@ _JOB_UPDATE_PAYLOADS = [
 _STATUS_LIST = [_STATUSES[index % 3] for index, item in enumerate(_JOBS_LIST)]
 _URL_LIST = [_URLS[index % 3] for index, item in enumerate(_JOBS_LIST)]
 _BACKENDS = ["loke", "loki", None]
+_CREATE_JOB_PARAMS = [
+    (backend, "2024-05-23T09:12:00.733Z" if idx % 2 == 0 else None)
+    for idx, backend in enumerate(_BACKENDS)
+]
 _COLLECTION = "jobs"
 _EXCLUDED_FIELDS = ["_id"]
 _UNAVAILABLE_BCC_FIXTURE = [
@@ -109,18 +113,24 @@ def test_read_job_download_url(db, client, job_id: str, no_qpu_app_token_header)
         assert expected == got
 
 
-@pytest.mark.parametrize("backend", _BACKENDS)
+@pytest.mark.parametrize("backend, calibration_date", _CREATE_JOB_PARAMS)
 def test_create_job(
     mock_bcc,
     db,
     client,
     backend: str,
+    calibration_date: str,
     project_id: PydanticObjectId,
     app_token_header,
     current_user_id,
 ):
     """Post to /jobs/ creates a job in the given backend"""
-    query_string = "" if backend is None else f"?backend={backend}"
+    query_string = "?"
+    if backend is not None:
+        query_string += f"backend={backend}&"
+    if calibration_date is not None:
+        query_string += f"calibration_date={calibration_date}"
+
     backend_param = backend if backend else "pingu"
     expected_bcc_base_url = TEST_BACKENDS_MAP[backend_param]["url"]
     jobs_before_creation = find_in_collection(
@@ -142,6 +152,7 @@ def test_create_job(
             "user_id": str(current_user_id),
             "backend": backend_param,
             "status": "REGISTERING",
+            "calibration_date": calibration_date,
         }
         jobs_after_creation = find_in_collection(
             db,
@@ -187,10 +198,17 @@ def test_create_job_without_bcc(db, client, backend: str, app_token_header, bcc)
         assert jobs_after_creation == []
 
 
-@pytest.mark.parametrize("backend", _BACKENDS)
-def test_create_job_with_auth_disabled(mock_bcc, db, no_auth_client, backend: str):
+@pytest.mark.parametrize("backend, calibration_date", _CREATE_JOB_PARAMS)
+def test_create_job_with_auth_disabled(
+    mock_bcc, db, no_auth_client, backend: str, calibration_date: str
+):
     """Post to /jobs/ creates a job in the given backend even when auth is disabled"""
-    query_string = "" if backend is None else f"?backend={backend}"
+    query_string = "?"
+    if backend is not None:
+        query_string += f"backend={backend}&"
+    if calibration_date is not None:
+        query_string += f"calibration_date={calibration_date}"
+
     backend_param = backend if backend else "pingu"
     expected_bcc_base_url = TEST_BACKENDS_MAP[backend_param]["url"]
     jobs_before_creation = find_in_collection(
@@ -210,6 +228,7 @@ def test_create_job_with_auth_disabled(mock_bcc, db, no_auth_client, backend: st
             "job_id": new_job_id,
             "backend": backend_param,
             "status": "REGISTERING",
+            "calibration_date": calibration_date,
         }
         jobs_after_creation = find_in_collection(
             db,
