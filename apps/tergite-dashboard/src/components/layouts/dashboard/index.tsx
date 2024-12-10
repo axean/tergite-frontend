@@ -24,7 +24,7 @@ export function Dashboard() {
   const queryClient = useQueryClient();
   const [isExpanded, setIsExpanded] = useState(true);
   const navigate = useNavigate();
-  const contentAreaPaddingCls = isExpanded ? "sm:pl-48" : "sm:pl-20";
+  const contentAreaPaddingCls = isExpanded ? "sm:pl-56" : "sm:pl-20";
   const toggleIsExpanded = useCallback(() => {
     setIsExpanded(!isExpanded);
   }, [setIsExpanded, isExpanded]);
