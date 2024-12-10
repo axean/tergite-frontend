@@ -6,6 +6,8 @@ import {
   Settings2,
   HardHat,
   HelpingHand,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { Button, IconButton } from "@/components/ui/button";
@@ -21,8 +23,8 @@ export function Sidebar({
   isUserAdmin,
   pendingRequestsCount,
 }: Props) {
-  const widthClass = isExpanded ? "w-48" : "w-18";
-  const adminNavClass = isExpanded ? "ml-4 -mr-4" : "";
+  const widthClass = isExpanded ? "w-56" : "w-18";
+  const adminNavClass = isExpanded ? "ml-4" : "";
   const [isAdminOpen, setIsAdminOpen] = useState(true);
 
   return (
@@ -56,11 +58,17 @@ export function Sidebar({
                 className={`flex text-sm gap-2 h-9 px-2 justify-start rounded-sm  transition-colors text-muted-foreground active:text-accent-foreground hover:text-foreground w-full`}
               >
                 <Settings2 className="h-4 w-4" />
-                {isExpanded ? "Admin" : null}
+                {isExpanded ? <span>Admin</span> : null}
+                {isExpanded && !isAdminOpen && (
+                  <ChevronRight className="ml-auto h-4 w-4" />
+                )}
+                {isExpanded && isAdminOpen && (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                )}
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent
-              className={`flex flex-col gap-4 my-4 ${adminNavClass}`}
+              className={`flex flex-col gap-4 my-2 border-l ${adminNavClass}`}
             >
               <NavItem
                 Icon={HelpingHand}
