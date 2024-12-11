@@ -41,12 +41,8 @@ roles = ["partner", "user"]
 openid_configuration_endpoint = "https://proxy.acc.puhuri.eduteams.org/.well-known/openid-configuration"
 ```
 
-- Update the [Landing page](https://github.com/tergite/tergite-landing-page) to include this provider also.
-  The instructions are found in the [auth docs](https://github.com/tergite/tergite-landing-page/blob/main/docs/auth.md)
-- Start MSS.
-  Instructions are on the [README.md](../README.md)
-- Start the landing page.
-  Instructions are on its [README.md](https://github.com/tergite/tergite-landing-page/blob/main/README.md)
+- Start the frontend.
+  Instructions are on the [tergite-frontend/README.md](../../../README.md)
 
 ## Authorization
 
@@ -77,29 +73,37 @@ We use feature flag `auth.is_enabled` property in the `mss-config.toml` file, se
 is_enabled = false
 ```
 
-**Note: `/auth` endpoints will still require authentication because they depend on the current user**
+**Note: Most endpoints will still require authentication because they depend on the current user**
 
 #### - How do we ensure that in production, authentication is always turned on?
 
 On startup, we raise a ValueError when `auth.is_enabled = false` in the `mss-config.toml` file yet  
 config variable `environment = production` and log it.
 
-#### - How do we allow other qal9000 services (e.g. BCC or calibration workers) to access MSS, without user intervention?
+#### - How do we allow other Tergite components (e.g. tergite backend) to access MSS, without user intervention?
 
-Use app tokens created by any user who had the 'system' role.
+Use app tokens created by any user who had the 'system' role. These app (API) token are created in the tergite dashboard.
+Any such token is saved in the `MSS_TOKEN` environment variable in the backend's `.env` file.
 The advantage of using app tokens is that they are more secure because they can easily be revoked and scoped.
 Since they won't be used to run jobs, their project QPU seconds are expected not to run out.
 
-If you are in development mode, you can just switch of authentication altogether.
+If you are in development mode, you can just switch off authentication altogether.
 
-#### How do I log in?
+**Note: One must set the `MSS_TOKEN` environment variable in Tergite backend or else it will not be able to communicate with the Tergite frontend**
 
-- You need to run both [MSS](../) and the [landing page](../../tergite-landing-page/).
+#### - What happens when the `MSS_TOKEN` in Tergite backend or the project it belongs to expires or is deleted.
+
+Unfortunately, currently, the backend will fail with 'Unauthorized' errors in its logs when it attempts to send results to MSS.
+The admin must therefore find a way of keeping the `MSS_TOKEN` active.
+
+#### - How do I log in?
+
+- You need to run both [MSS](../) and the [dashboard](../../tergite-dashboard/).
 - **Make sure that your `mss-config.toml` files have all variables filled appropriately** for example, both applications should have the same `jwt_secret`.
-- The landing page, when running, has appropriate links, say in the navbar, to direct you on how to the authentication screens.
-- However, you can also log in without running the landing page app first. See the next FAQ.
+- The dashboard, when running will redirect you to the login page if you are not already logged in.
+- However, you can also log in without running the dashboard first. See the next FAQ.
 
-#### How do I log in without having to run the landing page?
+#### - How do I log in without having to run the dashboard?
 
 - **Make sure that your `mss-config.toml` file has all variables filled appropriately**.
   The `mss-config.example.toml` is a good template to copy from, but it must all placeholder (`<some-stuff>`) must be replaced in the actual `mss-config.toml` file.
@@ -118,7 +122,14 @@ If you are in development mode, you can just switch of authentication altogether
   **Do note that this auth token can only be used on `/auth/...` endpoints. It will return 401/403 errors on all other endpoints**.
 - Do note also that some endpoints are only accessible to users that have a given role e.g. 'admin' or 'system' etc.
 
-#### How does BCC get authenticated?
+#### - Why do I keep being redirected back to the login page even after successful login?
+
+The likely cause is the `cookie_domain` variable in the `mss_config.toml`. It needs to be the same as the domain you visit the dashboard on in the web browser.  
+It also needs to be the same domain that your `MSS_V2_API_URL` environment variable is in the `.env` file.
+
+**A big culprit is the localhost vs 127.0.0.1. Make sure you use 127.0.0.1 in all both your `.env` and `mss_config.toml`. Visit the browser also at 127.0.0.1:3000**
+
+#### - How does BCC get authenticated?
 
 - A client (say [tergite](https://github.com/tergite/tergite)) sends a `POST`
   request is sent to `/jobs` on MSS (this app) with an `app_token` in its `Authorization` header
@@ -139,6 +150,8 @@ If you are in development mode, you can just switch of authentication altogether
   or the job status at `jobs/{job_id}/status` or the entire job entry at `jobs/{job_id}` in BCC.
 - This is also the same behaviour when attempting to delete the job at `/jobs/{job_id}` or to cancel it at
   `/jobs/{job_id}/cancel` in BCC.
+
+**Note: One must set the `MSS_TOKEN` environment variable in Tergite backend or else it will not be able to communicate with the Tergite frontend**
 
 ## Puhuri
 
