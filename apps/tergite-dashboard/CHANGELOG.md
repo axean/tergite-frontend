@@ -7,6 +7,8 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 ## [Unreleased]
 
+## [2024.12.0] - 2024-12-11
+
 ### Added
 
 - Added the tokens list page for viewing, editing and deleting tokens of current user

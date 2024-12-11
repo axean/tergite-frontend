@@ -39,3 +39,8 @@ Added the Authentication/Authorization/Accounting features
 - Integration with [Puhuri HPC/cloud allocation service](https://puhuri.io/)
 
 Added integration test suite plus CI/CD
+Implemented version v2 of the API
+
+## Adilet Tuleouv
+
+Implemented parts of version v2 of the API
