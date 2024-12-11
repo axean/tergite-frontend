@@ -21,7 +21,6 @@ from ..projects.dtos import Project
 from ..projects.exc import ProjectNotExists
 from ..projects.manager import ProjectAppTokenManager
 from ..users.dtos import User
-from . import exc
 from .database import AppTokenDatabase
 from .dtos import AppTokenCreate, AppTokenUpdate
 
@@ -57,12 +56,8 @@ class AppTokenStrategy(DatabaseStrategy):
             HTTPException: Forbidden 403 if token is not user's
                 or token does not exist or is expired already
         """
-        filters["user_id"] = user_id
-        access_token = await self.database.get(_id, **filters)
-        if access_token is None:
-            raise exc.AppTokenNotFound()
-
-        await self.database.delete(access_token)
+        filters.update({"user_id": user_id, "_id": _id})
+        return await self.database.delete_one(filters)
 
     async def read_token(
         self, token: Optional[str], project_manager: ProjectAppTokenManager
