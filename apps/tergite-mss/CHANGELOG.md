@@ -7,6 +7,8 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 ## [Unreleased]
 
+## [2024.12.0] - 2024-12-11
+
 ### Added
 
 - Added GET `/v2/me` endpoint to get current user info
@@ -28,6 +30,7 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 ### Fixed
 
 - Fixed the not found error when deleting expired app tokens
+- Fixed httpx version to 0.27.2 as 0.28.0 removes many deprecations that we were still dependent on in FastAPI testClient
 
 ## [2024.09.1] - 2024-09-24
 
