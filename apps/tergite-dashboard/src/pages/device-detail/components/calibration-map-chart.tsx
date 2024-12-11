@@ -181,7 +181,7 @@ export function CalibrationMapChart({
               <text
                 className="fill-background text-lg lg:text-xl  xl:text-2xl font-semibold"
                 textAnchor="middle"
-                alignment-baseline="middle"
+                alignmentBaseline="middle"
               >
                 {data.index}
               </text>
