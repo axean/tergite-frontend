@@ -14,6 +14,15 @@ Please refer to the `CHANGELOG.md` file of the app in question.
 
 ## [unreleased]
 
+## [2024.12.0] - 2024-12-11
+
+### Added
+
+- Added the admin pages for managing user access in the tergite-dashboard app. See more in [./apps/tergite-dashboard/CHANGELOG.md](./apps/tergite-dashboard/CHANGELOG.md#2024120---2024-12-11)
+- Added user access endpoints to the v2 API version of the tergite-mss app. See more in [./apps/tergite-mss/CHANGELOG.md](./apps/tergite-mss/CHANGELOG.md#2024120---2024-12-11)
+- Added the `MSS_PORT` environment variable to the `.env.example` to configure the port on which tergite-mss runs on in docker compose.
+- Added the `NETWORK_MODE` environment variable to the `.env.example` to configure the `network_mode` to use in docker compose file
+
 ## [2024.09.0] - 2024-09-02
 
 ### Added
