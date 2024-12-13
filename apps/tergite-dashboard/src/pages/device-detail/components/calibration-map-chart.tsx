@@ -91,6 +91,11 @@ export function CalibrationMapChart({
     [maxCurrentPropValue]
   );
 
+  const qubitIdx = useMemo(
+    () => Object.fromEntries(device.qubit_ids.map((v, idx) => [v, idx])),
+    [device.qubit_ids]
+  );
+
   const qubits: QubitNode[] = useMemo(
     () =>
       device.coordinates.map(([x, y], idx) => ({
@@ -108,11 +113,11 @@ export function CalibrationMapChart({
 
   const couplers: CouplerLink[] = useMemo(
     () =>
-      device.coupling_map.map(([srcQubit, dstQubit]) => ({
-        source: qubits[srcQubit],
-        target: qubits[dstQubit],
+      Object.values(device.coupling_dict ?? {}).map(([srcQubit, dstQubit]) => ({
+        source: qubits[qubitIdx[srcQubit]],
+        target: qubits[qubitIdx[dstQubit]],
       })),
-    [device, qubits]
+    [device, qubits, qubitIdx]
   );
 
   const {

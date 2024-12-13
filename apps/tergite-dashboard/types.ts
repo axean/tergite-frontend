@@ -76,15 +76,21 @@ export interface Device extends DbRecord {
   is_online: boolean;
   basis_gates: string[];
   /**
-   * this maps what qubit is connected to which other qubit.
-   * Preferably use uni-directional mapping
+   * this maps what qubit is connected to which other qubit. Indexes not names are used here.
+   * This is bi-directional
    */
   coupling_map: [number, number][];
+  // a dictionary of couple channel and qubit names in string form
+  coupling_dict: { [key: string]: [string, string] } | undefined;
+  // a map of qubit pair (ids e.g. q12 -> 12) and coupler in int form
+  qubit_ids_coupler_map: [[number, number], number][] | undefined;
   /**
    * the coordinates of for each qubit, where the index is the qubit
    */
   coordinates: [number, number][];
   is_simulator: boolean;
+  // List of qubit ids in order
+  qubit_ids: string[];
 }
 
 export enum UserRequestStatus {
