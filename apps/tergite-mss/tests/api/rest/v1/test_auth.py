@@ -833,11 +833,13 @@ def test_extend_own_token_lifespan(
     lifespan_secs = randint(1000, 300000)
     user_id = token["user_id"]
     headers = {"Authorization": f"Bearer {get_jwt_token(user_id, ttl=lifespan_secs)}"}
+    expires_at = datetime.now(timezone.utc) + timedelta(seconds=lifespan_secs)
     payload = {
-        "lifespan_seconds": lifespan_secs,
+        "lifespan_seconds": 1000,
         "title": "foo bar",
         "created_at": "1997-11-25T14:25:47.239Z",
         "id": "anot-p",
+        "expires_at": expires_at.isoformat("T"),
         "project_ext_id": "a-certain-proj",
     }
     # using context manager to ensure on_startup runs
@@ -878,11 +880,13 @@ def test_extend_own_expired_token_lifespan(
     lifespan_secs = randint(1000, 300000)
     app_token_ttl = token["lifespan_seconds"]
     user_id = token["user_id"]
+    expires_at = datetime.now(timezone.utc) + timedelta(seconds=lifespan_secs)
     payload = {
-        "lifespan_seconds": lifespan_secs,
+        "lifespan_seconds": lifespan_secs + 10000,
         "title": "foo bar",
         "created_at": "1997-11-25T14:25:47.239Z",
         "id": "anot-p",
+        "expires_at": expires_at.isoformat("T"),
         "project_ext_id": "a-certain-proj",
     }
 
