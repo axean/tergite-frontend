@@ -18,7 +18,7 @@ from beanie import PydanticObjectId
 from fastapi_users_db_beanie.access_token import BeanieAccessTokenDatabase
 
 from . import exc
-from .dtos import AppToken
+from .dtos import AppToken, AppTokenUpdate
 
 
 class AppTokenDatabase(BeanieAccessTokenDatabase):
@@ -58,28 +58,29 @@ class AppTokenDatabase(BeanieAccessTokenDatabase):
     async def update(
         self,
         _id: PydanticObjectId,
+        payload: AppTokenUpdate,
         filters: Optional[Dict[str, Any]] = None,
-        payload: Optional[Dict[str, Any]] = None,
     ) -> Optional[AppToken]:
         """Updates an AppToken of _id, and given filters, with the given payload
 
         Args:
             _id: the ID of the AppToken to get
             filters: any extra filters to match against apart from the _id
-            payload: the update object
+            payload: the AppTokenUpdate instance to use to update the token
 
         Returns:
             the matched AppToken or None if no document was matched
         """
         if filters is None:
             filters = {}
-        if payload is None:
-            payload = {}
 
         filters["_id"] = _id
         token: Optional[AppToken] = await self._find_one(filters)
         if isinstance(token, AppToken):
-            return await token.set(payload)
+            new_lifespan_seconds = (
+                payload.expires_at - token.created_at
+            ).total_seconds()
+            return await token.set({"lifespan_seconds": new_lifespan_seconds})
 
         return token
 

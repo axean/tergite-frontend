@@ -87,5 +87,5 @@ class AppTokenStrategy(DatabaseStrategy):
         payload: AppTokenUpdate,
     ) -> Optional[AppTokenRead]:
         return await self.database.update(
-            token_id, filters=dict(user_id=user_id), payload=payload.dict()
+            token_id, filters=dict(user_id=user_id), payload=payload
         )

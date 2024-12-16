@@ -19,6 +19,8 @@ from fastapi_users_db_beanie.access_token import BeanieBaseAccessToken
 from pydantic import BaseModel
 from pymongo import IndexModel
 
+from utils.models import ZEncodedBaseModel
+
 
 class AppTokenCreate(BaseModel):
     """The payload passed when generating an app token"""
@@ -42,10 +44,10 @@ class AppTokenRead(AppTokenCreate):
         orm_mode = True
 
 
-class AppTokenUpdate(BaseModel):
+class AppTokenUpdate(ZEncodedBaseModel):
     """The record used to update the app token"""
 
-    lifespan_seconds: int
+    expires_at: datetime
 
 
 class AppToken(BeanieBaseAccessToken, AppTokenCreate, Document):
