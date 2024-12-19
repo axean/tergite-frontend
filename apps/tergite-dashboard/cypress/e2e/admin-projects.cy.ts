@@ -916,7 +916,7 @@ users.forEach((user) => {
           cy.wrap({ el, idx }).then((obj) => {
             const project = projects[obj.idx];
             if (project) {
-              cy.wrap(obj.el).click();
+              cy.get(`#projects-table tbody tr[data-id=${obj.idx}]`).click();
 
               cy.contains("#project-summary h3", project.name).should(
                 "be.visible"
@@ -951,7 +951,7 @@ users.forEach((user) => {
               cy.get("#project-summary").should("not.exist");
               cy.get("#sidebar-placeholder").should("not.exist");
 
-              cy.wrap(obj.el).click();
+              cy.get(`#projects-table tbody tr[data-id=${obj.idx}]`).click();
 
               cy.contains("#project-summary h3", project.name).should(
                 "be.visible"
