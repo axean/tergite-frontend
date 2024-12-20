@@ -30,6 +30,17 @@ if [ -f "$env_file" ]; then
     . "$env_file";
 fi
 
+# read the values from MSS_CONFIG_FILE and set COOKIE_DOMAIN, COOKIE_NAME if they are not set
+# as environment variables
+if [ -f "$MSS_CONFIG_FILE" ]; then
+    # read the variables from the toml config file
+    cookie_domain=$(cat "$MSS_CONFIG_FILE" | /usr/sbin/dasel -r toml 'auth.cookie_domain');
+    cookie_name=$(cat "$MSS_CONFIG_FILE" | /usr/sbin/dasel -r toml 'auth.cookie_name');
+
+    COOKIE_DOMAIN=$(var_or_default "$COOKIE_DOMAIN" "$cookie_domain");
+    COOKIE_NAME=$(var_or_default "$COOKIE_NAME" "$cookie_name");
+fi
+
 # the cookie names as obtained from the environment
 cookie_domain=$(var_or_default "$COOKIE_DOMAIN" "$VITE_COOKIE_DOMAIN")
 cookie_name=$(var_or_default "$COOKIE_NAME" "$VITE_COOKIE_NAME")

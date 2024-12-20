@@ -62,10 +62,12 @@ FROM nginx:1.27.1-alpine-slim AS prod
 
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY --from=build /app/.env.production.local /etc/nginx/.env.local
+COPY --from=build /app/dasel /usr/sbin/dasel
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY run-nginx.sh /usr/sbin/run-nginx
 
 RUN chmod +x /usr/sbin/run-nginx
+RUN chmod +x /usr/sbin/dasel
 
 EXPOSE 80/tcp
 
@@ -73,6 +75,7 @@ EXPOSE 80/tcp
 ENV COOKIE_DOMAIN=""
 ENV COOKIE_NAME=""
 ENV API_BASE_URL=""
+ENV MSS_CONFIG_FILE=""
 
 ENTRYPOINT [ "/usr/sbin/run-nginx" ]
 
