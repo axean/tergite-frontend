@@ -34,7 +34,7 @@ def get_app_kwargs() -> Dict[str, Any]:
     kwargs = dict(
         title="Main Service Server",
         description="A frontend to all our quantum backends",
-        version="2024.12.0",
+        version="2024.12.1",
         lifespan=lifespan,
     )
 

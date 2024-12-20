@@ -7,6 +7,10 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 ## [Unreleased]
 
+## [2024.12.1] - 2024-12-20
+
+No change
+
 ## [2024.12.0] - 2024-12-11
 
 ### Added
@@ -14,15 +18,15 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 - Added GET `/v2/me` endpoint to get current user info
 - Added DELETE `/v2/me/projects/{id}` endpoint to delete project current user administers
 - Added GET `/v2/admin/qpu-time-requests` endpoint to get all user requests to increase QPU seconds on a project
-- Added POST `/v2/admin/qpu-time-requests` endpoint for project members to request for more QPU seconds 
+- Added POST `/v2/admin/qpu-time-requests` endpoint for project members to request for more QPU seconds
 - Added GET `/v2/admin/user-requests` endpoint for admins to retrieve a list of user requests
 - Added PUT `/v2/admin/user-requests/{id}` endpoint for admins to update (e.g. approve/reject) as user request
 - Added POST `/v2/admin/projects/` endpoint for admins to create a new project
-    - Creates new empty user if non-existent emails are passed as user_emails or admin_email
+  - Creates new empty user if non-existent emails are passed as user_emails or admin_email
 - Added GET `/v2/admin/projects/` endpoint for admins to retireve a list of projects
 - Added GET `/v2/admin/projects/{id}` endpoint for admins to view a project of given id
 - Added PUT `/v2/admin/projects/{id}` endpoint for admins to update a project of given id
-    - Creates new empty user if non-existent emails are passed as user_emails or admin_email
+  - Creates new empty user if non-existent emails are passed as user_emails or admin_email
 - Added DELETE `/v2/admin/projects/{id}` endpoint for admins to soft delete a project
 - Added the PUT `/auth/me/app-tokens/{token_id}` endpoint for extending app token's lifetimes
 - Added the PUT `/v2/me/tokens/{token_id}` endpoint for extending app token's lifetimes
@@ -41,8 +45,8 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 ### Fixed
 
--  Fixed CORS error when dashboard and MSS are on different domains or subdomains
--  Fixed 'AttributeError: 'NoneType' object has no attribute 'resource_usage'' on GET /v2/me/jobs
+- Fixed CORS error when dashboard and MSS are on different domains or subdomains
+- Fixed 'AttributeError: 'NoneType' object has no attribute 'resource_usage'' on GET /v2/me/jobs
 
 ### Changed
 

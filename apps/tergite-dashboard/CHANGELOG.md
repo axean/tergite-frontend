@@ -7,6 +7,8 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 ## [Unreleased]
 
+## [2024.12.1] - 2024-12-20
+
 ### Added
 
 - Added `run-nginx.sh` script to help initialize/update the variables like cookie names

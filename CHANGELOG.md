@@ -14,6 +14,8 @@ Please refer to the `CHANGELOG.md` file of the app in question.
 
 ## [unreleased]
 
+## [2024.12.1] - 2024-12-20
+
 ### Changed
 
 - Updated the Github actions to push the ':latest' tag along side the version tag to docker registry
