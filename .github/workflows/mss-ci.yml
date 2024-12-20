@@ -76,7 +76,10 @@ jobs:
         run: |
           cd apps/tergite-mss
           docker buildx create --name multi-platform-builder --bootstrap --use
-          docker buildx build --platform ${{ vars.DOCKER_IMAGE_PLATFORMS }} -t ${{ secrets.STAGING_CONTAINER_REGISTRY }}/tergite-mss:${{ github.ref_name }} --push .
+          docker buildx build --platform ${{ vars.DOCKER_IMAGE_PLATFORMS }} \
+            -t ${{ secrets.STAGING_CONTAINER_REGISTRY }}/tergite-mss:${{ github.ref_name }} \
+            -t ${{ secrets.STAGING_CONTAINER_REGISTRY }}/tergite-mss:latest \
+            --push .
 
   release-production:
     name: Release Production
@@ -105,4 +108,7 @@ jobs:
         run: |
           cd apps/tergite-mss
           docker buildx create --name multi-platform-builder --bootstrap --use
-          docker buildx build --platform ${{ vars.DOCKER_IMAGE_PLATFORMS }} -t tergite/tergite-mss:${{ github.ref_name }} --push .
+          docker buildx build --platform ${{ vars.DOCKER_IMAGE_PLATFORMS }} \
+            -t tergite/tergite-mss:${{ github.ref_name }} \
+            -t tergite/tergite-mss:latest \
+            --push .
