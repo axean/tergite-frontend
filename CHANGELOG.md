@@ -14,6 +14,14 @@ Please refer to the `CHANGELOG.md` file of the app in question.
 
 ## [unreleased]
 
+### Changed
+
+- Updated the Github actions to push the ':latest' tag along side the version tag to docker registry
+
+### Fixed
+
+- Fixed the 'parent-folder' image not found error in the Github actions for the dashboard
+
 ## [2024.12.0] - 2024-12-11
 
 ### Added

@@ -7,6 +7,11 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 ## [Unreleased]
 
+### Added
+
+- Added `run-nginx.sh` script to help initialize/update the variables like cookie names
+  API urls and the like in docker prebuilt containers.
+
 ## [2024.12.0] - 2024-12-13
 
 ### Added
