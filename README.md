@@ -100,14 +100,28 @@ sudo systemctl enable docker
 - To stop the services, run:
 
 ```shell
-docker compose stop
+docker compose stop -f fresh-docker-compose.yml
+```
+
+or for prebuilt:
+
+```shell
+docker compose stop -f prebuilt-docker-compose.yml
 ```
 
 - To remove stop the services and remove their containers also, run:
 
 ```shell
-docker compose down
+docker compose down -f fresh-docker-compose.yml
 ```
+
+or for prebuilt:
+
+```shell
+docker compose down -f prebuilt-docker-compose.yml
+```
+
+## How to Run wi
 
 ## FAQ
 
