@@ -39,22 +39,27 @@ api_base_url=$(var_or_default "$API_BASE_URL" "$VITE_API_BASE_URL")
 # in the prebuilt JS with those from the environment. Also update the env file so that
 # next runs have access to current variables as the previous/default variables
 if [ "$api_base_url" != "$VITE_API_BASE_URL" ]; then
-    sed -i "s|$VITE_API_BASE_URL|$api_base_url|" "$assets_folder/index-*.js";
+    find "$assets_folder" -type f -name "index*.js" -exec sed -i "s|$VITE_API_BASE_URL|$api_base_url|" {} +;
     if [ -f "$env_file" ]; then
         sed -i "s|VITE_API_BASE_URL=$VITE_API_BASE_URL|VITE_API_BASE_URL=$api_base_url|" "$env_file";
     fi
 fi
 if [ "$cookie_name" != "$VITE_COOKIE_NAME" ]; then
-    sed -i "s|$VITE_COOKIE_NAME|$cookie_name|" "$assets_folder/index-*.js";
+    find "$assets_folder" -type f -name "index*.js" -exec sed -i "s|$VITE_COOKIE_NAME|$cookie_name|" {} +;
     if [ -f "$env_file" ]; then
         sed -i "s|VITE_COOKIE_NAME=$VITE_COOKIE_NAME|VITE_COOKIE_NAME=$cookie_name|" "$env_file";
     fi
 fi
 if [ "$cookie_domain" != "$VITE_COOKIE_DOMAIN" ]; then
-    sed -i "s|$VITE_COOKIE_DOMAIN|$cookie_domain|" "$assets_folder/index-*.js";
+    find "$assets_folder" -type f -name "index*.js" -exec sed -i "s|$VITE_COOKIE_DOMAIN|$cookie_domain|" {} +;
     if [ -f "$env_file" ]; then
         sed -i "s|VITE_COOKIE_DOMAIN=$VITE_COOKIE_DOMAIN|VITE_COOKIE_DOMAIN=$cookie_domain|" "$env_file";
     fi
 fi
+
+printf "Starting Tergite dashboard...\n";
+printf "API BASE URL: $api_base_url\n";
+printf "COOKIE DOMAIN: $cookie_domain\n";
+printf "COOKIE NAME: $cookie_name\n\n";
 
 /usr/sbin/nginx "$@"

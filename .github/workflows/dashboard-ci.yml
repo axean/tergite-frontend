@@ -75,8 +75,9 @@ jobs:
           docker buildx build \
             --build-context parent-folder=../../ \
             --platform ${{ vars.DOCKER_IMAGE_PLATFORMS }} \
-            --build-arg VITE_API_BASE_URL=http://host.docker.internal:8002 \
-            --build-arg MSS_CONFIG_FILE=./mss-config.example.toml \
+            --build-arg VITE_API_BASE_URL=http://127.0.0.1:8002/v2 \
+            --build-arg VITE_COOKIE_DOMAIN=127.0.0.1 \
+            --build-arg VITE_COOKIE_NAME=tergiteauth \
             -t ${{ secrets.STAGING_CONTAINER_REGISTRY }}/tergite-dashboard:${{ github.ref_name }} \
             -t ${{ secrets.STAGING_CONTAINER_REGISTRY }}/tergite-dashboard:latest \
             --push .
@@ -111,8 +112,9 @@ jobs:
           docker buildx build \
             --build-context parent-folder=../../ \
             --platform ${{ vars.DOCKER_IMAGE_PLATFORMS }} \
-            --build-arg VITE_API_BASE_URL=http://host.docker.internal:8002 \
-            --build-arg MSS_CONFIG_FILE=./mss-config.example.toml \
+            --build-arg VITE_API_BASE_URL=http://127.0.0.1:8002/v2 \
+            --build-arg VITE_COOKIE_DOMAIN=127.0.0.1 \
+            --build-arg VITE_COOKIE_NAME=tergiteauth \
             -t tergite/tergite-dashboard:${{ github.ref_name }} \
             -t tergite/tergite-dashboard:latest \
             --push .
