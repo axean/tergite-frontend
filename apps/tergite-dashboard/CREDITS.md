@@ -4,6 +4,8 @@
 
 - System design and specifications of initial version tergite-dashboard
 - Development of initial version of tergite-dashboard
+- Setup of CI/CD pipeline configurations for both GitLab and GitHub
+- Setup of docker configurations
 
 ## Pontus Vikstål
 
