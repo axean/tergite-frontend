@@ -72,7 +72,15 @@ jobs:
         run: |
           cd apps/tergite-dashboard
           docker buildx create --name multi-platform-builder --bootstrap --use
-          docker buildx build --platform ${{ vars.DOCKER_IMAGE_PLATFORMS }} -t ${{ secrets.STAGING_CONTAINER_REGISTRY }}/tergite-dashboard:${{ github.ref_name }} --push .
+          docker buildx build \
+            --build-context parent-folder=../../ \
+            --platform ${{ vars.DOCKER_IMAGE_PLATFORMS }} \
+            --build-arg VITE_API_BASE_URL=http://127.0.0.1:8002/v2 \
+            --build-arg VITE_COOKIE_DOMAIN=127.0.0.1 \
+            --build-arg VITE_COOKIE_NAME=tergiteauth \
+            -t ${{ secrets.STAGING_CONTAINER_REGISTRY }}/tergite-dashboard:${{ github.ref_name }} \
+            -t ${{ secrets.STAGING_CONTAINER_REGISTRY }}/tergite-dashboard:latest \
+            --push .
 
   release-production:
     name: Release Production
@@ -101,4 +109,12 @@ jobs:
         run: |
           cd apps/tergite-dashboard
           docker buildx create --name multi-platform-builder --bootstrap --use
-          docker buildx build --platform ${{ vars.DOCKER_IMAGE_PLATFORMS }} -t tergite/tergite-dashboard:${{ github.ref_name }} --push .
+          docker buildx build \
+            --build-context parent-folder=../../ \
+            --platform ${{ vars.DOCKER_IMAGE_PLATFORMS }} \
+            --build-arg VITE_API_BASE_URL=http://127.0.0.1:8002/v2 \
+            --build-arg VITE_COOKIE_DOMAIN=127.0.0.1 \
+            --build-arg VITE_COOKIE_NAME=tergiteauth \
+            -t tergite/tergite-dashboard:${{ github.ref_name }} \
+            -t tergite/tergite-dashboard:latest \
+            --push .
