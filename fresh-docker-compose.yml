@@ -16,7 +16,8 @@ services:
       - ./mss-config.toml:/code/mss-config.toml:ro
     env_file:
       - .env
-    network_mode: ${NETWORK_MODE:-none}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   dashboard:
     restart: always
