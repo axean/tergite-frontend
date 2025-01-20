@@ -7,6 +7,15 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 ## [Unreleased]
 
+### Changed
+
+- Raise logging level to WARN when app settings are not production
+- Remove NETWORK_MODE environment variable
+
+### Fixed
+
+- Fix auth openid errors when auth is disabled
+
 ## [2024.12.1] - 2024-12-20
 
 No change
