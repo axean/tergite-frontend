@@ -17,6 +17,7 @@
 
 from fastapi import FastAPI
 
+import settings
 from api.rest.utils import TergiteCORSMiddleware
 
 from . import app_kwargs
@@ -47,7 +48,7 @@ app.include_router(v1.jobs_router)
 app.include_router(v1.calibrations_router)
 app.include_router(v1.rng_router, dependencies=[CurrentProjectDep])
 app.include_router(v1.random_router)
-app.include_router(v1.auth_router)
+v1.include_auth_router(app, is_enabled=settings.CONFIG.auth.is_enabled)
 app.include_router(v2_router)
 
 
