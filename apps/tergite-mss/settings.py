@@ -23,7 +23,7 @@ _is_auth_enabled = CONFIG.auth.is_enabled
 _is_puhuri_enabled = CONFIG.puhuri.is_enabled
 
 # Logger
-_logger_level = logging.INFO if _is_production else logging.DEBUG
+_logger_level = logging.INFO if _is_production else logging.WARN
 root_logger = logging.getLogger()
 root_logger.setLevel(_logger_level)
 
