@@ -7,6 +7,8 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 ## [Unreleased]
 
+## [2024.12.2] - 2025-01-22
+
 ### Changed
 
 - Raise logging level to WARN when app settings are not production

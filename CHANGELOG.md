@@ -14,6 +14,10 @@ Please refer to the `CHANGELOG.md` file of the app in question.
 
 ## [unreleased]
 
+## [2024.12.2] - 2025-01-22
+
+See [apss/tergite-mss/CHANGELOG.md](./apps/tergite-mss/CHANGELOG.md#2024122---2025-01-22)
+
 ## [2024.12.1] - 2024-12-20
 
 ### Changed
