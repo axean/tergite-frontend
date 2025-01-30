@@ -1,6 +1,6 @@
 """Integration tests for the jobs router"""
-from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from datetime import datetime
+from typing import Dict, Optional
 
 import pytest
 from beanie import PydanticObjectId

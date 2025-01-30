@@ -56,12 +56,6 @@ cp mss-config.example.toml mss-config.toml
 ./start_mss.sh
 ```
 
-- You can optionally run the websocket server also in another terminal for [tergite WebGUI](https://github.com/tergite/tergite-webgui)
-
-```shell
-python ws_main.py
-```
-
 - Open your browser at [http://localhost:8002/docs](http://localhost:8002/docs) to see the interactive API docs
 
 ## Documentation

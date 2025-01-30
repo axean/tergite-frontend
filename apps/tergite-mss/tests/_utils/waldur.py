@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 """Mock Waldur client for handling calls to Puhuri in tests"""
 import multiprocessing
-from datetime import datetime, timezone
 from typing import Any, Dict, List, Tuple, TypedDict
 
 from waldur_client import ComponentUsage, WaldurClient

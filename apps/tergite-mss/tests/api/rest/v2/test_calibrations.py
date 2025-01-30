@@ -7,10 +7,11 @@ import pytest
 from tests._utils.date_time import is_not_older_than
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection
-from tests._utils.records import order_by, pop_field
+from tests._utils.records import order_by, pop_field, distinct_on
 
 _CALIBRATIONS_LIST = load_json_fixture("calibrations_v2.json")
-_DEVICE_NAMES = [item["name"] for item in _CALIBRATIONS_LIST]
+_LATEST_CALIBRATIONS = distinct_on(order_by(_CALIBRATIONS_LIST, field="last_calibrated", is_descending=True), field="name")
+_DEVICE_NAMES = [item["name"] for item in _LATEST_CALIBRATIONS]
 _COLLECTION = "calibrations_v2"
 _LOGS_COLLECTION = "calibrations_logs"
 _EXCLUDED_FIELDS = ["_id"]
@@ -27,7 +28,7 @@ def test_read_calibrations(db, client, user_jwt_cookie):
         response = client.get(f"/v2/calibrations", headers=user_jwt_cookie)
         got = order_by(response.json(), field="name")
         pop_field(got, "_id")
-        expected = order_by(_CALIBRATIONS_LIST, field="name")
+        expected = order_by(_LATEST_CALIBRATIONS, field="name")
 
         assert response.status_code == 200
         assert got == expected
@@ -35,7 +36,7 @@ def test_read_calibrations(db, client, user_jwt_cookie):
 
 @pytest.mark.parametrize("name", _DEVICE_NAMES)
 def test_read_calibration(name: str, db, client, app_token_header):
-    """Get `/v2/calibrations/{name}` reads the calibration of the given device"""
+    """Get `/v2/calibrations/{name}` reads the latest calibration of the given device"""
     insert_in_collection(
         database=db, collection_name=_COLLECTION, data=_CALIBRATIONS_LIST
     )
@@ -45,7 +46,7 @@ def test_read_calibration(name: str, db, client, app_token_header):
         response = client.get(f"/v2/calibrations/{name}", headers=app_token_header)
         got: dict = response.json()
         got.pop("_id")
-        expected = list(filter(lambda x: x["name"] == name, _CALIBRATIONS_LIST))[0]
+        expected = list(filter(lambda x: x["name"] == name, _LATEST_CALIBRATIONS))[0]
 
         assert response.status_code == 200
         assert expected == got

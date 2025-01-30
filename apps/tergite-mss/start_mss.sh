@@ -43,7 +43,7 @@ wait_for_process()
 }
 
 # port handling
-PORT_NUMBER=$([[ "$MSS_PORT" ]] && echo $MSS_PORT || echo $(extract_env_var "mss_port"))
+PORT_NUMBER=$([[ "$MSS_PORT" ]] && echo $MSS_PORT || echo "8002"
 [[ ! "$PORT_NUMBER" =~ ^[0-9]+$ ]]  &&  exit_with_error "Port configuration failed. Use mss_port=<int> in the $MSS_CONFIG_FILE file."
 
 # app settings
@@ -60,9 +60,6 @@ puhuri_script=$!
 extra_args=$([[ $APP_SETTINGS == "production" ]] && echo "" || echo " --reload")
 python -m uvicorn --host 0.0.0.0 --port "$PORT_NUMBER" api.rest:app --proxy-headers$extra_args &
 uvicorn_script=$!
-
-# websocket server
-# python3 ws_main.py &
 
 wait_for_process $puhuri_script
 wait_for_process $uvicorn_script

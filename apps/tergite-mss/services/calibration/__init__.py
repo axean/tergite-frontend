@@ -18,7 +18,6 @@
 """Service that handles calibration functionality"""
 import asyncio
 from typing import Any, Dict, List, Optional
-from uuid import UUID
 
 import pymongo
 from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
@@ -47,25 +46,8 @@ async def on_startup(db: AsyncIOMotorDatabase):
     )
 
 
-async def get_latest_many(db: AsyncIOMotorDatabase, limit: int = 10):
-    return await mongodb_utils.find(
-        db.calibrations,
-        limit=limit,
-        exclude=("_id",),
-        **mongodb_utils.LATEST_FIRST_SORT
-    )
-
-
-async def get_one(db: AsyncIOMotorDatabase, job_id: UUID):
-    return await mongodb_utils.find_one(db.calibrations, {"job_id": str(job_id)})
-
-
-async def insert_many(db: AsyncIOMotorDatabase, documents: List[Dict[str, Any]]):
-    return await mongodb_utils.insert_many(
-        collection=db.calibrations, documents=documents
-    )
-
-
+# FIXME: We probably need to remove many insert because it makes no sense.
+#  Every backend only sends a single set of calibrations at a time.
 async def insert_many_v2(db: AsyncIOMotorDatabase, documents: List[Dict[str, Any]]):
     """Inserts into the database the new calibration results
 

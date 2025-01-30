@@ -1,7 +1,4 @@
 [general]
-mss_port = 8002
-ws_port = 6534
-mss_host = "0.0.0.0"
 environment = "production"
 # mongodb saves datetimes to only the millisecond precision
 datetime_precision = "milliseconds"

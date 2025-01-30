@@ -1,29 +1,3 @@
 from .dtos import DeviceV2, DeviceV2Upsert
-from .service import (
-    append_latest_device_config,
-    append_latest_device_info,
-    fetch_data,
-    force_refresh,
-    get_all_backend_online_statuses,
-    get_all_backends,
-    get_all_basic_device_data,
-    get_all_latest_backends_data,
-    get_backend_data_snapshot,
-    get_backend_offline_date,
-    get_backend_online_date,
-    get_device_data,
-    get_device_info,
-    get_latest_device_config,
-    get_latest_qiskit_config,
-    get_one_backend,
-    get_properties_by_type,
-    get_properties_by_type_and_period,
-    get_property_over_time,
-    get_qiskit_device_data,
-    insert_backend_data_in_db,
-    is_address_online,
-    is_device_online,
-    patch_backend,
-    upsert_backend,
-)
+from .service import get_all_backends, get_one_backend, patch_backend, upsert_backend
 from .service_v2 import get_all_devices, get_one_device, patch_device, upsert_device

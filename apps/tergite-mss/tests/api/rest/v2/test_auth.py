@@ -1,34 +1,23 @@
 """Integration tests for the auth v2 router"""
 import re
-from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import httpx
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
-from services.auth import AppToken, AuthProvider, Project
 from tests._utils.auth import (
-    TEST_APP_TOKEN_DICT,
-    TEST_NO_QPU_APP_TOKEN_DICT,
-    TEST_NO_QPU_PROJECT_DICT,
-    TEST_PROJECT_DICT,
-    TEST_PROJECT_ID,
     TEST_SUPERUSER_EMAIL,
     TEST_SUPERUSER_ID,
     TEST_USER_EMAIL,
     TEST_USER_ID,
-    get_db_record,
     is_valid_jwt,
 )
-from tests._utils.fixtures import load_json_fixture
 from tests.conftest import (
     APP_TOKEN_LIST,
     PROJECT_LIST,
     TEST_NEXT_COOKIE_URL,
-    get_auth_cookie,
     get_auth_header,
-    get_unauthorized_app_token_post,
 )
 
 _USER_EMAIL_INDEX = {

@@ -107,12 +107,10 @@ async def find_one(
 
 async def find(
     collection: AsyncIOMotorCollection,
-    /,
-    *,
     filters: Optional[dict] = None,
     exclude: Tuple[str] = (),
     limit: int = 10,
-    **order,
+    sorted_by: Optional[List[Tuple[str, int]]] = None,
 ) -> List[Dict[str, Any]]:
     """Retrieves all records in the collection up to limit records, given the sort order
 
@@ -121,8 +119,7 @@ async def find(
         filters: the mongodb like filters which all returned records should satisfy
         exclude: the fields to exclude
         limit: the maximum number of records to return: If limit is negative, all results are returned
-        order: the key-value args where key is name of field and value is -1 or 1,
-            implying descending and ascending respectively
+        sorted_by: List of (field, sort-direction) tuples to use in sorting
 
     Returns:
         a list of documents that were found
@@ -133,8 +130,8 @@ async def find(
         filters = {}
 
     db_cursor = collection.find(filters, projection)
-    if order:
-        db_cursor.sort(**order)
+    if sorted_by:
+        db_cursor.sort(sorted_by)
     if limit >= 0:
         db_cursor.limit(limit)
 
