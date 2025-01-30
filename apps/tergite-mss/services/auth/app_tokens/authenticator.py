@@ -147,7 +147,7 @@ class AppTokenAuthenticator:
     ) -> "AuthMetadata":
         project_user_pair: Optional[Tuple[Project, User]] = None
         token: Optional[str] = None
-        enabled_backends: Sequence[AuthenticationBackend] = kwargs.get(
+        enabled_backends: Sequence[AppTokenAuthenticationBackend] = kwargs.get(
             "enabled_backends", self.backends
         )
         for backend in self.backends:

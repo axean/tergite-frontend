@@ -170,6 +170,7 @@ class AuthConfig(BaseModel):
 class AppConfig(BaseModel, extra=Extra.allow):
     """Configuration for the entire app"""
 
+    mss_port: int = 8002
     # environment reflect which environment the app is to run in.
     # Options
     #  - development

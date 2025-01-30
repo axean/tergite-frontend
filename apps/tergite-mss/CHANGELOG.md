@@ -7,6 +7,11 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 ## [Unreleased]
 
+### Changed
+
+- Renamed `quantum_jobs` to `jobs` service
+- Removed the api routes, DTOs and service methods for the old WebGUI project.
+
 ## [2024.12.2] - 2025-01-22
 
 ### Changed
