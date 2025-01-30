@@ -7,10 +7,13 @@ import pytest
 from tests._utils.date_time import is_not_older_than
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection
-from tests._utils.records import order_by, pop_field, distinct_on
+from tests._utils.records import distinct_on, order_by, pop_field
 
 _CALIBRATIONS_LIST = load_json_fixture("calibrations_v2.json")
-_LATEST_CALIBRATIONS = distinct_on(order_by(_CALIBRATIONS_LIST, field="last_calibrated", is_descending=True), field="name")
+_LATEST_CALIBRATIONS = distinct_on(
+    order_by(_CALIBRATIONS_LIST, field="last_calibrated", is_descending=True),
+    field="name",
+)
 _DEVICE_NAMES = [item["name"] for item in _LATEST_CALIBRATIONS]
 _COLLECTION = "calibrations_v2"
 _LOGS_COLLECTION = "calibrations_logs"

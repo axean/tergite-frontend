@@ -31,9 +31,9 @@ from api.rest.dependencies import (
     MongoDbDep,
     ProjectDbDep,
 )
-from services import quantum_jobs as jobs_service
+from services import jobs as jobs_service
 from services.external import puhuri as puhuri_service
-from services.quantum_jobs import JobCreate, JobTimestamps
+from services.jobs import JobCreate, JobTimestamps
 from utils import mongodb as mongodb_utils
 from utils.api import get_bearer_token
 from utils.exc import ServiceUnavailableError

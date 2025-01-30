@@ -18,6 +18,7 @@ import logging
 from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 from uuid import UUID
 
+import pymongo
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from services.external.bcc import BccClient
@@ -151,7 +152,7 @@ async def get_latest_many(
         limit=limit,
         filters=filters,
         exclude=exclude,
-        **mongodb_utils.LATEST_FIRST_SORT,
+        sorted_by=[("timelog.REGISTERED", pymongo.DESCENDING)],
     )
 
 

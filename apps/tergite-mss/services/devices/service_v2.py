@@ -24,11 +24,6 @@ from utils.date_time import get_current_timestamp
 from .dtos import DeviceV2Upsert
 
 
-async def on_startup() -> None:
-    """Call this event when fastapi starts. Currently not used."""
-    print("Service started up!")
-
-
 async def get_all_devices(db: AsyncIOMotorDatabase):
     """Gets all devices in the devices collection
 
@@ -39,7 +34,9 @@ async def get_all_devices(db: AsyncIOMotorDatabase):
         a list of all devices found in the devices collection
     """
     return await mongodb_utils.find(
-        db.devices, limit=-1, **mongodb_utils.LATEST_FIRST_SORT
+        db.devices,
+        limit=-1,
+        sorted_by=[("created_at", pymongo.DESCENDING)],
     )
 
 

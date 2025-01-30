@@ -20,22 +20,6 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from utils import mongodb as mongodb_utils
 from utils.date_time import get_current_timestamp
 
-from .config import app_config
-
-# DO NOT CHANGE THIS
-_DB_SORT_DESCENDING = -1
-_DB_SORT_ASCENDING = 1
-
-# To stop sending too much data. Will dump this amount of snapshots.
-_DB_SNAPSHOT_LIST_LENGTH = 100
-
-_DEVICE_ENDPOINTS = app_config["ENDPOINTS_URL"]
-
-
-async def on_startup() -> None:
-    """Call this event when fastapi starts. Currently not used."""
-    print("Service started up!")
-
 
 async def get_all_backends(db: AsyncIOMotorDatabase):
     """Gets all backends in the backend collection
@@ -46,9 +30,7 @@ async def get_all_backends(db: AsyncIOMotorDatabase):
     Returns:
         a list of all backends found in the backend collection
     """
-    return await mongodb_utils.find(
-        db.backends, limit=-1, exclude=("_id",)
-    )
+    return await mongodb_utils.find(db.backends, limit=-1, exclude=("_id",))
 
 
 async def get_one_backend(db: AsyncIOMotorDatabase, name: str):

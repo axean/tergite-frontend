@@ -23,13 +23,6 @@ from pymongo import ReturnDocument
 
 from .date_time import get_current_timestamp
 
-# settings
-LATEST_FIRST_SORT = {
-    "key_or_list": "timelog.REGISTERED",
-    "direction": pymongo.DESCENDING,
-}
-
-
 _CONNECTIONS = {}
 
 
@@ -75,7 +68,7 @@ async def find_one(
     _filter: Dict[str, Any],
     dropped_fields: Tuple[str, ...] = ("_id",),
     sorted_by: Optional[List[Tuple[str, int]]] = None,
-) -> Dict[str, Any]:
+) -> Mapping[str, Any]:
     """Finds first record in the given collection that matches the given _filter
 
     Args:
@@ -101,8 +94,8 @@ async def find_one(
         raise DocumentNotFoundError(
             f"no documents matching the filter '{_filter}' were found in the '{collection}' collection"
         )
-    else:
-        return document
+
+    return document
 
 
 async def find(

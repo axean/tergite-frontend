@@ -1,5 +1,7 @@
 # general configurations
 [general]
+# the port on which MSS is running
+mss_port = 8002
 # environment reflect which environment the app is to run in.
 # Options
 #  - development

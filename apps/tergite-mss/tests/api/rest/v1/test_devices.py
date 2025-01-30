@@ -5,12 +5,9 @@ from typing import Any, Dict
 
 import pytest
 
-from services.device_info.config import app_config
-from services.device_info.dtos import BasicDeviceConfig, DeviceData, VisualisationType
 from tests._utils.date_time import is_not_older_than
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection
-from tests._utils.numbers import is_even
 from tests._utils.records import get_record, order_by, pop_field
 
 _DATA_COLLECTION = "data"
@@ -20,43 +17,15 @@ _BACKENDS_LOG_COLLECTION = "backend_log"
 _COLLECTIONS = ["backends", "backend_test", "backend_sub"]
 _EXCLUDED_FIELDS = ["_id", "_force_refresh"]
 
-_ENDPOINTS_MAP = app_config["ENDPOINTS_URL"]
-_ENDPOINT_RESPONSE_MAP = {
-    addr: 200 if is_even(i) else 408 for i, addr in enumerate(_ENDPOINTS_MAP.values())
-}
+
 _BACKENDS_LIST = load_json_fixture("backend_list.json")
 _DEVICE_DATA_LIST = load_json_fixture("device_data_list.json")
 _DEVICE_CONFIG_LIST = load_json_fixture("device_config_list.json")
 _LDA_PARAMETERS_BODY = load_json_fixture("lda_parameters.json")
 
 _DEVICE_NAMES = list(set([item["backend_name"] for item in _DEVICE_DATA_LIST]))
-_ONLINE_STATUS_MAP = {
-    backend: is_even(i) for i, backend in enumerate(list(_ENDPOINTS_MAP.keys()))
-}
-_ONLINE_ADDR_STATUS_MAP = {
-    addr: _ONLINE_STATUS_MAP[backend] for backend, addr in _ENDPOINTS_MAP.items()
-}
-# the device list as seen in database
-_DB_DEVICE_DATA_LIST = [
-    {**DeviceData.parse_obj(item).dict(), "_force_refresh": False}
-    for item in _DEVICE_DATA_LIST
-]
-# the device list as seen from the API
-_API_DEVICE_DATA_LIST = [
-    json.loads(DeviceData.parse_obj(item).json()) for item in _DEVICE_DATA_LIST
-]
-_API_DEVICE_INFO = [
-    json.loads(
-        BasicDeviceConfig.parse_obj(
-            {
-                **item,
-                "is_online": _ONLINE_STATUS_MAP[item["backend_name"].lower()],
-            }
-        ).json()
-    )
-    for item in _DEVICE_DATA_LIST
-]
-_VISUALIZATION_TYPES = 2 * VisualisationType.values()
+
+
 _COMPONENT_TYPES = 3 * ["qubits", "gates", "couplers", "resonators"]
 _LAST_UPDATE_DATES = sorted(list(set(v["last_update_date"] for v in _DEVICE_DATA_LIST)))
 _TIME_RANGES = [

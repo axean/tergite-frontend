@@ -123,7 +123,7 @@ def test_github_cookie_auto_authorize(client):
     with client as client:
         response = client.get(
             f"/v2/auth/github/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
-            allow_redirects=False,
+            follow_redirects=False,
         )
         auth_url_pattern = r"^https\:\/\/github\.com\/login\/oauth\/authorize\?response_type\=code\&client_id\=test-tergite-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fgithub\%2Fcallback\&state=.*&scope=user\+user\%3Aemail$"
 
@@ -152,7 +152,7 @@ def test_chalmers_cookie_auto_authorize(client):
     with client as client:
         response = client.get(
             f"/v2/auth/chalmers/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
-            allow_redirects=False,
+            follow_redirects=False,
         )
         auth_url_pattern = r"^https\:\/\/login\.microsoftonline\.com\/common\/oauth2\/v.*\/authorize\?response_type\=code\&client_id\=test-chalmers-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fchalmers\%2Fcallback\&state=.*\&scope\=User\.Read\&response_mode\=query$"
 
@@ -181,7 +181,7 @@ def test_puhuri_cookie_auto_authorize(client):
     with client as client:
         response = client.get(
             f"/v2/auth/puhuri/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
-            allow_redirects=False,
+            follow_redirects=False,
         )
         auth_url_pattern = r"^https:\/\/proxy.acc.puhuri.eduteams.org\/OIDC\/authorization\?response_type\=code\&client_id\=test-puhuri-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fpuhuri\%2Fcallback\&state=.*\&scope\=openid\+email$"
 

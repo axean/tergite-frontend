@@ -23,7 +23,7 @@ from fastapi import FastAPI
 import settings
 from services import calibration as calib_service
 from services.auth import service as auth_service
-from services.device_info import service as device_info_service
+from services.devices import service as device_info_service
 from services.external import bcc, puhuri
 
 from .dependencies import get_default_mongodb
@@ -51,7 +51,6 @@ def get_app_kwargs() -> Dict[str, Any]:
 async def lifespan(_app: FastAPI):
     # on startup
     await bcc.create_clients(configs=settings.CONFIG.backends)
-    await device_info_service.on_startup()
     db = await get_default_mongodb()
     await auth_service.on_startup(db)
     await calib_service.on_startup(db)

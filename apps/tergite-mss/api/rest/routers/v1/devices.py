@@ -25,7 +25,7 @@ from api.rest.dependencies import (
     CurrentSystemUserProjectDep,
     MongoDbDep,
 )
-from services import device_info
+from services import devices
 from utils import mongodb as mongodb_utils
 
 backends_router = APIRouter(prefix="/backends", tags=["backends"])
@@ -34,13 +34,13 @@ backends_router = APIRouter(prefix="/backends", tags=["backends"])
 @backends_router.get("", dependencies=[CurrentProjectDep])
 async def read_backends(db: MongoDbDep):
     """Retrieves all backends"""
-    return await device_info.get_all_backends(db)
+    return await devices.get_all_backends(db)
 
 
 @backends_router.get("/{name}", dependencies=[CurrentProjectDep])
 async def read_backend(db: MongoDbDep, name: str):
     try:
-        return await device_info.get_one_backend(db, name=name)
+        return await devices.get_one_backend(db, name=name)
     except mongodb_utils.DocumentNotFoundError as exp:
         logging.error(exp)
         raise HTTPException(
@@ -63,7 +63,7 @@ async def upsert_backend(
         return "Backend needs to have a name"
 
     try:
-        await device_info.upsert_backend(
+        await devices.upsert_backend(
             db, payload=payload, collection_name=collection_name
         )
     except ValueError as exp:
@@ -80,7 +80,7 @@ async def read_lda_parameters(
     db: MongoDbDep, user: CurrentSystemUserProjectDep, name: str
 ):
     try:
-        document = await device_info.get_one_backend(db, name=name)
+        document = await devices.get_one_backend(db, name=name)
         lda_parameters = document["properties"]["lda_parameters"]
     except KeyError:
         raise HTTPException(
@@ -102,7 +102,7 @@ async def update_lda_parameters(
     db: MongoDbDep, user: CurrentSystemUserProjectDep, name: str, lda_parameters: dict
 ):
     try:
-        await device_info.patch_backend(
+        await devices.patch_backend(
             db, name, payload={"properties": {"lda_parameters": lda_parameters}}
         )
     except ValueError as exp:
@@ -124,7 +124,7 @@ async def update_backend(
 ):
     """Updates the given backend with the new body supplied."""
     try:
-        await device_info.patch_backend(db, name, payload=body)
+        await devices.patch_backend(db, name, payload=body)
     except ValueError as exp:
         logging.error(exp)
         # FIXME: change this to an HTTPException
