@@ -9,7 +9,11 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 ### Added
 
-- Added dark mode
+- Added dark mode color change on dark mode toggle button click
+- Added a dark mode toggle button on the login page
+- Added a dark mode toggle button on the dashboard page
+- Changed the coloring of the device map chart to use muted connection lines
+- Changed the coloring of the device bar chart to use purple bar lines, and muted axes
 
 ## [2024.12.2] - 2025-01-22
 
