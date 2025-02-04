@@ -252,3 +252,24 @@ export function getUserRequestTitle(request: UserRequest): string {
       return "User request";
   }
 }
+
+/**
+ * Retrieves the saved isDark mode from stroage
+ * @returns - whether the saved mode isDark
+ */
+export function getSavedIsDarkMode() {
+  return localStorage.getItem("isDarkMode") == "true";
+}
+
+/**
+ * Saves the dark mode to the localstorage
+ * @param isDarkMode - whether the given document is in dark mode
+ */
+export function saveIsDarkMode(isDarkMode: boolean) {
+  localStorage.setItem("isDarkMode", `${isDarkMode}`);
+  if (isDarkMode) {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+}

@@ -265,6 +265,8 @@ export interface AppState {
   apiToken?: string;
   setApiToken: (value?: string) => void;
   clear: () => void;
+  isDark?: boolean;
+  toggleIsDark: () => void;
 }
 
 export interface ErrorInfo extends Error {

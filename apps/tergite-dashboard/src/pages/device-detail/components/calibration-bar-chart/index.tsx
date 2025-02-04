@@ -9,8 +9,9 @@ import { Group } from "@visx/group";
 import { Grid } from "@visx/grid";
 import { scaleBand, scaleLinear } from "@visx/scale";
 import { useParentSize } from "@visx/responsive";
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { CalibrationBar, getXValue, getYValue } from "./calibration-bar";
+import { AppStateContext } from "@/lib/app-state";
 
 const tooltipStyles = {
   ...defaultStyles,
@@ -30,6 +31,8 @@ export function CalibrationBarChart({
     width: _width,
     height,
   } = useParentSize({ debounceTime: 50 });
+  const { isDark } = useContext(AppStateContext);
+  const graphColor = isDark ? "#f9fafb" : "black";
 
   const width = Math.max(minWidth, _width);
   const margin = { top: 50, right: 0, bottom: 0, left: 50 };
@@ -105,7 +108,7 @@ export function CalibrationBarChart({
           yScale={yScale}
           width={xMax}
           height={yMax}
-          stroke="black"
+          stroke="secondary-foreground"
           strokeOpacity={0.1}
           xOffset={xScale.bandwidth() / 2}
         />
@@ -128,11 +131,13 @@ export function CalibrationBarChart({
           scale={xScale}
           tickLabelProps={{
             textAnchor: "middle",
-            className: "text-sm",
+            className: "text-sm fill-muted-foreground",
           }}
           label="Qubit"
-          labelClassName="text-sm"
+          labelClassName="text-sm fill-muted-foreground"
           labelOffset={30}
+          stroke={graphColor}
+          tickStroke={graphColor}
         />
         <AxisLeft
           scale={yScale}
@@ -140,10 +145,12 @@ export function CalibrationBarChart({
           left={margin.left}
           label={yAxisLabel}
           labelOffset={30}
-          labelClassName="text-sm"
+          labelClassName="text-sm fill-muted-foreground"
           tickLabelProps={{
-            className: "text-sm",
+            className: `text-sm fill-muted-foreground`,
           }}
+          stroke={graphColor}
+          tickStroke={graphColor}
         />
       </svg>
 

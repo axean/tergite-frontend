@@ -7,6 +7,10 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 ## [Unreleased]
 
+### Added
+
+- Added dark mode
+
 ## [2024.12.2] - 2025-01-22
 
 ## [2024.12.1] - 2024-12-20

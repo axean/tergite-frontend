@@ -13,7 +13,9 @@ export function newAppState(): AppState {
     currentProjectExtId: undefined,
     setCurrentProjectExtId: () => {},
     apiToken: undefined,
+    isDark: false,
     setApiToken: () => {},
+    toggleIsDark: () => {},
     clear: () => {
       state.setCurrentProjectExtId(undefined);
       state.setApiToken(undefined);
