@@ -107,6 +107,23 @@ users.forEach((user) => {
       cy.get("button[type=submit]").contains(/next/i).as("nextBtn");
     });
 
+    it("toggles dark mode", () => {
+      cy.get('[aria-label="Moon"]').as("toDarkBtn");
+      cy.get('[aria-label="Sun"]').should("not.exist");
+
+      cy.get("@toDarkBtn").click();
+      cy.get("html.dark").should("be.visible");
+      cy.get("@toDarkBtn").should("not.exist");
+
+      cy.get('[aria-label="Sun"]').as("toLightBtn");
+      cy.get("@toLightBtn").should("be.visible");
+
+      cy.get("@toLightBtn").click();
+      cy.get("html.dark").should("not.exist");
+      cy.get("@toDarkBtn").should("be.visible");
+      cy.get("@toLightBtn").should("not.exist");
+    });
+
     isDomainSupported &&
       it(`redirects to the home page of the dashboard`, () => {
         cy.get("@emailInput").clear();

@@ -199,7 +199,25 @@ users.forEach((user) => {
       cy.get('[data-testid="topbar"]').within(() => {
         cy.contains(/project:/i).should("be.visible");
         cy.get("[aria-label='UserRound']").should("be.visible");
+        cy.get("[aria-label='Moon']").should("be.visible");
       });
+    });
+
+    it("toggles dark mode", () => {
+      cy.get('[aria-label="Moon"]').as("toDarkBtn");
+      cy.get('[aria-label="Sun"]').should("not.exist");
+
+      cy.get("@toDarkBtn").click();
+      cy.get("html.dark").should("be.visible");
+      cy.get("@toDarkBtn").should("not.exist");
+
+      cy.get('[aria-label="Sun"]').as("toLightBtn");
+      cy.get("@toLightBtn").should("be.visible");
+
+      cy.get("@toLightBtn").click();
+      cy.get("html.dark").should("not.exist");
+      cy.get("@toDarkBtn").should("be.visible");
+      cy.get("@toLightBtn").should("not.exist");
     });
 
     it("renders the topbanner", () => {
