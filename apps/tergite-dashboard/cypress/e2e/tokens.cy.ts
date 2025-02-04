@@ -782,7 +782,7 @@ users.forEach((user) => {
           // live tokens only
           if (token.lifespan_seconds > 0) {
             const newExpiry = DateTime.now()
-              .plus({ month: 1 })
+              .plus({ day: 20 })
               .set({ day: 23, hour: 12, minute: 0, second: 50 })
               .toRelative();
             cy.contains(
@@ -878,7 +878,7 @@ users.forEach((user) => {
                 // live tokens only
                 if (token.lifespan_seconds > 0) {
                   const newExpiry = DateTime.now()
-                    .plus({ month: 1 })
+                    .plus({ day: 20 })
                     .set({ day: 23, hour: 12, minute: 0, second: 50 })
                     .toRelative();
                   cy.contains(
