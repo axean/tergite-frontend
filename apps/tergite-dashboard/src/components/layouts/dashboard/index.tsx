@@ -13,7 +13,7 @@ import { AppState, User, UserRequestStatus, UserRole } from "../../../../types";
 import { useCallback, useContext, useState } from "react";
 import { AppStateContext } from "@/lib/app-state";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
-import { loadOrRedirectIfAuthErr } from "@/lib/utils";
+import { cn, loadOrRedirectIfAuthErr } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 
 export function Dashboard() {
@@ -25,6 +25,7 @@ export function Dashboard() {
   const [isExpanded, setIsExpanded] = useState(true);
   const navigate = useNavigate();
   const contentAreaPaddingCls = isExpanded ? "sm:pl-56" : "sm:pl-20";
+  const darkModeCls = appState.isDark ? "dark" : "";
   const toggleIsExpanded = useCallback(() => {
     setIsExpanded(!isExpanded);
   }, [setIsExpanded, isExpanded]);
@@ -42,7 +43,9 @@ export function Dashboard() {
 
   return (
     <TooltipProvider>
-      <div className="flex h-screen w-full flex-col bg-muted/40">
+      <div
+        className={cn("flex h-screen w-full flex-col bg-muted/40", darkModeCls)}
+      >
         <Sidebar
           isExpanded={isExpanded}
           onIsExpandedChange={toggleIsExpanded}

@@ -29,7 +29,7 @@ export function CalibrationBar({
       y={barY}
       width={barWidth}
       height={barHeight}
-      className="fill-secondary-foreground"
+      className="fill-primary"
       onMouseLeave={() => {
         tooltipTimeout = window.setTimeout(() => {
           hideTooltip();

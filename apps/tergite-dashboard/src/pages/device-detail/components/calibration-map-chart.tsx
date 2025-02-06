@@ -198,7 +198,7 @@ export function CalibrationMapChart({
               y1={source.y}
               x2={target.x}
               y2={target.y}
-              className="stroke-secondary-foreground stroke-[3%]"
+              className="stroke-muted-foreground stroke-[2%]"
             />
           )}
         />

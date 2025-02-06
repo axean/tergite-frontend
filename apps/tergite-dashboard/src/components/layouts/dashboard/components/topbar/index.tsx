@@ -21,6 +21,7 @@ import { Link } from "react-router-dom";
 import { MobileMenu } from "./mobile-menu";
 import { TopbarBreadcrumb } from "./breadcrumb";
 import { useState } from "react";
+import { DarkToggleBtn } from "@/components/ui/dark-toggle-btn";
 
 export function Topbar({
   currentProject = "",
@@ -45,14 +46,14 @@ export function Topbar({
       />
 
       <TopbarBreadcrumb />
-
+      <DarkToggleBtn className="ml-auto" />
       <Select
         key={selectKey}
         data-testid="project-select"
         value={currentProject}
         onValueChange={onProjectChange}
       >
-        <SelectTrigger className="ml-auto w-fit">
+        <SelectTrigger className="w-fit">
           <span className="hidden sm:inline text-muted-foreground pr-1">
             Project:{" "}
           </span>

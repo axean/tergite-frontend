@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { DarkToggleBtn } from "@/components/ui/dark-toggle-btn";
 import {
   FormField,
   Form,
@@ -40,10 +41,13 @@ export default function LoginForm() {
   );
 
   return (
-    <main className="grid gap-4 p-4 md:gap-8 grid-cols-1 lg:grid-cols-2 h-screen">
+    <main className=" grid gap-4 p-4 md:gap-8 grid-cols-1 lg:grid-cols-2 h-screen">
       <div className="w-full h-full hidden lg:block m-4 rounded-md my-auto bg-[url('/img/quantum-computer.jpg')] bg-no-repeat bg-center bg-cover"></div>
-      <div className="w-full p-4 my-auto">
-        <div className="mb-40">
+      <div className="w-full">
+        <div className="w-full text-right">
+          <DarkToggleBtn />
+        </div>
+        <div className="my-40 p-4 ">
           <div data-cy-logo className="text-center">
             <p className="text-3xl font-bold mb-2">WACQT</p>
 
