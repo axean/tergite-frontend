@@ -782,7 +782,7 @@ users.forEach((user) => {
           // live tokens only
           if (token.lifespan_seconds > 0) {
             const newExpiry = DateTime.now()
-              .plus({ day: 20 })
+              .plus({ month: 1 })
               .set({ day: 23, hour: 12, minute: 0, second: 50 })
               .toRelative();
             cy.contains(
@@ -804,7 +804,7 @@ users.forEach((user) => {
 
             // set the day to 23rd of that month
             cy.contains(
-              "[data-radix-popper-content-wrapper] button[name='day']",
+              "[data-radix-popper-content-wrapper] button[name='day']:not(.opacity-50)",
               "23"
             ).click();
 
@@ -878,7 +878,7 @@ users.forEach((user) => {
                 // live tokens only
                 if (token.lifespan_seconds > 0) {
                   const newExpiry = DateTime.now()
-                    .plus({ day: 20 })
+                    .plus({ month: 1 })
                     .set({ day: 23, hour: 12, minute: 0, second: 50 })
                     .toRelative();
                   cy.contains(
@@ -903,7 +903,7 @@ users.forEach((user) => {
 
                   // set the day to 23rd of that month
                   cy.contains(
-                    "[data-radix-popper-content-wrapper] button[name='day']",
+                    "[data-radix-popper-content-wrapper] button[name='day']:not(.opacity-50)",
                     "23"
                   ).realClick();
 
