@@ -171,11 +171,6 @@ class AppConfig(BaseModel, extra=Extra.allow):
     """Configuration for the entire app"""
 
     mss_port: int = 8002
-    # the port on which the websocket is running
-    ws_port: int = 6532
-    # the host the uvicorn runs on.
-    # During testing auth on 127.0.0.1, set this to "127.0.0.1". default: "0.0.0.0"
-    mss_host: str = "0.0.0.0"
     # environment reflect which environment the app is to run in.
     # Options
     #  - development

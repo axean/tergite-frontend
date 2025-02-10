@@ -37,5 +37,6 @@ async def read_one(db: MongoDbDep, name: str):
 
 @router.post("")
 async def create(db: MongoDbDep, user: CurrentSystemUserProjectDep, documents: list):
+    # FIXME: Breaking change - let this receive only a single document. The backend needs to be changed as a result
     await calibration_service.insert_many_v2(db, documents)
     return "OK"

@@ -1,34 +1,23 @@
 """Integration tests for the auth v2 router"""
 import re
-from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import httpx
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
-from services.auth import AppToken, AuthProvider, Project
 from tests._utils.auth import (
-    TEST_APP_TOKEN_DICT,
-    TEST_NO_QPU_APP_TOKEN_DICT,
-    TEST_NO_QPU_PROJECT_DICT,
-    TEST_PROJECT_DICT,
-    TEST_PROJECT_ID,
     TEST_SUPERUSER_EMAIL,
     TEST_SUPERUSER_ID,
     TEST_USER_EMAIL,
     TEST_USER_ID,
-    get_db_record,
     is_valid_jwt,
 )
-from tests._utils.fixtures import load_json_fixture
 from tests.conftest import (
     APP_TOKEN_LIST,
     PROJECT_LIST,
     TEST_NEXT_COOKIE_URL,
-    get_auth_cookie,
     get_auth_header,
-    get_unauthorized_app_token_post,
 )
 
 _USER_EMAIL_INDEX = {
@@ -134,7 +123,7 @@ def test_github_cookie_auto_authorize(client):
     with client as client:
         response = client.get(
             f"/v2/auth/github/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
-            allow_redirects=False,
+            follow_redirects=False,
         )
         auth_url_pattern = r"^https\:\/\/github\.com\/login\/oauth\/authorize\?response_type\=code\&client_id\=test-tergite-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fgithub\%2Fcallback\&state=.*&scope=user\+user\%3Aemail$"
 
@@ -163,7 +152,7 @@ def test_chalmers_cookie_auto_authorize(client):
     with client as client:
         response = client.get(
             f"/v2/auth/chalmers/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
-            allow_redirects=False,
+            follow_redirects=False,
         )
         auth_url_pattern = r"^https\:\/\/login\.microsoftonline\.com\/common\/oauth2\/v.*\/authorize\?response_type\=code\&client_id\=test-chalmers-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fchalmers\%2Fcallback\&state=.*\&scope\=User\.Read\&response_mode\=query$"
 
@@ -192,7 +181,7 @@ def test_puhuri_cookie_auto_authorize(client):
     with client as client:
         response = client.get(
             f"/v2/auth/puhuri/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
-            allow_redirects=False,
+            follow_redirects=False,
         )
         auth_url_pattern = r"^https:\/\/proxy.acc.puhuri.eduteams.org\/OIDC\/authorization\?response_type\=code\&client_id\=test-puhuri-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fpuhuri\%2Fcallback\&state=.*\&scope\=openid\+email$"
 

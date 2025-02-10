@@ -61,8 +61,5 @@ extra_args=$([[ $APP_SETTINGS == "production" ]] && echo "" || echo " --reload")
 python -m uvicorn --host 0.0.0.0 --port "$PORT_NUMBER" api.rest:app --proxy-headers$extra_args &
 uvicorn_script=$!
 
-# websocket server
-# python3 ws_main.py &
-
 wait_for_process $puhuri_script
 wait_for_process $uvicorn_script

@@ -21,22 +21,22 @@ from typing import List
 from fastapi import APIRouter, HTTPException, status
 
 from api.rest.dependencies import CurrentSystemUserProjectDep, MongoDbDep
-from services import device_info
+from services import devices
 from utils import mongodb as mongodb_utils
 
 router = APIRouter(prefix="/devices", tags=["devices"])
 
 
-@router.get("", response_model=List[device_info.DeviceV2])
+@router.get("", response_model=List[devices.DeviceV2])
 async def read_many(db: MongoDbDep):
     """Retrieves all devices"""
-    return await device_info.get_all_devices(db)
+    return await devices.get_all_devices(db)
 
 
-@router.get("/{name}", response_model=device_info.DeviceV2)
+@router.get("/{name}", response_model=devices.DeviceV2)
 async def read_one(db: MongoDbDep, name: str):
     try:
-        return await device_info.get_one_device(db, name=name)
+        return await devices.get_one_device(db, name=name)
     except mongodb_utils.DocumentNotFoundError as exp:
         logging.error(exp)
         raise HTTPException(
@@ -44,18 +44,18 @@ async def read_one(db: MongoDbDep, name: str):
         )
 
 
-@router.put("", response_model=device_info.DeviceV2)
+@router.put("", response_model=devices.DeviceV2)
 async def upsert(
     db: MongoDbDep,
     user: CurrentSystemUserProjectDep,
-    payload: device_info.DeviceV2Upsert,
+    payload: devices.DeviceV2Upsert,
 ):
     """Creates a new backend if it does not exist already or updates it.
 
     It also appends this resultant backend config into the backends log.
     """
     try:
-        return await device_info.upsert_device(db, payload=payload)
+        return await devices.upsert_device(db, payload=payload)
     except ValueError as exp:
         logging.error(exp)
         raise HTTPException(
@@ -63,13 +63,13 @@ async def upsert(
         )
 
 
-@router.put("/{name}", response_model=device_info.DeviceV2)
+@router.put("/{name}", response_model=devices.DeviceV2)
 async def update(
     db: MongoDbDep, user: CurrentSystemUserProjectDep, name: str, body: dict
 ):
     """Updates the given backend with the new body supplied."""
     try:
-        return await device_info.patch_device(db, name, payload=body)
+        return await devices.patch_device(db, name, payload=body)
     except ValueError as exp:
         logging.error(exp)
         raise HTTPException(

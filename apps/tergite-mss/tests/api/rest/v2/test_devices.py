@@ -1,39 +1,12 @@
 """Integration tests for the devices v2 router"""
-import json
-from datetime import datetime
-from itertools import zip_longest
-from typing import Any, Dict, List, Union
+from typing import Any, Dict
 
 import pytest
-from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from services.device_info.config import app_config
-from services.device_info.dtos import (
-    BasicDeviceConfig,
-    BasicDeviceData,
-    DeviceData,
-    FilteredComponent,
-    FilteredDeviceData,
-    PrivateBackendFullDeviceConfig,
-    Property,
-    VisualisationType,
-)
-from services.device_info.utils.configs import to_qiskit_config_format
-from services.device_info.utils.qiskit import to_qiskit_device_data
-from tests._utils.aiohttp import MockAiohttpClient
 from tests._utils.date_time import is_not_older_than
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection
-from tests._utils.numbers import is_even
-from tests._utils.records import (
-    distinct_on,
-    get_many_records,
-    get_range,
-    get_record,
-    group_by,
-    order_by,
-    pop_field,
-)
+from tests._utils.records import get_record, order_by, pop_field
 
 _DEVICES_COLLECTION = "devices"
 _EXCLUDED_FIELDS = ["_id"]

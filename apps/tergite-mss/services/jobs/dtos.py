@@ -12,7 +12,7 @@
 """Data Transfer Objects for the quantum jobs service"""
 import enum
 from datetime import datetime
-from typing import Any, Dict, List, Optional, TypedDict, Union
+from typing import List, Optional, TypedDict
 
 from beanie import PydanticObjectId
 from bson import ObjectId

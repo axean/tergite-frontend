@@ -1,5 +1,3 @@
-from http.cookiejar import Cookie, CookieJar
-
 from tests._utils.env import (
     TEST_BACKENDS,
     TEST_DB_NAME,

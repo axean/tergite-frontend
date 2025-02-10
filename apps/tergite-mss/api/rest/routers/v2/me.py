@@ -17,7 +17,7 @@ from fastapi import APIRouter, Query
 
 from api.rest.dependencies import CurrentUserDep, CurrentUserIdDep, MongoDbDep
 from services.auth import APP_TOKEN_AUTH, APP_TOKEN_BACKEND, User, UserRead
-from services.quantum_jobs import JobV1, JobV2, get_latest_many
+from services.jobs import JobV1, JobV2, get_latest_many
 
 router = APIRouter(prefix="/me")
 
