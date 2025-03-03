@@ -1,6 +1,6 @@
 [
   {
-    "id": "loke",
+    "id": "67c5a75cc2e8aa8c2adbae33",
     "name": "Loke",
     "version": "2024.04.1",
     "number_of_qubits": 8,
@@ -67,7 +67,7 @@
     "qubit_ids": ["q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7"]
   },
   {
-    "id": "thor",
+    "id": "67c5a76738c241ff44953635",
     "name": "Thor",
     "version": "2023.06.0",
     "number_of_qubits": 5,
@@ -111,7 +111,7 @@
     "qubit_ids": ["q12", "q13", "q14", "q15", "q16"]
   },
   {
-    "id": "pingu",
+    "id": "67c5a7727c76b521473b550b",
     "name": "Pingu",
     "version": "2024.05.1",
     "number_of_qubits": 20,
@@ -296,7 +296,7 @@
     ]
   },
   {
-    "id": "pegu",
+    "id": "67c5a77c89d431d10c984239",
     "name": "Pegu",
     "version": "2024.05.1",
     "number_of_qubits": 20,
@@ -481,7 +481,7 @@
     ]
   },
   {
-    "id": "likee",
+    "id": "67c5a7864339e12559d7100b",
     "name": "Likee",
     "version": "2024.04.1",
     "number_of_qubits": 8,
@@ -548,7 +548,7 @@
     "qubit_ids": ["q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7"]
   },
   {
-    "id": "thea",
+    "id": "67c5a790ddd51dd820ccc1fc",
     "name": "Thea",
     "version": "2023.06.0",
     "number_of_qubits": 5,
