@@ -11,6 +11,8 @@ services:
   dashboard:
     networks:
       - tergite-frontend-e2e
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:3000/login"]
 
   tergite-mongo:
     restart: always

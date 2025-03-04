@@ -21,10 +21,14 @@ users.forEach((user) => {
   const isDomainSupported = availableAuthProviders.length > 0;
 
   describe(`login page for authenticated user '${username}'`, () => {
+    const dashboardUrl = Cypress.config("baseUrl");
+
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");
       const userIdCookieName = Cypress.env("USER_ID_COOKIE_NAME");
+      const isNotFullEndToEnd =
+        Cypress.env("IS_FULL_END_TO_END")?.toLowerCase() !== "true";
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
       cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
@@ -80,7 +84,7 @@ users.forEach((user) => {
         cy.get("[data-cy-login-link]").first().click();
         cy.wait("@my-jobs-list");
 
-        cy.url().should("equal", "http://127.0.0.1:5173/");
+        cy.url().should("equal", dashboardUrl);
         cy.get("nav a")
           .contains(/dashboard/i)
           .should("be.visible");
@@ -88,6 +92,8 @@ users.forEach((user) => {
   });
 
   describe(`login page for unauthenticated user '${username}'`, () => {
+    const dashboardUrl = Cypress.config("baseUrl");
+
     let apiBaseUrl: string;
     beforeEach(() => {
       apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
@@ -140,7 +146,9 @@ users.forEach((user) => {
             ).should(
               "have.attr",
               "href",
-              `${apiBaseUrl}/auth/${provider.name}/authorize?next=http://127.0.0.1:5173`
+              `${apiBaseUrl}/auth/${
+                provider.name
+              }/authorize?next=${dashboardUrl?.slice(0, -1)}`
             );
           });
         }

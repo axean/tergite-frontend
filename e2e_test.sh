@@ -16,7 +16,6 @@
 #
 # BACKEND_REPO="https://github.com/tergite/tergite-backend.git" \
 #   BACKEND_BRANCH="main" \ # you can set a different backend branch; default is 'main'
-#   FRONTEND_BRANCH="main" \ # you can set a different frontend branch; default is 'main'
 #   DEBUG="True" \ # Set 'True' to avoid cleaning up the containers, env, and repos after test, default: ''
 #   CYPRESS_IMAGE="cypress/base:20.17.0" \ # Set the docker image to run the tests. If not provided, it runs on the host machine
 #   ./e2e_test.sh
@@ -25,7 +24,6 @@ set -e # exit if any step fails
 
 # Global variables
 TEMP_DIR="temp"
-FRONTEND_BRANCH="${FRONTEND_BRANCH:-main}"
 BACKEND_REPO="$BACKEND_REPO"
 BACKEND_BRANCH="${BACKEND_BRANCH:-main}"
 APP_TOKEN="pZTccp8F-8RLFvQie1AMM0ptfdkGNnH1wDEB4INUFqw"
@@ -38,6 +36,15 @@ CYPRESS_IMAGE="$CYPRESS_IMAGE"
 log_error() {
   echo "$(date +'%Y-%m-%d %H:%M:%S') - ERROR: $1" >&2
 }
+
+# exits the program with an error
+exit_with_err() {
+  log_error "$1";
+  exit 1;
+}
+
+# Check that docker is available
+docker --help || exit_with_err "docker is not running"
 
 # Clean up any remaining docker things
 echo "Cleaning up docker artefacts from previous runs"
@@ -57,7 +64,7 @@ cd "$TEMP_DIR_PATH"
 echo "Cloning repositories..."
 rm -rf tergite-frontend
 rm -rf tergite-backend
-git clone --single-branch --branch "$FRONTEND_BRANCH" "$ROOT_PATH" tergite-frontend
+git clone "$ROOT_PATH" tergite-frontend
 git clone --single-branch --branch "$BACKEND_BRANCH" "$BACKEND_REPO"
 
 # Adding configuration files to tergite-frontend folder
@@ -86,25 +93,40 @@ docker compose \
 if [[ -z "$CYPRESS_IMAGE" ]]; then
   # Starting the tests
   echo "Installing dependencies..."
-  cd "$ROOT_PATH/apps/tergite-dashboard"
+  cd "$TEMP_DIR_PATH/tergite-frontend/apps/tergite-dashboard"
   npm ci --cache .npm --prefer-offline
 
   echo "Running end-to-end test suite..."
-  if [ -z "$TEST_THRESHOLD" ]; then 
+  if [[ -z "$TEST_THRESHOLD" ]]; then 
     echo "TEST_THRESHOLD=$TEST_THRESHOLD" >> .env.test; 
   fi
 
-  npm run cypress-only
+  echo "IS_FULL_END_TO_END=True" >> .env.test; 
+
+  # set the dashboard URL to the URL of the dashboard service
+  if [[ "$(uname -s)" = "Darwin" ]]; then
+    sed -i "" "s|http://127.0.0.1:5173|http://127.0.0.1:3000|" cypress.config.ts;
+  else 
+    sed -i "s|http://127.0.0.1:5173|http://127.0.0.1:3000|" cypress.config.ts;
+  fi
+
+  npm run visual-cypress-only
 else
-  cd "$ROOT_PATH/apps/tergite-dashboard"
+  echo "Running e2e tests..."
+  cd "$TEMP_DIR_PATH/tergite-frontend/apps/tergite-dashboard"
   cp "$FIXTURES_PATH/e2e-runner.sh" .
   docker run \
     --name tergite-frontend-e2e-runner \
-    --network=tergite-frontend-e2e_tergite-frontend-e2e \
+    --network=host \
     -v "$PWD":/app -w /app \
     -e TEST_THRESHOLD="$TEST_THRESHOLD" \
-    -e VITE_API_BASE_URL="http://mss:8002" \
-    "$CYPRESS_IMAGE" bash ./e2e-runner.sh
+    -e VITE_API_BASE_URL="http://127.0.0.1:8002/v2" \
+    -e DASHBOARD_URL="http://127.0.0.1:3000" \
+    -e IS_FULL_END_TO_END="True" \
+    "$CYPRESS_IMAGE" bash ./e2e-runner.sh;
+
+  # FIXME: the cookies depend on the URL of the dashboard and mss.
+  #   We might need a reverse-proxy that uses the network urls in the back
 fi
 
 # Cleanup

@@ -47,12 +47,16 @@ users.forEach((user) => {
   const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
 
   describe(`normal user projects page for ${username}`, () => {
+    const dashboardUrl = Cypress.config("baseUrl");
+
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");
       const cookieName = Cypress.env("VITE_COOKIE_NAME");
       const secret = Cypress.env("JWT_SECRET");
       const audience = Cypress.env("AUTH_AUDIENCE");
+      const isNotFullEndToEnd =
+        Cypress.env("IS_FULL_END_TO_END")?.toLowerCase() !== "true";
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
@@ -81,7 +85,7 @@ users.forEach((user) => {
         );
       }
 
-      cy.request(`${apiBaseUrl}/refreshed-db`);
+      isNotFullEndToEnd && cy.request(`${apiBaseUrl}/refreshed-db`);
 
       cy.visit("/projects");
       cy.wait("@my-user-info");
@@ -91,7 +95,7 @@ users.forEach((user) => {
     it("renders the projects page when nav item is clicked", () => {
       cy.visit("/");
       cy.wait("@my-user-info");
-      cy.url().should("equal", "http://127.0.0.1:5173/");
+      cy.url().should("equal", dashboardUrl);
 
       cy.get("[data-testid='topbar'] [aria-label='UserRound']").click({
         force: true,
@@ -100,7 +104,7 @@ users.forEach((user) => {
         '[data-radix-popper-content-wrapper] [role="menuitem"]',
         /projects/i
       ).click();
-      cy.url().should("equal", "http://127.0.0.1:5173/projects");
+      cy.url().should("equal", `${dashboardUrl}projects`);
     });
 
     it("renders all user's projects", () => {

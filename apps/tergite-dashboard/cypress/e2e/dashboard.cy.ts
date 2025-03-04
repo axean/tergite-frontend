@@ -235,7 +235,7 @@ users.forEach((user) => {
       });
       cy.contains(/logout/i).click();
       cy.wait("@logout");
-      cy.url().should("equal", "http://127.0.0.1:5173/login");
+      cy.url().should("equal", `${dashboardUrl}login`);
     });
 
     it("current project can be selected from list of projects", () => {

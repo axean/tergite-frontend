@@ -85,7 +85,7 @@ All signed CLAs are emails to us at <quantum.nextlabs@chalmers.se>.
 
 ```shell
 git clone git@github.com:tergite/tergite-frontend.git
-cd apps/tergite-dashboard
+cd tergite-frontend/apps/tergite-dashboard
 ```
 
 - Install the dependencies
@@ -100,6 +100,34 @@ npm i
 npm run test
 ```
 
+## How to Run End-to-end Tests
+
+- Ensure you have [docker](https://docs.docker.com/engine/install/) and [python](https://www.python.org/downloads/) installed
+- Ensure nothing is running on ports:
+
+  - 27018
+  - 8000
+  - 8002
+  - 8001
+  - 6378
+
+- Clone the repo
+
+```shell
+git clone git@github.com:tergite/tergite-frontend.git
+cd tergite-frontend
+```
+
+- Run the tests command
+
+```shell
+BACKEND_REPO="https://github.com/tergite/tergite-backend.git" \
+# BACKEND_BRANCH="main" \ # you can set a different backend branch; default is 'main'
+# DEBUG="True" \ # Set 'True' to avoid cleaning up the containers, env, and repos after test, default: ''
+# CYPRESS_IMAGE="cypress/base:20.17.0" \ # Set the docker image to run the tests. If not provided, it runs on the host machine
+./e2e_test.sh
+```
+
 ## How to Build
 
 - Make sure you have [nodejs +20.12](https://nodejs.org/) installed.
@@ -107,7 +135,7 @@ npm run test
 
 ```shell
 git clone git@github.com:tergite/tergite-frontend.git
-cd apps/tergite-dashboard
+cd tergite-frontend/apps/tergite-dashboard
 ```
 
 - Install the dependencies

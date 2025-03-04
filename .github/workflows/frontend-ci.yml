@@ -44,7 +44,6 @@ jobs:
           DEBUG: ${{ vars.DEBUG || 'false' }}
           BACKEND_REPO: https://github.com/${{ github.repository_owner }}/tergite-backend.git
           BACKEND_BRANCH: ${{ github.ref_name }}
-          FRONTEND_BRANCH: ${{ github.ref_name }}
         run: ./e2e_test.sh
 
   # TODO: Add a stage for testing the docker compose loading
