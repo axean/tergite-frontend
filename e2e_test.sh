@@ -17,6 +17,7 @@
 # BACKEND_REPO="https://github.com/tergite/tergite-backend.git" \
 #   BACKEND_BRANCH="main" \ # you can set a different backend branch; default is 'main'
 #   DEBUG="True" \ # Set 'True' to avoid cleaning up the containers, env, and repos after test, default: ''
+#   VISUAL="True" \ # Set 'True' to see the e2e in a graphical user interface, default: ''
 #   CYPRESS_IMAGE="cypress/base:20.17.0" \ # Set the docker image to run the tests. If not provided, it runs on the host machine
 #   ./e2e_test.sh
 
@@ -145,8 +146,17 @@ if [[ -z "$CYPRESS_IMAGE" ]]; then
   # set the dashboard URL to the URL of the dashboard service
   replace_str cypress.config.ts "http://127.0.0.1:5173" "http://127.0.0.1:3000";
 
-  npm run visual-cypress-only;
+  if [[ $(echo "${VISUAL}" | tr '[:lower:]' '[:upper:]') = "TRUE" ]]; then 
+    npm run visual-cypress-only;
+  else 
+    npm run cypress-only;
+  fi
+
 else
+  if [[ $(echo "${VISUAL}" | tr '[:lower:]' '[:upper:]') = "TRUE" ]]; then 
+    exit_with_err "Cannot run visually when a CYPRESS_IMAGE is set. Set VISUAL='' or remove CYPRESS_IMAGE";
+  fi 
+
   echo "Running e2e tests..."
   cd "$TEMP_DIR_PATH/tergite-frontend/apps/tergite-dashboard"
   cp "$FIXTURES_PATH/e2e-runner.sh" .
@@ -159,9 +169,6 @@ else
     -e DASHBOARD_URL="http://127.0.0.1:3000" \
     -e IS_FULL_END_TO_END="True" \
     "$CYPRESS_IMAGE" bash ./e2e-runner.sh;
-
-  # FIXME: the cookies depend on the URL of the dashboard and mss.
-  #   We might need a reverse-proxy that uses the network urls in the back
 fi
 
 # Cleanup

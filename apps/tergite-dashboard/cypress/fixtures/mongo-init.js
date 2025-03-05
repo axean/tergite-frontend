@@ -92,16 +92,6 @@ console.log({ userRequests });
 const users = JSON.parse(rawUsers).map(toDoc);
 console.log({ users });
 
-console.log("Preloading mongodb with...", {
-  calibrations,
-  devices,
-  jobs,
-  projects,
-  tokens,
-  userRequests,
-  users,
-});
-
 db.auth_projects.insertMany(projects);
 console.log("Inserted projects");
 db.auth_app_tokens.insertMany(tokens);

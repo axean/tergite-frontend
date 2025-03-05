@@ -26,6 +26,8 @@ users.forEach((user) => {
   const requestsCount = pendingUserRequests.length;
 
   describe(`dashboard-layout for ${username}`, () => {
+    const dashboardUrl = Cypress.config("baseUrl");
+
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");

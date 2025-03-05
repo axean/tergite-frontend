@@ -124,6 +124,7 @@ cd tergite-frontend
 BACKEND_REPO="https://github.com/tergite/tergite-backend.git" \
 # BACKEND_BRANCH="main" \ # you can set a different backend branch; default is 'main'
 # DEBUG="True" \ # Set 'True' to avoid cleaning up the containers, env, and repos after test, default: ''
+# VISUAL="True" \ # Set 'True' to see the e2e in a graphical user interface, default: ''
 # CYPRESS_IMAGE="cypress/base:20.17.0" \ # Set the docker image to run the tests. If not provided, it runs on the host machine
 ./e2e_test.sh
 ```
