@@ -83,7 +83,7 @@ full e2e:
         echo "Skipping docker login: DOCKER_USER or DOCKER_TOKEN not set."
       fi;
     - apk update && apk add --no-cache curl bash build-base
-      openssl-dev zlib-dev libffi-dev make git
+      openssl-dev zlib-dev libffi-dev make git jq
   script:
     - ./e2e_test.sh
 

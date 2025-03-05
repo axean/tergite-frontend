@@ -61,7 +61,7 @@
     "created_at": "2024-10-14T10:37:32.558Z",
     "type": "close-project",
     "status": "rejected",
-    "rejection_reason": "I don't like the reason",
+    "rejection_reason": "I do not like the reason",
     "approver_id": "5ddc8d9fb69602723cd3c38f",
     "approver_name": "jane.doe",
     "id": "67c5a869afa0846800553a35"

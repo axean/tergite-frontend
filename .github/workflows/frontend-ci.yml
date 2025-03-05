@@ -33,8 +33,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install OpenBlas for scipy if no wheels
-        run: sudo apt-get install -y libopenblas-dev
+      - name: Install dependencies
+        run: sudo apt-get install -y libopenblas-dev jq
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
         with:

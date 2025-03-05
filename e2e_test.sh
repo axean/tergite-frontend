@@ -38,13 +38,41 @@ log_error() {
 }
 
 # exits the program with an error
+# usage:
+#   exit_with_err "some string"
 exit_with_err() {
   log_error "$1";
   exit 1;
 }
 
 # Check that docker is available
-docker --help || exit_with_err "docker is not running"
+docker info &> /dev/null || exit_with_err "docker is not running"
+
+# Check that jq is available
+jq --version &> /dev/null || exit_with_err "jq is not available"
+
+# Check that git is available
+git --version &> /dev/null || exit_with_err "git is not available"
+
+# replaces the given string in a given file with another string
+# usage:
+#   replace_str file "original string" "new string"
+replace_str() {
+  if [[ "$(uname -s)" = "Darwin" ]]; then
+    sed -i "" "s|$2|$3|" "$1";
+  else 
+    sed -i "s|$2|$3|" "$1";
+  fi
+}
+
+# reads the JSON file and returns it as an escaped string
+# usage:
+#   read_json file
+read_json() {
+  # the sed is to escape single quotes properly for javascript
+  echo "$(jq -c . $1 | jq -Rr @sh)"
+}
+
 
 # Clean up any remaining docker things
 echo "Cleaning up docker artefacts from previous runs"
@@ -78,6 +106,17 @@ cp "$FIXTURES_PATH/e2e.env" .env
 printf "\nMSS_APP_TOKEN=\"$APP_TOKEN\"" >> .env
 cp "$FIXTURES_PATH/mss-config.toml" .
 
+# Update the mongo-init.js to include the JSON data from the fixtures
+replace_str mongo-init.js "rawCalibrations = \"\[\]\"" "rawCalibrations = $(read_json $FIXTURES_PATH/calibrations.json)"
+replace_str mongo-init.js "rawDevices = \"\[\]\"" "rawDevices = $(read_json $FIXTURES_PATH/device-list.json)"
+replace_str mongo-init.js "rawJobs = \"\[\]\"" "rawJobs = $(read_json $FIXTURES_PATH/jobs.json)"
+replace_str mongo-init.js "rawProjects = \"\[\]\"" "rawProjects = $(read_json $FIXTURES_PATH/projects.json)"
+replace_str mongo-init.js "rawTokens = \"\[\]\"" "rawTokens = $(read_json $FIXTURES_PATH/tokens.json)"
+replace_str mongo-init.js "rawUserRequests = \"\[\]\"" "rawUserRequests = $(read_json $FIXTURES_PATH/user-requests.json)"
+replace_str mongo-init.js "rawUsers = \"\[\]\"" "rawUsers = $(read_json $FIXTURES_PATH/users.json)"
+
+# Update the .env.test in tergite dashboard
+replace_str apps/tergite-dashboard/.env.test "VITE_API_BASE_URL=\"http://127.0.0.1:8002\"" "VITE_API_BASE_URL=\"http://127.0.0.1:8002/v2\""
 
 # Starting services in the tergite-frontend folder
 echo "Starting all e2e services"
@@ -104,13 +143,9 @@ if [[ -z "$CYPRESS_IMAGE" ]]; then
   echo "IS_FULL_END_TO_END=True" >> .env.test; 
 
   # set the dashboard URL to the URL of the dashboard service
-  if [[ "$(uname -s)" = "Darwin" ]]; then
-    sed -i "" "s|http://127.0.0.1:5173|http://127.0.0.1:3000|" cypress.config.ts;
-  else 
-    sed -i "s|http://127.0.0.1:5173|http://127.0.0.1:3000|" cypress.config.ts;
-  fi
+  replace_str cypress.config.ts "http://127.0.0.1:5173" "http://127.0.0.1:3000";
 
-  npm run visual-cypress-only
+  npm run visual-cypress-only;
 else
   echo "Running e2e tests..."
   cd "$TEMP_DIR_PATH/tergite-frontend/apps/tergite-dashboard"
