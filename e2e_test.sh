@@ -84,7 +84,7 @@ docker rmi -f tergite/tergite-backend-e2e:latest 2>/dev/null
 docker system prune -f
 
 # Create and navigating to temporary directory
-echo "Creating up temp folder $TEMP_DIR_PATH"
+echo "Creating temporary folder $TEMP_DIR_PATH"
 rm -rf "$TEMP_DIR_PATH"
 mkdir "$TEMP_DIR_PATH"
 cd "$TEMP_DIR_PATH"
@@ -117,15 +117,15 @@ replace_str mongo-init.js "rawUserRequests = \"\[\]\"" "rawUserRequests = $(read
 replace_str mongo-init.js "rawUsers = \"\[\]\"" "rawUsers = $(read_json $FIXTURES_PATH/users.json)"
 
 # Update the .env.test in tergite dashboard
-replace_str apps/tergite-dashboard/.env.test "VITE_API_BASE_URL=\"http://127.0.0.1:8002\"" "VITE_API_BASE_URL=\"http://127.0.0.1:8002/v2\""
+replace_str apps/tergite-dashboard/.env.test "VITE_API_BASE_URL=\"http://127.0.0.1:8002\"" "VITE_API_BASE_URL=\"http://127.0.0.1:8002/v2\"";
 
 # Starting services in the tergite-frontend folder
 echo "Starting all e2e services"
 docker compose \
-  -f fresh-docker-compose.yml\
+  -f fresh-docker-compose.yml \
   -f e2e-docker-compose.yml \
   -p tergite-frontend-e2e \
-  up -d
+  up -d;
 
 # Run in python docker file if $CYPRESS_IMAGE is set
 # or else run on host machine
