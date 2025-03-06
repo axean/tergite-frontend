@@ -25,10 +25,9 @@ users.forEach((user) => {
 
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
+      const dbResetUrl = Cypress.env("DB_RESET_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");
       const userIdCookieName = Cypress.env("USER_ID_COOKIE_NAME");
-      const isNotFullEndToEnd =
-        Cypress.env("IS_FULL_END_TO_END")?.toLowerCase() !== "true";
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
       cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
@@ -40,6 +39,10 @@ users.forEach((user) => {
         secure: false,
         sameSite: "lax",
       });
+
+      // We need to reset the mongo database before each test
+      cy.request(`${dbResetUrl}`);
+      cy.wait(500);
 
       cy.visit("/");
       cy.wait("@devices-list");

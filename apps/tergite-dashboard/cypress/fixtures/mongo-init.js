@@ -1,5 +1,3 @@
-db = db.getSiblingDB("testing"); // Create/use database
-
 /**
  * Converts a JS object into a BSON-like object
  * @param {Object} obj - the object to convert to document
@@ -62,6 +60,12 @@ const toJobV1 = ({
 
   return { backend, timelog, status, timestamps, ...props };
 };
+
+db = db.getSiblingDB("testing"); // Create/use database
+
+// Drop the database
+db.dropDatabase();
+console.log("Database 'testing' dropped successfully.");
 
 console.log("Inserting initial data in mongo...");
 

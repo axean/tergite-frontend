@@ -100,6 +100,9 @@ git clone --single-branch --branch "$BACKEND_BRANCH" "$BACKEND_REPO"
 echo "Adding configuration files"
 cd tergite-frontend
 cp "$FIXTURES_PATH/mongo-init.js" .
+cp "$FIXTURES_PATH/mongo-server.sh" .
+cp "$FIXTURES_PATH/mongo-router.sh" .
+cp "$FIXTURES_PATH/mongo.Dockerfile" .
 cp "$FIXTURES_PATH/e2e-docker-compose.yml" .
 cp "$FIXTURES_PATH/qiskit_pulse_1q.toml" .
 cp "$FIXTURES_PATH/qiskit_pulse_2q.toml" .
@@ -118,6 +121,14 @@ replace_str mongo-init.js "rawUsers = \"\[\]\"" "rawUsers = $(read_json $FIXTURE
 
 # Update the .env.test in tergite dashboard
 replace_str apps/tergite-dashboard/.env.test "VITE_API_BASE_URL=\"http://127.0.0.1:8002\"" "VITE_API_BASE_URL=\"http://127.0.0.1:8002/v2\"";
+replace_str apps/tergite-dashboard/.env.test "DB_RESET_URL=\"http://127.0.0.1:8002/refreshed-db\"" "DB_RESET_URL=\"http://127.0.0.1:3001/refreshed-db\"";
+if [[ -n "$TEST_THRESHOLD" ]]; then 
+  echo "TEST_THRESHOLD=$TEST_THRESHOLD" >> apps/tergite-dashboard/.env.test; 
+fi
+
+# Update cypress.config.ts in tergite dashboard
+#  set the dashboard URL to the URL of the dashboard service
+replace_str apps/tergite-dashboard/cypress.config.ts "http://127.0.0.1:5173" "http://127.0.0.1:3000";
 
 # Starting services in the tergite-frontend folder
 echo "Starting all e2e services"
@@ -134,18 +145,9 @@ if [[ -z "$CYPRESS_IMAGE" ]]; then
   # Starting the tests
   echo "Installing dependencies..."
   cd "$TEMP_DIR_PATH/tergite-frontend/apps/tergite-dashboard"
-  npm ci --cache .npm --prefer-offline
+  npm ci
 
   echo "Running end-to-end test suite..."
-  if [[ -z "$TEST_THRESHOLD" ]]; then 
-    echo "TEST_THRESHOLD=$TEST_THRESHOLD" >> .env.test; 
-  fi
-
-  echo "IS_FULL_END_TO_END=True" >> .env.test; 
-
-  # set the dashboard URL to the URL of the dashboard service
-  replace_str cypress.config.ts "http://127.0.0.1:5173" "http://127.0.0.1:3000";
-
   if [[ $(echo "${VISUAL}" | tr '[:lower:]' '[:upper:]') = "TRUE" ]]; then 
     npm run visual-cypress-only;
   else 
@@ -159,16 +161,12 @@ else
 
   echo "Running e2e tests..."
   cd "$TEMP_DIR_PATH/tergite-frontend/apps/tergite-dashboard"
-  cp "$FIXTURES_PATH/e2e-runner.sh" .
   docker run \
     --name tergite-frontend-e2e-runner \
     --network=host \
     -v "$PWD":/app -w /app \
     -e TEST_THRESHOLD="$TEST_THRESHOLD" \
-    -e VITE_API_BASE_URL="http://127.0.0.1:8002/v2" \
-    -e DASHBOARD_URL="http://127.0.0.1:3000" \
-    -e IS_FULL_END_TO_END="True" \
-    "$CYPRESS_IMAGE" bash ./e2e-runner.sh;
+    "$CYPRESS_IMAGE" bash -c "set -e; npm ci; npm run cypress-only;";
 fi
 
 # Cleanup

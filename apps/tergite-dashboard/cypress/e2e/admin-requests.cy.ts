@@ -51,12 +51,11 @@ users.forEach((user) => {
 
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
+      const dbResetUrl = Cypress.env("DB_RESET_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");
       const cookieName = Cypress.env("VITE_COOKIE_NAME");
       const secret = Cypress.env("JWT_SECRET");
       const audience = Cypress.env("AUTH_AUDIENCE");
-      const isNotFullEndToEnd =
-        Cypress.env("IS_FULL_END_TO_END")?.toLowerCase() !== "true";
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
@@ -82,7 +81,9 @@ users.forEach((user) => {
         );
       }
 
-      isNotFullEndToEnd && cy.request(`${apiBaseUrl}/refreshed-db`);
+      // We need to reset the mongo database before each test
+      cy.request(`${dbResetUrl}`);
+      cy.wait(500);
 
       cy.visit("/admin-requests");
       cy.wait("@my-user-info");
