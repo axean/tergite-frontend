@@ -429,7 +429,7 @@ users.forEach((user) => {
               Object.entries(project).map(([k, v]) => [k, updates[k] ?? v])
             ) as AdminProject;
             expected.user_emails = [
-              ...new Set([expected.admin_email, ...expected.user_emails]),
+              ...new Set([...expected.user_emails, expected.admin_email]),
             ];
 
             if (project) {
@@ -669,8 +669,8 @@ users.forEach((user) => {
 
               expected.user_emails = [
                 ...new Set([
-                  project.admin_email as string,
                   ...expected.user_emails,
+                  expected.admin_email as string,
                 ]),
               ];
 

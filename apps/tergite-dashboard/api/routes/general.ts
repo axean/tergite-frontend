@@ -569,10 +569,10 @@ router.post(
     }
 
     const body = req.body as AdminCreateProjectBody;
-    const { user_emails, admin_email, ...restOfBody } = body;
-    const allEmails = [
-      ...new Set([admin_email].concat(user_emails || [])),
-    ].filter((v) => v != undefined);
+    const { user_emails = [], admin_email, ...restOfBody } = body;
+    const allEmails = [...new Set(user_emails.concat([admin_email]))].filter(
+      (v) => v != undefined
+    );
     const users = mockDb.getMany<User>("users");
     const userEmailIdMap = Object.fromEntries(
       users.map((v) => [v.email, v.id])
@@ -624,10 +624,10 @@ router.put(
 
     const projectId = req.params.id;
     const body = req.body as UpdateProjectPutBody;
-    const { user_emails, admin_email, ...restOfBody } = body;
-    const allEmails = [
-      ...new Set([admin_email].concat(user_emails || [])),
-    ].filter((v) => v != undefined);
+    const { user_emails = [undefined], admin_email, ...restOfBody } = body;
+    const allEmails = [...new Set(user_emails.concat([admin_email]))].filter(
+      (v) => v != undefined
+    );
     const users = mockDb.getMany<User>("users");
     const userEmailIdMap = Object.fromEntries(
       users.map((v) => [v.email, v.id])
