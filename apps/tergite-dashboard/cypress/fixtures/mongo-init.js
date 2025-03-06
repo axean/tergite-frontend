@@ -32,12 +32,21 @@ const toJobV1 = ({
   created_at,
   status: v2Status,
   duration_in_secs,
+  id,
   ...props
 }) => {
   const status = statusMap[v2Status];
   const timelog = { REGISTERED: created_at };
+  let result = null;
+  let download_url = null;
+
+  // if the job completed successfully, add the results and the download url
   if (v2Status === "successful") {
-    timelog["RESULT"] = { memory: [] };
+    timelog["RESULT"] = created_at;
+    result = {
+      memory: [],
+    };
+    download_url = `http://${backend}/logfiles/${id}`;
   }
 
   let timestamps = null;
@@ -58,7 +67,16 @@ const toJobV1 = ({
     };
   }
 
-  return { backend, timelog, status, timestamps, ...props };
+  return {
+    id,
+    backend,
+    timelog,
+    status,
+    timestamps,
+    result,
+    download_url,
+    ...props,
+  };
 };
 
 db = db.getSiblingDB("testing"); // Create/use database

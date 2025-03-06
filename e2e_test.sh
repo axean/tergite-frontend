@@ -100,7 +100,6 @@ git clone --single-branch --branch "$BACKEND_BRANCH" "$BACKEND_REPO"
 echo "Adding configuration files"
 cd tergite-frontend
 cp "$FIXTURES_PATH/mongo-init.js" .
-cp "$FIXTURES_PATH/mongo-server.sh" .
 cp "$FIXTURES_PATH/mongo-router.sh" .
 cp "$FIXTURES_PATH/mongo.Dockerfile" .
 cp "$FIXTURES_PATH/e2e-docker-compose.yml" .

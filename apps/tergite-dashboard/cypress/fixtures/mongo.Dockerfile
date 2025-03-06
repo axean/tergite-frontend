@@ -7,9 +7,7 @@ WORKDIR /docker-entrypoint-initdb.d/
 COPY mongo-init.js /docker-entrypoint-initdb.d/init.js
 
 # Copy the HTTP server script
-COPY mongo-server.sh /usr/local/bin/http_server.sh
 COPY mongo-router.sh /usr/local/bin/router.sh
-RUN chmod +x /usr/local/bin/http_server.sh
 RUN chmod +x /usr/local/bin/router.sh
 
 # Install BusyBox for HTTP server
@@ -19,4 +17,4 @@ RUN apt-get update && apt-get install -y socat && rm -rf /var/lib/apt/lists/*
 EXPOSE 27017 3001
 
 # Start MongoDB and HTTP server
-CMD ["sh", "-c", "mongod --bind_ip_all & sleep 5 && nohup /usr/local/bin/http_server.sh & tail -f /dev/null"]
+CMD ["sh", "-c", "mongod --bind_ip_all & sleep 5 && nohup socat TCP-LISTEN:3001,reuseaddr,fork EXEC:/usr/local/bin/router.sh & tail -f /dev/null"]
