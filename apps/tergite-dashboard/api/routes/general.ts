@@ -118,9 +118,11 @@ router.get(
     }
 
     const { project_id } = req.query as { [k: string]: string };
-    const myJobs = mockDb.getMany<Job>("jobs", (v) =>
-      conformsToFilter(v, { user_id: currentUserId, project_id })
-    );
+    const myJobs = mockDb
+      .getMany<Job>("jobs", (v) =>
+        conformsToFilter(v, { user_id: currentUserId, project_id })
+      )
+      .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
 
     res.json(myJobs);
   })
