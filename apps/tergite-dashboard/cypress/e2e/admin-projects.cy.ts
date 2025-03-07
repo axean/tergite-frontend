@@ -638,7 +638,7 @@ users.forEach((user) => {
             admin_email: "john.doe@example.com",
             user_emails: ["paul.doe@example.com"],
             ext_id: "default project",
-            is_active: false,
+            is_active: true,
             name: undefined,
             description: "Bulyomu akajunwa hwabwembazi za Ruhanga",
             qpu_seconds: undefined,
@@ -647,7 +647,7 @@ users.forEach((user) => {
             admin_email: "new.user@xample.com",
             user_emails: [],
             ext_id: "some-other-ext-id-5",
-            is_active: false,
+            is_active: true,
             name: "Mukama ahaisibwe",
             description: undefined,
             qpu_seconds: 1_000,
@@ -697,9 +697,7 @@ users.forEach((user) => {
               });
 
               cy.contains("#create-project div", /live/i).within(() => {
-                if (project.is_active !== defaultValues.is_active) {
-                  cy.get('button[role="switch"]').click();
-                }
+                cy.get('button[role="switch"]').should("be.disabled");
               });
 
               cy.contains("#create-project div", /qpu seconds/i).within(() => {
