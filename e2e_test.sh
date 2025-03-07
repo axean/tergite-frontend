@@ -120,6 +120,7 @@ replace_str mongo-init.js "rawUsers = \"\[\]\"" "rawUsers = $(read_json $FIXTURE
 
 # Update the .env.test in tergite dashboard
 replace_str apps/tergite-dashboard/.env.test "VITE_API_BASE_URL=\"http://127.0.0.1:8002\"" "VITE_API_BASE_URL=\"http://127.0.0.1:8002/v2\"";
+replace_str apps/tergite-dashboard/.env.test "VITE_REFETCH_INTERVAL_MS=1000" "VITE_REFETCH_INTERVAL_MS=2000";
 replace_str apps/tergite-dashboard/.env.test "DB_RESET_URL=\"http://127.0.0.1:8002/refreshed-db\"" "DB_RESET_URL=\"http://127.0.0.1:3001/refreshed-db\"";
 if [[ -n "$TEST_THRESHOLD" ]]; then 
   echo "TEST_THRESHOLD=$TEST_THRESHOLD" >> apps/tergite-dashboard/.env.test; 

@@ -35,7 +35,9 @@ users.forEach((user) => {
   let refetchIntervalMs: number;
   const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
   const username = getUsername(user);
-  const allUserJobs = jobs.filter((v) => v.user_id === user.id);
+  const allUserJobs = jobs
+    .filter((v) => v.user_id === user.id)
+    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
 
   describe(`home page for ${username}`, () => {
     beforeEach(() => {
