@@ -316,7 +316,7 @@ router.get(
       data.map(
         (item) =>
           ({
-            url: `${apiBaseUrl}/auth/${item.name}/authorize`,
+            url: `${apiBaseUrl}/auth/${item.name}/auto-authorize`,
             name: item.name,
           } as AuthProviderResponse)
       )
@@ -325,7 +325,7 @@ router.get(
 );
 
 router.get(
-  "/auth/:provider/authorize",
+  "/auth/:provider/auto-authorize",
   use(async (req, res) => {
     const queryString = getQueryString(req.query);
     return res.redirect(`${apiBaseUrl}/oauth/callback${queryString}`);

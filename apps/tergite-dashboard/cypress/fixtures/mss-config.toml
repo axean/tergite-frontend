@@ -36,27 +36,51 @@ cookie_name = "tergiteauth"
 jwt_secret = "some-jwt-secret-for-generating-token-for-testing"
 jwt_ttl = 3600
 
+# Using https://openidconnect.net/ playground
 [[auth.clients]]
-name = "chalmers"
-client_id = "some-github-obtained-client-id"
-client_secret = "some-github-obtained-client-secret"
-redirect_url = "http://127.0.0.1:8002/auth/app/chalmers/callback"
+name = "github"
+client_id = "kbyuFDidLLm280LIwVFiazOqjO3ty8KH"
+client_secret = "60Op4HFM0I8ajz0WdiStAbziZ-VFQttXuxixHHs2R7r7-CW8GR79l-mmLqMhc-Sa"
+redirect_url = "http://127.0.0.1:8002/auth/app/github/callback"
 client_type = "openid"
-email_regex = "^(john\\.doe|jane|aggrey)@example\\.com$"
-email_domain = "example.com"
-roles = ["admin", "user"]
-openid_configuration_endpoint = "http://127.0.0.1:3001/.well-known/openid-configuration"
-
-[[auth.clients]]
-name = "puhuri"
-client_id = "some-puhuri-obtained-client-id"
-client_secret = "some-puhuri-obtained-client-secret"
-redirect_url = "http://127.0.0.1:8002/auth/app/puhuri/callback"
-client_type = "openid"
-email_regex = "^(john\\.doe|jane)@example\\.com$"
+email_regex = "^(.*)@example\\.com$"
 email_domain = "example.com"
 roles = ["user"]
-openid_configuration_endpoint = "http://127.0.0.1:3001/.well-known/openid-configuration"
+openid_configuration_endpoint = "https://samples.auth0.com/.well-known/openid-configuration"
+
+[[auth.clients]]
+name = "chalmers"
+client_id = "kbyuFDidLLm280LIwVFiazOqjO3ty8KH"
+client_secret = "60Op4HFM0I8ajz0WdiStAbziZ-VFQttXuxixHHs2R7r7-CW8GR79l-mmLqMhc-Sa"
+redirect_url = "http://127.0.0.1:8002/auth/app/chalmers/callback"
+client_type = "openid"
+email_regex = "^(john\\.doe|jane|aggrey)@chalmers\\.se$"
+email_domain = "chalmers.se"
+roles = ["admin", "user"]
+openid_configuration_endpoint = "https://samples.auth0.com/.well-known/openid-configuration"
+
+[[auth.clients]]
+name = "foobar"
+client_id = "kbyuFDidLLm280LIwVFiazOqjO3ty8KH"
+client_secret = "60Op4HFM0I8ajz0WdiStAbziZ-VFQttXuxixHHs2R7r7-CW8GR79l-mmLqMhc-Sa"
+redirect_url = "http://127.0.0.1:8002/auth/app/foobar/callback"
+client_type = "openid"
+email_regex = "^(.*)@foobar\\.ug$"
+email_domain = "foobar.ug"
+roles = ["admin", "user"]
+openid_configuration_endpoint = "https://samples.auth0.com/.well-known/openid-configuration"
+
+[[auth.clients]]
+name = "example"
+client_id = "kbyuFDidLLm280LIwVFiazOqjO3ty8KH"
+client_secret = "60Op4HFM0I8ajz0WdiStAbziZ-VFQttXuxixHHs2R7r7-CW8GR79l-mmLqMhc-Sa"
+redirect_url = "http://127.0.0.1:8002/auth/app/example/callback"
+client_type = "openid"
+email_regex = "^(.*)@example\\.com$"
+email_domain = "example.com"
+roles = ["admin", "user"]
+openid_configuration_endpoint = "https://samples.auth0.com/.well-known/openid-configuration"
+
 
 # Puhuri synchronization
 # Puhuri is a resource management platform for HPC systems, that is also to be used for Quantum Computer's

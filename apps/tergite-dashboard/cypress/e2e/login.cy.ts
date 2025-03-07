@@ -3,6 +3,8 @@
 import userList from "../fixtures/users.json";
 import authProviders from "../fixtures/auth-providers.json";
 import { User } from "../../types";
+import { decodeJwt } from "jose";
+import { generateJwt } from "../../api/utils";
 
 const invalidFormatEmailAddresses = [
   "john",
@@ -22,16 +24,45 @@ users.forEach((user) => {
 
   describe(`login page for authenticated user '${username}'`, () => {
     const dashboardUrl = Cypress.config("baseUrl");
+    const isFullE2E = dashboardUrl?.startsWith("http://127.0.0.1:3000");
 
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
       const dbResetUrl = Cypress.env("DB_RESET_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");
       const userIdCookieName = Cypress.env("USER_ID_COOKIE_NAME");
+      const cookieName = Cypress.env("VITE_COOKIE_NAME");
+      const secret = Cypress.env("JWT_SECRET");
+      const audience = Cypress.env("AUTH_AUDIENCE");
+      const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
       cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
       cy.intercept("GET", `${apiBaseUrl}/me/jobs`).as("my-jobs-list");
+      if (isFullE2E) {
+        // Just some work arounds to avoid having to set up a real OpenID Connect server
+        // - This means that the actual app does not work exactly like this, but
+        //   the testing involved here is sufficient.
+        cy.intercept("GET", "/?set-cookie=true", async (req) => {
+          const token = await generateJwt(user, cookieExpiry, {
+            secret,
+            audience,
+          });
+          const cookie = `${cookieName}=${token}; Domain=${domain}; Secure; HttpOnly; SameSite=Lax; Path=/; Expires=${cookieExpiry}`;
+          req.continue((res) => {
+            res.headers["Set-Cookie"] = cookie;
+          });
+        }).as("cookie-setter");
+
+        cy.intercept(
+          "GET",
+          "https://samples.auth0.com/authorize*",
+          async (req) => {
+            const stateObj = decodeJwt(`${req.query.state}`);
+            req.redirect(`${stateObj.next}?set-cookie=true`);
+          }
+        ).as("auth0-authorize");
+      }
 
       cy.setCookie(userIdCookieName, user.id, {
         domain,
@@ -85,9 +116,15 @@ users.forEach((user) => {
         cy.get("@nextBtn").click();
 
         cy.get("[data-cy-login-link]").first().click();
+        let finalUrl = dashboardUrl;
+        if (isFullE2E) {
+          cy.wait("@auth0-authorize");
+          finalUrl = `${dashboardUrl}?set-cookie=true`;
+        }
+
         cy.wait("@my-jobs-list");
 
-        cy.url().should("equal", dashboardUrl);
+        cy.url().should("equal", finalUrl);
         cy.get("nav a")
           .contains(/dashboard/i)
           .should("be.visible");
@@ -151,7 +188,7 @@ users.forEach((user) => {
               "href",
               `${apiBaseUrl}/auth/${
                 provider.name
-              }/authorize?next=${dashboardUrl?.slice(0, -1)}`
+              }/auto-authorize?next=${dashboardUrl?.slice(0, -1)}`
             );
           });
         }
