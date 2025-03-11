@@ -10,8 +10,9 @@ const toDoc = ({ id, ...props }) => ({ _id: ObjectId(id), ...props });
  * @param {Object} obj - the object to convert to document
  * @returns {Object} - a BSON-like document
  */
-const toTokenDoc = ({ id, created_at, ...props }) => ({
+const toTokenDoc = ({ id, user_id, created_at, ...props }) => ({
   _id: ObjectId(id),
+  user_id: ObjectId(user_id),
   created_at: ISODate(),
   ...props,
 });
