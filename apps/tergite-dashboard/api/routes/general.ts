@@ -72,7 +72,10 @@ router.get(
       return respond401(res);
     }
 
-    const filters = req.query as { [k: string]: string };
+    const { is_active } = req.query as { [k: string]: string };
+    const filters =
+      is_active === undefined ? {} : { is_active: is_active === "true" };
+
     const data = mockDb.getMany<Project>(
       "projects",
       (v) => v.user_ids.includes(currentUserId) && conformsToFilter(v, filters)
