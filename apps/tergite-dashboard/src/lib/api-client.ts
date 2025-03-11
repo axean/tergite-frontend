@@ -162,7 +162,7 @@ export const myProjectsQuery = queryOptions({
  */
 export const myActiveProjectsQuery = queryOptions({
   queryKey: [apiBaseUrl, "me", "projects", "active"],
-  queryFn: async () => await getMyProjects(apiBaseUrl, { is_active: true }),
+  queryFn: async () => await getMyProjects(apiBaseUrl, { is_active: "true" }),
   refetchInterval,
   throwOnError: true,
 });
@@ -691,7 +691,7 @@ async function getMyTokens(
  */
 async function getMyProjects(
   baseUrl: string = apiBaseUrl,
-  filters: { [k: string]: any } = {}
+  filters: { [k: string]: string } = {}
 ): Promise<Project[]> {
   const queryString = new URLSearchParams(filters).toString();
   const { data } = await authenticatedFetch<PaginatedData<Project[]>>(
