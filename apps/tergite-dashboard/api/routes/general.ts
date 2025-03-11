@@ -72,8 +72,10 @@ router.get(
       return respond401(res);
     }
 
-    const data = mockDb.getMany<Project>("projects", (v) =>
-      v.user_ids.includes(currentUserId)
+    const filters = req.query as { [k: string]: string };
+    const data = mockDb.getMany<Project>(
+      "projects",
+      (v) => v.user_ids.includes(currentUserId) && conformsToFilter(v, filters)
     );
 
     res.json({ skip: 0, limit: null, data } as PaginatedData<Project[]>);

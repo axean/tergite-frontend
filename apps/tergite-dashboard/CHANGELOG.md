@@ -15,6 +15,10 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 - Changed the coloring of the device map chart to use muted connection lines
 - Changed the coloring of the device bar chart to use purple bar lines, and muted axes
 
+### Fixed
+
+- Fix project list in nav bar to be only active projects
+
 ## [2024.12.2] - 2025-01-22
 
 ## [2024.12.1] - 2024-12-20

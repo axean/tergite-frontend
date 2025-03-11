@@ -158,6 +158,16 @@ export const myProjectsQuery = queryOptions({
 });
 
 /**
+ * the react query for the active projects for the current user
+ */
+export const myActiveProjectsQuery = queryOptions({
+  queryKey: [apiBaseUrl, "me", "projects", "active"],
+  queryFn: async () => await getMyProjects(apiBaseUrl, { is_active: true }),
+  refetchInterval,
+  throwOnError: true,
+});
+
+/**
  * the react query for getting all user requests
  * @param options - extra options for filtering the requests
  *            - currentUser - the current user
@@ -677,10 +687,15 @@ async function getMyTokens(
 /**
  * Retrieves the projects for the current user on the system
  * @param baseUrl - the API base URL
+ * @param filters - the filters against which to match the projects
  */
-async function getMyProjects(baseUrl: string = apiBaseUrl): Promise<Project[]> {
+async function getMyProjects(
+  baseUrl: string = apiBaseUrl,
+  filters: { [k: string]: any } = {}
+): Promise<Project[]> {
+  const queryString = new URLSearchParams(filters).toString();
   const { data } = await authenticatedFetch<PaginatedData<Project[]>>(
-    `${baseUrl}/me/projects/`
+    `${baseUrl}/me/projects/?${queryString}`
   );
   return data;
 }

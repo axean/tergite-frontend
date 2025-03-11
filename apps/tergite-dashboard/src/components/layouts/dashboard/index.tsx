@@ -5,7 +5,7 @@ import { TopBanner } from "./components/top-banner";
 import { Outlet, useLoaderData, useNavigate } from "react-router-dom";
 import {
   logout,
-  myProjectsQuery,
+  myActiveProjectsQuery,
   currentUserQuery,
   allUserRequestsQuery,
 } from "@/lib/api-client";
@@ -19,7 +19,7 @@ import { Toaster } from "@/components/ui/toaster";
 export function Dashboard() {
   const { currentUser, isUserAdmin } = useLoaderData() as DashboardData;
 
-  const { data: projects = [] } = useQuery(myProjectsQuery);
+  const { data: projects = [] } = useQuery(myActiveProjectsQuery);
   const appState = useContext(AppStateContext);
   const queryClient = useQueryClient();
   const [isExpanded, setIsExpanded] = useState(true);

@@ -17,7 +17,9 @@ const projects = [...projectList] as Project[];
 const userRequests = [...userRequestList] as UserRequest[];
 
 users.forEach((user) => {
-  const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
+  const userProjects = projects.filter(
+    (v) => v.user_ids.includes(user.id) && v.is_active
+  );
   const username = getUsername(user);
   const isAdmin = user.roles.includes(UserRole.ADMIN);
   const pendingUserRequests = userRequests.filter(
@@ -38,7 +40,9 @@ users.forEach((user) => {
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
-      cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
+        "my-active-project-list"
+      );
       cy.intercept("GET", `${apiBaseUrl}/me/jobs`).as("my-jobs-list");
       cy.intercept("POST", `${apiBaseUrl}/auth/logout`).as("logout");
 
@@ -60,7 +64,7 @@ users.forEach((user) => {
       cy.wait(500);
 
       cy.visit("/");
-      cy.wait("@my-project-list");
+      cy.wait("@my-active-project-list");
       cy.wait("@devices-list");
     });
 
@@ -100,7 +104,7 @@ users.forEach((user) => {
 
       cy.get('[data-testid="mobile-menu"]').should("not.exist");
 
-      cy.contains("button", "Toggle Menu").click();
+      cy.contains("button", "Toggle Menu").realClick();
 
       cy.get('[data-testid="mobile-menu"]').within(() => {
         cy.get("nav")
@@ -142,7 +146,7 @@ users.forEach((user) => {
         cy.get("[aria-label='PanelLeftClose']").should("be.visible");
         cy.get("[aria-label='PanelRightClose']").should("not.exist");
 
-        cy.get("[aria-label='PanelLeftClose']").parent().click();
+        cy.get("[aria-label='PanelLeftClose']").parent().realClick();
 
         cy.get("[aria-label='PanelLeftClose']").should("not.exist");
         cy.get("[aria-label='PanelRightClose']").should("be.visible");
