@@ -33,7 +33,9 @@ users.forEach((user) => {
   ];
 
   let refetchIntervalMs: number;
-  const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
+  const userProjects = projects.filter(
+    (v) => v.user_ids.includes(user.id) && v.is_active
+  );
   const username = getUsername(user);
   const allUserJobs = jobs
     .filter((v) => v.user_id === user.id)
@@ -51,7 +53,9 @@ users.forEach((user) => {
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
-      cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
+        "my-project-list"
+      );
       cy.intercept("GET", `${apiBaseUrl}/me/jobs*`).as("my-jobs-list");
 
       if (user.id) {

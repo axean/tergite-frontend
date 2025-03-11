@@ -38,7 +38,9 @@ const tokensTableDataProps = [
 
 users.forEach((user) => {
   const username = getUsername(user);
-  const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
+  const userProjects = projects.filter(
+    (v) => v.user_ids.includes(user.id) && v.is_active
+  );
   const allUserTokens = extendedTokens.filter((v) => v.user_id === user.id);
 
   describe(`tokens page for ${username}`, () => {
@@ -54,7 +56,9 @@ users.forEach((user) => {
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
-      cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
+        "my-project-list"
+      );
       cy.intercept("GET", `${apiBaseUrl}/me/tokens*`).as("my-token-list");
       cy.intercept("PUT", `${apiBaseUrl}/me/tokens*`).as("my-tokens-update");
       cy.intercept("POST", `${apiBaseUrl}/me/tokens*`).as("my-tokens-create");

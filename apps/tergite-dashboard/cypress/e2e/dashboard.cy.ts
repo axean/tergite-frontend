@@ -41,7 +41,7 @@ users.forEach((user) => {
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
       cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
-        "my-active-project-list"
+        "my-project-list"
       );
       cy.intercept("GET", `${apiBaseUrl}/me/jobs`).as("my-jobs-list");
       cy.intercept("POST", `${apiBaseUrl}/auth/logout`).as("logout");
@@ -64,7 +64,7 @@ users.forEach((user) => {
       cy.wait(500);
 
       cy.visit("/");
-      cy.wait("@my-active-project-list");
+      cy.wait("@my-project-list");
       cy.wait("@devices-list");
     });
 

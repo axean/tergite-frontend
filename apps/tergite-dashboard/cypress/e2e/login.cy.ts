@@ -139,7 +139,9 @@ users.forEach((user) => {
       apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
-      cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
+        "my-project-list"
+      );
       cy.intercept("GET", `${apiBaseUrl}/me/jobs`).as("my-jobs-list");
       cy.intercept(
         "GET",

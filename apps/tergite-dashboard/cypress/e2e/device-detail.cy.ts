@@ -47,7 +47,9 @@ users.forEach((user) => {
         cy.intercept("GET", `${apiBaseUrl}/calibrations/${device.name}`).as(
           "calibrations-detail"
         );
-        cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
+        cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
+          "my-project-list"
+        );
 
         if (user.id) {
           cy.wrap(generateJwt(user, cookieExpiry, { secret, audience })).then(
