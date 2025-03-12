@@ -60,8 +60,9 @@ users.forEach((user) => {
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
       cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
-        "my-project-list"
+        "my-active-project-list"
       );
+      cy.intercept("GET", `${apiBaseUrl}/me/projects/?`).as("my-project-list");
       cy.intercept("GET", `${apiBaseUrl}/me`).as("my-user-info");
       cy.intercept("GET", `${apiBaseUrl}/admin/qpu-time-requests*`).as(
         "my-qpu-requests-list"
@@ -92,6 +93,7 @@ users.forEach((user) => {
 
       cy.visit("/projects");
       cy.wait("@my-user-info");
+      cy.wait("@my-active-project-list");
       cy.wait("@my-project-list");
     });
 

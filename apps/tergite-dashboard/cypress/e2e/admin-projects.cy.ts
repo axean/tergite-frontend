@@ -906,7 +906,7 @@ users.forEach((user) => {
         cy.get("#sidebar-placeholder").should("not.exist");
         cy.contains("#create-project div.justify-between", /new project/i)
           .within(() => {
-            cy.get("button[aria-label='X']").click();
+            cy.get("button[aria-label='X']").realClick();
           })
           .then(() => {
             cy.get("#sidebar-placeholder").should("be.visible");
@@ -1059,14 +1059,14 @@ users.forEach((user) => {
             );
             if (project.user_ids.includes(user.id)) {
               // if current user is a member of the given project, open the project selector
-              cy.get("@project-selector").click();
+              cy.get("@project-selector").realClick();
               cy.contains('#project-selector [role="option"]', project.name, {
                 timeout: 500,
               }).should("be.visible");
               // to close the dropdown
               cy.contains('#project-selector [role="option"]', /none/i, {
                 timeout: 500,
-              }).click();
+              }).realClick();
             }
 
             cy.contains("#project-summary button", /delete/i)
@@ -1082,7 +1082,7 @@ users.forEach((user) => {
 
                 if (project.user_ids.includes(user.id)) {
                   // if current user is a member of the given project, open the project selector
-                  cy.get("@project-selector").click();
+                  cy.get("@project-selector").realClick();
                   cy.contains(
                     '#project-selector [role="option"]',
                     project.name,
@@ -1091,7 +1091,7 @@ users.forEach((user) => {
                   // close the project selector drop down
                   cy.contains('#project-selector [role="option"]', /none/i, {
                     timeout: 500,
-                  }).click();
+                  }).realClick();
                 }
               });
           });
@@ -1104,14 +1104,14 @@ users.forEach((user) => {
 
         for (const project of projects) {
           cy.wrap(project).then((project) => {
-            cy.contains("#projects-table tbody tr", project.name).click();
+            cy.contains("#projects-table tbody tr", project.name).realClick();
             cy.contains("#project-summary h3", project.name).should(
               "be.visible"
             );
 
             cy.contains("#project-summary button", /delete/i).realClick();
 
-            cy.contains("#confirm-dialog button", /cancel/i).click();
+            cy.contains("#confirm-dialog button", /cancel/i).realClick();
 
             cy.get("#confirm-dialog").should("not.exist");
             cy.contains("#projects-table tbody td", project.name).should(
@@ -1123,13 +1123,16 @@ users.forEach((user) => {
 
             if (project.user_ids.includes(user.id)) {
               // if current user is a member of the given project, open the project selector
-              cy.contains('[data-testid="topbar"] button', /project:/i).click();
+              cy.contains(
+                '[data-testid="topbar"] button',
+                /project:/i
+              ).realClick();
               cy.contains('#project-selector [role="option"]', project.name, {
                 timeout: 500,
               }).should("be.visible");
               cy.contains('#project-selector [role="option"]', /none/i, {
                 timeout: 500,
-              }).click();
+              }).realClick();
             }
           });
         }

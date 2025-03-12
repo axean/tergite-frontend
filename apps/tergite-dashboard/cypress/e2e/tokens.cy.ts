@@ -57,8 +57,9 @@ users.forEach((user) => {
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
       cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
-        "my-project-list"
+        "my-active-project-list"
       );
+      cy.intercept("GET", `${apiBaseUrl}/me/projects/?`).as("my-project-list");
       cy.intercept("GET", `${apiBaseUrl}/me/tokens*`).as("my-token-list");
       cy.intercept("PUT", `${apiBaseUrl}/me/tokens*`).as("my-tokens-update");
       cy.intercept("POST", `${apiBaseUrl}/me/tokens*`).as("my-tokens-create");
@@ -83,8 +84,9 @@ users.forEach((user) => {
 
       cy.viewport(1728, 1117);
       cy.visit("/tokens");
-      cy.wait("@my-project-list");
+      cy.wait("@my-active-project-list");
       cy.wait("@my-token-list");
+      cy.wait("@my-project-list");
     });
 
     it("renders the tokens page when nav item is clicked", () => {
