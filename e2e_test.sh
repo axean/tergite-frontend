@@ -19,6 +19,10 @@
 #   DEBUG="True" \ # Set 'True' to avoid cleaning up the containers, env, and repos after test, default: ''
 #   VISUAL="True" \ # Set 'True' to see the e2e in a graphical user interface, default: ''
 #   CYPRESS_IMAGE="cypress/base:20.17.0" \ # Set the docker image to run the tests. If not provided, it runs on the host machine
+#   OPENID_CONFIG_URL="https://samples.auth0.com/.well-known/openid-configuration" \ # Set the url to get the openID config for mock OpenID connect, default: 'https://samples.auth0.com/.well-known/openid-configuration'
+#   OPENID_CLIENT_ID="kbyuFDidLLm280LIwVFiazOqjO3ty8KH" \ # Set the client id for mock OpenID connect, default: 'kbyuFDidLLm280LIwVFiazOqjO3ty8KH'
+#   OPENID_CLIENT_SECRET="60Op4HFM0I8ajz0WdiStAbziZ-VFQttXuxixHHs2R7r7-CW8GR79l-mmLqMhc-Sa" \ # Set the client secret for mock OpenID connect, default: '60Op4HFM0I8ajz0WdiStAbziZ-VFQttXuxixHHs2R7r7-CW8GR79l-mmLqMhc-Sa'
+#   OPENID_AUTH_URL="https://samples.auth0.com/authorize" \ # Set the url to redirect to for auth for mock OpenID connect, default: 'https://samples.auth0.com/authorize'
 #   ./e2e_test.sh
 
 set -e # exit if any step fails
@@ -27,6 +31,10 @@ set -e # exit if any step fails
 TEMP_DIR="temp"
 BACKEND_REPO="$BACKEND_REPO"
 BACKEND_BRANCH="${BACKEND_BRANCH:-main}"
+OPENID_CONFIG_URL="${OPENID_CONFIG_URL:-https://samples.auth0.com/.well-known/openid-configuration}"
+OPENID_CLIENT_ID="${OPENID_CLIENT_ID:-kbyuFDidLLm280LIwVFiazOqjO3ty8KH}"
+OPENID_CLIENT_SECRET="${OPENID_CLIENT_SECRET:-60Op4HFM0I8ajz0WdiStAbziZ-VFQttXuxixHHs2R7r7-CW8GR79l-mmLqMhc-Sa}"
+OPENID_AUTH_URL="${OPENID_AUTH_URL:-https://samples.auth0.com/authorize}"
 APP_TOKEN="pZTccp8F-8RLFvQie1AMM0ptfdkGNnH1wDEB4INUFqw"
 ROOT_PATH="$(pwd)"
 TEMP_DIR_PATH="$ROOT_PATH/$TEMP_DIR"
@@ -121,6 +129,7 @@ replace_str mongo-init.js "rawUsers = \"\[\]\"" "rawUsers = $(read_json $FIXTURE
 # Update the .env.test in tergite dashboard
 replace_str apps/tergite-dashboard/.env.test "VITE_API_BASE_URL=\"http://127.0.0.1:8002\"" "VITE_API_BASE_URL=\"http://127.0.0.1:8002/v2\"";
 replace_str apps/tergite-dashboard/.env.test "DB_RESET_URL=\"http://127.0.0.1:8002/refreshed-db\"" "DB_RESET_URL=\"http://127.0.0.1:3001/refreshed-db\"";
+replace_str apps/tergite-dashboard/.env.test "OPENID_AUTH_URL=\"OPENID_AUTH_URL\"" "OPENID_AUTH_URL=\"$OPENID_AUTH_URL\"";
 if [[ -n "$TEST_THRESHOLD" ]]; then 
   echo "TEST_THRESHOLD=$TEST_THRESHOLD" >> apps/tergite-dashboard/.env.test; 
 fi
@@ -131,6 +140,11 @@ cp apps/tergite-dashboard/.env.test apps/tergite-dashboard/.env;
 # Update cypress.config.ts in tergite dashboard
 #  set the dashboard URL to the URL of the dashboard service
 replace_str apps/tergite-dashboard/cypress.config.ts "http://127.0.0.1:5173" "http://127.0.0.1:3000";
+
+# Update mss-config.toml
+replace_str mss-config.toml "OPENID_CLIENT_ID" "$OPENID_CLIENT_ID";
+replace_str mss-config.toml "OPENID_CLIENT_SECRET" "$OPENID_CLIENT_SECRET";
+replace_str mss-config.toml "OPENID_CONFIG_URL" "$OPENID_CONFIG_URL";
 
 # Starting services in the tergite-frontend folder
 echo "Starting all e2e services"

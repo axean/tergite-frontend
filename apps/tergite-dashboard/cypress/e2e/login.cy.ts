@@ -40,6 +40,7 @@ users.forEach((user) => {
       cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
       cy.intercept("GET", `${apiBaseUrl}/me/jobs`).as("my-jobs-list");
       if (isFullE2E) {
+        const openidAuthUrl = Cypress.env("OPENID_AUTH_URL");
         // Just some work arounds to avoid having to set up a real OpenID Connect server
         // - This means that the actual app does not work exactly like this, but
         //   the testing involved here is sufficient.
@@ -54,14 +55,10 @@ users.forEach((user) => {
           });
         }).as("cookie-setter");
 
-        cy.intercept(
-          "GET",
-          "https://samples.auth0.com/authorize*",
-          async (req) => {
-            const stateObj = decodeJwt(`${req.query.state}`);
-            req.redirect(`${stateObj.next}?set-cookie=true`);
-          }
-        ).as("auth0-authorize");
+        cy.intercept("GET", `${openidAuthUrl}*`, async (req) => {
+          const stateObj = decodeJwt(`${req.query.state}`);
+          req.redirect(`${stateObj.next}?set-cookie=true`);
+        }).as("auth0-authorize");
       }
 
       cy.setCookie(userIdCookieName, user.id, {
