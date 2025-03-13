@@ -153,7 +153,6 @@ docker compose \
   -f e2e-docker-compose.yml \
   -p tergite-frontend-e2e \
   up -d;
-docker compose -p tergite-frontend-e2e ps
 
 # Run in python docker file if $CYPRESS_IMAGE is set
 # or else run on host machine
