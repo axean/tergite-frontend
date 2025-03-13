@@ -131,7 +131,7 @@ replace_str apps/tergite-dashboard/.env.test "VITE_API_BASE_URL=\"http://127.0.0
 replace_str apps/tergite-dashboard/.env.test "DB_RESET_URL=\"http://127.0.0.1:8002/refreshed-db\"" "DB_RESET_URL=\"http://127.0.0.1:3001/refreshed-db\"";
 replace_str apps/tergite-dashboard/.env.test "OPENID_AUTH_URL=\"OPENID_AUTH_URL\"" "OPENID_AUTH_URL=\"$OPENID_AUTH_URL\"";
 if [[ -n "$TEST_THRESHOLD" ]]; then 
-  echo "TEST_THRESHOLD=$TEST_THRESHOLD" >> apps/tergite-dashboard/.env.test; 
+  printf "\nTEST_THRESHOLD=$TEST_THRESHOLD" >> apps/tergite-dashboard/.env.test; 
 fi
 
 # Update the .env in tergite dashboard. This will update such things as VITE_REFETCH_INTERVAL_MS, etc.

@@ -320,7 +320,7 @@ users.forEach((user) => {
           .contains(project.name)
           .click();
         cy.get("@newTokenBtn").click();
-        cy.get("@copyBtn").focus().click();
+        cy.get("@copyBtn").click();
         cy.clipboard().then((text) => {
           cy.get("@appTokenInput")
             .invoke("val")
