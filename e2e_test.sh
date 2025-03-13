@@ -192,7 +192,6 @@ if [[ $(echo "${DEBUG}" | tr '[:lower:]' '[:upper:]') != "TRUE" ]]; then
   docker compose -p tergite-frontend-e2e down --rmi all --volumes
   docker rm tergite-frontend-e2e-runner 2>/dev/null
   rm -rf "$TEMP_DIR_PATH"
-  rm "$ROOT_PATH/apps/tergite-dashboard/e2e-runner.sh"
 else
   echo "Not deleting the containers and repositories because DEBUG=$DEBUG"
 fi
