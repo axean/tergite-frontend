@@ -153,6 +153,7 @@ docker compose \
   -f e2e-docker-compose.yml \
   -p tergite-frontend-e2e \
   up -d;
+docker compose -p tergite-frontend-e2e ps
 
 # Run in python docker file if $CYPRESS_IMAGE is set
 # or else run on host machine
@@ -181,7 +182,6 @@ else
     --name tergite-frontend-e2e-runner \
     --network=host \
     -v "$PWD":/app -w /app \
-    -e TEST_THRESHOLD="$TEST_THRESHOLD" \
     "$CYPRESS_IMAGE" bash -c "set -e; npm ci; npm run cypress-only;";
 fi
 
