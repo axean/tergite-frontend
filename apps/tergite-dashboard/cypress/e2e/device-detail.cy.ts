@@ -37,6 +37,7 @@ users.forEach((user) => {
         const audience = Cypress.env("AUTH_AUDIENCE");
         platform = Cypress.env("PLATFORM");
         testThreshold = parseFloat(Cypress.env("TEST_THRESHOLD") || "0.3");
+        cy.log(`test threshold: ${testThreshold}`);
         const cookieExpiry = Math.round(
           (new Date().getTime() + 800_000) / 1000
         );
