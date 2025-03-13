@@ -54,7 +54,11 @@ e2e test dashboard:
   stage: tests
   <<: *setup_dashboard
   script:
-    - if [ -n "$TEST_THRESHOLD" ]; then printf "\nTEST_THRESHOLD=$TEST_THRESHOLD" >> .env.test; fi
+    - |
+      if [ -n "$TEST_THRESHOLD" ]; then 
+        echo "Setting TEST_THRESHOLD=$TEST_THRESHOLD";
+        printf "\nTEST_THRESHOLD=$TEST_THRESHOLD" >> .env.test; 
+      fi
     - npm run e2e
 
 full e2e:
