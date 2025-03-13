@@ -110,9 +110,9 @@ users.forEach((user) => {
       it(`redirects to the home page of the dashboard`, () => {
         cy.get("@emailInput").clear();
         cy.get("@emailInput").type(user.email);
-        cy.get("@nextBtn").click();
+        cy.get("@nextBtn").realClick();
 
-        cy.get("[data-cy-login-link]").first().click();
+        cy.get("[data-cy-login-link]").first().realClick();
         let finalUrl = dashboardUrl;
         if (isFullE2E) {
           cy.wait("@auth0-authorize");

@@ -259,11 +259,12 @@ users.forEach((user) => {
       );
 
       for (const project of userProjects) {
-        cy.get("@projectSelectBtn").realClick();
+        cy.get("@projectSelectBtn").click();
         cy.get("#project-selector").within(() => {
           cy.contains(project.name).as("project-btn");
-          cy.get("@project-btn").realClick();
+          cy.get("@project-btn").click();
         });
+        cy.wait(100);
         cy.get("@projectSelectBtn").should(
           "have.text",
           `Project: ${project.name}`
@@ -283,13 +284,13 @@ users.forEach((user) => {
       cy.get('[data-testid="top-banner"] input#api-token').as("appTokenInput");
 
       for (const project of userProjects) {
-        cy.get("@projectSelectBtn").realClick();
+        cy.get("@projectSelectBtn").click();
         cy.get("[data-radix-popper-content-wrapper]")
           .contains(project.name)
-          .realClick()
+          .click()
           .then(() => {
             cy.get("@newTokenBtn")
-              .realClick()
+              .click()
               .then(() => {
                 cy.wait(500);
                 cy.get("@appTokenInput")
@@ -314,12 +315,12 @@ users.forEach((user) => {
       cy.get('[data-testid="top-banner"] input#api-token').as("appTokenInput");
 
       for (const project of userProjects) {
-        cy.get("@projectSelectBtn").realClick();
+        cy.get("@projectSelectBtn").click();
         cy.get("[data-radix-popper-content-wrapper]")
           .contains(project.name)
-          .realClick();
-        cy.get("@newTokenBtn").realClick();
-        cy.get("@copyBtn").focus().realClick();
+          .click();
+        cy.get("@newTokenBtn").click();
+        cy.get("@copyBtn").focus().click();
         cy.clipboard().then((text) => {
           cy.get("@appTokenInput")
             .invoke("val")
