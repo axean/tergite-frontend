@@ -20,7 +20,7 @@ When versioning we follow the format `{year}.{month}.{patch_number}` e.g. `2023.
 ## Contacting the Tergite Developers
 
 Since the Github repositories are only mirrors, no Github pull requests or Github issue/bug reports
-are looked at. Please get in touch via email <quantum.nextlabs@chalmers.se> instead.
+are looked at. Please get in touch via email <contact.quantum@chalmersnextlabs.se> instead.
 
 Take note that the maintainers may not answer every email.
 
