@@ -102,7 +102,8 @@ npm run test
 
 ## How to Run End-to-end Tests
 
-- Ensure you have [docker](https://docs.docker.com/engine/install/) and [python](https://www.python.org/downloads/) installed
+- Ensure you have [docker](https://docs.docker.com/engine/install/) and [jq](https://jqlang.org/download/) installed
+- If you will not supply the `CYPRESS_IMAGE` argument, you need [nodejs](https://nodejs.org/en) installed also.
 - Ensure nothing is running on ports:
 
   - 27018
