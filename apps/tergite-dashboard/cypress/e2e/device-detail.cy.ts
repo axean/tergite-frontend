@@ -30,12 +30,14 @@ users.forEach((user) => {
     describe(`${device.name} device detail  for ${username}`, () => {
       beforeEach(() => {
         const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
+        const dbResetUrl = Cypress.env("DB_RESET_URL");
         const domain = Cypress.env("VITE_COOKIE_DOMAIN");
         const cookieName = Cypress.env("VITE_COOKIE_NAME");
         const secret = Cypress.env("JWT_SECRET");
         const audience = Cypress.env("AUTH_AUDIENCE");
         platform = Cypress.env("PLATFORM");
         testThreshold = parseFloat(Cypress.env("TEST_THRESHOLD") || "0.3");
+        cy.log(`test threshold: ${testThreshold}`);
         const cookieExpiry = Math.round(
           (new Date().getTime() + 800_000) / 1000
         );
@@ -46,7 +48,9 @@ users.forEach((user) => {
         cy.intercept("GET", `${apiBaseUrl}/calibrations/${device.name}`).as(
           "calibrations-detail"
         );
-        cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
+        cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
+          "my-project-list"
+        );
 
         if (user.id) {
           cy.wrap(generateJwt(user, cookieExpiry, { secret, audience })).then(
@@ -60,6 +64,10 @@ users.forEach((user) => {
             }
           );
         }
+
+        // We need to reset the mongo database before each test
+        cy.request(`${dbResetUrl}`);
+        cy.wait(500);
 
         cy.visit(`/devices/${device.name}`);
         cy.wait("@devices-detail");

@@ -1,38 +1,56 @@
 [
   {
     "id": "5ddc8d9fb69602723cd3c38f",
-    "roles": ["admin", "user"],
+    "roles": ["admin", "user", "system"],
     "email": "jane.doe@example.com",
-    "organization": "CNL"
+    "hashed_password": "hashed_password",
+    "is_active": true,
+    "is_verified": true,
+    "oauth_accounts": []
   },
   {
     "id": "40fbb5de7422a04fabd8d22a",
     "roles": ["partner", "user"],
     "email": "paul.doe@example.com",
-    "organization": "CTH"
+    "hashed_password": "hashed_password",
+    "is_active": true,
+    "is_verified": true,
+    "oauth_accounts": []
   },
   {
     "id": "858877267fe722a38619fa2e",
     "roles": ["researcher", "user"],
     "email": "david.doe@example.com",
-    "organization": "Ex AB"
+    "hashed_password": "hashed_password",
+    "is_active": true,
+    "is_verified": true,
+    "oauth_accounts": []
   },
   {
     "id": "4939a0b9a7742e2cc52289e0",
     "roles": ["user"],
     "email": "john.doe@example.com",
-    "organization": "Goog AB"
+    "hashed_password": "hashed_password",
+    "is_active": true,
+    "is_verified": true,
+    "oauth_accounts": []
   },
   {
     "id": "0558648bbf51b16948e818d3",
     "roles": ["user"],
     "email": "julie.doe@example.com",
-    "organization": "Example AB"
+    "hashed_password": "hashed_password",
+    "is_active": true,
+    "is_verified": true,
+    "oauth_accounts": []
   },
   {
-    "id": "0558648bbf51b169dusiwe48e818d3",
+    "id": "67c5a8950ba1089b8208e8cc",
     "roles": ["user"],
     "email": "wrong.domain@domain.com",
-    "organization": "Exe AB"
+    "hashed_password": "hashed_password",
+    "is_active": true,
+    "is_verified": true,
+    "oauth_accounts": []
   }
 ]

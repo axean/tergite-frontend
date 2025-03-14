@@ -17,7 +17,9 @@ const projects = [...projectList] as Project[];
 const userRequests = [...userRequestList] as UserRequest[];
 
 users.forEach((user) => {
-  const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
+  const userProjects = projects.filter(
+    (v) => v.user_ids.includes(user.id) && v.is_active
+  );
   const username = getUsername(user);
   const isAdmin = user.roles.includes(UserRole.ADMIN);
   const pendingUserRequests = userRequests.filter(
@@ -26,8 +28,11 @@ users.forEach((user) => {
   const requestsCount = pendingUserRequests.length;
 
   describe(`dashboard-layout for ${username}`, () => {
+    const dashboardUrl = Cypress.config("baseUrl");
+
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
+      const dbResetUrl = Cypress.env("DB_RESET_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");
       const cookieName = Cypress.env("VITE_COOKIE_NAME");
       const secret = Cypress.env("JWT_SECRET");
@@ -35,7 +40,9 @@ users.forEach((user) => {
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
-      cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
+        "my-project-list"
+      );
       cy.intercept("GET", `${apiBaseUrl}/me/jobs`).as("my-jobs-list");
       cy.intercept("POST", `${apiBaseUrl}/auth/logout`).as("logout");
 
@@ -51,6 +58,10 @@ users.forEach((user) => {
           }
         );
       }
+
+      // We need to reset the mongo database before each test
+      cy.request(`${dbResetUrl}`);
+      cy.wait(500);
 
       cy.visit("/");
       cy.wait("@my-project-list");
@@ -93,7 +104,7 @@ users.forEach((user) => {
 
       cy.get('[data-testid="mobile-menu"]').should("not.exist");
 
-      cy.contains("button", "Toggle Menu").click();
+      cy.contains("button", "Toggle Menu").realClick();
 
       cy.get('[data-testid="mobile-menu"]').within(() => {
         cy.get("nav")
@@ -135,7 +146,7 @@ users.forEach((user) => {
         cy.get("[aria-label='PanelLeftClose']").should("be.visible");
         cy.get("[aria-label='PanelRightClose']").should("not.exist");
 
-        cy.get("[aria-label='PanelLeftClose']").parent().click();
+        cy.get("[aria-label='PanelLeftClose']").parent().realClick();
 
         cy.get("[aria-label='PanelLeftClose']").should("not.exist");
         cy.get("[aria-label='PanelRightClose']").should("be.visible");
@@ -235,7 +246,7 @@ users.forEach((user) => {
       });
       cy.contains(/logout/i).click();
       cy.wait("@logout");
-      cy.url().should("equal", "http://127.0.0.1:5173/login");
+      cy.url().should("equal", `${dashboardUrl}login`);
     });
 
     it("current project can be selected from list of projects", () => {
@@ -253,6 +264,7 @@ users.forEach((user) => {
           cy.contains(project.name).as("project-btn");
           cy.get("@project-btn").click();
         });
+        cy.wait(100);
         cy.get("@projectSelectBtn").should(
           "have.text",
           `Project: ${project.name}`
@@ -308,7 +320,7 @@ users.forEach((user) => {
           .contains(project.name)
           .click();
         cy.get("@newTokenBtn").click();
-        cy.get("@copyBtn").focus().click();
+        cy.get("@copyBtn").click();
         cy.clipboard().then((text) => {
           cy.get("@appTokenInput")
             .invoke("val")

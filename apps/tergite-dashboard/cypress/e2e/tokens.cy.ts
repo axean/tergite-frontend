@@ -38,12 +38,17 @@ const tokensTableDataProps = [
 
 users.forEach((user) => {
   const username = getUsername(user);
-  const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
+  const userProjects = projects.filter(
+    (v) => v.user_ids.includes(user.id) && v.is_active
+  );
   const allUserTokens = extendedTokens.filter((v) => v.user_id === user.id);
 
   describe(`tokens page for ${username}`, () => {
+    const dashboardUrl = Cypress.config("baseUrl");
+
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
+      const dbResetUrl = Cypress.env("DB_RESET_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");
       const cookieName = Cypress.env("VITE_COOKIE_NAME");
       const secret = Cypress.env("JWT_SECRET");
@@ -51,7 +56,10 @@ users.forEach((user) => {
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
-      cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
+        "my-active-project-list"
+      );
+      cy.intercept("GET", `${apiBaseUrl}/me/projects/?`).as("my-project-list");
       cy.intercept("GET", `${apiBaseUrl}/me/tokens*`).as("my-token-list");
       cy.intercept("PUT", `${apiBaseUrl}/me/tokens*`).as("my-tokens-update");
       cy.intercept("POST", `${apiBaseUrl}/me/tokens*`).as("my-tokens-create");
@@ -70,23 +78,26 @@ users.forEach((user) => {
         );
       }
 
-      cy.request(`${apiBaseUrl}/refreshed-db`);
+      // We need to reset the mongo database before each test
+      cy.request(`${dbResetUrl}`);
+      cy.wait(500);
 
       cy.viewport(1728, 1117);
       cy.visit("/tokens");
-      cy.wait("@my-project-list");
+      cy.wait("@my-active-project-list");
       cy.wait("@my-token-list");
+      cy.wait("@my-project-list");
     });
 
     it("renders the tokens page when nav item is clicked", () => {
       cy.visit("/");
-      cy.url().should("equal", "http://127.0.0.1:5173/");
+      cy.url().should("equal", dashboardUrl);
 
       cy.get("[data-testid='topbar'] [aria-label='UserRound']").click({
         force: true,
       });
       cy.contains(/tokens/i).click();
-      cy.url().should("equal", "http://127.0.0.1:5173/tokens");
+      cy.url().should("equal", `${dashboardUrl}tokens`);
     });
 
     it("renders all user's tokens with no project selected", () => {

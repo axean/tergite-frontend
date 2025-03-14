@@ -33,8 +33,11 @@ users.forEach((user) => {
   const username = getUsername(user);
 
   describe(`admin projects page for ${username}`, () => {
+    const dashboardUrl = Cypress.config("baseUrl");
+
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
+      const dbResetUrl = Cypress.env("DB_RESET_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");
       const cookieName = Cypress.env("VITE_COOKIE_NAME");
       const secret = Cypress.env("JWT_SECRET");
@@ -42,7 +45,9 @@ users.forEach((user) => {
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
-      cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
+        "my-project-list"
+      );
       cy.intercept("GET", `${apiBaseUrl}/me`).as("my-user-info");
       cy.intercept("GET", `${apiBaseUrl}/admin/projects*`).as("projects-list");
       cy.intercept("POST", `${apiBaseUrl}/admin/projects`).as("create-project");
@@ -64,7 +69,9 @@ users.forEach((user) => {
         );
       }
 
-      cy.request(`${apiBaseUrl}/refreshed-db`);
+      // We need to reset the mongo database before each test
+      cy.request(`${dbResetUrl}`);
+      cy.wait(500);
 
       cy.visit("/admin-projects");
       cy.wait("@my-user-info");
@@ -76,17 +83,17 @@ users.forEach((user) => {
       it("renders the admin projects page when nav item is clicked", () => {
         cy.visit("/");
         cy.wait("@my-user-info");
-        cy.url().should("equal", "http://127.0.0.1:5173/");
+        cy.url().should("equal", dashboardUrl);
 
         cy.contains("[data-testid='sidebar'] a", /projects/i).click();
-        cy.url().should("equal", "http://127.0.0.1:5173/admin-projects");
+        cy.url().should("equal", `${dashboardUrl}admin-projects`);
       });
 
     !isAdmin &&
       it("projects link in sidebar does not exist", () => {
         cy.visit("/");
         cy.wait("@my-user-info");
-        cy.url().should("equal", "http://127.0.0.1:5173/");
+        cy.url().should("equal", dashboardUrl);
 
         cy.contains("[data-testid='sidebar'] a", /projects/i).should(
           "not.exist"
@@ -95,7 +102,7 @@ users.forEach((user) => {
 
     !isAdmin &&
       it("redirects to home when admin-projects URL is visited", () => {
-        cy.url().should("equal", "http://127.0.0.1:5173/");
+        cy.url().should("equal", dashboardUrl);
       });
 
     isAdmin &&
@@ -424,7 +431,7 @@ users.forEach((user) => {
               Object.entries(project).map(([k, v]) => [k, updates[k] ?? v])
             ) as AdminProject;
             expected.user_emails = [
-              ...new Set([expected.admin_email, ...expected.user_emails]),
+              ...new Set([...expected.user_emails, expected.admin_email]),
             ];
 
             if (project) {
@@ -633,7 +640,7 @@ users.forEach((user) => {
             admin_email: "john.doe@example.com",
             user_emails: ["paul.doe@example.com"],
             ext_id: "default project",
-            is_active: false,
+            is_active: true,
             name: undefined,
             description: "Bulyomu akajunwa hwabwembazi za Ruhanga",
             qpu_seconds: undefined,
@@ -642,7 +649,7 @@ users.forEach((user) => {
             admin_email: "new.user@xample.com",
             user_emails: [],
             ext_id: "some-other-ext-id-5",
-            is_active: false,
+            is_active: true,
             name: "Mukama ahaisibwe",
             description: undefined,
             qpu_seconds: 1_000,
@@ -664,8 +671,8 @@ users.forEach((user) => {
 
               expected.user_emails = [
                 ...new Set([
-                  project.admin_email as string,
                   ...expected.user_emails,
+                  expected.admin_email as string,
                 ]),
               ];
 
@@ -692,9 +699,7 @@ users.forEach((user) => {
               });
 
               cy.contains("#create-project div", /live/i).within(() => {
-                if (project.is_active !== defaultValues.is_active) {
-                  cy.get('button[role="switch"]').click();
-                }
+                cy.get('button[role="switch"]').should("be.disabled");
               });
 
               cy.contains("#create-project div", /qpu seconds/i).within(() => {
@@ -901,7 +906,7 @@ users.forEach((user) => {
         cy.get("#sidebar-placeholder").should("not.exist");
         cy.contains("#create-project div.justify-between", /new project/i)
           .within(() => {
-            cy.get("button[aria-label='X']").click();
+            cy.get("button[aria-label='X']").realClick();
           })
           .then(() => {
             cy.get("#sidebar-placeholder").should("be.visible");
@@ -1054,14 +1059,14 @@ users.forEach((user) => {
             );
             if (project.user_ids.includes(user.id)) {
               // if current user is a member of the given project, open the project selector
-              cy.get("@project-selector").click();
+              cy.get("@project-selector").realClick();
               cy.contains('#project-selector [role="option"]', project.name, {
                 timeout: 500,
               }).should("be.visible");
               // to close the dropdown
               cy.contains('#project-selector [role="option"]', /none/i, {
                 timeout: 500,
-              }).click();
+              }).realClick();
             }
 
             cy.contains("#project-summary button", /delete/i)
@@ -1077,7 +1082,7 @@ users.forEach((user) => {
 
                 if (project.user_ids.includes(user.id)) {
                   // if current user is a member of the given project, open the project selector
-                  cy.get("@project-selector").click();
+                  cy.get("@project-selector").realClick();
                   cy.contains(
                     '#project-selector [role="option"]',
                     project.name,
@@ -1086,7 +1091,7 @@ users.forEach((user) => {
                   // close the project selector drop down
                   cy.contains('#project-selector [role="option"]', /none/i, {
                     timeout: 500,
-                  }).click();
+                  }).realClick();
                 }
               });
           });
@@ -1099,14 +1104,14 @@ users.forEach((user) => {
 
         for (const project of projects) {
           cy.wrap(project).then((project) => {
-            cy.contains("#projects-table tbody tr", project.name).click();
+            cy.contains("#projects-table tbody tr", project.name).realClick();
             cy.contains("#project-summary h3", project.name).should(
               "be.visible"
             );
 
             cy.contains("#project-summary button", /delete/i).realClick();
 
-            cy.contains("#confirm-dialog button", /cancel/i).click();
+            cy.contains("#confirm-dialog button", /cancel/i).realClick();
 
             cy.get("#confirm-dialog").should("not.exist");
             cy.contains("#projects-table tbody td", project.name).should(
@@ -1118,13 +1123,16 @@ users.forEach((user) => {
 
             if (project.user_ids.includes(user.id)) {
               // if current user is a member of the given project, open the project selector
-              cy.contains('[data-testid="topbar"] button', /project:/i).click();
+              cy.contains(
+                '[data-testid="topbar"] button',
+                /project:/i
+              ).realClick();
               cy.contains('#project-selector [role="option"]', project.name, {
                 timeout: 500,
               }).should("be.visible");
               cy.contains('#project-selector [role="option"]', /none/i, {
                 timeout: 500,
-              }).click();
+              }).realClick();
             }
           });
         }

@@ -9,7 +9,48 @@ on:
       - "v*"
   pull_request:
 
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "Job to run"
+        required: true
+        default: "e2e"
+        type: choice
+        options:
+          - e2e
+
 jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    if: |
+      startsWith(github.ref, 'refs/heads/main') || 
+      startsWith(github.ref, 'refs/tags/') || 
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'e2e')
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Nodejs 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: sudo apt-get install -y libopenblas-dev jq
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+        with:
+          version: "latest"
+      - name: Run end-to-end-tests
+        env:
+          DEBUG: ${{ vars.DEBUG || 'false' }}
+          BACKEND_REPO: https://github.com/${{ github.repository_owner }}/tergite-backend.git
+          BACKEND_BRANCH: ${{ github.ref_name }}
+          OPENID_CONFIG_URL: "${{ secrets.OPENID_CONFIG_URL }}"
+          OPENID_CLIENT_ID: "${{ secrets.OPENID_CLIENT_ID }}"
+          OPENID_CLIENT_SECRET: "${{ secrets.OPENID_CLIENT_SECRET }}"
+          OPENID_AUTH_URL: "${{ secrets.OPENID_AUTH_URL }}"
+          TEST_THRESHOLD: "${{ vars.TEST_THRESHOLD }}"
+        run: ./e2e_test.sh
+
   # TODO: Add a stage for testing the docker compose loading
   upstream:
     name: Update upstream

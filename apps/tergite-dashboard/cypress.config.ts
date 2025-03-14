@@ -15,6 +15,6 @@ export default defineConfig({
     // set the viewports for the sake of cypress.visual-image-diff plugin
     // https://cypress.visual-image-diff.dev/getting-started#force-resolution-size
     viewportWidth: 1280,
-    viewportHeight: 750
+    viewportHeight: 750,
   },
 });

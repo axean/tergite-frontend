@@ -1,6 +1,11 @@
 .env
 .data/
-auth_config.toml
 .DS_Store
 .idea/
 mss-config.toml
+
+# e2e
+temp/
+e2e-runner.sh
+!apps/tergite-dashboard/cypress/fixtures/e2e-runner.sh
+!apps/tergite-dashboard/cypress/fixtures/mss-config.toml

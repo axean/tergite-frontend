@@ -27,3 +27,5 @@ cypress/screenshots/*
 cypress-image-diff-html-report/*
 cypress-image-diff-screenshots/comparison/*
 cypress-image-diff-screenshots/diff/*
+
+.npm/

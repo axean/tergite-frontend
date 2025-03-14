@@ -1,0 +1,89 @@
+# mss-config.toml
+
+# general configurations
+[general]
+# the port on which MSS is running
+mss_port = 8002
+# the port on which the websocket is running
+ws_port = 6532
+# environment reflect which environment the app is to run in.
+environment = "development"
+# the host the uvicorn runs on.
+# During testing auth on 127.0.0.1, set this to "127.0.0.1". default: "0.0.0.0"
+mss_host = "127.0.0.1"
+
+[database]
+# configurations for the database
+name = "testing"
+# database URI
+url = "mongodb://tergite-mongo:27017"
+
+[[backends]]
+name = "qiskit_pulse_2q"
+# the URL where this backend is running
+url = "http://qiskit_pulse_2q:8000"
+
+[[backends]]
+name = "qiskit_pulse_1q"
+# the URL where this backend is running
+url = "http://qiskit_pulse_1q:8000"
+
+[auth]
+# turn auth OFF or ON, default=true
+is_enabled = true
+cookie_domain = "127.0.0.1"
+cookie_name = "tergiteauth"
+jwt_secret = "some-jwt-secret-for-generating-token-for-testing"
+jwt_ttl = 3600
+
+# Using https://openidconnect.net/ playground
+[[auth.clients]]
+name = "github"
+client_id = "OPENID_CLIENT_ID"
+client_secret = "OPENID_CLIENT_SECRET"
+redirect_url = "http://127.0.0.1:8002/auth/app/github/callback"
+client_type = "openid"
+email_regex = "^(.*)@example\\.com$"
+email_domain = "example.com"
+roles = ["user"]
+openid_configuration_endpoint = "OPENID_CONFIG_URL"
+
+[[auth.clients]]
+name = "chalmers"
+client_id = "OPENID_CLIENT_ID"
+client_secret = "OPENID_CLIENT_SECRET"
+redirect_url = "http://127.0.0.1:8002/auth/app/chalmers/callback"
+client_type = "openid"
+email_regex = "^(john\\.doe|jane|aggrey)@chalmers\\.se$"
+email_domain = "chalmers.se"
+roles = ["admin", "user"]
+openid_configuration_endpoint = "OPENID_CONFIG_URL"
+
+[[auth.clients]]
+name = "foobar"
+client_id = "OPENID_CLIENT_ID"
+client_secret = "OPENID_CLIENT_SECRET"
+redirect_url = "http://127.0.0.1:8002/auth/app/foobar/callback"
+client_type = "openid"
+email_regex = "^(.*)@foobar\\.ug$"
+email_domain = "foobar.ug"
+roles = ["admin", "user"]
+openid_configuration_endpoint = "OPENID_CONFIG_URL"
+
+[[auth.clients]]
+name = "example"
+client_id = "OPENID_CLIENT_ID"
+client_secret = "OPENID_CLIENT_SECRET"
+redirect_url = "http://127.0.0.1:8002/auth/app/example/callback"
+client_type = "openid"
+email_regex = "^(.*)@example\\.com$"
+email_domain = "example.com"
+roles = ["admin", "user"]
+openid_configuration_endpoint = "OPENID_CONFIG_URL"
+
+
+# Puhuri synchronization
+# Puhuri is a resource management platform for HPC systems, that is also to be used for Quantum Computer's
+[puhuri]
+# turn puhuri synchronization OFF or ON, default=true
+is_enabled = false

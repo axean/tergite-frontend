@@ -33,13 +33,18 @@ users.forEach((user) => {
   ];
 
   let refetchIntervalMs: number;
-  const userProjects = projects.filter((v) => v.user_ids.includes(user.id));
+  const userProjects = projects.filter(
+    (v) => v.user_ids.includes(user.id) && v.is_active
+  );
   const username = getUsername(user);
-  const allUserJobs = jobs.filter((v) => v.user_id === user.id);
+  const allUserJobs = jobs
+    .filter((v) => v.user_id === user.id)
+    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
 
   describe(`home page for ${username}`, () => {
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
+      const dbResetUrl = Cypress.env("DB_RESET_URL");
       const domain = Cypress.env("VITE_COOKIE_DOMAIN");
       const cookieName = Cypress.env("VITE_COOKIE_NAME");
       const secret = Cypress.env("JWT_SECRET");
@@ -48,7 +53,9 @@ users.forEach((user) => {
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
       cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
-      cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
+        "my-project-list"
+      );
       cy.intercept("GET", `${apiBaseUrl}/me/jobs*`).as("my-jobs-list");
 
       if (user.id) {
@@ -63,6 +70,10 @@ users.forEach((user) => {
           }
         );
       }
+
+      // We need to reset the mongo database before each test
+      cy.request(`${dbResetUrl}`);
+      cy.wait(500);
 
       cy.visit("/");
       cy.wait("@my-project-list");
@@ -194,10 +205,10 @@ users.forEach((user) => {
       cy.wait(500);
       for (const project of userProjects) {
         cy.wrap(project).then((project) => {
-          cy.contains('[data-testid="topbar"] button', /project:/i).click();
+          cy.contains('[data-testid="topbar"] button', /project:/i).realClick();
           cy.contains('#project-selector [role="option"]', project.name, {
             timeout: 500,
-          }).click();
+          }).realClick();
 
           const jobsForProject = allUserJobs.filter(
             (v) => v.project_id === project.id

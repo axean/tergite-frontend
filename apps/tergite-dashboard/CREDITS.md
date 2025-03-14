@@ -6,6 +6,7 @@
 - Development of initial version of tergite-dashboard
 - Setup of CI/CD pipeline configurations for both GitLab and GitHub
 - Setup of docker configurations
+- End-to-end test set up
 
 ## Pontus Vikstål
 
@@ -15,6 +16,10 @@
 ## Sofie Skönvall
 
 - UI/UX design of initial version of tergite-dashboard
+
+## Raiyan Yahya
+
+- End-to-end test set up
 
 ## Chalmers University of Technology Bachelors Project
 

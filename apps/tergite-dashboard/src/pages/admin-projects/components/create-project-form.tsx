@@ -188,6 +188,8 @@ export function CreateProjectForm({
                             id="is_active"
                             onCheckedChange={field.onChange}
                             checked={field.value}
+                            disabled
+                            aria-disabled
                           />
                         </div>
                       </FormControl>

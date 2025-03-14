@@ -72,8 +72,13 @@ router.get(
       return respond401(res);
     }
 
-    const data = mockDb.getMany<Project>("projects", (v) =>
-      v.user_ids.includes(currentUserId)
+    const { is_active } = req.query as { [k: string]: string };
+    const filters =
+      is_active === undefined ? {} : { is_active: is_active === "true" };
+
+    const data = mockDb.getMany<Project>(
+      "projects",
+      (v) => v.user_ids.includes(currentUserId) && conformsToFilter(v, filters)
     );
 
     res.json({ skip: 0, limit: null, data } as PaginatedData<Project[]>);
@@ -118,9 +123,11 @@ router.get(
     }
 
     const { project_id } = req.query as { [k: string]: string };
-    const myJobs = mockDb.getMany<Job>("jobs", (v) =>
-      conformsToFilter(v, { user_id: currentUserId, project_id })
-    );
+    const myJobs = mockDb
+      .getMany<Job>("jobs", (v) =>
+        conformsToFilter(v, { user_id: currentUserId, project_id })
+      )
+      .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
 
     res.json(myJobs);
   })
@@ -314,7 +321,7 @@ router.get(
       data.map(
         (item) =>
           ({
-            url: `${apiBaseUrl}/auth/${item.name}/authorize`,
+            url: `${apiBaseUrl}/auth/${item.name}/auto-authorize`,
             name: item.name,
           } as AuthProviderResponse)
       )
@@ -323,7 +330,7 @@ router.get(
 );
 
 router.get(
-  "/auth/:provider/authorize",
+  "/auth/:provider/auto-authorize",
   use(async (req, res) => {
     const queryString = getQueryString(req.query);
     return res.redirect(`${apiBaseUrl}/oauth/callback${queryString}`);
@@ -569,10 +576,10 @@ router.post(
     }
 
     const body = req.body as AdminCreateProjectBody;
-    const { user_emails, admin_email, ...restOfBody } = body;
-    const allEmails = [
-      ...new Set([admin_email].concat(user_emails || [])),
-    ].filter((v) => v != undefined);
+    const { user_emails = [], admin_email, ...restOfBody } = body;
+    const allEmails = [...new Set(user_emails.concat([admin_email]))].filter(
+      (v) => v != undefined
+    );
     const users = mockDb.getMany<User>("users");
     const userEmailIdMap = Object.fromEntries(
       users.map((v) => [v.email, v.id])
@@ -624,10 +631,10 @@ router.put(
 
     const projectId = req.params.id;
     const body = req.body as UpdateProjectPutBody;
-    const { user_emails, admin_email, ...restOfBody } = body;
-    const allEmails = [
-      ...new Set([admin_email].concat(user_emails || [])),
-    ].filter((v) => v != undefined);
+    const { user_emails = [undefined], admin_email, ...restOfBody } = body;
+    const allEmails = [...new Set(user_emails.concat([admin_email]))].filter(
+      (v) => v != undefined
+    );
     const users = mockDb.getMany<User>("users");
     const userEmailIdMap = Object.fromEntries(
       users.map((v) => [v.email, v.id])
