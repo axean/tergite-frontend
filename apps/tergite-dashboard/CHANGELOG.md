@@ -7,6 +7,12 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 ## [Unreleased]
 
+## [2025.03.0] - 2025-03-14
+
+### Changed
+
+- Disabled the "live" switch when creating projects as admin
+
 ### Added
 
 - Added dark mode color change on dark mode toggle button click

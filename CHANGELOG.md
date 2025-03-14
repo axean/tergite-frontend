@@ -14,6 +14,15 @@ Please refer to the `CHANGELOG.md` file of the app in question.
 
 ## [unreleased]
 
+## [2025.03.0] - 2025-03-14
+
+More changes in [apss/tergite-dashboard/CHANGELOG.md](./apps/tergite-dashboard/CHANGELOG.md#2025030---2025-03-14)
+More changes in [apss/tergite-mss/CHANGELOG.md](./apps/tergite-mss/CHANGELOG.md#2025030---2025-03-14)
+
+### Added
+
+- Added Full end-to-end testing combining the backend, API and dashboard
+
 ## [2024.12.2] - 2025-01-22
 
 See [apss/tergite-mss/CHANGELOG.md](./apps/tergite-mss/CHANGELOG.md#2024122---2025-01-22)
