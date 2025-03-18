@@ -7,6 +7,12 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 ## [Unreleased]
 
+## [2025.03.1] - 2025-03-18
+
+### Changed
+
+- Updated the full-e2e fixtures to use the latest backend configuration formats
+
 ## [2025.03.0] - 2025-03-14
 
 ### Changed
