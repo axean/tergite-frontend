@@ -14,6 +14,15 @@ Please refer to the `CHANGELOG.md` file of the app in question.
 
 ## [unreleased]
 
+## [2025.03.1] - 2025-03-18
+
+### Changed
+
+- Changed the backend configurations for the full e2e to run with the new backend configuration files
+
+More changes in [apss/tergite-dashboard/CHANGELOG.md](./apps/tergite-dashboard/CHANGELOG.md#2025031---2025-03-18)
+More changes in [apss/tergite-mss/CHANGELOG.md](./apps/tergite-mss/CHANGELOG.md#2025031---2025-03-18)
+
 ## [2025.03.0] - 2025-03-14
 
 More changes in [apss/tergite-dashboard/CHANGELOG.md](./apps/tergite-dashboard/CHANGELOG.md#2025030---2025-03-14)
