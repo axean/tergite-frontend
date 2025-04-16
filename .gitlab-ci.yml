@@ -22,7 +22,7 @@ variables:
     - npm ci --cache .npm --prefer-offline
 
 .setup_mss: &setup_mss
-  image: python:3.8
+  image: python:$VERSION
   cache:
     key:
       files:
@@ -32,8 +32,11 @@ variables:
   before_script:
     - pip install --upgrade pip
     - cd apps/tergite-mss
-    - pip install -r requirements.txt
+    - pip install ."[dev]"
     - sed -i 's/mongodb:\/\/localhost:27017/mongodb:\/\/mongo:27017/g' tests/fixtures/*
+  parallel:
+    matrix:
+      - VERSION: ["3.12", "3.13"]
 
 lint dashboard:
   needs: []
