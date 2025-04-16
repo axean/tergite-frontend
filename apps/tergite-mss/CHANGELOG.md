@@ -7,6 +7,13 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced `requirements.txt` with `pyproject.toml`
+- Upgraded lowest version of python supported to python 3.12
+- Upgraded Fastapi to 0.115.12
+- Upgraded pydantic to the latest v2
+
 ## [2025.03.1] - 2025-03-18
 
 No change
