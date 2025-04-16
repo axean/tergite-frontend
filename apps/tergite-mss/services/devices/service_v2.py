@@ -71,7 +71,7 @@ async def upsert_device(db: AsyncIOMotorDatabase, payload: DeviceV2Upsert):
 
     device = await db.devices.find_one_and_update(
         {"name": payload.name},
-        {"$set": payload.dict(), "$setOnInsert": {"created_at": timestamp}},
+        {"$set": payload.model_dump(), "$setOnInsert": {"created_at": timestamp}},
         upsert=True,
         return_document=pymongo.ReturnDocument.AFTER,
     )

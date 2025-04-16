@@ -14,14 +14,22 @@
 #
 # Refactored by Martin Ahindura 2023-11-08
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from beanie import PydanticObjectId
-from bson import ObjectId
-from pydantic import Extra
-
-from utils.date_time import datetime_to_zulu
-from utils.models import ZEncodedBaseModel
+from pydantic import BaseModel, ConfigDict, Field
+from pydantic.main import IncEx
 
 if TYPE_CHECKING:
     DictStrAny = Dict[str, Any]
@@ -30,8 +38,10 @@ if TYPE_CHECKING:
     MappingIntStrAny = Mapping[IntStr, Any]
 
 
-class DeviceV2Upsert(ZEncodedBaseModel):
+class DeviceV2Upsert(BaseModel):
     """The schema for upserting device"""
+
+    model_config = ConfigDict(extra="allow")
 
     name: str
     version: str
@@ -43,40 +53,46 @@ class DeviceV2Upsert(ZEncodedBaseModel):
     coordinates: List[Tuple[int, int]]
     is_simulator: bool
 
-    class Config:
-        json_encoders = {datetime: datetime_to_zulu}
-        extra = Extra.allow
-
-    def dict(
+    def model_dump(
         self,
         *,
-        include: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
-        exclude: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
-        by_alias: bool = False,
-        skip_defaults: Optional[bool] = None,
+        mode: Literal["json", "python"] | str = "python",
+        include: IncEx | None = None,
+        exclude: IncEx | None = None,
+        context: Any | None = None,
+        by_alias: bool | None = None,
         exclude_unset: bool = False,
         exclude_defaults: bool = False,
         exclude_none: bool = False,
-    ) -> "DictStrAny":
-        return super().dict(
+        round_trip: bool = False,
+        warnings: bool | Literal["none", "warn", "error"] = True,
+        fallback: Callable[[Any], Any] | None = None,
+        serialize_as_any: bool = False,
+    ) -> dict[str, Any]:
+        return super().model_dump(
+            mode=mode,
             include=include,
             exclude=exclude,
+            context=context,
             by_alias=by_alias,
-            skip_defaults=skip_defaults,
+            exclude_unset=exclude_unset,
             exclude_defaults=exclude_defaults,
             exclude_none=True,
+            round_trip=round_trip,
+            warnings=warnings,
+            fallback=fallback,
+            serialize_as_any=serialize_as_any,
         )
 
 
 class DeviceV2(DeviceV2Upsert):
     """The Schema for the devices"""
 
-    id: PydanticObjectId
+    model_config = ConfigDict(
+        from_attributes=True,
+        extra="allow",
+    )
+
+    id: PydanticObjectId = Field(alias="_id")
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
-
-    class Config:
-        fields = {"id": "_id"}
-        orm_mode = True
-        json_encoders = {ObjectId: str, datetime: datetime_to_zulu}
-        extra = Extra.allow

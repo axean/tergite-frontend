@@ -21,7 +21,7 @@ from waldur_client import ComponentUsage, WaldurClient
 
 import settings
 from utils.date_time import is_in_month
-from utils.models import try_parse_obj
+from utils.models import try_model_validate
 
 from .dtos import (
     PuhuriComponent,
@@ -159,7 +159,7 @@ async def get_project_resources(
         ),
     )
 
-    return [PuhuriResource.parse_obj(item) for item in resource_dicts]
+    return [PuhuriResource.model_validate(item) for item in resource_dicts]
 
 
 async def get_accounting_component(
@@ -201,7 +201,7 @@ async def get_accounting_component(
 
         _cache.update(
             {
-                (offering_uuid, v["type"]): try_parse_obj(PuhuriComponent, v)
+                (offering_uuid, v["type"]): try_model_validate(PuhuriComponent, v)
                 for v in offering["components"]
             }
         )
@@ -236,7 +236,7 @@ async def get_default_component(
         offering_uuid,
     )
 
-    offering = PuhuriProviderOffering.parse_obj(offering_dict)
+    offering = PuhuriProviderOffering.model_validate(offering_dict)
     if len(offering.components) == 0:
         raise ComponentNotFoundError(f"offering '{offering_uuid}' has no components")
 
@@ -280,7 +280,7 @@ async def get_plan_periods(
             f"resource '{resource_uuid}' has no plan periods for month {month_year}"
         )
 
-    return [PuhuriPlanPeriod.parse_obj(v) for v in results]
+    return [PuhuriPlanPeriod.model_validate(v) for v in results]
 
 
 def remove_nones(data: Dict[str, Optional[Any]], __new: Any):

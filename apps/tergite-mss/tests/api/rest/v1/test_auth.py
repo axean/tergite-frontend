@@ -1,8 +1,19 @@
+# This code is part of Tergite
+#
+# (C) Copyright Martin Ahindura 2023, 2024
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
 """Integration tests for the auth router"""
 import re
 from datetime import datetime, timedelta, timezone
 from random import randint
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import httpx
 import pytest
@@ -757,6 +768,7 @@ def test_view_own_app_tokens_in_less_detail(
         user_id = _USER_EMAIL_INDEX[user_email]
         headers = get_auth_header(user_id)
         response = client.get("/auth/me/app-tokens/", headers=headers)
+        timestamp = get_timestamp_str(datetime.now(timezone.utc))
 
         got = response.json()
         expected_data = [
@@ -765,7 +777,7 @@ def test_view_own_app_tokens_in_less_detail(
                 "lifespan_seconds": v["lifespan_seconds"],
                 "project_ext_id": v["project_ext_id"],
                 "title": v["title"],
-                "created_at": datetime.now(timezone.utc).isoformat("T"),
+                "created_at": timestamp,
             }
             for v in [TEST_APP_TOKEN_DICT, TEST_NO_QPU_APP_TOKEN_DICT]
             + inserted_app_tokens
@@ -787,6 +799,7 @@ def test_view_my_app_token_in_less_detail(
         token_id = token["_id"]
         url = f"/auth/me/app-tokens/{token_id}"
         response = client.get(url, headers=headers)
+        timestamp = get_timestamp_str(datetime.now(timezone.utc))
 
         got = response.json()
 
@@ -795,7 +808,7 @@ def test_view_my_app_token_in_less_detail(
             "project_ext_id": token["project_ext_id"],
             "title": token["title"],
             "lifespan_seconds": token["lifespan_seconds"],
-            "created_at": datetime.now(timezone.utc).isoformat("T"),
+            "created_at": timestamp,
         }
 
         assert response.status_code == 200
@@ -834,12 +847,13 @@ def test_extend_own_token_lifespan(
     user_id = token["user_id"]
     headers = {"Authorization": f"Bearer {get_jwt_token(user_id, ttl=lifespan_secs)}"}
     expires_at = datetime.now(timezone.utc) + timedelta(seconds=lifespan_secs)
+    current_timestamp = get_timestamp_str(datetime.now(timezone.utc))
     payload = {
         "lifespan_seconds": 1000,
         "title": "foo bar",
         "created_at": "1997-11-25T14:25:47.239Z",
         "id": "anot-p",
-        "expires_at": expires_at.isoformat("T"),
+        "expires_at": get_timestamp_str(expires_at),
         "project_ext_id": "a-certain-proj",
     }
     # using context manager to ensure on_startup runs
@@ -851,14 +865,18 @@ def test_extend_own_token_lifespan(
         response = client.put(url, headers=headers, json=payload)
 
         got = response.json()
+        got["lifespan_seconds"] = round(got["lifespan_seconds"])
         expected_response = {
             "id": token_id,
             "project_ext_id": token["project_ext_id"],
             "title": token["title"],
             "lifespan_seconds": lifespan_secs,
-            "created_at": datetime.now(timezone.utc).isoformat("T"),
+            "created_at": current_timestamp,
         }
         token_after_update = get_db_record(db, AppToken, token_id)
+        token_after_update["lifespan_seconds"] = round(
+            token_after_update["lifespan_seconds"]
+        )
 
         assert response.status_code == 200
         assert got == expected_response
@@ -954,7 +972,10 @@ def test_expired_app_token_fails(
 
 @pytest.mark.parametrize("app_token", APP_TOKEN_LIST)
 def test_app_token_of_unallocated_projects_fails(
-    app_token, client, unallocated_projects, inserted_app_tokens
+    app_token,
+    client,
+    unallocated_projects: Dict[str, Dict[str, Any]],
+    inserted_app_tokens,
 ):
     """App tokens for projects with qpu_seconds <= 0 raise 403 HTTP error"""
     headers = {"Authorization": f"Bearer {app_token['token']}"}
@@ -966,7 +987,7 @@ def test_app_token_of_unallocated_projects_fails(
 
         got = response.json()
         expected = {
-            "detail": f"{project['qpu_seconds']} QPU seconds left on project {project['ext_id']}"
+            "detail": f"{float(project['qpu_seconds'])} QPU seconds left on project {project['ext_id']}"
         }
 
         assert response.status_code == 403

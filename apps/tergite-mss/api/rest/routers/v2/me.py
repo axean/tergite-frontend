@@ -45,10 +45,12 @@ async def get_my_jobs_in_project(
     if project_id is not None:
         filters["project_id"] = project_id
     jobs = await get_latest_many(db, filters=filters)
-    return [JobV2.from_v1(JobV1.validate(job)) for job in jobs]
+    return [
+        JobV2.from_v1(JobV1.model_validate(job)).model_dump(mode="json") for job in jobs
+    ]
 
 
 @router.get("", tags=["users"], response_model=UserRead)
 async def get_my_user_info(user: User = CurrentUserDep):
     """Retrieves the information on the current user"""
-    return user.dict()
+    return user.model_dump()

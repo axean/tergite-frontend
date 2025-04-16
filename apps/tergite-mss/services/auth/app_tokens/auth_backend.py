@@ -54,7 +54,7 @@ class AppTokenAuthenticationBackend:
         strategy: AppTokenStrategy,
         payload: AppTokenCreate,
         user_id: PydanticObjectId,
-        **kwargs
+        **kwargs,
     ) -> Response:
         """Generates a new token for the given user
 
@@ -74,7 +74,7 @@ class AppTokenAuthenticationBackend:
         strategy: AppTokenStrategy,
         _id: PydanticObjectId,
         user_id: PydanticObjectId,
-        **kwargs
+        **kwargs,
     ) -> Response:
         """Destroys a given token.
 
@@ -107,7 +107,7 @@ class AppTokenAuthenticationBackend:
         _id: PydanticObjectId,
         user_id: PydanticObjectId,
         payload: AppTokenUpdate,
-        **kwargs
+        **kwargs,
     ) -> Optional[AppTokenRead]:
         """Updates a given token.
 

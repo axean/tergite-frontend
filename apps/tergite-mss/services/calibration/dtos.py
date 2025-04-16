@@ -16,9 +16,9 @@ from typing import Any, Dict, List, Optional, Union
 
 from beanie import PydanticObjectId
 from bson import ObjectId
-from pydantic import Extra
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
-from utils.models import ZEncodedBaseModel
+from utils.date_time import datetime_to_zulu
 
 
 class CalibrationUnit(str, enum.Enum):
@@ -33,15 +33,20 @@ class CalibrationUnit(str, enum.Enum):
     EMPTY = ""
 
 
-class CalibrationValue(ZEncodedBaseModel):
+class CalibrationValue(BaseModel):
     """A calibration value"""
 
     date: datetime
     unit: CalibrationUnit
     value: Union[float, str, int]
 
+    @field_serializer("date", when_used="json")
+    def serialize_date(self, date: datetime):
+        """Convert date to string when working with JSON"""
+        return datetime_to_zulu(date)
 
-class QubitCalibration(ZEncodedBaseModel, extra=Extra.allow):
+
+class QubitCalibration(BaseModel, extra="allow"):
     """Schema for the calibration data of the qubit"""
 
     t1_decoherence: Optional[CalibrationValue] = None
@@ -62,7 +67,7 @@ class QubitCalibration(ZEncodedBaseModel, extra=Extra.allow):
     z_drive_line: Optional[CalibrationValue] = None
 
 
-class ResonatorCalibration(ZEncodedBaseModel, extra=Extra.allow):
+class ResonatorCalibration(BaseModel, extra="allow"):
     """Schema for the calibration data of the resonator"""
 
     acq_delay: Optional[CalibrationValue] = None
@@ -79,7 +84,7 @@ class ResonatorCalibration(ZEncodedBaseModel, extra=Extra.allow):
     readout_line: Optional[CalibrationValue] = None
 
 
-class CouplersCalibration(ZEncodedBaseModel, extra=Extra.allow):
+class CouplersCalibration(BaseModel, extra="allow"):
     """Schema for the calibration data of the coupler"""
 
     frequency: Optional[CalibrationValue] = None
@@ -97,10 +102,12 @@ class CouplersCalibration(ZEncodedBaseModel, extra=Extra.allow):
     id: Optional[int] = None
 
 
-class DeviceCalibrationV2(ZEncodedBaseModel):
+class DeviceCalibrationV2(BaseModel):
     """Schema for the calibration data of a given device"""
 
-    id: PydanticObjectId
+    model_config = ConfigDict(from_attributes=True)
+
+    id: PydanticObjectId = Field(alias="_id")
     name: str
     version: str
     qubits: List[QubitCalibration]
@@ -109,7 +116,12 @@ class DeviceCalibrationV2(ZEncodedBaseModel):
     discriminators: Optional[Dict[str, Any]] = None
     last_calibrated: datetime
 
-    class Config:
-        orm_mode = True
-        json_encoders = {ObjectId: str}
-        fields = {"id": "_id"}
+    @field_serializer("last_calibrated", when_used="json")
+    def serialize_last_calibrated(self, last_calibrated: datetime):
+        """Convert last_calibrated to string when working with JSON"""
+        return datetime_to_zulu(last_calibrated)
+
+    @field_serializer("id", when_used="json")
+    def serialize_id(self, _id: PydanticObjectId):
+        """Convert id to string when working with JSON"""
+        return str(_id)

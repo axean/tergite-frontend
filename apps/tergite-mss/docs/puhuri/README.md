@@ -11,7 +11,7 @@ Find the playground in [logic jupyter notebook](logic.ipynb)
 - Create and activate conda environment
 
 ```shell
-conda create -n plg python=3.8
+conda create -n plg python=3.12
 conda activate plg
 ```
 

@@ -1,3 +1,14 @@
+# This code is part of Tergite
+#
+# (C) Copyright Chalmers Next Labs 2024
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
 """Integration tests for the devices v2 router"""
 from typing import Any, Dict
 
@@ -24,7 +35,7 @@ def test_read_devices(db, client, user_jwt_cookie):
     with client as client:
         response = client.get(f"/v2/devices", cookies=user_jwt_cookie)
         got = order_by(response.json(), field="name")
-        pop_field(got, field="_id")
+        pop_field(got, field="id")
         expected = order_by(_DEVICE_LIST, field="name")
 
         assert response.status_code == 200
@@ -42,7 +53,7 @@ def test_read_one_device(db, client, name: str, user_jwt_cookie):
     with client as client:
         response = client.get(f"/v2/devices/{name}", cookies=user_jwt_cookie)
         got: dict = response.json()
-        got.pop("_id")
+        got.pop("id")
         expected = get_record(_DEVICE_LIST, _filter={"name": name})
 
         assert response.status_code == 200
@@ -67,7 +78,7 @@ def test_create_device(db, client, payload: Dict[str, Any], system_app_token_hea
             db, collection_name=_DEVICES_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
         )
         json_response: dict = response.json()
-        json_response.pop("_id")
+        json_response.pop("id")
 
         assert response.status_code == 200
         assert json_response == final_data_in_db[0]
@@ -129,7 +140,7 @@ def test_create_pre_existing_device(
             db, collection_name=_DEVICES_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
         )
         json_response: dict = response.json()
-        json_response.pop("_id")
+        json_response.pop("id")
 
         assert response.status_code == 200
         assert json_response == final_data_in_db[0]
@@ -164,7 +175,7 @@ def test_update_device(
             db, collection_name=_DEVICES_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
         )
         json_response: dict = response.json()
-        json_response.pop("_id")
+        json_response.pop("id")
 
         assert response.status_code == 200
         assert json_response == final_data_in_db[0]

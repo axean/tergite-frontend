@@ -169,7 +169,7 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
         if existing_project is not None:
             raise exc.ProjectExists()
 
-        created_project = await self.project_db.create(project_create.dict())
+        created_project = await self.project_db.create(project_create.model_dump())
         return created_project
 
     async def update(
@@ -194,7 +194,7 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
         Returns:
             the updated project.
         """
-        update_dict = project_update.dict(exclude_none=True)
+        update_dict = project_update.model_dump(exclude_none=True)
         await self.on_before_update(project, update_dict)
         updated_project = await self.project_db.update(project, update_dict)
         return updated_project
@@ -214,7 +214,7 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
         await self.on_before_delete(project, request)
         await self.project_db.delete(project)
         deleted_project = DeletedProject(
-            **project.dict(exclude={"created_at", "updated_at"})
+            **project.model_dump(exclude={"created_at", "updated_at"})
         )
         await deleted_project.create()
 

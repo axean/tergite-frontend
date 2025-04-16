@@ -135,7 +135,7 @@ async def update(
         defaults.approver_id = str(admin_user.id)
 
     result: UserRequest = await UserRequest.find_one({"_id": _id}).update(
-        {"$set": {**payload.dict(), **defaults.dict()}},
+        {"$set": {**payload.model_dump(), **defaults.model_dump()}},
         response_type=UpdateResponse.NEW_DOCUMENT,
     )
     if result is None:

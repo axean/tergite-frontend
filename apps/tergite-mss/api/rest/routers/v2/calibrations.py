@@ -17,7 +17,7 @@
 # that they have been altered from the originals.
 from typing import List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 
 from api.rest.dependencies import CurrentSystemUserProjectDep, MongoDbDep
 from services import calibration as calibration_service
@@ -36,7 +36,9 @@ async def read_one(db: MongoDbDep, name: str):
 
 
 @router.post("")
-async def create(db: MongoDbDep, user: CurrentSystemUserProjectDep, documents: list):
+async def create(
+    db: MongoDbDep, user: CurrentSystemUserProjectDep, documents: list = Body(...)
+):
     # FIXME: Breaking change - let this receive only a single document. The backend needs to be changed as a result
     await calibration_service.insert_many_v2(db, documents)
     return "OK"

@@ -76,7 +76,7 @@ Please note that if your contribution is part of your employment or
 your contribution is the property of your employer,
 you will also most likely need to sign a [corporate CLA](https://tergite.github.io/contributing/ccla.pdf).
 
-All signed CLAs are emails to us at <quantum.nextlabs@chalmers.se>.
+All signed CLAs are emails to us at <contact@quantum.chalmersnextlabs.se>.
 
 ## How to Test
 
@@ -91,14 +91,14 @@ cd tergite-frontend/apps/tergite-mss
 - Create the conda environment
 
 ```shell
-conda create -n mss python=3.8
+conda create -n mss python=3.12
 ```
 
 - Install dependencies
 
 ```shell
 conda activate mss
-pip install -r requirements.txt
+pip install ."[dev]"
 ```
 
 - Run the tests commands

@@ -9,9 +9,12 @@ from tests._utils.env import (
     TEST_PUHURI_CONFIG_ENDPOINT,
     setup_test_env,
 )
+from tests._utils.types import stub_pydantic_match_type_for_freezegun
 
 # Set up the test environment before any other imports are made
 setup_test_env()
+# See: https://github.com/pydantic/pydantic/discussions/9343#discussioncomment-10723743
+stub_pydantic_match_type_for_freezegun()
 
 import importlib
 import multiprocessing

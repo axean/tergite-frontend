@@ -56,7 +56,7 @@ async def get_qpu_time_requests(
         filters, skip=skip, limit=limit
     )
     return PaginatedListResponse(
-        data=[item.dict() for item in data], skip=skip, limit=limit
+        data=[item.model_dump(mode="json") for item in data], skip=skip, limit=limit
     )
 
 
@@ -84,7 +84,7 @@ async def create_qpu_time_request(
         request_body=request_body,
         requester=requester,
     )
-    return result.dict()
+    return result.model_dump(mode="json")
 
 
 @router.get(
@@ -101,7 +101,7 @@ async def get_user_requests(
         filters["status"] = status
     data = await user_requests.get_many(filters, skip=skip, limit=limit)
     return PaginatedListResponse(
-        data=[item.dict() for item in data], skip=skip, limit=limit
+        data=[item.model_dump(mode="json") for item in data], skip=skip, limit=limit
     )
 
 
@@ -117,6 +117,6 @@ async def update_user_request(
     """
     try:
         result = await user_requests.update(_id, payload=body, admin_user=user)
-        return result.dict()
+        return result.model_dump(mode="json")
     except DocumentNotFoundError as exp:
         raise HTTPException(status_code=http_status.HTTP_404_NOT_FOUND, detail=f"{exp}")

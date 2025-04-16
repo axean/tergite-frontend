@@ -41,7 +41,7 @@ _PROJECTS_COLLECTION = "auth_projects"
 _EXCLUDED_FIELDS = ["_id", "id"]
 
 
-@pytest.mark.sequential
+# @pytest.mark.sequential
 def test_save_resource_usages(db, client, project_id, app_token_header):
     """PUT to "/jobs/{job_id}" updates the resource usage in database for that project id"""
     project_id_str = f"{project_id}"
@@ -97,7 +97,7 @@ def test_save_resource_usages(db, client, project_id, app_token_header):
         assert all([(x - now).total_seconds() < 30 for x in created_on_timestamps])
 
 
-@pytest.mark.sequential
+# @pytest.mark.sequential
 def test_post_resource_usages(db, mock_puhuri_sync_calls):
     """Should post all accumulated resource usages at a given interval"""
     insert_in_collection(
@@ -152,7 +152,7 @@ def test_post_resource_usages(db, mock_puhuri_sync_calls):
     # assert got == expected
 
 
-@pytest.mark.sequential
+# @pytest.mark.sequential
 def test_update_internal_projects(db, mock_puhuri_sync_calls, existing_puhuri_projects):
     """Should update internal projects with that got from Puhuri, at a given interval"""
     initial_data = find_in_collection(
@@ -190,7 +190,7 @@ def test_update_internal_projects(db, mock_puhuri_sync_calls, existing_puhuri_pr
     # ]
 
 
-@pytest.mark.sequential
+# @pytest.mark.sequential
 def test_update_internal_resource_allocations(
     db, mock_puhuri_sync_calls, existing_puhuri_projects
 ):

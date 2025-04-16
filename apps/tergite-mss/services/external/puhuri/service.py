@@ -448,7 +448,7 @@ async def save_job_resource_usage(
         qpu_seconds=qpu_seconds,
     )
     try:
-        await db[db_collection].insert_one(usage.dict())
+        await db[db_collection].insert_one(usage.model_dump())
     except DuplicateKeyError:
         # ignore duplicate entries
         pass
@@ -547,7 +547,7 @@ async def post_resource_usages(
 
     # save any errors
     failures = [
-        item.dict() for item in results if isinstance(item, PuhuriFailedRequest)
+        item.model_dump() for item in results if isinstance(item, PuhuriFailedRequest)
     ]
     if len(failures) > 0:
         await failures_col.insert_many(failures)
@@ -722,7 +722,7 @@ async def _prepare_resource_usages(
             qpu_seconds=qpu_seconds,
         )
         try:
-            await final_collection.insert_one(processed_usage.dict())
+            await final_collection.insert_one(processed_usage.model_dump())
             await raw_collection.update_one(
                 {"job_id": job_id}, {"$set": {"is_processed": True}}
             )

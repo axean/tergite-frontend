@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 import tomli
-from pydantic import AnyHttpUrl, BaseModel, Extra, MongoDsn
+from pydantic import AnyHttpUrl, BaseModel, MongoDsn
 
 
 class DatetimePrecision(str, enum.Enum):
@@ -81,10 +81,10 @@ class Oauth2ClientType(str, enum.Enum):
     OKTA = "okta"
 
 
-class Oauth2ClientConfig(BaseModel, extra=Extra.allow):
+class Oauth2ClientConfig(BaseModel, extra="allow"):
     """The configuration for an Oauth2 Client i.e. a BaseOAuth2 instance
 
-    This config allows other arbitrary properties to be added due to the use of Extra.allow
+    This config allows other arbitrary properties to be added due to the use of Extra=allow
     """
 
     # Note that for Oauth2, you need an external Oauth2 provider like Github, Google, Chalmers, Puhuri etc.
@@ -167,7 +167,7 @@ class AuthConfig(BaseModel):
     clients: List[Oauth2ClientConfig] = []
 
 
-class AppConfig(BaseModel, extra=Extra.allow):
+class AppConfig(BaseModel, extra="allow"):
     """Configuration for the entire app"""
 
     mss_port: int = 8002
@@ -214,4 +214,4 @@ class AppConfig(BaseModel, extra=Extra.allow):
             conf = tomli.load(file)
 
         conf.update(conf.pop("general", {}))
-        return cls.parse_obj(conf)
+        return cls.model_validate(conf)
