@@ -64,6 +64,7 @@ dev = [
     "pytest-mock>=3.11.1",
     "respx>=0.20.2",
     "filelock>=3.12.2",
+    "setuptools",
 ]
 
 [project.urls]
