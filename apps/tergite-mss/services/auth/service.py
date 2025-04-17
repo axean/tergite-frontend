@@ -82,56 +82,6 @@ async def on_startup(db: motor.motor_asyncio.AsyncIOMotorDatabase):
     )
 
 
-def register_oauth2_client(
-    router: APIRouter,
-    controller: FastAPIUsers,
-    auth_header_backend: AuthenticationBackend,
-    auth_cookie_backend: AuthenticationBackend,
-    jwt_secret: str,
-    conf: Oauth2ClientConfig,
-    tags: List[str] = ("auth",),
-):
-    """Registers an oauth2 method on the given router
-
-    Args:
-        router: APIRouter where to register the oauth2 method
-        controller: the FastAPIUsers instance that controls authentication
-        auth_header_backend: the AuthenticationBackend which handles the authentication via headers
-        auth_cookie_backend: the AuthenticationBackend which handles the authentication via cookies
-        jwt_secret: the secret string used to generate JWT tokens
-        conf: the configuration for the oauth2 client
-        tags: the list of tags to add to the routes of this client
-    """
-    client = get_oauth2_client(conf)
-
-    router.include_router(
-        controller.get_oauth_router(
-            oauth_client=client,
-            backend=auth_header_backend,
-            state_secret=jwt_secret,
-            is_verified_by_default=True,
-        ),
-        prefix=f"/{client.name}",
-        tags=tags,
-    )
-
-    # FIXME: There is still an issue with programmatically generating the redirect URI.
-    #  It keeps missing the http(s). It is like the scheme is never passed along, which is weird
-
-    # For browser based auth
-    router.include_router(
-        controller.get_oauth_router(
-            oauth_client=client,
-            backend=auth_cookie_backend,
-            state_secret=jwt_secret,
-            is_verified_by_default=True,
-            redirect_url=conf.redirect_url,
-        ),
-        prefix=f"/app/{client.name}",
-        tags=tags,
-    )
-
-
 def register_oauth2_client_v2(
     router: APIRouter,
     controller: FastAPIUsers,

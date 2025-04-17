@@ -64,12 +64,12 @@ _UNAVAILABLE_BCC_FIXTURE = [
 
 
 @pytest.mark.parametrize("job_id", _JOB_IDS)
-def test_read_job(db, client, job_id: str, no_qpu_app_token_header):
+def test_read_job(db, client_v2, job_id: str, no_qpu_app_token_header):
     """Get to /jobs/{job_id} returns the job for the given job_id"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(f"/jobs/{job_id}", headers=no_qpu_app_token_header)
         got = response.json()
         expected = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
@@ -79,12 +79,12 @@ def test_read_job(db, client, job_id: str, no_qpu_app_token_header):
 
 
 @pytest.mark.parametrize("job_id", _JOB_IDS)
-def test_read_job_result(db, client, job_id: str, no_qpu_app_token_header):
+def test_read_job_result(db, client_v2, job_id: str, no_qpu_app_token_header):
     """Get to /jobs/{job_id}/result returns the job result for the given job_id"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(f"/jobs/{job_id}/result", headers=no_qpu_app_token_header)
         got = response.json()
         expected_job = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
@@ -101,12 +101,12 @@ def test_read_job_result(db, client, job_id: str, no_qpu_app_token_header):
 
 
 @pytest.mark.parametrize("job_id", _JOB_IDS)
-def test_read_job_download_url(db, client, job_id: str, no_qpu_app_token_header):
+def test_read_job_download_url(db, client_v2, job_id: str, no_qpu_app_token_header):
     """Get to /jobs/{job_id}/download_url the job download_url for the given job_id"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(
             f"/jobs/{job_id}/download_url", headers=no_qpu_app_token_header
         )
@@ -128,7 +128,7 @@ def test_read_job_download_url(db, client, job_id: str, no_qpu_app_token_header)
 def test_create_job(
     mock_bcc,
     db,
-    client,
+    client_v2,
     backend: str,
     calibration_date: str,
     project_id: PydanticObjectId,
@@ -151,7 +151,7 @@ def test_create_job(
     )
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.post(
             f"/jobs/{query_string}", json={}, headers=app_token_header
         )
@@ -188,12 +188,12 @@ def test_create_job(
 
 
 @pytest.mark.parametrize("backend, bcc", _UNAVAILABLE_BCC_FIXTURE)
-def test_create_job_without_bcc(db, client, backend: str, app_token_header, bcc):
+def test_create_job_without_bcc(db, client_v2, backend: str, app_token_header, bcc):
     """Post to /jobs/ error out if BCC is not available"""
     query_string = "" if backend is None else f"?backend={backend}"
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.post(
             f"/jobs/{query_string}", json={}, headers=app_token_header
         )
@@ -211,7 +211,7 @@ def test_create_job_without_bcc(db, client, backend: str, app_token_header, bcc)
 
 @pytest.mark.parametrize("backend, calibration_date", _CREATE_JOB_PARAMS)
 def test_create_job_with_auth_disabled(
-    mock_bcc, db, no_auth_client, backend: str, calibration_date: str
+    mock_bcc, db, no_auth_client_v2, backend: str, calibration_date: str
 ):
     """Post to /jobs/ creates a job in the given backend even when auth is disabled"""
     query_string = "?"
@@ -229,7 +229,7 @@ def test_create_job_with_auth_disabled(
     )
 
     # using context manager to ensure on_startup runs
-    with no_auth_client as client:
+    with no_auth_client_v2 as client:
         response = client.post(f"/jobs/{query_string}", json={})
         json_response = response.json()
         new_job_id = json_response["job_id"]
@@ -264,7 +264,7 @@ def test_create_job_with_auth_disabled(
 
 
 @pytest.mark.parametrize("nlast", [1, 4, 6, 10, None])
-def test_read_jobs(db, client, nlast: int, no_qpu_app_token_header):
+def test_read_jobs(db, client_v2, nlast: int, no_qpu_app_token_header):
     """Get to /jobs returns the latest jobs only upto the given nlast records"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
 
@@ -272,7 +272,7 @@ def test_read_jobs(db, client, nlast: int, no_qpu_app_token_header):
     limit = 10 if nlast is None else nlast
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(f"/jobs{query_string}", headers=no_qpu_app_token_header)
         got = order_by(response.json(), field="job_id")
         expected = order_by(_JOBS_LIST[:limit], field="job_id")
@@ -282,12 +282,12 @@ def test_read_jobs(db, client, nlast: int, no_qpu_app_token_header):
 
 
 @pytest.mark.parametrize("job_id, memory", zip(_JOB_IDS, _MEMORY_LIST))
-def test_update_job_result(db, client, job_id: str, memory: list, app_token_header):
+def test_update_job_result(db, client_v2, job_id: str, memory: list, app_token_header):
     """PUT to /jobs/{job_id}/result updates the result of the job with the given memory object"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.put(
             f"/jobs/{job_id}/result", json=memory, headers=app_token_header
         )
@@ -310,12 +310,12 @@ def test_update_job_result(db, client, job_id: str, memory: list, app_token_head
 
 
 @pytest.mark.parametrize("job_id, status", zip(_JOB_IDS, _STATUS_LIST))
-def test_update_job_status(db, client, job_id: str, status: str, app_token_header):
+def test_update_job_status(db, client_v2, job_id: str, status: str, app_token_header):
     """PUT to /jobs/{job_id}/status updates the status of the job of the given job id"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.put(
             f"/jobs/{job_id}/status", json=status, headers=app_token_header
         )
@@ -338,12 +338,14 @@ def test_update_job_status(db, client, job_id: str, status: str, app_token_heade
 
 
 @pytest.mark.parametrize("job_id, url", zip(_JOB_IDS, _URL_LIST))
-def test_update_job_download_url(db, client, job_id: str, url: str, app_token_header):
+def test_update_job_download_url(
+    db, client_v2, job_id: str, url: str, app_token_header
+):
     """PUT to /jobs/{job_id}/download_url updates the download_url of the job of the given job id"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.put(
             f"/jobs/{job_id}/download_url", json=url, headers=app_token_header
         )
@@ -367,13 +369,13 @@ def test_update_job_download_url(db, client, job_id: str, url: str, app_token_he
 
 @pytest.mark.parametrize("job_id, event_name", zip(_JOB_IDS, _STATUS_LIST))
 def test_update_timelog_entry(
-    db, client, job_id: str, event_name: str, app_token_header
+    db, client_v2, job_id: str, event_name: str, app_token_header
 ):
     """PUT to /jobs/{job_id}/timelog refreshes the timelog of the given event of the job of the given job id"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.post(
             f"/jobs/{job_id}/timelog", json=event_name, headers=app_token_header
         )
@@ -395,14 +397,14 @@ def test_update_timelog_entry(
 
 
 @pytest.mark.parametrize("raw_payload", _JOB_UPDATES)
-def test_update_job(db, client, raw_payload: dict, app_token_header):
+def test_update_job(db, client_v2, raw_payload: dict, app_token_header):
     """PUT to /jobs/{job_id} updates the job with the given object"""
     insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
     payload = {**raw_payload}
     job_id = payload.pop("job_id")
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.put(
             f"/jobs/{job_id}",
             json={**payload, "timelog.RESULT": "foo"},
@@ -429,7 +431,7 @@ def test_update_job(db, client, raw_payload: dict, app_token_header):
 
 @pytest.mark.parametrize("raw_payload", _JOB_TIMESTAMPED_UPDATES)
 def test_update_job_resource_usage(
-    db, client, project_id, raw_payload: dict, app_token_header
+    db, client_v2, project_id, raw_payload: dict, app_token_header
 ):
     """PUT to /jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps" property"""
     job_list = [{**item, "project_id": str(project_id)} for item in _JOBS_LIST]
@@ -441,7 +443,7 @@ def test_update_job_resource_usage(
     )
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         # check for idempotence
         for _ in range(3):
             response = client.put(
@@ -464,7 +466,7 @@ def test_update_job_resource_usage(
 
 @pytest.mark.parametrize("payload", _JOB_TIMESTAMPED_UPDATES)
 def test_update_job_resource_usage_advanced(
-    db, client, project_id, payload: dict, app_token_header
+    db, client_v2, project_id, payload: dict, app_token_header
 ):
     """PUT to /jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps.execution" field"""
     job_list = [{**item, "project_id": str(project_id)} for item in _JOBS_LIST]
@@ -476,7 +478,7 @@ def test_update_job_resource_usage_advanced(
     update_body = {"timestamps.execution": payload["timestamps"]["execution"]}
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         # check for idempotence
         for _ in range(3):
             response = client.put(

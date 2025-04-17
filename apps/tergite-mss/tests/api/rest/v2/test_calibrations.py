@@ -31,14 +31,14 @@ _LOGS_COLLECTION = "calibrations_logs"
 _EXCLUDED_FIELDS = ["_id"]
 
 
-def test_read_calibrations(db, client, user_jwt_cookie):
+def test_read_calibrations(db, client_v2, user_jwt_cookie):
     """GET `/v2/calibrations/` returns the latest calibrations"""
     insert_in_collection(
         database=db, collection_name=_COLLECTION, data=_CALIBRATIONS_LIST
     )
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(f"/v2/calibrations", headers=user_jwt_cookie)
         got = order_by(response.json(), field="name")
         pop_field(got, "_id")
@@ -49,14 +49,14 @@ def test_read_calibrations(db, client, user_jwt_cookie):
 
 
 @pytest.mark.parametrize("name", _DEVICE_NAMES)
-def test_read_calibration(name: str, db, client, app_token_header):
+def test_read_calibration(name: str, db, client_v2, app_token_header):
     """Get `/v2/calibrations/{name}` reads the latest calibration of the given device"""
     insert_in_collection(
         database=db, collection_name=_COLLECTION, data=_CALIBRATIONS_LIST
     )
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(f"/v2/calibrations/{name}", headers=app_token_header)
         got: dict = response.json()
         got.pop("_id")
@@ -66,7 +66,7 @@ def test_read_calibration(name: str, db, client, app_token_header):
         assert expected == got
 
 
-def test_create_calibrations(db, client, system_app_token_header, freezer):
+def test_create_calibrations(db, client_v2, system_app_token_header, freezer):
     """POST calibrations to `/v2/calibrations` upserts them in calibrations_v2, and in calibrations_logs if not exist"""
     now = (
         datetime.now(timezone.utc)
@@ -86,7 +86,7 @@ def test_create_calibrations(db, client, system_app_token_header, freezer):
     )
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.post(
             "/v2/calibrations/",
             json=_CALIBRATIONS_LIST,
@@ -114,14 +114,14 @@ def test_create_calibrations(db, client, system_app_token_header, freezer):
         assert final_calibration_logs_in_db == expected_calibration_logs_in_db
 
 
-def test_create_calibrations_non_system_user(db, client, user_jwt_cookie):
+def test_create_calibrations_non_system_user(db, client_v2, user_jwt_cookie):
     """Only system users can POST list of calibration-like dicts to `/v2/calibrations`"""
     original_data_in_db = find_in_collection(
         db, collection_name=_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
     )
 
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.post(
             "/v2/calibrations/",
             json=_CALIBRATIONS_LIST,

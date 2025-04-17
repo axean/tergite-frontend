@@ -98,12 +98,7 @@ USER_ID_EMAIL_MAP = {
     TEST_SUPERUSER_ID: TEST_SUPERUSER_EMAIL,
     TEST_SYSTEM_USER_ID: TEST_SYSTEM_USER_EMAIL,
 }
-TEST_PROJECT_DICT = dict(
-    _id=PydanticObjectId(TEST_PROJECT_ID),
-    ext_id=TEST_PROJECT_EXT_ID,
-    user_emails=[TEST_USER_EMAIL, TEST_SYSTEM_USER_EMAIL],
-    qpu_seconds=108000000000000,
-)
+
 TEST_PROJECT_V2_DICT = dict(
     _id=PydanticObjectId(TEST_PROJECT_ID),
     name="test-project",
@@ -115,13 +110,6 @@ TEST_PROJECT_V2_DICT = dict(
     qpu_seconds=108000000000000,
     created_at="2024-09-20T09:12:00.733Z",
     updated_at="2024-09-20T09:12:00.733Z",
-)
-
-TEST_NO_QPU_PROJECT_DICT = dict(
-    _id=PydanticObjectId(TEST_NO_QPU_PROJECT_ID),
-    ext_id=TEST_NO_QPU_PROJECT_EXT_ID,
-    user_emails=[TEST_USER_EMAIL],
-    qpu_seconds=-108000,
 )
 
 TEST_NO_QPU_PROJECT_V2_DICT = dict(
@@ -160,18 +148,6 @@ TEST_SYSTEM_USER_TOKEN_DICT = dict(
     project_ext_id=TEST_PROJECT_EXT_ID,
     lifespan_seconds=3600,
 )
-
-
-def init_test_auth(db: database.Database):
-    """Initializes the auth items in the test database"""
-    insert_if_not_exist(db, User, TEST_USER_DICT)
-    insert_if_not_exist(db, User, TEST_SUPERUSER_DICT)
-    insert_if_not_exist(db, User, TEST_SYSTEM_USER_DICT)
-    insert_if_not_exist(db, Project, TEST_PROJECT_DICT)
-    insert_if_not_exist(db, Project, TEST_NO_QPU_PROJECT_DICT)
-    insert_if_not_exist(db, AppToken, TEST_APP_TOKEN_DICT)
-    insert_if_not_exist(db, AppToken, TEST_NO_QPU_APP_TOKEN_DICT)
-    insert_if_not_exist(db, AppToken, TEST_SYSTEM_USER_TOKEN_DICT)
 
 
 def init_test_auth_v2(db: database.Database):

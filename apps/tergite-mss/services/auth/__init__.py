@@ -39,7 +39,6 @@ from .service import (
     JWT_COOKIE_BACKEND,
     JWT_HEADER_BACKEND,
     on_startup,
-    register_oauth2_client,
 )
 from .users.dtos import User, UserCreate, UserRead, UserUpdate
 from .utils import PaginatedListResponse
@@ -78,6 +77,5 @@ __all__ = [
     GET_CURRENT_PROJECT,
     GET_CURRENT_LAX_PROJECT,
     on_startup,
-    register_oauth2_client,
     get_project_db,
 ]

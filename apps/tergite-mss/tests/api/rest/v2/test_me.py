@@ -240,7 +240,7 @@ def test_delete_others_project_is_not_allowed(
 
 
 @pytest.mark.parametrize("payload", APP_TOKEN_LIST)
-def test_generate_app_token(payload, inserted_projects, client_v2):
+def test_generate_app_token(payload, inserted_projects_v2, client_v2):
     """At /v2/me/tokens/, user can generate app token for project they are attached to"""
     cookies = get_auth_cookie(payload["user_id"])
 
@@ -256,7 +256,7 @@ def test_generate_app_token(payload, inserted_projects, client_v2):
 
 
 @pytest.mark.parametrize("payload", APP_TOKEN_LIST)
-def test_unauthenticated_app_token_generation(payload, inserted_projects, client_v2):
+def test_unauthenticated_app_token_generation(payload, inserted_projects_v2, client_v2):
     """401 error raised at /v2/me/tokens/ when no user jwt is sent"""
 
     # using context manager to ensure on_startup runs
@@ -272,7 +272,9 @@ def test_unauthenticated_app_token_generation(payload, inserted_projects, client
 @pytest.mark.parametrize(
     "body, cookies", get_unauthorized_app_token_post_with_cookies()
 )
-def test_unauthorized_app_token_generation(body, cookies, inserted_projects, client_v2):
+def test_unauthorized_app_token_generation(
+    body, cookies, inserted_projects_v2, client_v2
+):
     """403 error raised at /v2/me/tokens/, for a project to which a user is not attached"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
@@ -286,7 +288,7 @@ def test_unauthorized_app_token_generation(body, cookies, inserted_projects, cli
 
 @pytest.mark.parametrize("payload", APP_TOKEN_LIST)
 def test_destroy_app_token(
-    payload, db, client_v2, inserted_projects, inserted_app_tokens
+    payload, db, client_v2, inserted_projects_v2, inserted_app_tokens
 ):
     """At /v2/me/tokens/{token}, user can destroy their own app token"""
     # using context manager to ensure on_startup runs
@@ -305,7 +307,7 @@ def test_destroy_app_token(
 
 @pytest.mark.parametrize("payload", APP_TOKEN_LIST)
 def test_destroy_expired_app_token(
-    payload, db, client_v2, inserted_projects, inserted_app_tokens
+    payload, db, client_v2, inserted_projects_v2, inserted_app_tokens
 ):
     """At /v2/me/tokens/{token}, user can destroy their own expired app token"""
     # using context manager to ensure on_startup runs
@@ -332,7 +334,7 @@ def test_destroy_expired_app_token(
 
 @pytest.mark.parametrize("payload", APP_TOKEN_LIST)
 def test_unauthenticated_app_token_deletion(
-    payload, db, client_v2, inserted_projects, inserted_app_tokens
+    payload, db, client_v2, inserted_projects_v2, inserted_app_tokens
 ):
     """401 error raised at /v2/me/tokens/{token} if no JWT token is passed"""
     # using context manager to ensure on_startup runs
@@ -354,7 +356,7 @@ def test_unauthenticated_app_token_deletion(
     "payload, cookies", get_unauthorized_app_token_post_with_cookies()
 )
 def test_unauthorized_app_token_deletion(
-    payload, cookies, db, client_v2, inserted_projects, inserted_app_tokens
+    payload, cookies, db, client_v2, inserted_projects_v2, inserted_app_tokens
 ):
     """403 error raised at /v2/me/tokens/{_id}, for a project to which a user is not attached"""
     # using context manager to ensure on_startup runs
@@ -371,7 +373,7 @@ def test_unauthorized_app_token_deletion(
 
 @pytest.mark.parametrize("user_id, cookies", _USER_ID_COOKIES_FIXTURE)
 def test_view_own_app_tokens_in_less_detail(
-    user_id, cookies, client_v2, inserted_projects, inserted_app_tokens, freezer
+    user_id, cookies, client_v2, inserted_projects_v2, inserted_app_tokens, freezer
 ):
     """At /v2/me/tokens/, user can view their own app tokens
     without the token itself displayed"""
@@ -399,7 +401,13 @@ def test_view_own_app_tokens_in_less_detail(
 
 @pytest.mark.parametrize("user_id, cookies, token", _MY_TOKENS_REQUESTS)
 def test_view_my_app_token_in_less_detail(
-    user_id, cookies, token, client_v2, inserted_projects, inserted_app_tokens, freezer
+    user_id,
+    cookies,
+    token,
+    client_v2,
+    inserted_projects_v2,
+    inserted_app_tokens,
+    freezer,
 ):
     """Any user can view only their own single app token at /v2/me/tokens/{id}
     without token itself displayed"""
@@ -425,7 +433,13 @@ def test_view_my_app_token_in_less_detail(
 
 @pytest.mark.parametrize("user_id, cookies, token", _OTHERS_TOKENS_REQUESTS)
 def test_view_others_tokens_is_not_allowed(
-    user_id, cookies, token, client_v2, inserted_projects, inserted_app_tokens, freezer
+    user_id,
+    cookies,
+    token,
+    client_v2,
+    inserted_projects_v2,
+    inserted_app_tokens,
+    freezer,
 ):
     """No user can view only other's app tokens at /v2/me/tokens/{id}"""
     # using context manager to ensure on_startup runs
@@ -446,7 +460,7 @@ def test_extend_own_token_lifespan(
     db,
     token,
     client_v2,
-    inserted_projects,
+    inserted_projects_v2,
     inserted_app_tokens,
     freezer,
 ):
@@ -498,7 +512,7 @@ def test_extend_own_expired_token_lifespan(
     db,
     token,
     client_v2,
-    inserted_projects,
+    inserted_projects_v2,
     app_tokens_with_timestamps,
 ):
     """Updating expired app tokens raises 404 HTTP error"""
@@ -548,7 +562,7 @@ def test_extend_own_expired_token_lifespan(
 
 @pytest.mark.parametrize("app_token", APP_TOKEN_LIST)
 def test_expired_app_token_fails(
-    db, app_token, client_v2, inserted_projects, app_tokens_with_timestamps
+    db, app_token, client_v2, inserted_projects_v2, app_tokens_with_timestamps
 ):
     """Expired app tokens raise 401 HTTP error"""
     token_id = app_token["_id"]

@@ -19,47 +19,16 @@ from pytest_lazyfixture import lazy_fixture
 
 from tests._utils.auth import (
     TEST_SUPERUSER_EMAIL,
-    TEST_SUPERUSER_ID,
     TEST_USER_EMAIL,
-    TEST_USER_ID,
     is_valid_jwt,
 )
-from tests.conftest import (
-    APP_TOKEN_LIST,
-    PROJECT_LIST,
-    TEST_NEXT_COOKIE_URL,
-    get_auth_header,
-)
+from tests.conftest import TEST_NEXT_COOKIE_URL
 
-_USER_EMAIL_INDEX = {
-    TEST_SUPERUSER_EMAIL: TEST_SUPERUSER_ID,
-    TEST_USER_EMAIL: TEST_USER_ID,
-}
-_MY_PROJECT_REQUESTS = [
-    (email, get_auth_header(_USER_EMAIL_INDEX[email]), project)
-    for project in PROJECT_LIST
-    for email in project["user_emails"]
-]
-_OTHERS_PROJECT_REQUESTS = [
-    (email, get_auth_header(_USER_EMAIL_INDEX[email]), project)
-    for project in PROJECT_LIST
-    for email in [TEST_USER_EMAIL, TEST_SUPERUSER_EMAIL]
-    if email not in project["user_emails"]
-]
 _USER_EMAIL_COOKIES_FIXTURE = [
     (TEST_USER_EMAIL, lazy_fixture("user_jwt_cookie")),
     (TEST_SUPERUSER_EMAIL, lazy_fixture("admin_jwt_cookie")),
 ]
-_MY_TOKENS_REQUESTS = [
-    (token["user_id"], get_auth_header(token["user_id"]), token)
-    for token in APP_TOKEN_LIST
-]
-_OTHERS_TOKENS_REQUESTS = [
-    (user_id, get_auth_header(user_id), token)
-    for token in APP_TOKEN_LIST
-    for user_id in [TEST_USER_ID, TEST_SUPERUSER_ID]
-    if user_id != token["user_id"]
-]
+
 _AUTH_PROVIDER_DOMAIN_PAIRS = [
     (
         "example.com",
@@ -102,24 +71,24 @@ _STALE_AUTH_COOKIE_REGEX = re.compile(
 )
 
 
-def test_is_auth_enabled(client):
+def test_is_auth_enabled(client_v2):
     """When `auth.is_enabled=true` in config, application cannot be accessed without authentication"""
-    with client as client:
+    with client_v2 as client:
         response = client.get("/")
         assert response.status_code == 401
 
 
-def test_not_is_auth_enabled(no_auth_client):
+def test_not_is_auth_enabled(no_auth_client_v2):
     """When `auth.is_enabled=false` in config, application can be accessed without authentication"""
-    with no_auth_client as client:
+    with no_auth_client_v2 as client:
         response = client.get("/")
         assert response.status_code == 200
 
 
-def test_github_cookie_authorize(client):
+def test_github_cookie_authorize(client_v2):
     """github users can authorize at /v2/auth/github/authorize using cookies"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(f"/v2/auth/github/authorize?next={TEST_NEXT_COOKIE_URL}")
         auth_url_pattern = r"^https\:\/\/github\.com\/login\/oauth\/authorize\?response_type\=code\&client_id\=test-tergite-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fgithub\%2Fcallback\&state=.*&scope=user\+user\%3Aemail$"
 
@@ -128,10 +97,10 @@ def test_github_cookie_authorize(client):
         assert re.match(auth_url_pattern, got["authorization_url"]) is not None
 
 
-def test_github_cookie_auto_authorize(client):
+def test_github_cookie_auto_authorize(client_v2):
     """github users can automatically be redirected to auth url at /v2/auth/github/auto-authorize using cookies"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(
             f"/v2/auth/github/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
             follow_redirects=False,
@@ -143,10 +112,10 @@ def test_github_cookie_auto_authorize(client):
         assert re.match(auth_url_pattern, got) is not None
 
 
-def test_chalmers_cookie_authorize(client):
+def test_chalmers_cookie_authorize(client_v2):
     """Chalmers' users can authorize at /v2/auth/chalmers/authorize using cookies"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(
             f"/v2/auth/chalmers/authorize?next={TEST_NEXT_COOKIE_URL}"
         )
@@ -157,10 +126,10 @@ def test_chalmers_cookie_authorize(client):
         assert re.match(auth_url_pattern, got["authorization_url"]) is not None
 
 
-def test_chalmers_cookie_auto_authorize(client):
+def test_chalmers_cookie_auto_authorize(client_v2):
     """Chalmers' users can be automatically redirected at /v2/auth/chalmers/auto-authorize using cookies"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(
             f"/v2/auth/chalmers/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
             follow_redirects=False,
@@ -172,11 +141,11 @@ def test_chalmers_cookie_auto_authorize(client):
         assert re.match(auth_url_pattern, got) is not None
 
 
-def test_puhuri_cookie_authorize(client):
+def test_puhuri_cookie_authorize(client_v2):
     """Puhuri users can authorize at /v2/auth/puhuri/authorize using cookies"""
     """Any random partner users can authorize at /auth/{partner}/authorize"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(f"/v2/auth/puhuri/authorize?next={TEST_NEXT_COOKIE_URL}")
         auth_url_pattern = r"^https:\/\/proxy.acc.puhuri.eduteams.org\/OIDC\/authorization\?response_type\=code\&client_id\=test-puhuri-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fpuhuri\%2Fcallback\&state=.*\&scope\=openid\+email$"
 
@@ -185,11 +154,11 @@ def test_puhuri_cookie_authorize(client):
         assert re.match(auth_url_pattern, got["authorization_url"]) is not None
 
 
-def test_puhuri_cookie_auto_authorize(client):
+def test_puhuri_cookie_auto_authorize(client_v2):
     """Puhuri users can automatically be redirected at /v2/auth/puhuri/auto-authorize using cookies"""
     """Any random partner users can authorize at /auth/{partner}/authorize"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(
             f"/v2/auth/puhuri/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
             follow_redirects=False,
@@ -201,10 +170,10 @@ def test_puhuri_cookie_auto_authorize(client):
         assert re.match(auth_url_pattern, got) is not None
 
 
-def test_github_cookie_callback(client, github_user, cookie_oauth_state):
+def test_github_cookie_callback(client_v2, github_user, cookie_oauth_state):
     """Github users can be redirected to /v2/auth/github/callback to get their JWT cookies"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(
             f"/v2/auth/github/callback?code=test&state={cookie_oauth_state}",
             follow_redirects=False,
@@ -217,11 +186,11 @@ def test_github_cookie_callback(client, github_user, cookie_oauth_state):
 
 
 def test_github_cookie_callback_disallowed_email(
-    client, invalid_github_user, cookie_oauth_state
+    client_v2, invalid_github_user, cookie_oauth_state
 ):
     """Forbidden error raised when user email returned does not match Github user email regex even with cookies"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(
             f"/v2/auth/github/callback?code=test&state={cookie_oauth_state}",
             follow_redirects=False,
@@ -232,10 +201,10 @@ def test_github_cookie_callback_disallowed_email(
         assert got == {"detail": "user not permitted"}
 
 
-def test_chalmers_cookie_callback(client, chalmers_user, cookie_oauth_state):
+def test_chalmers_cookie_callback(client_v2, chalmers_user, cookie_oauth_state):
     """Chalmers' users can be redirected to /auth/app/chalmers/callback to get their cookies"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(
             f"/v2/auth/chalmers/callback?code=test&state={cookie_oauth_state}",
             follow_redirects=False,
@@ -248,11 +217,11 @@ def test_chalmers_cookie_callback(client, chalmers_user, cookie_oauth_state):
 
 
 def test_chalmers_cookie_callback_disallowed_email(
-    client, invalid_chalmers_user, cookie_oauth_state
+    client_v2, invalid_chalmers_user, cookie_oauth_state
 ):
     """Forbidden error raised when user email returned does not match Chalmers email regex even with cookies"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(
             f"/v2/auth/chalmers/callback?code=test&state={cookie_oauth_state}",
             follow_redirects=False,
@@ -263,11 +232,11 @@ def test_chalmers_cookie_callback_disallowed_email(
         assert got == {"detail": "user not permitted"}
 
 
-def test_puhuri_cookie_callback(client, puhuri_user, cookie_oauth_state):
+def test_puhuri_cookie_callback(client_v2, puhuri_user, cookie_oauth_state):
     """Puhuri users can be redirected to /v2/auth/puhuri/callback to get their cookies"""
     """Any random partner users can authorize at /auth/{partner}/authorize"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(
             f"/v2/auth/puhuri/callback?code=test&state={cookie_oauth_state}",
             follow_redirects=False,
@@ -280,11 +249,11 @@ def test_puhuri_cookie_callback(client, puhuri_user, cookie_oauth_state):
 
 
 def test_puhuri_cookie_callback_disallowed_email(
-    client, invalid_puhuri_user, cookie_oauth_state
+    client_v2, invalid_puhuri_user, cookie_oauth_state
 ):
     """Forbidden error raised when user email returned does not match Puhuri email regex even with cookies"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get(
             f"/v2/auth/puhuri/callback?code=test&state={cookie_oauth_state}",
             follow_redirects=False,
@@ -295,10 +264,10 @@ def test_puhuri_cookie_callback_disallowed_email(
         assert got == {"detail": "user not permitted"}
 
 
-def test_login(client):
+def test_login(client_v2):
     """POST to /v2/auth/login returns 404"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.post(f"/v2/auth/login", json={})
 
         got = response.json()
@@ -308,11 +277,11 @@ def test_login(client):
 
 @pytest.mark.parametrize("user_email, cookies", _USER_EMAIL_COOKIES_FIXTURE)
 def test_logout(
-    user_email, cookies, client, inserted_projects, inserted_app_tokens, freezer
+    user_email, cookies, client_v2, inserted_projects_v2, inserted_app_tokens, freezer
 ):
     """POST /v2/auth/logout/ logs out current user"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.post("/v2/auth/logout", cookies=cookies)
         set_cookie_header = response.headers["set-cookie"]
         assert _STALE_AUTH_COOKIE_REGEX.match(set_cookie_header) is not None
@@ -320,20 +289,20 @@ def test_logout(
 
 
 @pytest.mark.parametrize("email_domain, expected", _AUTH_PROVIDER_DOMAIN_PAIRS)
-def test_get_auth_providers(client, email_domain, expected):
+def test_get_auth_providers(client_v2, email_domain, expected):
     """GET /v2/auth/providers returns the auth providers for the given email domain"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get("/v2/auth/providers", params={"domain": email_domain})
         got = response.json()
         assert got == expected
 
 
 @pytest.mark.parametrize("email_domain", ["s.com", "some.es", "blablah.foo"])
-def test_get_auth_providers_unsupported_domains(client, email_domain):
+def test_get_auth_providers_unsupported_domains(client_v2, email_domain):
     """GET /v2/auth/providers returns 404 for unsupported email domain"""
     # using context manager to ensure on_startup runs
-    with client as client:
+    with client_v2 as client:
         response = client.get("/v2/auth/providers", params={"domain": email_domain})
         got = response.json()
         assert got == {"detail": "Not Found"}
