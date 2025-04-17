@@ -75,49 +75,6 @@ async def upsert_backend(
     return "OK"
 
 
-@backends_router.get("/{name}/properties/lda_parameters")
-async def read_lda_parameters(
-    db: MongoDbDep, user: CurrentSystemUserProjectDep, name: str
-):
-    try:
-        document = await devices.get_one_backend(db, name=name)
-        lda_parameters = document["properties"]["lda_parameters"]
-    except KeyError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"backend {name} lacks lda_parameters",
-        )
-
-    except mongodb_utils.DocumentNotFoundError as exp:
-        logging.error(exp)
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"{name} not found"
-        )
-
-    return lda_parameters
-
-
-@backends_router.put("/{name}/properties/lda_parameters")
-async def update_lda_parameters(
-    db: MongoDbDep, user: CurrentSystemUserProjectDep, name: str, lda_parameters: dict
-):
-    try:
-        await devices.patch_backend(
-            db, name, payload={"properties": {"lda_parameters": lda_parameters}}
-        )
-    except ValueError as exp:
-        logging.error(exp)
-        # FIXME: change this to an HTTPException
-        return {"message": "Server failed to update the documents."}
-    except mongodb_utils.DocumentNotFoundError as exp:
-        logging.error(exp)
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"{name} not found"
-        )
-
-    return "OK"
-
-
 @backends_router.put("/{name}")
 async def update_backend(
     db: MongoDbDep, user: CurrentSystemUserProjectDep, name: str, body: dict

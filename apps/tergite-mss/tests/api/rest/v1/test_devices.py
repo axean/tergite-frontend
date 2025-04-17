@@ -31,7 +31,6 @@ _EXCLUDED_FIELDS = ["_id", "_force_refresh"]
 _BACKENDS_LIST = load_json_fixture("backend_list.json")
 _DEVICE_DATA_LIST = load_json_fixture("device_data_list.json")
 _DEVICE_CONFIG_LIST = load_json_fixture("device_config_list.json")
-_LDA_PARAMETERS_BODY = load_json_fixture("lda_parameters.json")
 
 _DEVICE_NAMES = list(set([item["backend_name"] for item in _DEVICE_DATA_LIST]))
 
@@ -101,52 +100,6 @@ def test_read_backend(db, client, backend_name: str, app_token_header):
 
         assert response.status_code == 200
         assert expected == got
-
-
-@pytest.mark.parametrize("backend_name", [v["name"] for v in _BACKENDS_LIST])
-def test_read_backend_lda_parameters(
-    db, client, backend_name: str, system_app_token_header
-):
-    """GET to /backends/{backend_name}/properties/lda_parameters returns the lda_parameters of the backend"""
-    insert_in_collection(
-        database=db, collection_name=_BACKENDS_COLLECTION, data=_BACKENDS_LIST
-    )
-
-    # using context manager to ensure on_startup runs
-    with client as client:
-        response = client.get(
-            f"/backends/{backend_name}/properties/lda_parameters",
-            headers=system_app_token_header,
-        )
-        got = response.json()
-        record = get_record(_BACKENDS_LIST, _filter={"name": backend_name})
-        try:
-            expected = record["properties"]["lda_parameters"]
-            expected_status = 200
-        except KeyError:
-            expected = {"detail": f"backend {backend_name} lacks lda_parameters"}
-            expected_status = 404
-
-        assert response.status_code == expected_status
-        assert got == expected
-
-
-def test_read_non_existent_backend_lda_parameters(db, client, system_app_token_header):
-    """GET to /backends/{backend_name}/properties/lda_parameters retruns 404 if backend_name does not exist"""
-    insert_in_collection(
-        database=db, collection_name=_BACKENDS_COLLECTION, data=_BACKENDS_LIST
-    )
-
-    # using context manager to ensure on_startup runs
-    with client as client:
-        response = client.get(
-            f"/backends/foo-bar/properties/lda_parameters",
-            headers=system_app_token_header,
-        )
-        got = response.json()
-
-        assert response.status_code == 404
-        assert got == {"detail": f"foo-bar not found"}
 
 
 @pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
@@ -302,56 +255,3 @@ def test_update_backend(
 
         assert original_data_in_db == [backend_dict]
         assert final_data_in_db[0] == expected
-
-
-@pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
-def test_update_lda_parameters(
-    db, client, backend_dict: Dict[str, Any], system_app_token_header
-):
-    """PUT to /backends/{backend}/properties/lda_parameters updates the lda parameters of backend"""
-    insert_in_collection(db, collection_name=_BACKENDS_COLLECTION, data=[backend_dict])
-    original_data_in_db = find_in_collection(
-        db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
-    )
-    backend_name = backend_dict["name"]
-
-    # using context manager to ensure on_startup runs
-    with client as client:
-        response = client.put(
-            f"/backends/{backend_name}/properties/lda_parameters",
-            json=_LDA_PARAMETERS_BODY,
-            headers=system_app_token_header,
-        )
-        final_data_in_db = find_in_collection(
-            db, collection_name=_BACKENDS_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
-        )
-        expected = {
-            **original_data_in_db[0],
-            "properties": {"lda_parameters": _LDA_PARAMETERS_BODY},
-            "timelog": {**final_data_in_db[0]["timelog"]},
-        }
-
-        assert response.status_code == 200
-        assert response.json() == "OK"
-
-        assert original_data_in_db == [backend_dict]
-        assert final_data_in_db[0] == expected
-
-
-@pytest.mark.parametrize("backend_dict", _BACKENDS_LIST)
-def test_update_lda_parameters_not_found(
-    db, client, backend_dict: Dict[str, Any], system_app_token_header
-):
-    """PUT to /backends/{backend}/properties/lda_parameters returns 404 when backend does not exist"""
-    insert_in_collection(db, collection_name=_BACKENDS_COLLECTION, data=[backend_dict])
-
-    # using context manager to ensure on_startup runs
-    with client as client:
-        response = client.put(
-            f"/backends/foo-bar/properties/lda_parameters",
-            json=_LDA_PARAMETERS_BODY,
-            headers=system_app_token_header,
-        )
-
-        assert response.status_code == 404
-        assert response.json() == {"detail": f"foo-bar not found"}
