@@ -23,7 +23,6 @@ from fastapi import FastAPI
 import settings
 from services import calibration as calib_service
 from services.auth import service as auth_service
-from services.devices import service as device_info_service
 from services.external import bcc, puhuri
 
 from .dependencies import get_default_mongodb

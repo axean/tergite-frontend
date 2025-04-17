@@ -42,7 +42,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(v1.backends_router)
 app.include_router(v1.jobs_router)
 v1.include_auth_router(app, is_enabled=settings.CONFIG.auth.is_enabled)
 app.include_router(v2_router)
