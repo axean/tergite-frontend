@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+from utils.api import PaginatedListResponse
 from utils.config import Oauth2ClientConfig, UserRole
 
 from .app_tokens.dtos import (
@@ -41,7 +42,6 @@ from .service import (
     on_startup,
 )
 from .users.dtos import User, UserCreate, UserRead, UserUpdate
-from .utils import PaginatedListResponse
 
 __all__ = [
     # DTOs

@@ -20,6 +20,7 @@ from .admin import router as admin_router
 from .auth import include_auth_router
 from .calibrations import router as calibrations_router
 from .devices import router as devices_router
+from .jobs import router as jobs_router
 from .me import router as my_router
 
 v2_router = APIRouter(prefix="/v2")
@@ -29,3 +30,4 @@ v2_router.include_router(calibrations_router)
 v2_router.include_router(devices_router)
 v2_router.include_router(my_router)
 v2_router.include_router(admin_router)
+v2_router.include_router(jobs_router)

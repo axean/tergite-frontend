@@ -75,23 +75,6 @@ class JobStatus(str, enum.Enum):
     FAILED = "failed"
 
 
-class JobExecutionStage(str, enum.Enum):
-    REGISTERING = "REGISTERING"
-    DONE = "DONE"
-    ERROR = "ERROR"
-
-    @classmethod
-    def to_status(cls, value: "JobExecutionStage") -> JobStatus:
-        """Converts execution stage to status"""
-        if value == cls.REGISTERING:
-            return JobStatus.PENDING
-        if value == cls.DONE:
-            return JobStatus.SUCCESSFUL
-        if value == cls.ERROR:
-            return JobStatus.FAILED
-        return JobStatus.PENDING
-
-
 class JobCreate(BaseModel):
     """The schema used when creating a job"""
 
@@ -99,24 +82,14 @@ class JobCreate(BaseModel):
         extra="allow",
     )
 
-    backend: str
+    device: str
     calibration_date: Optional[str] = None
     job_id: str = Field(default_factory=get_uuid4_str)
     project_id: Optional[str] = None
     user_id: Optional[str] = None
-    status: JobExecutionStage = JobExecutionStage.REGISTERING
+    status: JobStatus = JobStatus.PENDING
     created_at: Optional[str] = Field(default_factory=get_current_timestamp)
     updated_at: Optional[str] = Field(default_factory=get_current_timestamp)
-
-
-class TimeLog(BaseModel):
-    """The timelog of the job"""
-
-    model_config = ConfigDict(extra="allow")
-
-    registered: Optional[str] = Field(default=None, alias="REGISTERED")
-    last_updated: Optional[str] = Field(default=None, alias="LAST_UPDATED")
-    result: Optional[str] = Field(default=None, alias="RESULT")
 
 
 class JobResult(BaseModel, extra="allow"):
@@ -125,9 +98,12 @@ class JobResult(BaseModel, extra="allow"):
     memory: List[List[str]] = []
 
 
-class JobV1(JobCreate):
+class JobV2(JobCreate):
+    """Version 2 of the job schema"""
+
     id: PydanticObjectId = Field(alias="_id")
-    timelog: Optional[TimeLog] = None
+    failure_reason: Optional[str] = None
+    duration_in_secs: Optional[float] = None
     timestamps: Optional[JobTimestamps] = None
     download_url: Optional[str] = None
     result: Optional[JobResult] = None
@@ -138,50 +114,12 @@ class JobV1(JobCreate):
         return str(_id)
 
 
-class JobV2(BaseModel):
-    """Version 2 of the job schema"""
+class JobStatusResponse(BaseModel):
+    """The response returned when getting the status of the job"""
 
-    id: PydanticObjectId = Field(alias="_id")
-    job_id: str
-    device: str
-    project_id: Optional[str] = None
-    user_id: Optional[str] = None
     status: JobStatus
-    failure_reason: Optional[str] = None
-    duration_in_secs: Optional[float] = None
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
-
-    @field_serializer("id", when_used="json")
-    def serialize_id(self, _id: PydanticObjectId):
-        """Convert id to string when working with JSON"""
-        return str(_id)
 
     @classmethod
-    def from_v1(cls, value: JobV1) -> "JobV2":
-        """Converts a job of version 1 to a job of version 2
-
-        Args:
-            value: the JobV1 job
-
-        Returns:
-            the JobV2 equivalent
-        """
-        duration_in_secs = (
-            value.timestamps
-            if value.timestamps is None
-            else value.timestamps.resource_usage
-        )
-        return cls(
-            _id=value.id,
-            id=value.id,
-            job_id=value.job_id,
-            project_id=value.project_id,
-            user_id=value.user_id,
-            device=value.backend,
-            status=JobExecutionStage.to_status(value.status),
-            failure_reason=None,
-            duration_in_secs=duration_in_secs,
-            created_at=value.created_at,
-            updated_at=value.updated_at,
-        )
+    def from_job(cls, job: JobV2):
+        """Extracts the job status response from the job"""
+        return cls(status=job.status)

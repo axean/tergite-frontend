@@ -19,12 +19,12 @@ from fastapi import status as http_status
 
 from services.auth import (
     APP_TOKEN_AUTH,
-    PaginatedListResponse,
     Project,
     User,
     user_requests,
 )
-from utils.mongodb import DocumentNotFoundError
+from utils.api import PaginatedListResponse
+from utils.exc import NotFoundError
 
 from ...dependencies import CurrentSuperuserDep, CurrentUserDep, CurrentUserIdDep
 
@@ -115,8 +115,5 @@ async def update_user_request(
 
     This also does any necessary operations in case this update is an approval
     """
-    try:
-        result = await user_requests.update(_id, payload=body, admin_user=user)
-        return result.model_dump(mode="json")
-    except DocumentNotFoundError as exp:
-        raise HTTPException(status_code=http_status.HTTP_404_NOT_FOUND, detail=f"{exp}")
+    result = await user_requests.update(_id, payload=body, admin_user=user)
+    return result.model_dump(mode="json")

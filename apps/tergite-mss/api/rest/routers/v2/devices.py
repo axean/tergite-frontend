@@ -39,14 +39,8 @@ async def read_many(db: MongoDbDep):
 
 @router.get("/{name}")
 async def read_one(db: MongoDbDep, name: str):
-    try:
-        record = await devices.get_one_device(db, name=name)
-        return devices.DeviceV2.model_validate(record).model_dump(mode="json")
-    except mongodb_utils.DocumentNotFoundError as exp:
-        logging.error(exp)
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"{name} not found"
-        )
+    record = await devices.get_one_device(db, name=name)
+    return devices.DeviceV2.model_validate(record).model_dump(mode="json")
 
 
 @router.put("")
@@ -59,14 +53,8 @@ async def upsert(
 
     It also appends this resultant backend config into the backends log.
     """
-    try:
-        record = await devices.upsert_device(db, payload=payload)
-        return devices.DeviceV2.model_validate(record).model_dump(mode="json")
-    except ValueError as exp:
-        logging.error(exp)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"{exp}"
-        )
+    record = await devices.upsert_device(db, payload=payload)
+    return devices.DeviceV2.model_validate(record).model_dump(mode="json")
 
 
 @router.put("/{name}")
@@ -74,12 +62,5 @@ async def update(
     db: MongoDbDep, user: CurrentSystemUserProjectDep, name: str, body: dict
 ):
     """Updates the given backend with the new body supplied."""
-    try:
-        record = await devices.patch_device(db, name, payload=body)
-        return devices.DeviceV2.model_validate(record).model_dump(mode="json")
-    except ValueError as exp:
-        logging.error(exp)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Server failed to update the documents.",
-        )
+    record = await devices.patch_device(db, name, payload=body)
+    return devices.DeviceV2.model_validate(record).model_dump(mode="json")

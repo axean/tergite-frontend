@@ -21,7 +21,7 @@ from waldur_client import ComponentUsage, WaldurClient
 
 import settings
 from utils.date_time import is_in_month
-from utils.models import try_model_validate
+from utils.models import try_parse_record
 
 from .dtos import (
     PuhuriComponent,
@@ -201,7 +201,7 @@ async def get_accounting_component(
 
         _cache.update(
             {
-                (offering_uuid, v["type"]): try_model_validate(PuhuriComponent, v)
+                (offering_uuid, v["type"]): try_parse_record(PuhuriComponent, v)
                 for v in offering["components"]
             }
         )

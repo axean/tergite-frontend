@@ -13,24 +13,49 @@
 #
 # Refactored by Martin Ahindura 2023-11-08
 """Utilities specific to models"""
-from typing import Any, Dict, Optional, Type, TypeVar
+from typing import Any, Mapping, Optional, Type, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
-T = TypeVar("T", bound=BaseModel)
+from utils.exc import DbValidationError
+
+ModelOrDict = TypeVar("ModelOrDict", dict, BaseModel)
 
 
-def try_model_validate(cls: Type[T], obj: Dict[str, Any]) -> Optional[T]:
-    """Attempt to parse an object and return None in case of an error
+def parse_record(type__: Type[ModelOrDict], record: Mapping[str, Any]) -> ModelOrDict:
+    """Converts a record to the given type
 
     Args:
-        cls: the subclass of BaseModel to parse to
-        obj: the dictionary to parse
+        type__: the type to parse to
+        record: the item to convert
 
     Returns:
-        the parsed object or None in case of Validation errors
+        the record converted to the given type
+
+    Raises:
+        ValidationError: the record has some pydantic validation errors
     """
     try:
-        return cls.model_validate(obj)
-    except ValidationError:
+        return type__.model_validate(record)
+    except AttributeError:
+        return dict(record)
+    except ValidationError as exp:
+        raise DbValidationError(exp.errors())
+
+
+def try_parse_record(
+    type__: Type[ModelOrDict], record: Mapping[str, Any]
+) -> Optional[ModelOrDict]:
+    """Tries to convert the given record into the given type and returns None if it fails
+
+    Args:
+        type__: the type to parse to
+        record: the item to convert
+
+    Returns:
+        the record converted to the given type or None if there were validation errors
+    """
+    try:
+        return parse_record(type__, record)
+    except DbValidationError:
         return None

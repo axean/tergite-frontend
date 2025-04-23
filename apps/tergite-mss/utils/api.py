@@ -10,10 +10,33 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Utility functions for API related code"""
-from typing import Optional
+import logging
+from typing import (
+    Awaitable,
+    Callable,
+    Generic,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 
-from fastapi import HTTPException, status
+from fastapi import FastAPI, HTTPException, Response, status
+from fastapi.exception_handlers import http_exception_handler
 from fastapi.requests import Request
+from pydantic import BaseModel
+
+ITEM = TypeVar("ITEM")
+
+
+class PaginatedListResponse(BaseModel, Generic[ITEM]):
+    """The response when sending paginated data"""
+
+    skip: int = 0
+    limit: Optional[int] = None
+    data: List[ITEM] = []
 
 
 def get_bearer_token(request: Request, raise_if_error: bool = True) -> Optional[str]:
@@ -35,3 +58,23 @@ def get_bearer_token(request: Request, raise_if_error: bool = True) -> Optional[
     except (KeyError, IndexError):
         if raise_if_error:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+def to_http_error(
+    status_code: int,
+) -> Callable[[Request, Exception], Union[Response, Awaitable[Response]]]:
+    """An error handler that converts the exception to an HTTPException
+
+    The details in the http error are got from the exception itself.
+    It also logs the original error.
+
+    Args:
+        status_code: the HTTP status code
+    """
+
+    async def handler(request: Request, exp: Exception) -> Response:
+        logging.error(exp)
+        http_exp = HTTPException(status_code, f"{exp}")
+        return await http_exception_handler(request, http_exp)
+
+    return handler

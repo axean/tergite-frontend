@@ -29,23 +29,39 @@ It contains rules we follow so that any developer working with the API can find 
 }
 ```
 
+- When an error is thrown in the endpoint, the status code is set to a value outside the 200-30X range 
+  and the response is a JSON object of format:
+
+```json
+{
+  "detail": "<string>"
+}
+```
+
 - Every resource has at least five endpoints:
 
     - GetOne (GET `/{resource}/({id})`)
     - GetMany (GET `/{resource}/?{query_param1}={query_param1_value}&{query_param2}={query_param2_value}`)
     - UpdateOne (PUT `/{resource}/({id})`)
-    - DeleteOne (DELETE `/{resource}/({id})`)
     - CreateOne (POST `/{resource}/`)
 
 - Resources may also have the following optional endpoints:
 
     - UpdateMany (PUT `/{resource}/?{query_param1}={query_param1_value}&{query_param2}={query_param2_value}`)
+    - DeleteOne (DELETE `/{resource}/({id})`)
     - DeleteMany (DELETE `/{resource}/?{query_param1}={query_param1_value}&{query_param2}={query_param2_value}`)
 
 - We can also have `GET`-only endpoints for specific properties of a resource with path format `/{resource}/{property}`
   Such endpoints are only allowed if:
 
     - The given property is much more frequently requested for, compared to the rest of the object e.g. 'status' of a job
+- The response from endpoints that return specific properties of a resource is a JSON object format:
+
+```json
+{
+  "{property}": "<any>"
+}
+```
 
 ## Objectives
 
@@ -54,3 +70,5 @@ It contains rules we follow so that any developer working with the API can find 
   the advantage of a shallow learning curve
 - The endpoint pattern should be predictable enough that if one knows the resource name, one can easily construct 
   any endpoint without having to check the API documentation.
+- All responses need to be JSON-compatible so that client code is simple. 
+  It will not need to handle other types of responses.

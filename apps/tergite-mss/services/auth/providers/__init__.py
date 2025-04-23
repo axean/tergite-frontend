@@ -22,5 +22,8 @@ def get_many_by_domain(email_domain: str) -> List[AuthProvider]:
 
     Returns:
         list of matched auth providers
+
+    Raises:
+        NotFound:
     """
     return [item for item in _ALL_AUTH_PROVIDERS if item.email_domain == email_domain]

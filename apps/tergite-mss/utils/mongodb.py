@@ -10,18 +10,20 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import logging
-from datetime import datetime
-from typing import Any, Dict, List, Mapping, Optional, Tuple
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Type
 
-import pymongo
 from motor.motor_asyncio import (
     AsyncIOMotorClient,
     AsyncIOMotorCollection,
     AsyncIOMotorDatabase,
 )
+from pydantic import ValidationError
 from pymongo import ReturnDocument
 
 from .date_time import get_current_timestamp
+from .exc import NotFoundError
+from .models import ModelOrDict, parse_record
 
 _CONNECTIONS = {}
 
@@ -42,25 +44,18 @@ def get_mongodb(url: str, name: str) -> AsyncIOMotorDatabase:
         client = _CONNECTIONS[url]
         if client.io_loop.is_closed():
             client.close()
-            logging.debug(f"New mongo db connection at {datetime.utcnow().isoformat()}")
+            logging.debug(
+                f"New mongo db connection at {datetime.now(timezone.utc).isoformat()}"
+            )
             client = AsyncIOMotorClient(url, tz_aware=True)
     except KeyError:
-        logging.debug(f"New mongo db connection at {datetime.utcnow().isoformat()}")
+        logging.debug(
+            f"New mongo db connection at {datetime.now(timezone.utc).isoformat()}"
+        )
         client = AsyncIOMotorClient(url, tz_aware=True)
 
     _CONNECTIONS[url] = client
     return client[name]
-
-
-class DocumentNotFoundError(BaseException):
-    def __init__(self, msg: str):
-        self.__msg = msg
-
-    def __repr__(self):
-        return f"DocumentNotFoundError: {self.__msg}"
-
-    def __str__(self):
-        return self.__msg
 
 
 async def find_one(
@@ -68,7 +63,8 @@ async def find_one(
     _filter: Dict[str, Any],
     dropped_fields: Tuple[str, ...] = ("_id",),
     sorted_by: Optional[List[Tuple[str, int]]] = None,
-) -> Mapping[str, Any]:
+    schema: Type[ModelOrDict] = dict,
+) -> ModelOrDict:
     """Finds first record in the given collection that matches the given _filter
 
     Args:
@@ -76,12 +72,14 @@ async def find_one(
         _filter: the object which the returned record should match against
         dropped_fields: fields to be dropped from the returned record
         sorted_by: List of (field, sort-direction) tuples to use in sorting
+        schema: the type the record should conform to
 
     Returns:
         a dict representing the given record
 
     Raises:
-        DocumentNotFoundError: no documents matching the filter '{_filter}' were found in the '{collection}' collection
+        NotFoundError: no matches for '{_filter}'
+        ValidationError: the document does not satisfy the schema passed
     """
     projection = {k: False for k in dropped_fields}
     kwargs = dict(projection=projection, filter=_filter)
@@ -91,46 +89,62 @@ async def find_one(
 
     document = await collection.find_one(**kwargs)
     if document is None:
-        raise DocumentNotFoundError(
-            f"no documents matching the filter '{_filter}' were found in the '{collection}' collection"
-        )
+        raise NotFoundError(f"no matches for '{_filter}'")
 
-    return document
+    return parse_record(schema, document)
 
 
 async def find(
     collection: AsyncIOMotorCollection,
     filters: Optional[dict] = None,
     exclude: Tuple[str] = (),
-    limit: int = 10,
+    limit: Optional[int] = None,
+    skip: int = 0,
     sorted_by: Optional[List[Tuple[str, int]]] = None,
-) -> List[Dict[str, Any]]:
+    schema: Type[ModelOrDict] = dict,
+    skip_validation: bool = False,
+) -> List[ModelOrDict]:
     """Retrieves all records in the collection up to limit records, given the sort order
+
+    It automatically ignores any records that don't follow the given schema.
+    If you need a proper validation failure if there are records that are in improper structure,
+    set 'skip_validation'
 
     Args:
         collection: the mongo db collection to query from
         filters: the mongodb like filters which all returned records should satisfy
         exclude: the fields to exclude
         limit: the maximum number of records to return: If limit is negative, all results are returned
+        skip: the number of records to skip
         sorted_by: List of (field, sort-direction) tuples to use in sorting
+        schema: the schema the records should conform to; default = Dict[str, Any]
+        skip_validation: whether validation errors should be silently ignored; default = False
 
     Returns:
         a list of documents that were found
+
+    Raises:
+        ValidationError: the document does not satisfy the schema passed
     """
     projection = {field: 0 for field in exclude}
 
     if filters is None:
         filters = {}
 
-    db_cursor = collection.find(filters, projection)
+    db_cursor = collection.find(filters, projection).skip(skip)
     if sorted_by:
         db_cursor.sort(sorted_by)
-    if limit >= 0:
+    if limit and limit >= 0:
         db_cursor.limit(limit)
 
     response = []
-    async for backend in db_cursor:
-        response.append(backend)
+    async for item in db_cursor:
+        try:
+            parsed_item = parse_record(schema, item)
+            response.append(parsed_item)
+        except ValidationError as exp:
+            if not skip_validation:
+                raise exp
 
     return response
 
@@ -150,40 +164,6 @@ def get_time_logged_documents(
     """
     current_timestamp_dict = _get_current_timestamp_dict(timestamp_path=timestamp_path)
     return [{**document, **current_timestamp_dict} for document in original]
-
-
-async def insert_many(
-    collection: AsyncIOMotorCollection,
-    documents: List[Dict[str, Any]],
-    timestamp_path: Tuple[str, ...] = ("timelog", "REGISTERED"),
-):
-    """Inserts many documents into the given collection
-
-    Args:
-        collection: the mongo AsyncIOMotorCollection to insert the documents into
-        documents: the list of dictionaries to insert into the collection
-        timestamp_path: the path to the timestamp value with nested fields defined by a tuple e.g.
-            ("timelog", "REGISTERED") transforms to {"timelog": {"REGISTERED": get_current_timestamp()}};
-            default: ("timelog", "REGISTERED")
-
-    Returns:
-        the inserted documents
-
-    Raises:
-        ValueError: server failed insertion of the documents
-    """
-    timestamped_documents = get_time_logged_documents(
-        documents, timestamp_path=timestamp_path
-    )
-    result = await collection.insert_many(timestamped_documents, ordered=True)
-
-    if result.acknowledged and len(result.inserted_ids) == len(timestamped_documents):
-        for i, _id in enumerate(result.inserted_ids):
-            timestamped_documents[i]["_id"] = str(_id)
-
-        return timestamped_documents
-
-    raise ValueError("server failed insertion of the documents")
 
 
 async def insert_one(
@@ -269,7 +249,7 @@ async def update_many(
 
     Raises:
         ValueError: server failed updating documents
-        DocumentNotFoundError: no documents matching {filter} were found
+        NotFoundError: no matches for {filter}
     """
     current_timestamp_dict = _get_current_timestamp_dict(timestamp_path=timestamp_path)
     update = {"$set": {**payload, **current_timestamp_dict}}
@@ -279,7 +259,7 @@ async def update_many(
         raise ValueError("server failed updating documents")
 
     if result.matched_count == 0:
-        raise DocumentNotFoundError(f"no documents matching {_filter} were found")
+        raise NotFoundError(f"no matches for {_filter}")
 
     return result.modified_count
 
@@ -309,7 +289,7 @@ async def update_one(
         either the modified document or the original document
 
     Raises:
-        DocumentNotFoundError: no documents matching {filter} were found
+        NotFoundError: no matches for {filter}
     """
     current_timestamp_dict = _get_current_timestamp_dict(timestamp_path=timestamp_path)
     update = {"$set": {**payload, **current_timestamp_dict}}
@@ -321,7 +301,7 @@ async def update_one(
     )
 
     if result is None:
-        raise DocumentNotFoundError(f"no documents matching {_filter} were found")
+        raise NotFoundError(f"no matches for {_filter}")
 
     return result
 

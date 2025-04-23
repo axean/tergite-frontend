@@ -17,7 +17,7 @@ from fastapi import APIRouter, Query
 
 from api.rest.dependencies import CurrentUserDep, CurrentUserIdDep, MongoDbDep
 from services.auth import APP_TOKEN_AUTH, APP_TOKEN_BACKEND, User, UserRead
-from services.jobs import JobV1, JobV2, get_latest_many
+from services.jobs import get_latest_many
 
 router = APIRouter(prefix="/me")
 
@@ -44,10 +44,8 @@ async def get_my_jobs_in_project(
     filters = {"user_id": user_id}
     if project_id is not None:
         filters["project_id"] = project_id
-    jobs = await get_latest_many(db, filters=filters)
-    return [
-        JobV2.from_v1(JobV1.model_validate(job)).model_dump(mode="json") for job in jobs
-    ]
+    # FIXME: Add pagination to this request
+    return await get_latest_many(db, filters=filters)
 
 
 @router.get("", tags=["users"], response_model=UserRead)

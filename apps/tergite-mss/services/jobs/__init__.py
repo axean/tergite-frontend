@@ -6,6 +6,7 @@
 # (C) Copyright Fabian Forslund, Niklas Botö 2022
 # (C) Copyright Abdullah-Al Amin 2022
 # (C) Copyright Martin Ahindura 2023
+# (C) Copyright Chalmers Next Labs 2025
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,24 +16,25 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import logging
-from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
+from typing import TYPE_CHECKING, List, Mapping, Optional, Tuple
 from uuid import UUID
 
 import pymongo
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from pymongo import ReturnDocument
 
 from services.external.bcc import BccClient
 from utils import mongodb as mongodb_utils
-from utils.date_time import get_current_timestamp
+from utils.exc import NotFoundError
 
 from ..auth import Project
-from .dtos import CreatedJobResponse, JobCreate, JobTimestamps, JobV1, JobV2
+from .dtos import CreatedJobResponse, JobCreate, JobTimestamps, JobV2
 
 if TYPE_CHECKING:
     from ..auth.projects.database import ProjectDatabase
 
 
-async def get_one(db: AsyncIOMotorDatabase, job_id: UUID):
+async def get_one(db: AsyncIOMotorDatabase, job_id: UUID) -> JobV2:
     """Gets a job by job_id
 
     Args:
@@ -40,62 +42,13 @@ async def get_one(db: AsyncIOMotorDatabase, job_id: UUID):
         job_id: the `job_id` of the job to be returned
 
     Raises:
-        utils.mongodb.DocumentNotFoundError: No documents matching the filter '{search_filter}'
-           were found in the '{collection}' collection.
+        utils.exc.NotFoundError: no matches for '{search_filter}'.
+        ValidationError: the document does not satisfy the schema passed
 
     Returns:
         the job as a dict
     """
-    return await mongodb_utils.find_one(db.jobs, {"job_id": str(job_id)})
-
-
-async def get_job_result(db: AsyncIOMotorDatabase, job_id: UUID) -> Dict[str, Any]:
-    """Retrieves the result of the job of the given job_id
-
-    Args:
-        db: the mongo database from where to get the job
-        job_id: the `job_id` of the job to be returned
-
-    Raises:
-        utils.mongodb.DocumentNotFoundError: No documents matching the filter '{search_filter}'
-           were found in the '{collection}' collection.
-        KeyError: 'result'
-
-    Returns:
-        the result as a dict
-    """
-    document = await get_one(db, job_id=job_id)
-
-    # helper printout with first 5 outcomes
-    # FIXME: Probably come up with a standard schema for jobs
-    print("Measurement results:")
-    memory = document["result"]["memory"]
-    for experiment_memory in memory:
-        s = str(experiment_memory[:5])
-        if experiment_memory[5:6]:
-            s = s.replace("]", ", ...]")
-        print(s)
-
-    return document["result"]
-
-
-async def get_job_download_url(db: AsyncIOMotorDatabase, job_id: UUID):
-    """Retrieves the download url of the job of the given job_id
-
-    Args:
-        db: the mongo database from where to get the job
-        job_id: the `job_id` of the job to be returned
-
-    Raises:
-        utils.mongodb.DocumentNotFoundError: No documents matching the filter '{search_filter}'
-           were found in the '{collection}' collection.
-        KeyError: 'download_url'
-
-    Returns:
-        the result as a dict
-    """
-    document = await get_one(db, job_id=job_id)
-    return document["download_url"]
+    return await mongodb_utils.find_one(db.jobs, {"job_id": str(job_id)}, schema=JobV2)
 
 
 async def create_job(
@@ -136,119 +89,32 @@ async def create_job(
 async def get_latest_many(
     db: AsyncIOMotorDatabase,
     filters: Optional[dict] = None,
-    limit: int = -1,
+    limit: Optional[int] = None,
+    skip: int = 0,
     exclude: Tuple[str] = (),
-):
+) -> List[JobV2]:
     """Retrieves the latest jobs up to the given limit
 
     Args:
         db: the mongo database from where to get the jobs
         filters: the mongodb like filters which all returned records should satisfy
-        limit: maximum number of records to return; default = -1 meaning all of them
+        limit: maximum number of records to return; default = None meaning all of them
+        skip: the number of records to skip; default = 0
         exclude: the fields to exclude
     """
     return await mongodb_utils.find(
         db.jobs,
         limit=limit,
+        skip=skip,
         filters=filters,
         exclude=exclude,
-        sorted_by=[("timelog.REGISTERED", pymongo.DESCENDING)],
+        sorted_by=[("created_at", pymongo.DESCENDING)],
+        schema=JobV2,
+        skip_validation=True,
     )
 
 
-async def update_job_result(db: AsyncIOMotorDatabase, job_id: UUID, memory: list):
-    """Updates the memory part of the result of the job of the given job_id
-
-    Args:
-        db: the mongo database from where to get the job
-        job_id: the job id of the job
-        memory: the new memory data to insert into the result of job
-
-    Returns:
-        the number of documents that were modified
-
-    Raises:
-        ValueError: server failed updating documents
-        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
-    """
-    return await mongodb_utils.update_many(
-        db.jobs,
-        _filter={"job_id": str(job_id)},
-        payload={"result": {"memory": memory}},
-    )
-
-
-# FIXME: the status might be better modelled as an enum
-async def update_job_status(db: AsyncIOMotorDatabase, job_id: UUID, status: str):
-    """Updates the memory part of the result of the job of the given job_id
-
-    Args:
-        db: the mongo database from where to get the job
-        job_id: the job id of the job
-        status: the new status of the job
-
-    Returns:
-        the number of documents that were modified
-
-    Raises:
-        ValueError: server failed updating documents
-        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
-    """
-    return await mongodb_utils.update_many(
-        db.jobs,
-        _filter={"job_id": str(job_id)},
-        payload={"status": status},
-    )
-
-
-async def update_job_download_url(db: AsyncIOMotorDatabase, job_id: UUID, url: str):
-    """Updates the download_url the job of the given job_id
-
-    Args:
-        db: the mongo database from where to get the job
-        job_id: the job id of the job
-        url: the new download url of the job
-
-    Returns:
-        the number of documents that were modified
-
-    Raises:
-        ValueError: server failed updating documents
-        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
-    """
-    return await mongodb_utils.update_many(
-        db.jobs,
-        _filter={"job_id": str(job_id)},
-        payload={"download_url": url},
-    )
-
-
-async def refresh_timelog_entry(
-    db: AsyncIOMotorDatabase, job_id: UUID, event_name: str
-):
-    """Updates the timelog the job of the given job_id to the current timestamp
-
-    Args:
-        db: the mongo database from where to get the job
-        job_id: the job id of the job
-        event_name: the name of the event whose timelog is to be refreshed
-
-    Returns:
-        the number of documents that were modified
-
-    Raises:
-        ValueError: server failed updating documents
-        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
-    """
-    timestamp = get_current_timestamp()
-    return await mongodb_utils.update_many(
-        db.jobs,
-        _filter={"job_id": str(job_id)},
-        payload={"timelog." + event_name: timestamp},
-    )
-
-
-async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: dict) -> dict:
+async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: dict) -> Mapping:
     """Updates the job of the given job_id
 
     Args:
@@ -260,12 +126,13 @@ async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: dict) -> d
         the job document before it was modified
 
     Raises:
-        DocumentNotFoundError: no documents matching {"job_id": job_id} were found
+        NotFoundError: no documents matching {"job_id": job_id} were found
     """
     return await mongodb_utils.update_one(
         db.jobs,
         _filter={"job_id": str(job_id)},
         payload=payload,
+        return_document=ReturnDocument.BEFORE,
     )
 
 
@@ -287,14 +154,13 @@ async def update_resource_usage(
         tuple of the updated project and the qpu seconds used if the update happened or None if it didn't
 
     Raises:
-        utils.mongodb.DocumentNotFoundError: No documents matching the filter '{"job_id": job_id}'
-           were found in the 'jobs' collection.
-        utils.mongodb.DocumentNotFoundError: project '{project_id}' for job '{job_id}' not found
+        utils.exc.NotFoundError: no matches for '{"job_id": job_id}'.
+        utils.exc.NotFoundError: project '{project_id}' for job '{job_id}' not found
         KeyError: 'project_id'
     """
     qpu_seconds_used = timestamps.resource_usage
     if qpu_seconds_used is None:
-        # no need to update resource usage is timestamps are None
+        # no need to update resource usage if timestamps are None
         return None
 
     job = await get_one(db, job_id=job_id)
@@ -303,9 +169,7 @@ async def update_resource_usage(
         project_id=project_id, qpu_seconds=-qpu_seconds_used
     )
     if project is None and project_id is not None:
-        raise mongodb_utils.DocumentNotFoundError(
-            f"project '{project_id}' for job '{job_id}' not found"
-        )
+        raise NotFoundError(f"project '{project_id}' for job '{job_id}' not found")
     return project, qpu_seconds_used
 
 

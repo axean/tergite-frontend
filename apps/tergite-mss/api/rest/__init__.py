@@ -18,6 +18,14 @@
 from fastapi import FastAPI
 
 from api.rest.utils import TergiteCORSMiddleware
+from services.auth.utils import TooManyListQueryParams
+from utils.api import to_http_error
+from utils.exc import (
+    DbValidationError,
+    NotFoundError,
+    ServiceUnavailableError,
+    UnknownBccError,
+)
 
 from . import app_kwargs
 from .app_kwargs import get_app_kwargs
@@ -26,7 +34,6 @@ from .dependencies import (
     CurrentStrictProjectDep,
     get_default_mongodb,
 )
-from .routers import v1
 from .routers.v2 import v2_router
 
 # application
@@ -41,7 +48,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(v1.jobs_router)
+# exception handlers
+app.add_exception_handler(NotFoundError, to_http_error(404))
+app.add_exception_handler(ValueError, to_http_error(500))
+app.add_exception_handler(DbValidationError, to_http_error(500))
+app.add_exception_handler(ServiceUnavailableError, to_http_error(503))
+app.add_exception_handler(UnknownBccError, to_http_error(400))
+app.add_exception_handler(TooManyListQueryParams, to_http_error(400))
+
 app.include_router(v2_router)
 
 

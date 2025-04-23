@@ -16,16 +16,16 @@ from typing import Dict, List, Optional, Type, Union
 
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import Response
 from fastapi_users import exceptions, schemas
 from fastapi_users.password import PasswordHelper
-from fastapi_users.router.common import ErrorModel
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
+
+from utils.api import PaginatedListResponse
 
 from ..users.dtos import CurrentSuperUserDependency, CurrentUserIdDependency, User
 from ..users.manager import UserManager, UserManagerDependency
-from ..utils import MAX_LIST_QUERY_LEN, PaginatedListResponse, TooManyListQueryParams
+from ..utils import MAX_LIST_QUERY_LEN, TooManyListQueryParams
 from . import exc
 from .dtos import Project, ProjectAdminView, ProjectCreate, ProjectRead, ProjectUpdate
 from .manager import ProjectAppTokenManager, ProjectManagerDependency
@@ -46,11 +46,6 @@ def get_my_projects_router(
     @router.get(
         "/",
         name="projects:my_many_projects",
-        responses={
-            status.HTTP_401_UNAUTHORIZED: {
-                "description": "Missing token or inactive user.",
-            },
-        },
     )
     async def get_projects(
         user_id: str = Depends(get_current_user_id),
@@ -75,14 +70,6 @@ def get_my_projects_router(
     @router.get(
         "/{id}",
         name="projects:my_single_project",
-        responses={
-            status.HTTP_401_UNAUTHORIZED: {
-                "description": "Missing token or inactive user.",
-            },
-            status.HTTP_404_NOT_FOUND: {
-                "description": "The project does not exist.",
-            },
-        },
     )
     async def get_project(
         id: str,
@@ -117,16 +104,6 @@ def get_my_projects_router(
         "/{_id}",
         status_code=status.HTTP_204_NO_CONTENT,
         name=f"projects:destroy_my_administered_project",
-        responses={
-            **{
-                status.HTTP_401_UNAUTHORIZED: {
-                    "description": "user not authenticated."
-                },
-                status.HTTP_403_FORBIDDEN: {
-                    "description": "token is missing or is expired."
-                },
-            },
-        },
     )
     async def destroy(
         _id: PydanticObjectId,
@@ -220,14 +197,6 @@ def get_projects_router_v2(
         response_model=PaginatedListResponse[ProjectAdminView],
         dependencies=[Depends(get_current_superuser)],
         name="projects:many_projects_v2",
-        responses={
-            status.HTTP_401_UNAUTHORIZED: {
-                "description": "Missing token or inactive project.",
-            },
-            status.HTTP_403_FORBIDDEN: {
-                "description": "Not a superuser.",
-            },
-        },
     )
     async def get_many_projects(
         project_manager: ProjectAppTokenManager = Depends(get_project_manager),
@@ -291,17 +260,6 @@ def get_projects_router_v2(
         response_model_exclude_none=True,
         dependencies=[Depends(get_current_superuser)],
         name="projects:put_project",
-        responses={
-            status.HTTP_401_UNAUTHORIZED: {
-                "description": "Missing token or inactive project.",
-            },
-            status.HTTP_403_FORBIDDEN: {
-                "description": "Not a superuser.",
-            },
-            status.HTTP_404_NOT_FOUND: {
-                "description": "The project does not exist.",
-            },
-        },
     )
     async def update_project(
         project_update: project_update_schema,  # type: ignore
@@ -323,17 +281,6 @@ def get_projects_router_v2(
         response_class=Response,
         dependencies=[Depends(get_current_superuser)],
         name="projects:delete_project",
-        responses={
-            status.HTTP_401_UNAUTHORIZED: {
-                "description": "Missing token or inactive project.",
-            },
-            status.HTTP_403_FORBIDDEN: {
-                "description": "Not a superuser.",
-            },
-            status.HTTP_404_NOT_FOUND: {
-                "description": "The project does not exist.",
-            },
-        },
     )
     async def delete_project(
         request: Request,

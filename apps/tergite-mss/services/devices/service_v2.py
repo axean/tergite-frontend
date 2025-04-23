@@ -97,7 +97,8 @@ async def patch_device(db: AsyncIOMotorDatabase, name: str, payload: Dict[str, A
 
     Raises:
         ValueError: server failed updating documents
-        DocumentNotFoundError: no documents matching {"name": name} were found
+        ValueError: device {name} not found
+        NotFoundError: no matches for {"name": name}
     """
     device = await db.devices.find_one_and_update(
         {"name": name},
