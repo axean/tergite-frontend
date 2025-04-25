@@ -61,11 +61,10 @@ def get_my_projects_router(
             limit=limit,
         )
 
-        data = [
-            schemas.model_validate(project_schema, project).model_dump(mode="json")
-            for project in projects
-        ]
-        return PaginatedListResponse(data=data, skip=skip, limit=limit)
+        data = [schemas.model_validate(project_schema, project) for project in projects]
+        return PaginatedListResponse(data=data, skip=skip, limit=limit).model_dump(
+            mode="json"
+        )
 
     @router.get(
         "/{id}",

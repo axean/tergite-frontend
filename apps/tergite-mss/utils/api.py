@@ -12,23 +12,24 @@
 """Utility functions for API related code"""
 import logging
 from typing import (
+    Any,
     Awaitable,
     Callable,
     Generic,
     List,
+    Literal,
     Optional,
-    Tuple,
-    Type,
     TypeVar,
     Union,
 )
 
-from fastapi import FastAPI, HTTPException, Response, status
+from fastapi import HTTPException, Response, status
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.requests import Request
 from pydantic import BaseModel
+from pydantic.main import IncEx
 
-ITEM = TypeVar("ITEM")
+ITEM = TypeVar("ITEM", bound=BaseModel)
 
 
 class PaginatedListResponse(BaseModel, Generic[ITEM]):
@@ -37,6 +38,44 @@ class PaginatedListResponse(BaseModel, Generic[ITEM]):
     skip: int = 0
     limit: Optional[int] = None
     data: List[ITEM] = []
+
+    def model_dump(
+        self,
+        *,
+        mode: Literal["json", "python"] | str = "python",
+        include: IncEx | None = None,
+        exclude: IncEx | None = None,
+        context: Any | None = None,
+        by_alias: bool | None = None,
+        exclude_unset: bool = False,
+        exclude_defaults: bool = False,
+        round_trip: bool = False,
+        warnings: bool | Literal["none", "warn", "error"] = True,
+        fallback: Callable[[Any], Any] | None = None,
+        serialize_as_any: bool = False,
+        **kwargs,
+    ) -> dict[str, Any]:
+        return {
+            "skip": self.skip,
+            "limit": self.limit,
+            "data": [
+                item.model_dump(
+                    mode=mode,
+                    include=include,
+                    exclude=exclude,
+                    context=context,
+                    by_alias=by_alias,
+                    exclude_unset=exclude_unset,
+                    exclude_defaults=exclude_defaults,
+                    exclude_none=True,
+                    round_trip=round_trip,
+                    warnings=warnings,
+                    fallback=fallback,
+                    serialize_as_any=serialize_as_any,
+                )
+                for item in self.data
+            ],
+        }
 
 
 def get_bearer_token(request: Request, raise_if_error: bool = True) -> Optional[str]:

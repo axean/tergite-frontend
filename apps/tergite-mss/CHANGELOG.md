@@ -13,6 +13,14 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 - Upgraded lowest version of python supported to python 3.12
 - Upgraded Fastapi to 0.115.12
 - Upgraded pydantic to the latest v2
+- Removed the v1/auth, v1/backends and v1/jobs endpoints
+- Changed creation of jobs to require a body with required fields 'device' and 'calibration_date'
+- Disabled Mongo-style payloads when updating jobs to ensure more security by reducing capabilities exposed to HTTP
+- Changed job update payloads to only accept the fields that are in the Job schema
+
+### Added
+
+- Add v2/jobs endpoints
 
 ## [2025.03.1] - 2025-03-18
 

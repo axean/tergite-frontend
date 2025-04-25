@@ -10,12 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests for calibrations v2"""
-import copy
-from datetime import datetime, timezone
-
 import pytest
 
-from tests._utils.date_time import is_not_older_than
+from tests._utils.date_time import get_current_timestamp_str
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection
 from tests._utils.records import distinct_on, order_by, pop_field
@@ -68,11 +65,7 @@ def test_read_calibration(name: str, db, client_v2, app_token_header):
 
 def test_create_calibrations(db, client_v2, system_app_token_header, freezer):
     """POST calibrations to `/v2/calibrations` upserts them in calibrations_v2, and in calibrations_logs if not exist"""
-    now = (
-        datetime.now(timezone.utc)
-        .isoformat(sep="T", timespec="milliseconds")
-        .replace("+00:00", "Z")
-    )
+    now = get_current_timestamp_str()
     # insert only some of the calibrations in collection to show upsert is done
     original_calibrations = _CALIBRATIONS_LIST[:2]
     insert_in_collection(

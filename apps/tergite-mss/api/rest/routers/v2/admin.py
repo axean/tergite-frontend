@@ -24,7 +24,6 @@ from services.auth import (
     user_requests,
 )
 from utils.api import PaginatedListResponse
-from utils.exc import NotFoundError
 
 from ...dependencies import CurrentSuperuserDep, CurrentUserDep, CurrentUserIdDep
 
@@ -55,8 +54,8 @@ async def get_qpu_time_requests(
     data = await user_requests.get_many_qpu_time_requests(
         filters, skip=skip, limit=limit
     )
-    return PaginatedListResponse(
-        data=[item.model_dump(mode="json") for item in data], skip=skip, limit=limit
+    return PaginatedListResponse(data=data, skip=skip, limit=limit).model_dump(
+        mode="json"
     )
 
 
@@ -100,8 +99,8 @@ async def get_user_requests(
     if status is not None:
         filters["status"] = status
     data = await user_requests.get_many(filters, skip=skip, limit=limit)
-    return PaginatedListResponse(
-        data=[item.model_dump(mode="json") for item in data], skip=skip, limit=limit
+    return PaginatedListResponse(data=data, skip=skip, limit=limit).model_dump(
+        mode="json"
     )
 
 

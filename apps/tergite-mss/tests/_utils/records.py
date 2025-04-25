@@ -1,7 +1,7 @@
 # This code is part of Tergite
 #
 # (C) Copyright Martin Ahindura 2023
-# (C) Copyright Chalmers Next Labs AB 2024
+# (C) Copyright Chalmers Next Labs AB 2024, 2025
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -69,6 +69,30 @@ def order_by(
         the ordered list of records
     """
     return sorted(data, key=lambda x: x[field], reverse=is_descending)
+
+
+def order_by_many(
+    data: List[Dict[str, Any]], fields: List[str]
+) -> List[Dict[str, Any]]:
+    """Orders the data by many fields
+
+    Args:
+        data: the list of records to sort
+        fields: the fields to order by, if a field starts with "-" then order is descending
+
+    Returns:
+        the ordered list of records
+    """
+
+    def get_key(item) -> tuple:
+        return tuple(
+            item.get(field)
+            if not field.startswith("-")
+            else _to_hash(item[field[1:]], negated=True)
+            for field in fields
+        )
+
+    return sorted(data, key=get_key)
 
 
 def distinct_on(data: List[Dict[str, Any]], field: str) -> List[Dict[str, Any]]:
@@ -205,3 +229,40 @@ def copy_records(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         New list of records with same values
     """
     return [{**item} for item in records]
+
+
+def filter_by_equality(
+    records: List[Dict[str, Any]], filters: Dict[str, Any]
+) -> List[Dict[str, Any]]:
+    """Filters the records that match the given filters
+
+    It simply checks that the matched record has the properties in the filters dict
+
+    Args:
+        records: the data to filter
+        filters: the properties that matched dicts should have
+
+    Returns:
+        the records that match the given filters
+    """
+    return [item for item in records if all([item[k] == v for k, v in filters.items()])]
+
+
+def _to_hash(value: Any, negated: bool = False) -> tuple[int, ...] | int | float | None:
+    """Converts a value to comparable hash that is negated if negated is True
+
+    Args:
+        value: the value whose comparable hash is to be obtained
+        negated: whether to negate the hash to get a descending value or not
+
+    Returns:
+        the comparable hash
+    """
+    multiplier = 1 if not negated else -1
+    if isinstance(value, str):
+        return tuple(multiplier * ord(char) for char in value)
+    if isinstance(value, (int, float)):
+        return multiplier * value
+    if value is None:
+        return None
+    raise TypeError(f"type {type(value)} cannot be hashed for ordering")

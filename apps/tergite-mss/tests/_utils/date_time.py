@@ -55,3 +55,13 @@ def get_timestamp_str(timestamp: datetime) -> str:
         the timestamp as a string
     """
     return timestamp.isoformat("T", timespec="milliseconds").replace("+00:00", "Z")
+
+
+def get_current_timestamp_str() -> str:
+    """Gets the current timestamp as a Zulu ISO format string
+
+    Returns:
+        the timestamp as a Zulu ISO format string
+    """
+    timestamp = datetime.now(timezone.utc)
+    return get_timestamp_str(timestamp)

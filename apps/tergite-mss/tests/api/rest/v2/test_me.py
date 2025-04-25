@@ -35,7 +35,7 @@ from tests._utils.auth import (
     get_jwt_token,
     update_db_record,
 )
-from tests._utils.date_time import get_timestamp_str
+from tests._utils.date_time import get_current_timestamp_str, get_timestamp_str
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import insert_in_collection
 from tests._utils.records import order_by, prune
@@ -196,7 +196,7 @@ def test_delete_own_project(
         _id = project["_id"]
         url = f"/v2/me/projects/{_id}"
 
-        now = get_timestamp_str(datetime.now(timezone.utc))
+        now = get_current_timestamp_str()
         original = get_db_record(db, Project, _id)
         assert original is not None
         response = client.delete(url, cookies=cookies)
@@ -388,7 +388,7 @@ def test_view_own_app_tokens_in_less_detail(
                 "lifespan_seconds": v["lifespan_seconds"],
                 "project_ext_id": v["project_ext_id"],
                 "title": v["title"],
-                "created_at": get_timestamp_str(datetime.now(timezone.utc)),
+                "created_at": get_current_timestamp_str(),
             }
             for v in [TEST_APP_TOKEN_DICT, TEST_NO_QPU_APP_TOKEN_DICT]
             + inserted_app_tokens
@@ -424,7 +424,7 @@ def test_view_my_app_token_in_less_detail(
             "project_ext_id": token["project_ext_id"],
             "title": token["title"],
             "lifespan_seconds": token["lifespan_seconds"],
-            "created_at": get_timestamp_str(datetime.now(timezone.utc)),
+            "created_at": get_current_timestamp_str(),
         }
 
         assert response.status_code == 200
@@ -492,7 +492,7 @@ def test_extend_own_token_lifespan(
             "project_ext_id": token["project_ext_id"],
             "title": token["title"],
             "lifespan_seconds": lifespan_secs,
-            "created_at": get_timestamp_str(datetime.now(timezone.utc)),
+            "created_at": get_current_timestamp_str(),
         }
         token_after_update = get_db_record(db, AppToken, token_id)
         token_after_update["lifespan_seconds"] = round(

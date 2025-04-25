@@ -26,6 +26,7 @@ import asyncio
 import logging
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
+from uuid import UUID
 
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
@@ -420,11 +421,11 @@ async def update_internal_resource_allocation(
         raise Exception(f"errors updating existing projects: {errors}")
 
 
-async def save_job_resource_usage(
+async def save_qpu_usage(
     db: AsyncIOMotorDatabase,
-    job_id: str,
-    project_id: str,
-    qpu_seconds: float,
+    job_id: UUID,
+    project: Optional[Project],
+    qpu_usage: Optional[float],
     db_collection: str = INTERNAL_USAGE_COLLECTION,
 ):
     """Saves the given job resource usage
@@ -437,15 +438,19 @@ async def save_job_resource_usage(
     Args:
         db: the mongodb client to the database where job resource usages are stored
         job_id: the ID of the given job
-        project_id: the id of the project whose usage is to be reported
-        qpu_seconds: the qpu seconds used
+        project: the project whose usage is to be reported
+        qpu_usage: the qpu seconds used
         db_collection: the name of the collection where the job resource usages are stored
     """
+    if project is None or qpu_usage is None:
+        # only save resource usage if the project and qpu_seconds are defined
+        return
+
     usage = InternalJobResourceUsage(
-        job_id=job_id,
-        project_id=project_id,
+        job_id=str(job_id),
+        project_id=project.ext_id,
         created_on=datetime.now(tz=timezone.utc),
-        qpu_seconds=qpu_seconds,
+        qpu_seconds=qpu_usage,
     )
     try:
         await db[db_collection].insert_one(usage.model_dump())

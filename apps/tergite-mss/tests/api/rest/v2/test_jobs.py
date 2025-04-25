@@ -10,8 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Integration tests for the jobs router"""
-from datetime import datetime
-from typing import Dict, Optional
+import uuid
+from datetime import datetime, timedelta, timezone
+from typing import Dict, List, Optional, TypedDict
 
 import pytest
 from beanie import PydanticObjectId
@@ -19,114 +20,120 @@ from pytest_lazyfixture import lazy_fixture
 
 from services.auth import Project
 from tests._utils.auth import TEST_PROJECT_EXT_ID, get_db_record
-from tests._utils.date_time import is_not_older_than
+from tests._utils.date_time import (
+    get_current_timestamp_str,
+    get_timestamp_str,
+)
 from tests._utils.env import TEST_BACKENDS_MAP
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection
-from tests._utils.records import order_by, pop_field
+from tests._utils.records import filter_by_equality, order_by_many, prune
 
-_STATUSES = ["DONE", "REGISTERED", "EXECUTING"]
-_URLS = ["http://example.com", "http://foo.com", "http://bar.com"]
-_DEFAULT_MEMORY_LIST = ["0x0", "0x1", "0x0", "0x0", "0x0", "0x1"]
 _JOBS_LIST = load_json_fixture("job_list.json")
 _JOB_TIMESTAMPED_UPDATES = load_json_fixture("job_timestamped_updates.json")
 _JOB_UPDATES = load_json_fixture("job_updates.json")
 _JOB_IDS = [item["job_id"] for item in _JOBS_LIST]
-_MEMORY_LIST = [
-    [f"{index}-{v}" for v in _DEFAULT_MEMORY_LIST]
-    for index, item in enumerate(_JOBS_LIST)
-]
-_JOB_UPDATE_PAYLOADS = [
-    {
-        "result": {"memory": [f"{index}-{v}" for v in _DEFAULT_MEMORY_LIST]},
-        "status": _STATUSES[index % 3],
-        "download_url": _URLS[index % 3],
-    }
-    for index, item in enumerate(_JOBS_LIST)
-]
-_STATUS_LIST = [_STATUSES[index % 3] for index, item in enumerate(_JOBS_LIST)]
-_URL_LIST = [_URLS[index % 3] for index, item in enumerate(_JOBS_LIST)]
-_BACKENDS = ["loke", "loki", None]
-_CREATE_JOB_PARAMS = [
-    (backend, "2024-05-23T09:12:00.733Z" if idx % 2 == 0 else None)
-    for idx, backend in enumerate(_BACKENDS)
+_DEVICES = ["loke", "loki", "pingu"]
+_CREATE_JOB_PAYLOADS = [
+    (
+        {
+            "device": device,
+            "calibration_date": "2024-05-23T09:12:00.733Z"
+            if idx % 2 == 0
+            else "2025-04-23T09:12:00.743Z",
+        }
+    )
+    for idx, device in enumerate(_DEVICES)
 ]
 _COLLECTION = "jobs"
 _EXCLUDED_FIELDS = ["_id"]
 _UNAVAILABLE_BCC_FIXTURE = [
-    (backend, client)
-    for backend in _BACKENDS
+    ({"device": device, "calibration_date": "2024-05-23T09:12:00.733Z"}, client)
+    for device in _DEVICES
     for client in (
         lazy_fixture("mock_timed_out_bcc"),
         lazy_fixture("mock_unavailable_bcc"),
     )
 ]
+_SKIP_LIMIT_SORT_PARAMS = [
+    (0, 1, ["-job_id", "created_at"]),
+    (2, 4, None),
+    (4, 6, ["job_id"]),
+    (None, 10, None),
+    (3, None, ["created_at"]),
+]
+_SEARCH_PARAMS = [
+    {"device": "loke"},
+    {"device": "pingu"},
+    {"device": "pingu", "status": "successful"},
+    {"device": "pingu", "status": "pending"},
+    {"status": "successful"},
+    {"status": "pending"},
+]
+_PAGINATE_AND_SEARCH_PARAMS = [
+    (skip, limit, sort, search)
+    for skip, limit, sort in _SKIP_LIMIT_SORT_PARAMS[:3]
+    for search in _SEARCH_PARAMS
+]
 
 
 @pytest.mark.parametrize("job_id", _JOB_IDS)
-def test_read_job(db, client_v2, job_id: str, no_qpu_app_token_header):
+def test_read_job(db, client_v2, job_id: str, no_qpu_app_token_header, freezer):
     """Get to /v2/jobs/{job_id} returns the job for the given job_id"""
-    insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
+    all_jobs = [_to_full_job_dict(job) for job in _JOBS_LIST]
+    insert_in_collection(database=db, collection_name=_COLLECTION, data=all_jobs)
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.get(f"/v2/jobs/{job_id}", headers=no_qpu_app_token_header)
         got = response.json()
-        expected = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
+        expected = list(filter(lambda x: x["job_id"] == job_id, all_jobs))[0]
 
         assert response.status_code == 200
-        assert expected == got
+        assert got == expected
 
 
-@pytest.mark.parametrize("backend, calibration_date", _CREATE_JOB_PARAMS)
+@pytest.mark.parametrize("payload", _CREATE_JOB_PAYLOADS)
 def test_create_job(
     mock_bcc,
     db,
     client_v2,
-    backend: str,
-    calibration_date: str,
+    payload,
     project_id: PydanticObjectId,
     app_token_header,
     current_user_id,
+    freezer,
 ):
     """Post to /v2/jobs/ creates a job in the given backend"""
-    query_string = "?"
-    if backend is not None:
-        query_string += f"backend={backend}&"
-    if calibration_date is not None:
-        query_string += f"calibration_date={calibration_date}"
-
-    backend_param = backend if backend else "pingu"
-    expected_bcc_base_url = TEST_BACKENDS_MAP[backend_param]["url"]
+    device = payload["device"]
+    expected_bcc_base_url = TEST_BACKENDS_MAP[device]["url"]
     jobs_before_creation = find_in_collection(
         db,
         collection_name=_COLLECTION,
         fields_to_exclude=_EXCLUDED_FIELDS,
     )
+    timestamp = get_current_timestamp_str()
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.post(
-            f"/v2/jobs/{query_string}", json={}, headers=app_token_header
-        )
+        response = client.post(f"/v2/jobs/", json=payload, headers=app_token_header)
         json_response = response.json()
         new_job_id = json_response["job_id"]
         expected_job = {
             "project_id": str(project_id),
             "job_id": new_job_id,
             "user_id": str(current_user_id),
-            "backend": backend_param,
-            "status": "REGISTERING",
-            "calibration_date": calibration_date,
+            "device": device,
+            "status": "pending",
+            "calibration_date": payload["calibration_date"],
+            "updated_at": timestamp,
+            "created_at": timestamp,
         }
         jobs_after_creation = find_in_collection(
             db,
             collection_name=_COLLECTION,
             fields_to_exclude=_EXCLUDED_FIELDS,
         )
-        timelogs = pop_field(jobs_after_creation, "timelog")
-        created_at_values = pop_field(jobs_after_creation, "created_at")
-        updated_at_values = pop_field(jobs_after_creation, "updated_at")
 
         assert response.status_code == 200
         assert response.json() == {
@@ -136,21 +143,14 @@ def test_create_job(
 
         assert jobs_before_creation == []
         assert jobs_after_creation == [expected_job]
-        assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
-        assert all([is_not_older_than(x, seconds=30) for x in created_at_values])
-        assert all([is_not_older_than(x, seconds=30) for x in updated_at_values])
 
 
-@pytest.mark.parametrize("backend, bcc", _UNAVAILABLE_BCC_FIXTURE)
-def test_create_job_without_bcc(db, client_v2, backend: str, app_token_header, bcc):
+@pytest.mark.parametrize("payload, bcc", _UNAVAILABLE_BCC_FIXTURE)
+def test_create_job_without_bcc(db, client_v2, payload, app_token_header, bcc):
     """Post to /v2/jobs/ error out if BCC is not available"""
-    query_string = "" if backend is None else f"?backend={backend}"
-
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.post(
-            f"/v2/jobs/{query_string}", json={}, headers=app_token_header
-        )
+        response = client.post(f"/v2/jobs/", json=payload, headers=app_token_header)
         jobs_after_creation = find_in_collection(
             db,
             collection_name=_COLLECTION,
@@ -158,51 +158,43 @@ def test_create_job_without_bcc(db, client_v2, backend: str, app_token_header, b
         )
 
         assert response.status_code == 503
-        assert response.json() == {"detail": "backend is currently unavailable"}
+        assert response.json() == {"detail": "device is currently unavailable"}
         # no job created
         assert jobs_after_creation == []
 
 
-@pytest.mark.parametrize("backend, calibration_date", _CREATE_JOB_PARAMS)
+@pytest.mark.parametrize("payload", _CREATE_JOB_PAYLOADS)
 def test_create_job_with_auth_disabled(
-    mock_bcc, db, no_auth_client_v2, backend: str, calibration_date: str
+    mock_bcc, db, no_auth_client_v2, payload, freezer
 ):
-    """Post to /v2/jobs/ creates a job in the given backend even when auth is disabled"""
-    query_string = "?"
-    if backend is not None:
-        query_string += f"backend={backend}&"
-    if calibration_date is not None:
-        query_string += f"calibration_date={calibration_date}"
-
-    backend_param = backend if backend else "pingu"
-    expected_bcc_base_url = TEST_BACKENDS_MAP[backend_param]["url"]
+    """Post to /v2/jobs/ creates a job in the given device even when auth is disabled"""
+    device = payload["device"]
+    expected_bcc_base_url = TEST_BACKENDS_MAP[device]["url"]
     jobs_before_creation = find_in_collection(
         db,
         collection_name=_COLLECTION,
         fields_to_exclude=_EXCLUDED_FIELDS,
     )
+    timestamp = get_current_timestamp_str()
 
     # using context manager to ensure on_startup runs
     with no_auth_client_v2 as client:
-        response = client.post(f"/v2/jobs/{query_string}", json={})
+        response = client.post(f"/v2/jobs/", json=payload)
         json_response = response.json()
         new_job_id = json_response["job_id"]
         expected_job = {
-            "project_id": None,
-            "user_id": None,
             "job_id": new_job_id,
-            "backend": backend_param,
-            "status": "REGISTERING",
-            "calibration_date": calibration_date,
+            "device": device,
+            "status": "pending",
+            "calibration_date": payload["calibration_date"],
+            "created_at": timestamp,
+            "updated_at": timestamp,
         }
         jobs_after_creation = find_in_collection(
             db,
             collection_name=_COLLECTION,
             fields_to_exclude=_EXCLUDED_FIELDS,
         )
-        timelogs = pop_field(jobs_after_creation, "timelog")
-        created_at_values = pop_field(jobs_after_creation, "created_at")
-        updated_at_values = pop_field(jobs_after_creation, "updated_at")
 
         assert response.status_code == 200
         assert response.json() == {
@@ -212,137 +204,134 @@ def test_create_job_with_auth_disabled(
 
         assert jobs_before_creation == []
         assert jobs_after_creation == [expected_job]
-        assert all([is_not_older_than(x["REGISTERED"], seconds=30) for x in timelogs])
-        assert all([is_not_older_than(x, seconds=30) for x in created_at_values])
-        assert all([is_not_older_than(x, seconds=30) for x in updated_at_values])
 
 
-@pytest.mark.parametrize("nlast", [1, 4, 6, 10, None])
-def test_read_jobs(db, client_v2, nlast: int, no_qpu_app_token_header):
-    """Get to /v2/jobs returns the latest jobs only upto the given nlast records"""
-    insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
+@pytest.mark.parametrize("skip, limit, sort", _SKIP_LIMIT_SORT_PARAMS)
+def test_read_jobs(
+    db,
+    client_v2,
+    skip: Optional[int],
+    limit: Optional[int],
+    sort: Optional[List[str]],
+    no_qpu_app_token_header,
+    freezer,
+):
+    """Get to /v2/jobs/ returns the latest jobs only upto the given #limit records, skipping the #skip records"""
+    raw_jobs = _with_incremental_timestamps(_JOBS_LIST)
+    insert_in_collection(database=db, collection_name=_COLLECTION, data=raw_jobs)
 
-    query_string = "" if nlast is None else f"?nlast={nlast}"
-    limit = 10 if nlast is None else nlast
+    query_string = "?"
+    slice_end = len(raw_jobs)
+    slice_start = 0
+    sort_fields = [
+        "-created_at",
+    ]
+    if limit is not None:
+        query_string += f"limit={limit}&"
+        slice_end = limit
+    if skip is not None:
+        query_string += f"skip={skip}&"
+        slice_start = skip
+        slice_end += skip
+    if sort is not None:
+        sort_fields = sort
+        for sort_field in sort_fields:
+            query_string += f"sort={sort_field}&"
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.get(
             f"/v2/jobs/{query_string}", headers=no_qpu_app_token_header
         )
-        got = order_by(response.json(), field="job_id")
-        expected = order_by(_JOBS_LIST[:limit], field="job_id")
+        got = response.json()
+        sorted_data = order_by_many(raw_jobs, fields=sort_fields)
+        expected = {
+            "skip": slice_start,
+            "limit": limit,
+            "data": sorted_data[slice_start:slice_end],
+        }
 
         assert response.status_code == 200
         assert got == expected
 
 
-@pytest.mark.parametrize("job_id, memory", zip(_JOB_IDS, _MEMORY_LIST))
-def test_update_job_result(db, client_v2, job_id: str, memory: list, app_token_header):
-    """PUT to /v2/jobs/{job_id}/result updates the result of the job with the given memory object"""
-    insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
-
-    # using context manager to ensure on_startup runs
-    with client_v2 as client:
-        payload = {"result.memory": memory}
-        response = client.put(
-            f"/v2/jobs/{job_id}", json=payload, headers=app_token_header
-        )
-        got = response.json()
-        expected_job = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
-        expected_job["result"] = {"memory": memory}
-
-        job_after_update = find_in_collection(
-            db,
-            collection_name=_COLLECTION,
-            fields_to_exclude=_EXCLUDED_FIELDS,
-            _filter={"job_id": job_id},
-        )[0]
-        timelog = job_after_update.pop("timelog")
-
-        assert response.status_code == 200
-        assert got == expected_job
-        assert job_after_update == expected_job
-        assert is_not_older_than(timelog["LAST_UPDATED"], seconds=30)
-
-
-@pytest.mark.parametrize("job_id, status", zip(_JOB_IDS, _STATUS_LIST))
-def test_update_job_status(db, client_v2, job_id: str, status: str, app_token_header):
-    """PUT to /v2/jobs/{job_id} can update the status of the job of the given job id"""
-    insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
-
-    # using context manager to ensure on_startup runs
-    with client_v2 as client:
-        payload = {"status": status}
-        response = client.put(
-            f"/v2/jobs/{job_id}", json=payload, headers=app_token_header
-        )
-        got = response.json()
-        expected_job = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
-        expected_job["status"] = status
-
-        job_after_update = find_in_collection(
-            db,
-            collection_name=_COLLECTION,
-            fields_to_exclude=_EXCLUDED_FIELDS,
-            _filter={"job_id": job_id},
-        )[0]
-        timelog = job_after_update.pop("timelog")
-
-        assert response.status_code == 200
-        assert got == expected_job
-        assert job_after_update == expected_job
-        assert is_not_older_than(timelog["LAST_UPDATED"], seconds=30)
-
-
-@pytest.mark.parametrize("job_id, url", zip(_JOB_IDS, _URL_LIST))
-def test_update_job_download_url(
-    db, client_v2, job_id: str, url: str, app_token_header
+@pytest.mark.parametrize("skip, limit, sort, search", _PAGINATE_AND_SEARCH_PARAMS)
+def test_search_jobs(
+    db,
+    client_v2,
+    skip: Optional[int],
+    limit: Optional[int],
+    sort: Optional[List[str]],
+    search: dict,
+    no_qpu_app_token_header,
+    freezer,
 ):
-    """PUT to /v2/jobs/{job_id} can update the download_url of the job of the given job id"""
-    insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
+    """Get to /v2/job/?project_id=...&device=... can search for the jobs that fulfill the given filters"""
+    raw_jobs = _with_incremental_timestamps(_JOBS_LIST)
+    insert_in_collection(database=db, collection_name=_COLLECTION, data=raw_jobs)
+
+    query_string = "?"
+    slice_end = len(raw_jobs)
+    slice_start = 0
+    sort_fields = [
+        "-created_at",
+    ]
+    if limit is not None:
+        query_string += f"limit={limit}&"
+        slice_end = limit
+    if skip is not None:
+        query_string += f"skip={skip}&"
+        slice_start = skip
+        slice_end += skip
+    if sort is not None:
+        sort_fields = sort
+        for sort_field in sort_fields:
+            query_string += f"sort={sort_field}&"
+
+    # Adding search
+    for key, value in search.items():
+        query_string += f"{key}={value}&"
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        payload = {"download_url": url}
-        response = client.put(
-            f"/v2/jobs/{job_id}", json=payload, headers=app_token_header
+        response = client.get(
+            f"/v2/jobs/{query_string}", headers=no_qpu_app_token_header
         )
         got = response.json()
-        expected_job = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
-        expected_job["download_url"] = url
-
-        job_after_update = find_in_collection(
-            db,
-            collection_name=_COLLECTION,
-            fields_to_exclude=_EXCLUDED_FIELDS,
-            _filter={"job_id": job_id},
-        )[0]
-        timelog = job_after_update.pop("timelog")
+        filtered_data = filter_by_equality(raw_jobs, filters=search)
+        sorted_data = order_by_many(filtered_data, fields=sort_fields)
+        expected = {
+            "skip": slice_start,
+            "limit": limit,
+            "data": sorted_data[slice_start:slice_end],
+        }
 
         assert response.status_code == 200
-        assert got == "OK"
-        assert job_after_update == expected_job
-        assert is_not_older_than(timelog["LAST_UPDATED"], seconds=30)
+        assert got == expected
 
 
 @pytest.mark.parametrize("raw_payload", _JOB_UPDATES)
-def test_update_job(db, client_v2, raw_payload: dict, app_token_header):
-    """PUT to /v2/jobs/{job_id} updates the job with the given object"""
-    insert_in_collection(database=db, collection_name=_COLLECTION, data=_JOBS_LIST)
-    payload = {**raw_payload}
-    job_id = payload.pop("job_id")
+def test_update_job(db, client_v2, raw_payload: dict, app_token_header, freezer):
+    """PUT to /v2/jobs/{job_id} updates the job with the given object, it ignores job_id"""
+    raw_jobs = _with_incremental_timestamps(_JOBS_LIST, fields=["created_at"])
+    raw_jobs = _with_current_timestamps(raw_jobs, fields=["updated_at"])
+    insert_in_collection(database=db, collection_name=_COLLECTION, data=raw_jobs)
+
+    ignored_fields = ["unexpected_field", "random_field", "job_id"]
+    payload = {**raw_payload, "job_id": f"{uuid.uuid4()}"}
+    job_id = raw_payload["job_id"]
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.put(
             f"/v2/jobs/{job_id}",
-            json={**payload, "timelog.RESULT": "foo"},
+            json={**payload},
             headers=app_token_header,
         )
         got = response.json()
-        expected_job = list(filter(lambda x: x["job_id"] == job_id, _JOBS_LIST))[0]
-        expected_job.update(payload)
+        expected_job = list(filter(lambda x: x["job_id"] == job_id, raw_jobs))[0]
+        actual_update, _ = prune(raw_payload, ignored_fields)
+        expected_job.update(actual_update)
 
         job_after_update = find_in_collection(
             db,
@@ -350,24 +339,24 @@ def test_update_job(db, client_v2, raw_payload: dict, app_token_header):
             fields_to_exclude=_EXCLUDED_FIELDS,
             _filter={"job_id": job_id},
         )[0]
-        timelog = job_after_update.pop("timelog")
 
         assert response.status_code == 200
-        assert got == "OK"
+        assert got == expected_job
         assert job_after_update == expected_job
-        assert is_not_older_than(timelog["LAST_UPDATED"], seconds=30)
-        assert timelog["RESULT"] == "foo"
 
 
 @pytest.mark.parametrize("raw_payload", _JOB_TIMESTAMPED_UPDATES)
 def test_update_job_resource_usage(
-    db, client_v2, project_id, raw_payload: dict, app_token_header
+    db, client_v2, project_id, raw_payload: dict, app_token_header, freezer
 ):
     """PUT to /v2/jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps" property"""
-    job_list = [{**item, "project_id": str(project_id)} for item in _JOBS_LIST]
+    raw_jobs = _with_incremental_timestamps(_JOBS_LIST, fields=["created_at"])
+    raw_jobs = _with_current_timestamps(raw_jobs, fields=["updated_at"])
+    job_list = [{**item, "project_id": str(project_id)} for item in raw_jobs]
+    job_id = raw_payload["job_id"]
+
     insert_in_collection(database=db, collection_name=_COLLECTION, data=job_list)
-    payload = {**raw_payload}
-    job_id = payload.pop("job_id")
+
     project_before_update = get_db_record(
         db, schema=Project, _filter={"ext_id": TEST_PROJECT_EXT_ID}
     )
@@ -378,7 +367,7 @@ def test_update_job_resource_usage(
         for _ in range(3):
             response = client.put(
                 f"/v2/jobs/{job_id}",
-                json={**payload, "timelog.RESULT": "foo"},
+                json=raw_payload,
                 headers=app_token_header,
             )
             assert response.status_code == 200
@@ -386,7 +375,7 @@ def test_update_job_resource_usage(
     project_after_update = get_db_record(
         db, schema=Project, _filter={"ext_id": TEST_PROJECT_EXT_ID}
     )
-    expected_resource_usage = _get_resource_usage(payload["timestamps"])
+    expected_resource_usage = _get_resource_usage(raw_payload["timestamps"])
     actual_resource_usage = round(
         project_before_update["qpu_seconds"] - project_after_update["qpu_seconds"], 1
     )
@@ -396,16 +385,18 @@ def test_update_job_resource_usage(
 
 @pytest.mark.parametrize("payload", _JOB_TIMESTAMPED_UPDATES)
 def test_update_job_resource_usage_advanced(
-    db, client_v2, project_id, payload: dict, app_token_header
+    db, client_v2, project_id, payload: dict, app_token_header, freezer
 ):
     """PUT to /v2/jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps.execution" field"""
-    job_list = [{**item, "project_id": str(project_id)} for item in _JOBS_LIST]
+    raw_jobs = _with_incremental_timestamps(_JOBS_LIST, fields=["created_at"])
+    raw_jobs = _with_current_timestamps(raw_jobs, fields=["updated_at"])
+    job_list = [{**item, "project_id": str(project_id)} for item in raw_jobs]
     insert_in_collection(database=db, collection_name=_COLLECTION, data=job_list)
-    job_id = payload.pop("job_id")
+    job_id = payload["job_id"]
+
     project_before_update = get_db_record(
         db, schema=Project, _filter={"ext_id": TEST_PROJECT_EXT_ID}
     )
-    update_body = {"timestamps.execution": payload["timestamps"]["execution"]}
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
@@ -413,7 +404,7 @@ def test_update_job_resource_usage_advanced(
         for _ in range(3):
             response = client.put(
                 f"/v2/jobs/{job_id}",
-                json={**update_body, "timelog.RESULT": "foo"},
+                json=payload,
                 headers=app_token_header,
             )
             assert response.status_code == 200
@@ -440,3 +431,72 @@ def _get_resource_usage(timestamps: Dict[str, Dict[str, str]]) -> Optional[float
         return round((finished_timestamp - started_timestamp).total_seconds(), 1)
     except AttributeError:
         return 0
+
+
+def _to_full_job_dict(data: dict) -> dict:
+    """Converts a dictionary into a job dictionary with all the expected keys
+
+    Args:
+        data: the original dictionary
+
+    Returns:
+        a dictionary that is compatible with the JobV2 schema
+    """
+    current_timestamp = get_current_timestamp_str()
+    return {**data, "created_at": current_timestamp, "updated_at": current_timestamp}
+
+
+def _with_incremental_timestamps(
+    data: List[dict],
+    fields: List[str] = (
+        "created_at",
+        "updated_at",
+    ),
+) -> List[dict]:
+    """Gets job data that has timestamps, each record with an earlier timestamp than the next
+
+    We update the fields passed with the corresponding timestamps
+
+    Args:
+        data: the list of dicts to attach timestamps to
+        fields: the fields that should have the timestamps
+
+    Returns:
+        the data with timestamps
+    """
+    now = datetime.now(timezone.utc)
+    return [
+        {
+            **item,
+            **{
+                field: get_timestamp_str(now + timedelta(minutes=idx))
+                for field in fields
+            },
+        }
+        for idx, item in enumerate(data)
+    ]
+
+
+def _with_current_timestamps(
+    data: List[dict],
+    fields: List[str] = ("updated_at",),
+) -> List[dict]:
+    """Gets job data that has the current timestamp
+
+    We update the fields passed with the corresponding timestamps
+
+    Args:
+        data: the list of dicts to attach timestamps to
+        fields: the fields that should have the timestamps
+
+    Returns:
+        the data with timestamps
+    """
+    now = datetime.now(timezone.utc)
+    return [
+        {
+            **item,
+            **{field: get_timestamp_str(now) for field in fields},
+        }
+        for idx, item in enumerate(data)
+    ]

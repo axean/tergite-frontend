@@ -101,11 +101,7 @@ async def get_latest_many_v2(
     Returns:
         the list of calibration results
     """
-    return await mongodb_utils.find(
-        db[_MAIN_COLLECTION],
-        limit=limit,
-        filters=filters,
-    )
+    return await mongodb_utils.find(db[_MAIN_COLLECTION], filters=filters, limit=limit)
 
 
 async def get_historical_many_v2(
@@ -121,7 +117,7 @@ async def get_historical_many_v2(
     Returns:
         the list of calibration results
     """
-    return await mongodb_utils.find(db[_LOGS_COLLECTION], limit=limit, filters=filters)
+    return await mongodb_utils.find(db[_LOGS_COLLECTION], filters=filters, limit=limit)
 
 
 async def get_one_v2(db: AsyncIOMotorDatabase, name: str):

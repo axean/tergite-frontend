@@ -19,7 +19,6 @@ import logging
 from typing import TYPE_CHECKING, List, Mapping, Optional, Tuple
 from uuid import UUID
 
-import pymongo
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo import ReturnDocument
 
@@ -28,7 +27,7 @@ from utils import mongodb as mongodb_utils
 from utils.exc import NotFoundError
 
 from ..auth import Project
-from .dtos import CreatedJobResponse, JobCreate, JobTimestamps, JobV2
+from .dtos import CreatedJobResponse, JobCreate, JobTimestamps, JobV2, JobV2Update
 
 if TYPE_CHECKING:
     from ..auth.projects.database import ProjectDatabase
@@ -48,13 +47,15 @@ async def get_one(db: AsyncIOMotorDatabase, job_id: UUID) -> JobV2:
     Returns:
         the job as a dict
     """
-    return await mongodb_utils.find_one(db.jobs, {"job_id": str(job_id)}, schema=JobV2)
+    return await mongodb_utils.find_one(
+        db.jobs, {"job_id": str(job_id)}, schema=JobV2, dropped_fields=("_id",)
+    )
 
 
 async def create_job(
     db: AsyncIOMotorDatabase,
     bcc_client: BccClient,
-    job: JobCreate,
+    job: JobV2,
     app_token: Optional[str] = None,
 ) -> CreatedJobResponse:
     """Creates a new job for the given backend
@@ -71,7 +72,7 @@ async def create_job(
     Raises:
             ValueError: job id '{job_id}' already exists
                 See :meth:`utils.http_clients.BccClient.save_credentials`
-            ServiceUnavailableError: backend is currently unavailable.
+            ServiceUnavailableError: device is currently unavailable.
                 See :meth:`utils.http_clients.BccClient.save_credentials`
     """
     logging.info(f"Creating new job with id: {job.job_id}")
@@ -92,6 +93,7 @@ async def get_latest_many(
     limit: Optional[int] = None,
     skip: int = 0,
     exclude: Tuple[str] = (),
+    sort: List[str] = (),
 ) -> List[JobV2]:
     """Retrieves the latest jobs up to the given limit
 
@@ -101,20 +103,23 @@ async def get_latest_many(
         limit: maximum number of records to return; default = None meaning all of them
         skip: the number of records to skip; default = 0
         exclude: the fields to exclude
+        sort: the fields to sort by, prefixing any with a '-' means descending; default = ()
     """
     return await mongodb_utils.find(
         db.jobs,
-        limit=limit,
-        skip=skip,
         filters=filters,
         exclude=exclude,
-        sorted_by=[("created_at", pymongo.DESCENDING)],
+        limit=limit,
+        skip=skip,
+        sort=sort,
         schema=JobV2,
         skip_validation=True,
     )
 
 
-async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: dict) -> Mapping:
+async def update_job(
+    db: AsyncIOMotorDatabase, job_id: UUID, payload: JobV2Update
+) -> JobV2:
     """Updates the job of the given job_id
 
     Args:
@@ -123,54 +128,50 @@ async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: dict) -> M
         payload: the new payload to update in job
 
     Returns:
-        the job document before it was modified
+        the job before it was modified
 
     Raises:
         NotFoundError: no documents matching {"job_id": job_id} were found
     """
-    return await mongodb_utils.update_one(
+    document = await mongodb_utils.update_one(
         db.jobs,
         _filter={"job_id": str(job_id)},
-        payload=payload,
+        payload=payload.model_dump(),
         return_document=ReturnDocument.BEFORE,
     )
+    return JobV2.model_validate(document)
 
 
-async def update_resource_usage(
+async def update_qpu_usage(
     db: AsyncIOMotorDatabase,
     project_db: "ProjectDatabase",
     job_id: UUID,
-    timestamps: JobTimestamps,
-) -> Optional[Tuple[Project, float]]:
+    qpu_usage: float,
+) -> Optional[Project]:
     """Updates the resource usage for the job of the given job_id
 
     Args:
         db: the mongo database from where to get the job
         project_db: the ProjectDatabase instance where projects are found
         job_id: the job id of the job
-        timestamps: the collection of timestamps for the given job
+        qpu_usage: the resource usage in seconds
 
     Return:
-        tuple of the updated project and the qpu seconds used if the update happened or None if it didn't
+        the updated project if the job was attached to a project, else None
 
     Raises:
         utils.exc.NotFoundError: no matches for '{"job_id": job_id}'.
         utils.exc.NotFoundError: project '{project_id}' for job '{job_id}' not found
         KeyError: 'project_id'
     """
-    qpu_seconds_used = timestamps.resource_usage
-    if qpu_seconds_used is None:
-        # no need to update resource usage if timestamps are None
-        return None
-
     job = await get_one(db, job_id=job_id)
-    project_id = job["project_id"]
+    project_id = job.project_id
     project = await project_db.increment_qpu_seconds(
-        project_id=project_id, qpu_seconds=-qpu_seconds_used
+        project_id=project_id, qpu_seconds=-qpu_usage
     )
     if project is None and project_id is not None:
         raise NotFoundError(f"project '{project_id}' for job '{job_id}' not found")
-    return project, qpu_seconds_used
+    return project
 
 
 def _without_special_docker_host_domain(url: str) -> str:

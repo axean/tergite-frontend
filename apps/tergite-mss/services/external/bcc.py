@@ -70,7 +70,7 @@ class BccClient:
 
         Raises:
             ValueError: job id '{job_id}' already exists
-            ServiceUnavailableError: backend is currently unavailable
+            ServiceUnavailableError: device is currently unavailable
         """
         try:
             response = await self._client.post(
@@ -82,7 +82,7 @@ class BccClient:
                 raise ValueError(message)
         except (httpx.ConnectError, httpx.ConnectTimeout) as exp:
             logging.error(exp)
-            raise ServiceUnavailableError("backend is currently unavailable")
+            raise ServiceUnavailableError("device is currently unavailable")
 
     async def close(self):
         """Closes the client"""

@@ -13,7 +13,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import pymongo
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -24,20 +24,17 @@ from utils.date_time import get_current_timestamp
 from .dtos import DeviceV2Upsert
 
 
-async def get_all_devices(db: AsyncIOMotorDatabase):
+async def get_all_devices(db: AsyncIOMotorDatabase, sort: List[str] = ("-created_at",)):
     """Gets all devices in the devices collection
 
     Args:
         db: the mongo database from which to get the databases
+        sort: the list of fields to sort by; where fields starting with "-" follow the descending order
 
     Returns:
         a list of all devices found in the devices collection
     """
-    return await mongodb_utils.find(
-        db.devices,
-        limit=-1,
-        sorted_by=[("created_at", pymongo.DESCENDING)],
-    )
+    return await mongodb_utils.find(db.devices, limit=-1, sort=sort)
 
 
 async def get_one_device(db: AsyncIOMotorDatabase, name: str):

@@ -34,8 +34,12 @@ class UnknownBccError(BaseMssException):
     """Exception when an unknown BCC is requested for"""
 
 
-class DbValidationError(ValidationError):
+class DbValidationError(BaseMssException):
     """Exception that occurs when validation fails on a schema"""
+
+    def __init__(self, original_exp: ValidationError):
+        self._original_exp = original_exp
+        self._message = f"{original_exp}"
 
 
 class NotFoundError(BaseMssException):
