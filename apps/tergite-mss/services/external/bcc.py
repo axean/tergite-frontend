@@ -58,7 +58,7 @@ class BccClient:
     """
 
     def __init__(self, base_url: str):
-        self.base_url = base_url
+        self.base_url = base_url.rstrip("/")
         self._client = httpx.AsyncClient(base_url=base_url)
 
     async def save_credentials(self, job_id: str, app_token: str):

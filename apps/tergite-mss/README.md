@@ -32,7 +32,7 @@ git clone git@github.com:tergite/tergite-frontend.git
 - Create conda environment
 
 ```shell
-conda create -n mss -y python=3.8
+conda create -n mss -y python=3.12
 conda activate mss
 ```
 
@@ -40,7 +40,7 @@ conda activate mss
 
 ```shell
 cd tergite-frontend/apps/tergite-mss
-pip install -r requirements.txt
+pip install -e .
 ```
 
 - Copy the `mss-config.example.toml` file to `mss-config.toml` and

@@ -15,7 +15,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 import logging
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Body, HTTPException
@@ -138,7 +138,10 @@ async def read_jobs(db: MongoDbDep, project: CurrentLaxProjectDep, nlast: int = 
 
 @router.put("/{job_id}/result", deprecated=True)
 async def update_job_result(
-    db: MongoDbDep, project: CurrentStrictProjectDep, job_id: UUID, memory: list
+    db: MongoDbDep,
+    project: CurrentStrictProjectDep,
+    job_id: UUID,
+    memory: list = Body(...),
 ):
     """Updates the result of the job with the given memory object"""
     try:
@@ -232,7 +235,7 @@ async def update_job(
     """
     try:
         old_job = await jobs_service.update_job(db, job_id=job_id, payload=payload)
-        old_timestamps: JobTimestamps = JobTimestamps.parse_obj(
+        old_timestamps: JobTimestamps = JobTimestamps.model_validate(
             old_job.get("timestamps", {})
         )
         if old_timestamps.resource_usage is not None:
@@ -241,9 +244,9 @@ async def update_job(
 
         timestamps: Optional[JobTimestamps] = None
         if "timestamps" in payload:
-            timestamps = JobTimestamps.parse_obj(payload["timestamps"])
+            timestamps = JobTimestamps.model_validate(payload["timestamps"])
         elif "timestamps.execution" in payload:
-            timestamps = JobTimestamps.parse_obj(
+            timestamps = JobTimestamps.model_validate(
                 {"execution": payload["timestamps.execution"]}
             )
 

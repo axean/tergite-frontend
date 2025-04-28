@@ -13,8 +13,9 @@
 import enum
 from typing import Any, Dict, Optional, Union
 
-from beanie import Document
-from pydantic import BaseModel, Field, validator
+from beanie import Document, PydanticObjectId
+from pydantic import BaseModel, Field, field_serializer, field_validator, validator
+from pydantic_core.core_schema import ValidationInfo
 
 from utils.date_time import get_current_timestamp
 
@@ -66,21 +67,32 @@ class UserRequest(Document):
     class Settings:
         name = USER_REQUEST_DB_COLLECTION
 
-    @validator("type")
-    def type_depends_on_request(cls, v, values, **kwargs):
+    @field_serializer("id", when_used="json")
+    def serialize_id(self, _id: PydanticObjectId):
+        """Convert id to string when working with JSON"""
+        return str(_id)
+
+    @classmethod
+    @field_validator("type")
+    def type_depends_on_request(cls, v: UserRequestType, info: ValidationInfo):
         try:
             if v == UserRequestType.PROJECT_QPU_SECONDS and not isinstance(
-                values["request"], QpuTimeExtensionPostBody
+                info.data["request"], QpuTimeExtensionPostBody
             ):
                 raise ValueError(f"must be {UserRequestType.PROJECT_QPU_SECONDS}")
         except (TypeError, KeyError):
             pass
         return v
 
-    @validator("request")
-    def request_depends_on_type(cls, v, values, **kwargs):
+    @classmethod
+    @field_validator("request")
+    def request_depends_on_type(
+        cls, v: Union[QpuTimeExtensionPostBody, Dict[str, Any]], info: ValidationInfo
+    ):
         try:
-            if values["type"] == UserRequestType.PROJECT_QPU_SECONDS and not isinstance(
+            if info.data[
+                "type"
+            ] == UserRequestType.PROJECT_QPU_SECONDS and not isinstance(
                 v, QpuTimeExtensionPostBody
             ):
                 raise ValueError(
@@ -104,9 +116,9 @@ class UserRequestUpdate(UserRequest):
     request: Optional[Union[QpuTimeExtensionPostBody, Dict[str, Any]]] = None
     updated_at: Optional[str] = Field(default_factory=get_current_timestamp)
 
-    def dict(self, *args, **kwargs):
+    def model_dump(self, *args, **kwargs):
         exclude_none = kwargs.get("exclude_none", True)
         exclude_unset = kwargs.get("exclude_unset", True)
-        return super().dict(
+        return super().model_dump(
             *args, **kwargs, exclude_none=exclude_none, exclude_unset=exclude_unset
         )

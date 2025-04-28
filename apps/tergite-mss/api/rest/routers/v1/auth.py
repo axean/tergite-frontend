@@ -65,7 +65,7 @@ def include_auth_router(root_router: Union[APIRouter, FastAPI], is_enabled: bool
             auth_header_backend=JWT_HEADER_BACKEND,
             auth_cookie_backend=JWT_COOKIE_BACKEND,
             jwt_secret=settings.CONFIG.auth.jwt_secret,
-            conf=Oauth2ClientConfig.parse_obj(client),
+            conf=Oauth2ClientConfig.model_validate(client),
             tags=["auth"],
         )
 

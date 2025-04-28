@@ -56,7 +56,6 @@ def get_projects_router(
 
     @router.post(
         "/",
-        response_model=project_schema,
         dependencies=[Depends(get_current_superuser)],
         status_code=status.HTTP_201_CREATED,
         name="projects:create_project",
@@ -92,11 +91,12 @@ def get_projects_router(
                 detail=exc.ExtendedErrorCode.PROJECT_ALREADY_EXISTS,
             )
 
-        return schemas.model_validate(project_schema, created_project)
+        return schemas.model_validate(project_schema, created_project).model_dump(
+            mode="json"
+        )
 
     @router.get(
         "/{id}",
-        response_model=project_schema,
         dependencies=[Depends(get_current_superuser)],
         name="projects:single_project",
         responses={
@@ -112,11 +112,10 @@ def get_projects_router(
         },
     )
     async def get_project(project=Depends(get_project_or_404)):
-        return schemas.model_validate(project_schema, project)
+        return schemas.model_validate(project_schema, project).model_dump(mode="json")
 
     @router.get(
         "/",
-        response_model=PaginatedListResponse[project_schema],
         dependencies=[Depends(get_current_superuser)],
         name="projects:many_projects",
         responses={
@@ -179,12 +178,14 @@ def get_projects_router(
         projects = await project_manager.get_many(
             filter_obj=filter_obj, skip=skip, limit=limit
         )
-        data = [schemas.model_validate(project_schema, project) for project in projects]
+        data = [
+            schemas.model_validate(project_schema, project).model_dump(mode="json")
+            for project in projects
+        ]
         return PaginatedListResponse(data=data, skip=skip, limit=limit)
 
     @router.patch(
         "/{id}",
-        response_model=project_schema,
         dependencies=[Depends(get_current_superuser)],
         name="projects:patch_project",
         responses={
@@ -208,7 +209,7 @@ def get_projects_router(
         project = await project_manager.update(
             project_update, project, safe=False, request=request
         )
-        return schemas.model_validate(project_schema, project)
+        return schemas.model_validate(project_schema, project).model_dump(mode="json")
 
     @router.delete(
         "/{id}",
@@ -251,7 +252,6 @@ def get_my_projects_router(
 
     @router.get(
         "/",
-        response_model=PaginatedListResponse[project_schema],
         name="projects:my_many_projects",
         responses={
             status.HTTP_401_UNAUTHORIZED: {
@@ -274,14 +274,13 @@ def get_my_projects_router(
         )
 
         data = [
-            jsonable_encoder(schemas.model_validate(project_schema, project))
+            schemas.model_validate(project_schema, project).model_dump(mode="json")
             for project in projects
         ]
         return PaginatedListResponse(data=data, skip=skip, limit=limit)
 
     @router.get(
         "/{id}",
-        response_model=project_schema,
         name="projects:my_single_project",
         responses={
             status.HTTP_401_UNAUTHORIZED: {
@@ -318,7 +317,7 @@ def get_my_projects_router(
                 detail="the project does not exist.",
             )
 
-        return schemas.model_validate(project_schema, project)
+        return schemas.model_validate(project_schema, project).model_dump(mode="json")
 
     # route to destroy tokens
     @router.delete(
@@ -382,6 +381,7 @@ def get_projects_router_v2(
     @router.post(
         "",
         response_model=ProjectAdminView,
+        response_model_exclude_none=True,
         dependencies=[Depends(get_current_superuser)],
         status_code=status.HTTP_201_CREATED,
         name="projects:create_project_v2",
@@ -495,6 +495,7 @@ def get_projects_router_v2(
     @router.put(
         "/{id}",
         response_model=ProjectAdminView,
+        response_model_exclude_none=True,
         dependencies=[Depends(get_current_superuser)],
         name="projects:put_project",
         responses={
@@ -564,7 +565,7 @@ async def _prepare_update_v2(project: Project, payload: ProjectUpdate) -> Projec
     Returns:
         the ProjectUpdate instance with proper user_ids and admin_id
     """
-    payload = payload.copy()  # type: ProjectUpdate
+    payload = payload.model_copy()  # type: ProjectUpdate
     is_user_ids_updating = payload.user_emails is not None
     is_admin_id_updating = payload.admin_email is not None
 
@@ -602,7 +603,7 @@ async def _prepare_project_v2_payload(payload: ProjectCreate) -> ProjectCreate:
     Returns:
         the ProjectCreate instance with proper version 2 values
     """
-    payload = payload.copy()  # type: ProjectCreate
+    payload = payload.model_copy()  # type: ProjectCreate
     all_emails = [*payload.user_emails, payload.admin_email]
     email_id_map = await _get_user_email_id_map(all_emails)
 
@@ -678,7 +679,7 @@ async def _get_full_admin_project(
         return project
 
     id_email_map = await _get_user_id_email_map([*project.user_ids, project.admin_id])
-    props = project.dict()
+    props = project.model_dump()
     props["user_emails"] = [id_email_map[v] for v in project.user_ids]
     props["admin_email"] = id_email_map[project.admin_id]
     return ProjectAdminView(**props)

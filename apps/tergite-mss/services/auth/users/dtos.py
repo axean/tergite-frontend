@@ -17,7 +17,7 @@ from beanie import Document, PydanticObjectId
 from fastapi_users import schemas
 from fastapi_users.types import DependencyCallable
 from fastapi_users_db_beanie import BaseOAuthAccount
-from pydantic import Field
+from pydantic import Field, field_serializer
 from pymongo import IndexModel
 from pymongo.collation import Collation
 
@@ -26,6 +26,11 @@ from utils.config import UserRole
 
 class UserRead(schemas.BaseUser[PydanticObjectId]):
     roles: Set[UserRole] = {}
+
+    @field_serializer("id", when_used="json")
+    def serialize_id(self, _id: PydanticObjectId):
+        """Convert id to string when working with JSON"""
+        return str(_id)
 
 
 class UserCreate(schemas.BaseUserCreate):

@@ -85,7 +85,7 @@ def datetime_to_zulu(d: datetime) -> str:
 
 def get_current_timestamp():
     """Returns current time in UTC string but with hours replaced with a Z"""
-    return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
 
 DEFAULT_FROM_DATETIME_STR = datetime(2000, 1, 1, 0, 0, tzinfo=timezone.utc).isoformat()

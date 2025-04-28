@@ -61,7 +61,7 @@ class TooManyListQueryParams(HTTPException):
 def get_oauth2_client(conf: Oauth2ClientConfig):
     """Gets the Oauth2 client from this configuration"""
     client_constructor = _OAUTH2_CLIENT_CLASS_MAP[conf.client_type]
-    kwargs = conf.dict(exclude_none=True, exclude=conf._non_client_fields)
+    kwargs = conf.model_dump(exclude_none=True, exclude=conf._non_client_fields)
     return client_constructor(**kwargs)
 
 

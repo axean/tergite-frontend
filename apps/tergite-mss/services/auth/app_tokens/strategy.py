@@ -36,7 +36,7 @@ class AppTokenStrategy(DatabaseStrategy):
     async def write_token(
         self, payload: AppTokenCreate, user_id: PydanticObjectId
     ) -> str:
-        token_dict = payload.dict()
+        token_dict = payload.model_dump()
         token_dict["token"] = secrets.token_urlsafe()
         token_dict["user_id"] = user_id
         access_token = await self.database.create(token_dict)

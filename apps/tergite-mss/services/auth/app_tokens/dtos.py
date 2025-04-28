@@ -16,10 +16,10 @@ from typing import List, Optional
 import pymongo
 from beanie import Document, PydanticObjectId
 from fastapi_users_db_beanie.access_token import BeanieBaseAccessToken
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, field_serializer
 from pymongo import IndexModel
 
-from utils.models import ZEncodedBaseModel
+from utils.date_time import datetime_to_zulu
 
 
 class AppTokenCreate(BaseModel):
@@ -27,7 +27,7 @@ class AppTokenCreate(BaseModel):
 
     title: str
     project_ext_id: str
-    lifespan_seconds: int
+    lifespan_seconds: float
 
 
 class AppTokenRead(AppTokenCreate):
@@ -37,17 +37,26 @@ class AppTokenRead(AppTokenCreate):
     It also doesn't show the user id
     """
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: PydanticObjectId
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    @field_serializer("created_at", when_used="json")
+    def serialize_created_at(self, created_at: datetime):
+        """Convert created_at to string when working with JSON"""
+        return datetime_to_zulu(created_at)
 
 
-class AppTokenUpdate(ZEncodedBaseModel):
+class AppTokenUpdate(BaseModel):
     """The record used to update the app token"""
 
     expires_at: datetime
+
+    @field_serializer("expires_at", when_used="json")
+    def serialize_expires_at(self, expires_at: datetime):
+        """Convert expires_at to string when working with JSON"""
+        return datetime_to_zulu(expires_at)
 
 
 class AppToken(BeanieBaseAccessToken, AppTokenCreate, Document):

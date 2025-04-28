@@ -202,7 +202,9 @@ def get_app_tokens_router(
         if updated_token is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-        return schemas.model_validate(AppTokenRead, updated_token)
+        return schemas.model_validate(AppTokenRead, updated_token).model_dump(
+            mode="json"
+        )
 
     # route to destroy tokens
     @router.delete(

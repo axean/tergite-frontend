@@ -16,11 +16,11 @@ from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Union
 
 import pymongo
 from beanie import Document
-from pydantic import Extra
+from pydantic import BaseModel, field_serializer, field_validator
 from pymongo import IndexModel
 from waldur_client import ComponentUsage
 
-from utils.models import ZEncodedBaseModel
+from utils.date_time import datetime_to_zulu
 
 if TYPE_CHECKING:
     DictStrAny = Dict[str, Any]
@@ -33,7 +33,7 @@ INTERNAL_USAGE_COLLECTION = "internal_resource_usages"
 REQUEST_FAILURES_COLLECTION = "puhuri_failed_requests"
 
 
-class PuhuriProjectMetadata(ZEncodedBaseModel):
+class PuhuriProjectMetadata(BaseModel):
     """Metadata as extracted from Puhuri resources"""
 
     uuid: str
@@ -44,7 +44,7 @@ class PuhuriProjectMetadata(ZEncodedBaseModel):
     resource_uuids: List[str]
 
 
-class PuhuriFailedRequest(ZEncodedBaseModel, Document, extra=Extra.allow):
+class PuhuriFailedRequest(Document, extra="allow"):
     """Schema for requests that fail when made to Puhuri"""
 
     reason: str
@@ -52,8 +52,13 @@ class PuhuriFailedRequest(ZEncodedBaseModel, Document, extra=Extra.allow):
     payload: Optional[Dict]
     created_on: datetime
 
+    @field_serializer("created_on", when_used="json")
+    def serialize_created_on(self, created_on: datetime):
+        """Convert created_on to string when working with JSON"""
+        return datetime_to_zulu(created_on)
 
-class PuhuriResource(ZEncodedBaseModel, extra=Extra.allow):
+
+class PuhuriResource(BaseModel, extra="allow"):
     """The schema of the items got from querying api/marketplace-resources"""
 
     uuid: str
@@ -75,7 +80,7 @@ class PuhuriResource(ZEncodedBaseModel, extra=Extra.allow):
         return len(self.limits) != 0
 
 
-class PuhuriOrder(ZEncodedBaseModel, extra=Extra.allow):
+class PuhuriOrder(BaseModel, extra="allow"):
     """The schema of the Order objects as got from Puhuri"""
 
     uuid: str
@@ -92,7 +97,7 @@ class OrderType(str, enum.Enum):
     TERMINATE = "Terminate"
 
 
-class OrderItem(ZEncodedBaseModel, extra=Extra.allow):
+class OrderItem(BaseModel, extra="allow"):
     """The schema for the order item of the Puhuri Order"""
 
     uuid: str
@@ -100,7 +105,7 @@ class OrderItem(ZEncodedBaseModel, extra=Extra.allow):
     type: OrderType
 
 
-class PuhuriProviderOffering(ZEncodedBaseModel, extra=Extra.allow):
+class PuhuriProviderOffering(BaseModel, extra="allow"):
     """The schema for the provider offerings got from Puhuri"""
 
     uuid: str
@@ -197,7 +202,7 @@ class PuhuriComponentUnit(str, enum.Enum):
         return round(amount / _COMPONENT_UNIT_SECONDS_MAP[self], 2)
 
 
-class PuhuriComponent(ZEncodedBaseModel, extra=Extra.allow):
+class PuhuriComponent(BaseModel, extra="allow"):
     """The schema for accounting components"""
 
     uuid: str
@@ -206,7 +211,7 @@ class PuhuriComponent(ZEncodedBaseModel, extra=Extra.allow):
     measured_unit: PuhuriComponentUnit
 
 
-class PuhuriPlan(ZEncodedBaseModel, extra=Extra.allow):
+class PuhuriPlan(BaseModel, extra="allow"):
     """The schema for the plans for each offering as got from Puhuri"""
 
     uuid: str
@@ -217,7 +222,7 @@ class PuhuriPlan(ZEncodedBaseModel, extra=Extra.allow):
     unit_price: str  # float-like str
 
 
-class PuhuriComponentUsage(ZEncodedBaseModel, extra=Extra.allow):
+class PuhuriComponentUsage(BaseModel, extra="allow"):
     """The schema for the component usage as stored within puhuri"""
 
     uuid: str
@@ -228,7 +233,7 @@ class PuhuriComponentUsage(ZEncodedBaseModel, extra=Extra.allow):
     usage: float
 
 
-class PuhuriPlanPeriod(ZEncodedBaseModel, extra=Extra.allow):
+class PuhuriPlanPeriod(BaseModel, extra="allow"):
     """The schema for the plan periods of resources in Puhuri
 
     Every resource that is in state "OK", has at least one

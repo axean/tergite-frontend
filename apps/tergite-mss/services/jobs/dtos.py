@@ -15,11 +15,9 @@ from datetime import datetime
 from typing import List, Optional, TypedDict
 
 from beanie import PydanticObjectId
-from bson import ObjectId
-from pydantic import BaseModel, Extra, Field
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 from utils.date_time import datetime_to_zulu, get_current_timestamp
-from utils.models import ZEncodedBaseModel
 
 from .utils import get_uuid4_str
 
@@ -31,12 +29,22 @@ class CreatedJobResponse(TypedDict):
     upload_url: str
 
 
-class TimestampPair(ZEncodedBaseModel):
+class TimestampPair(BaseModel):
     started: Optional[datetime]
     finished: Optional[datetime]
 
+    @field_serializer("started", when_used="json")
+    def serialize_started(self, started: datetime):
+        """Convert started to string when working with JSON"""
+        return datetime_to_zulu(started)
 
-class JobTimestamps(ZEncodedBaseModel):
+    @field_serializer("finished", when_used="json")
+    def serialize_finished(self, finished: datetime):
+        """Convert finished to string when working with JSON"""
+        return datetime_to_zulu(finished)
+
+
+class JobTimestamps(BaseModel):
     """Timestamps for the job"""
 
     registration: Optional[TimestampPair] = None
@@ -84,8 +92,12 @@ class JobExecutionStage(str, enum.Enum):
         return JobStatus.PENDING
 
 
-class JobCreate(ZEncodedBaseModel):
+class JobCreate(BaseModel):
     """The schema used when creating a job"""
+
+    model_config = ConfigDict(
+        extra="allow",
+    )
 
     backend: str
     calibration_date: Optional[str] = None
@@ -96,24 +108,18 @@ class JobCreate(ZEncodedBaseModel):
     created_at: Optional[str] = Field(default_factory=get_current_timestamp)
     updated_at: Optional[str] = Field(default_factory=get_current_timestamp)
 
-    class Config:
-        json_encoders = {datetime: datetime_to_zulu}
-        extra = Extra.allow
-
 
 class TimeLog(BaseModel):
     """The timelog of the job"""
+
+    model_config = ConfigDict(extra="allow")
 
     registered: Optional[str] = Field(default=None, alias="REGISTERED")
     last_updated: Optional[str] = Field(default=None, alias="LAST_UPDATED")
     result: Optional[str] = Field(default=None, alias="RESULT")
 
-    class Config:
-        json_encoders = {datetime: datetime_to_zulu}
-        extra = Extra.allow
 
-
-class JobResult(BaseModel, extra=Extra.allow):
+class JobResult(BaseModel, extra="allow"):
     """The results of the job"""
 
     memory: List[List[str]] = []
@@ -126,14 +132,16 @@ class JobV1(JobCreate):
     download_url: Optional[str] = None
     result: Optional[JobResult] = None
 
-    class Config(JobCreate.Config):
-        json_encoders = {**JobCreate.Config.json_encoders, ObjectId: str}
+    @field_serializer("id", when_used="json")
+    def serialize_id(self, _id: PydanticObjectId):
+        """Convert id to string when working with JSON"""
+        return str(_id)
 
 
 class JobV2(BaseModel):
     """Version 2 of the job schema"""
 
-    id: PydanticObjectId
+    id: PydanticObjectId = Field(alias="_id")
     job_id: str
     device: str
     project_id: Optional[str] = None
@@ -144,8 +152,10 @@ class JobV2(BaseModel):
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
-    class Config:
-        json_encoders = {ObjectId: str, datetime: datetime_to_zulu}
+    @field_serializer("id", when_used="json")
+    def serialize_id(self, _id: PydanticObjectId):
+        """Convert id to string when working with JSON"""
+        return str(_id)
 
     @classmethod
     def from_v1(cls, value: JobV1) -> "JobV2":
@@ -163,6 +173,7 @@ class JobV2(BaseModel):
             else value.timestamps.resource_usage
         )
         return cls(
+            _id=value.id,
             id=value.id,
             job_id=value.job_id,
             project_id=value.project_id,

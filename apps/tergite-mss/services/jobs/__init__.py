@@ -123,7 +123,7 @@ async def create_job(
     """
     logging.info(f"Creating new job with id: {job.job_id}")
     await bcc_client.save_credentials(job_id=job.job_id, app_token=f"{app_token}")
-    await mongodb_utils.insert_one(collection=db.jobs, document=job.dict())
+    await mongodb_utils.insert_one(collection=db.jobs, document=job.model_dump())
 
     upload_url = _without_special_docker_host_domain(f"{bcc_client.base_url}/jobs")
 
