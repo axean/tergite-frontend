@@ -12,8 +12,10 @@
 # that they have been altered from the originals.
 """Test utilities for handling records"""
 import copy
-from datetime import datetime
-from typing import Any, Dict, List, Tuple
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Sequence, Tuple
+
+from tests._utils.date_time import get_timestamp_str
 
 
 def pop_field(records: List[Dict[str, Any]], field: str) -> List[Any]:
@@ -246,6 +248,62 @@ def filter_by_equality(
         the records that match the given filters
     """
     return [item for item in records if all([item[k] == v for k, v in filters.items()])]
+
+
+def with_incremental_timestamps(
+    data: List[dict],
+    fields: Sequence[str] = (
+        "created_at",
+        "updated_at",
+    ),
+) -> List[dict]:
+    """Gets data that has timestamps, each record with an earlier timestamp than the next
+
+    We update the fields passed with the corresponding timestamps
+
+    Args:
+        data: the list of dicts to attach timestamps to
+        fields: the fields that should have the timestamps
+
+    Returns:
+        the data with timestamps
+    """
+    now = datetime.now(timezone.utc)
+    return [
+        {
+            **item,
+            **{
+                field: get_timestamp_str(now + timedelta(minutes=idx))
+                for field in fields
+            },
+        }
+        for idx, item in enumerate(data)
+    ]
+
+
+def with_current_timestamps(
+    data: List[dict],
+    fields: Sequence[str] = ("updated_at",),
+) -> List[dict]:
+    """Gets data that has the current timestamp
+
+    We update the fields passed with the corresponding timestamps
+
+    Args:
+        data: the list of dicts to attach timestamps to
+        fields: the fields that should have the timestamps
+
+    Returns:
+        the data with timestamps
+    """
+    now = datetime.now(timezone.utc)
+    return [
+        {
+            **item,
+            **{field: get_timestamp_str(now) for field in fields},
+        }
+        for idx, item in enumerate(data)
+    ]
 
 
 def _to_hash(value: Any, negated: bool = False) -> tuple[int, ...] | int | float | None:

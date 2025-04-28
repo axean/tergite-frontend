@@ -89,7 +89,7 @@ class JobCreate(BaseModel):
     """The schema used when creating a job"""
 
     device: str
-    calibration_date: str = None
+    calibration_date: str
 
 
 class JobResult(BaseModel, extra="allow"):

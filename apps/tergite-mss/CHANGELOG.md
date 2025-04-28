@@ -17,6 +17,8 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 - Changed creation of jobs to require a body with required fields 'device' and 'calibration_date'
 - Disabled Mongo-style payloads when updating jobs to ensure more security by reducing capabilities exposed to HTTP
 - Changed job update payloads to only accept the fields that are in the Job schema
+- Changed the POST `/v2/calibrations` endpoint to receive only a single calibration result at a time
+- Changed the GET `/v2/calibrations/` endpoint to return a paginated response of calibrations
 
 ### Added
 

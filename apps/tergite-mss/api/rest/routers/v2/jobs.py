@@ -63,11 +63,9 @@ async def get_many(
         skip: the number of records to skip
         limit: the maximum number of records to return
         sort: the fields to sort by, prefixing any with a '-' means descending; default = ("-created_at",)
-            To add multiple fields to sort by, repeat the same query parameter in the url e.g. "q=tom&q=dick&q=harry"
+            To add multiple fields to sort by, repeat the same query parameter in the url e.g. "query=tom&q=dick&q=harry"
     """
-    filters = {}
-    if query is not None:
-        filters = query.model_dump()
+    filters = query.model_dump()
     data = await jobs_service.get_latest_many(
         db,
         filters=filters,

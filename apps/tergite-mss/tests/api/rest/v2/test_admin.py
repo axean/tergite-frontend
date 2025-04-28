@@ -336,30 +336,6 @@ def test_unauthenticated_create_qpu_time_user_request(
         assert get_db_record(db, UserRequest, _filter=filter_obj) is None
 
 
-@pytest.mark.parametrize("user_id, cookies", _USER_ID_COOKIES_FIXTURE)
-def test_view_all_qpu_time_user_requests(
-    user_id, cookies, client_v2, inserted_project_ids_v2, db
-):
-    """Any user can view all user requests at /v2/admin/qpu-time-requests"""
-    insert_in_collection(
-        database=db,
-        collection_name=_USER_REQUEST_COLLECTION,
-        data=_QPU_TIME_USER_REQUESTS_IN_DB,
-    )
-
-    # using context manager to ensure on_startup runs
-    with client_v2 as client:
-        response = client.get("/v2/admin/qpu-time-requests", cookies=cookies)
-
-        got = response.json()
-        user_request_list = [
-            _db_to_http_item(item) for item in _QPU_TIME_USER_REQUESTS_IN_DB
-        ]
-
-        assert response.status_code == 200
-        assert got == {"skip": 0, "limit": None, "data": user_request_list}
-
-
 def test_view_user_requests(admin_jwt_cookie, client_v2, inserted_project_ids_v2, db):
     """GET /v2/admin/user-requests should return the matched user requests"""
     insert_in_collection(

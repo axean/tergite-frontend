@@ -11,8 +11,8 @@
 # that they have been altered from the originals.
 """Integration tests for the jobs router"""
 import uuid
-from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Optional, TypedDict
+from datetime import datetime
+from typing import Dict, List, Optional
 
 import pytest
 from beanie import PydanticObjectId
@@ -22,12 +22,17 @@ from services.auth import Project
 from tests._utils.auth import TEST_PROJECT_EXT_ID, get_db_record
 from tests._utils.date_time import (
     get_current_timestamp_str,
-    get_timestamp_str,
 )
 from tests._utils.env import TEST_BACKENDS_MAP
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import find_in_collection, insert_in_collection
-from tests._utils.records import filter_by_equality, order_by_many, prune
+from tests._utils.records import (
+    filter_by_equality,
+    order_by_many,
+    prune,
+    with_current_timestamps,
+    with_incremental_timestamps,
+)
 
 _JOBS_LIST = load_json_fixture("job_list.json")
 _JOB_TIMESTAMPED_UPDATES = load_json_fixture("job_timestamped_updates.json")
@@ -69,10 +74,11 @@ _SEARCH_PARAMS = [
     {"device": "pingu", "status": "pending"},
     {"status": "successful"},
     {"status": "pending"},
+    {},
 ]
 _PAGINATE_AND_SEARCH_PARAMS = [
     (skip, limit, sort, search)
-    for skip, limit, sort in _SKIP_LIMIT_SORT_PARAMS[:3]
+    for skip, limit, sort in _SKIP_LIMIT_SORT_PARAMS
     for search in _SEARCH_PARAMS
 ]
 
@@ -206,57 +212,8 @@ def test_create_job_with_auth_disabled(
         assert jobs_after_creation == [expected_job]
 
 
-@pytest.mark.parametrize("skip, limit, sort", _SKIP_LIMIT_SORT_PARAMS)
-def test_read_jobs(
-    db,
-    client_v2,
-    skip: Optional[int],
-    limit: Optional[int],
-    sort: Optional[List[str]],
-    no_qpu_app_token_header,
-    freezer,
-):
-    """Get to /v2/jobs/ returns the latest jobs only upto the given #limit records, skipping the #skip records"""
-    raw_jobs = _with_incremental_timestamps(_JOBS_LIST)
-    insert_in_collection(database=db, collection_name=_COLLECTION, data=raw_jobs)
-
-    query_string = "?"
-    slice_end = len(raw_jobs)
-    slice_start = 0
-    sort_fields = [
-        "-created_at",
-    ]
-    if limit is not None:
-        query_string += f"limit={limit}&"
-        slice_end = limit
-    if skip is not None:
-        query_string += f"skip={skip}&"
-        slice_start = skip
-        slice_end += skip
-    if sort is not None:
-        sort_fields = sort
-        for sort_field in sort_fields:
-            query_string += f"sort={sort_field}&"
-
-    # using context manager to ensure on_startup runs
-    with client_v2 as client:
-        response = client.get(
-            f"/v2/jobs/{query_string}", headers=no_qpu_app_token_header
-        )
-        got = response.json()
-        sorted_data = order_by_many(raw_jobs, fields=sort_fields)
-        expected = {
-            "skip": slice_start,
-            "limit": limit,
-            "data": sorted_data[slice_start:slice_end],
-        }
-
-        assert response.status_code == 200
-        assert got == expected
-
-
 @pytest.mark.parametrize("skip, limit, sort, search", _PAGINATE_AND_SEARCH_PARAMS)
-def test_search_jobs(
+def test_find_jobs(
     db,
     client_v2,
     skip: Optional[int],
@@ -267,7 +224,14 @@ def test_search_jobs(
     freezer,
 ):
     """Get to /v2/job/?project_id=...&device=... can search for the jobs that fulfill the given filters"""
-    raw_jobs = _with_incremental_timestamps(_JOBS_LIST)
+    raw_jobs = with_incremental_timestamps(
+        _JOBS_LIST,
+        fields=(
+            "created_at",
+            "updated_at",
+            "calibration_date",
+        ),
+    )
     insert_in_collection(database=db, collection_name=_COLLECTION, data=raw_jobs)
 
     query_string = "?"
@@ -313,8 +277,10 @@ def test_search_jobs(
 @pytest.mark.parametrize("raw_payload", _JOB_UPDATES)
 def test_update_job(db, client_v2, raw_payload: dict, app_token_header, freezer):
     """PUT to /v2/jobs/{job_id} updates the job with the given object, it ignores job_id"""
-    raw_jobs = _with_incremental_timestamps(_JOBS_LIST, fields=["created_at"])
-    raw_jobs = _with_current_timestamps(raw_jobs, fields=["updated_at"])
+    raw_jobs = with_incremental_timestamps(
+        _JOBS_LIST, fields=["created_at", "calibration_date"]
+    )
+    raw_jobs = with_current_timestamps(raw_jobs, fields=["updated_at"])
     insert_in_collection(database=db, collection_name=_COLLECTION, data=raw_jobs)
 
     ignored_fields = ["unexpected_field", "random_field", "job_id"]
@@ -350,8 +316,10 @@ def test_update_job_resource_usage(
     db, client_v2, project_id, raw_payload: dict, app_token_header, freezer
 ):
     """PUT to /v2/jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps" property"""
-    raw_jobs = _with_incremental_timestamps(_JOBS_LIST, fields=["created_at"])
-    raw_jobs = _with_current_timestamps(raw_jobs, fields=["updated_at"])
+    raw_jobs = with_incremental_timestamps(
+        _JOBS_LIST, fields=["created_at", "calibration_date"]
+    )
+    raw_jobs = with_current_timestamps(raw_jobs, fields=["updated_at"])
     job_list = [{**item, "project_id": str(project_id)} for item in raw_jobs]
     job_id = raw_payload["job_id"]
 
@@ -388,8 +356,10 @@ def test_update_job_resource_usage_advanced(
     db, client_v2, project_id, payload: dict, app_token_header, freezer
 ):
     """PUT to /v2/jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps.execution" field"""
-    raw_jobs = _with_incremental_timestamps(_JOBS_LIST, fields=["created_at"])
-    raw_jobs = _with_current_timestamps(raw_jobs, fields=["updated_at"])
+    raw_jobs = with_incremental_timestamps(
+        _JOBS_LIST, fields=["created_at", "calibration_date"]
+    )
+    raw_jobs = with_current_timestamps(raw_jobs, fields=["updated_at"])
     job_list = [{**item, "project_id": str(project_id)} for item in raw_jobs]
     insert_in_collection(database=db, collection_name=_COLLECTION, data=job_list)
     job_id = payload["job_id"]
@@ -444,59 +414,3 @@ def _to_full_job_dict(data: dict) -> dict:
     """
     current_timestamp = get_current_timestamp_str()
     return {**data, "created_at": current_timestamp, "updated_at": current_timestamp}
-
-
-def _with_incremental_timestamps(
-    data: List[dict],
-    fields: List[str] = (
-        "created_at",
-        "updated_at",
-    ),
-) -> List[dict]:
-    """Gets job data that has timestamps, each record with an earlier timestamp than the next
-
-    We update the fields passed with the corresponding timestamps
-
-    Args:
-        data: the list of dicts to attach timestamps to
-        fields: the fields that should have the timestamps
-
-    Returns:
-        the data with timestamps
-    """
-    now = datetime.now(timezone.utc)
-    return [
-        {
-            **item,
-            **{
-                field: get_timestamp_str(now + timedelta(minutes=idx))
-                for field in fields
-            },
-        }
-        for idx, item in enumerate(data)
-    ]
-
-
-def _with_current_timestamps(
-    data: List[dict],
-    fields: List[str] = ("updated_at",),
-) -> List[dict]:
-    """Gets job data that has the current timestamp
-
-    We update the fields passed with the corresponding timestamps
-
-    Args:
-        data: the list of dicts to attach timestamps to
-        fields: the fields that should have the timestamps
-
-    Returns:
-        the data with timestamps
-    """
-    now = datetime.now(timezone.utc)
-    return [
-        {
-            **item,
-            **{field: get_timestamp_str(now) for field in fields},
-        }
-        for idx, item in enumerate(data)
-    ]

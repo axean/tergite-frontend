@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """Test utilities for mongodb"""
 from types import MappingProxyType
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Sequence
 
 import pymongo.database
 from bson import ObjectId
@@ -20,7 +20,7 @@ from bson import ObjectId
 def find_in_collection(
     database: pymongo.database.Database,
     collection_name: str,
-    fields_to_exclude: List[str] = (),
+    fields_to_exclude: Sequence[str] = (),
     _filter: Dict[str, Any] = MappingProxyType({}),
 ) -> List[Dict[str, Any]]:
     """Gets the list of all records that match the given filter in the database
@@ -45,17 +45,21 @@ def insert_in_collection(
     database: pymongo.database.Database,
     collection_name: str,
     data: List[Dict[str, Any]],
-):
+) -> List[ObjectId]:
     """Inserts the records into the db
 
     Args:
         database: the mongodb database where to insert the record
         collection_name: the name of the collection to insert them into
         data: the list of records to insert
+
+    Returns:
+        list of ids of inserted documents
     """
-    database[collection_name].insert_many(
+    result = database[collection_name].insert_many(
         [
             {k: ObjectId(v) if k == "_id" else v for k, v in item.items()}
             for item in data
         ]
     )
+    return result.inserted_ids

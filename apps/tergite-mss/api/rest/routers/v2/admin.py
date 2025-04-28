@@ -55,7 +55,7 @@ async def get_qpu_time_requests(
         filters, skip=skip, limit=limit
     )
     return PaginatedListResponse(data=data, skip=skip, limit=limit).model_dump(
-        mode="json"
+        mode="json", exclude_data_none_fields=False
     )
 
 
@@ -100,7 +100,8 @@ async def get_user_requests(
         filters["status"] = status
     data = await user_requests.get_many(filters, skip=skip, limit=limit)
     return PaginatedListResponse(data=data, skip=skip, limit=limit).model_dump(
-        mode="json"
+        mode="json",
+        exclude_data_none_fields=False,
     )
 
 

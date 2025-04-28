@@ -99,6 +99,8 @@ _EXTRA_PROJECT_DEFAULTS = {
     "admin_email": None,
 }
 
+# FIXME: There are some tests that are being skipped. I don't know which ones they are and why.
+
 _JOBS_LIST_IN_DB = load_json_fixture("jobs_v2_in_db.json")
 _JOBS_LIST_AS_RESPONSES = load_json_fixture("jobs_v2_as_responses.json")
 
