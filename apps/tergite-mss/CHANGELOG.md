@@ -19,6 +19,7 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 - Changed job update payloads to only accept the fields that are in the Job schema
 - Changed the POST `/v2/calibrations` endpoint to receive only a single calibration result at a time
 - Changed the GET `/v2/calibrations/` endpoint to return a paginated response of calibrations
+- Made 'calibration_date' a required property on the job object
 
 ### Added
 

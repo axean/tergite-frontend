@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 """Integration tests for the jobs router"""
 import uuid
+from dataclasses import fields
 from datetime import datetime
 from typing import Dict, List, Optional
 
@@ -86,7 +87,9 @@ _PAGINATE_AND_SEARCH_PARAMS = [
 @pytest.mark.parametrize("job_id", _JOB_IDS)
 def test_read_job(db, client_v2, job_id: str, no_qpu_app_token_header, freezer):
     """Get to /v2/jobs/{job_id} returns the job for the given job_id"""
-    all_jobs = [_to_full_job_dict(job) for job in _JOBS_LIST]
+    all_jobs = with_current_timestamps(
+        _JOBS_LIST, fields=("created_at", "updated_at", "calibration_date")
+    )
     insert_in_collection(database=db, collection_name=_COLLECTION, data=all_jobs)
 
     # using context manager to ensure on_startup runs
@@ -401,16 +404,3 @@ def _get_resource_usage(timestamps: Dict[str, Dict[str, str]]) -> Optional[float
         return round((finished_timestamp - started_timestamp).total_seconds(), 1)
     except AttributeError:
         return 0
-
-
-def _to_full_job_dict(data: dict) -> dict:
-    """Converts a dictionary into a job dictionary with all the expected keys
-
-    Args:
-        data: the original dictionary
-
-    Returns:
-        a dictionary that is compatible with the JobV2 schema
-    """
-    current_timestamp = get_current_timestamp_str()
-    return {**data, "created_at": current_timestamp, "updated_at": current_timestamp}

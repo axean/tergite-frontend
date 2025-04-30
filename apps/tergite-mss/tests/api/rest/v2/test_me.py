@@ -101,8 +101,8 @@ _EXTRA_PROJECT_DEFAULTS = {
 
 # FIXME: There are some tests that are being skipped. I don't know which ones they are and why.
 
-_JOBS_LIST_IN_DB = load_json_fixture("jobs_v2_in_db.json")
-_JOBS_LIST_AS_RESPONSES = load_json_fixture("jobs_v2_as_responses.json")
+_JOBS_LIST_IN_DB = load_json_fixture("my_jobs_in_db.json")
+_JOBS_LIST_AS_RESPONSES = load_json_fixture("my_job_responses.json")
 
 
 @pytest.mark.parametrize("user_id, cookies", _USER_ID_COOKIES_FIXTURE)
@@ -617,7 +617,6 @@ def test_app_token_of_unallocated_projects_fails(
 @pytest.mark.parametrize("user_id, cookies", _USER_ID_COOKIES_FIXTURE)
 def test_read_all_my_jobs(db, client_v2, user_id, cookies):
     """Get to /v2/me/jobs returns the jobs for the current user"""
-    # FIXME: the jobs need a user_id property on them
     insert_in_collection(
         database=db, collection_name=_JOBS_COLLECTION, data=_JOBS_LIST_IN_DB
     )
@@ -659,7 +658,7 @@ def test_read_all_my_jobs_of_given_project(db, client_v2, user_id, cookies, proj
                 for job in _JOBS_LIST_AS_RESPONSES
                 if "user_id" in job
                 and job["user_id"] == user_id
-                and job["project_id"] == project_id
+                and job.get("project_id") == project_id
             ],
             field="job_id",
         )

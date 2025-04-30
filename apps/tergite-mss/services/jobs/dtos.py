@@ -16,7 +16,7 @@ from typing import Any, Callable, List, Literal, Optional, Set, TypedDict
 
 from beanie import PydanticObjectId
 from fastapi import Query
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
+from pydantic import BaseModel, ConfigDict, Field, computed_field, field_serializer
 from pydantic.main import IncEx
 
 from utils.date_time import datetime_to_zulu, get_current_timestamp
@@ -111,12 +111,20 @@ class JobV2(JobCreate):
     user_id: Optional[str] = None
     status: JobStatus = JobStatus.PENDING
     failure_reason: Optional[str] = None
-    duration_in_secs: Optional[float] = None
     timestamps: Optional[JobTimestamps] = None
     download_url: Optional[str] = None
     result: Optional[JobResult] = None
     created_at: Optional[str] = Field(default_factory=get_current_timestamp)
     updated_at: Optional[str] = Field(default_factory=get_current_timestamp)
+
+    @computed_field
+    @property
+    def duration_in_secs(self) -> Optional[float]:
+        """Duration of execution of the job"""
+        try:
+            return self.timestamps.resource_usage
+        except AttributeError:
+            return None
 
     @field_serializer("id", when_used="json")
     def serialize_id(self, _id: PydanticObjectId):
@@ -172,4 +180,6 @@ class JobStatusResponse(BaseModel):
 
 # Derived models
 JobV2Query = create_partial_model("JobV2Query", original=JobV2, default=Query(None))
-JobV2Update = create_partial_model("JobV2Update", original=JobV2, exclude=("job_id",))
+JobV2Update = create_partial_model(
+    "JobV2Update", original=JobV2, exclude=("job_id", "duration_in_secs")
+)

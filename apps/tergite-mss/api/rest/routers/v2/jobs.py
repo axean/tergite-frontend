@@ -152,10 +152,8 @@ async def update_one(
     """
     old_job = await jobs_service.update_job(db, job_id=job_id, payload=payload)
 
-    recorded_qpu_usage = getattr(old_job.timestamps, "resource_usage", None)
     qpu_usage = getattr(payload.timestamps, "resource_usage", None)
-
-    if recorded_qpu_usage is None and qpu_usage is not None:
+    if old_job.duration_in_secs is None and qpu_usage is not None:
         project = await jobs_service.update_qpu_usage(
             db, project_db=project_db, job_id=job_id, qpu_usage=qpu_usage
         )
