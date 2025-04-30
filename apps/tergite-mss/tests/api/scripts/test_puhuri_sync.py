@@ -66,7 +66,7 @@ def test_save_resource_usages(db, client_v2, project_id, app_token_header):
             job_id = payload.pop("job_id")
 
             response = client.put(
-                f"/v2/jobs/{job_id}",
+                f"/jobs/{job_id}",
                 json=payload,
                 headers=app_token_header,
             )

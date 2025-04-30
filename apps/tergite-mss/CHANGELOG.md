@@ -20,12 +20,11 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 - Changed the POST `/v2/calibrations` endpoint to receive only a single calibration result at a time
 - Changed the GET `/v2/calibrations/` endpoint to return a paginated response of calibrations
 - Made 'calibration_date' a required property on the job object
-- Changed the GET `/v2/me/jobs` endpoint to `/v2/me/jobs/`
-- Changed the GET `/v2/me/jobs` endpoint to return a paginated response of jobs
+- Changed the GET `/v2/me/jobs` endpoint to `/me/jobs/`
+- Changed the GET `/me/jobs` endpoint to return a paginated response of jobs
 
 ### Added
 
-- Add v2/jobs endpoints
 - Add more extensive search capability on the GET jobs endpoints so that one can search by more fields in the job
 
 ## [2025.03.1] - 2025-03-18

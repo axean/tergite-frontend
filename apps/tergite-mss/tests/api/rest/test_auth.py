@@ -35,11 +35,11 @@ _AUTH_PROVIDER_DOMAIN_PAIRS = [
         [
             dict(
                 name="github",
-                url="http://testserver/v2/auth/github/auto-authorize",
+                url="http://testserver/auth/github/auto-authorize",
             ),
             dict(
                 name="gitlab",
-                url="http://testserver/v2/auth/gitlab/auto-authorize",
+                url="http://testserver/auth/gitlab/auto-authorize",
             ),
         ],
     ),
@@ -48,7 +48,7 @@ _AUTH_PROVIDER_DOMAIN_PAIRS = [
         [
             dict(
                 name="puhuri",
-                url="http://testserver/v2/auth/puhuri/auto-authorize",
+                url="http://testserver/auth/puhuri/auto-authorize",
             )
         ],
     ),
@@ -57,7 +57,7 @@ _AUTH_PROVIDER_DOMAIN_PAIRS = [
         [
             dict(
                 name="chalmers",
-                url="http://testserver/v2/auth/chalmers/auto-authorize",
+                url="http://testserver/auth/chalmers/auto-authorize",
             )
         ],
     ),
@@ -86,10 +86,10 @@ def test_not_is_auth_enabled(no_auth_client_v2):
 
 
 def test_github_cookie_authorize(client_v2):
-    """github users can authorize at /v2/auth/github/authorize using cookies"""
+    """github users can authorize at /auth/github/authorize using cookies"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.get(f"/v2/auth/github/authorize?next={TEST_NEXT_COOKIE_URL}")
+        response = client.get(f"/auth/github/authorize?next={TEST_NEXT_COOKIE_URL}")
         auth_url_pattern = r"^https\:\/\/github\.com\/login\/oauth\/authorize\?response_type\=code\&client_id\=test-tergite-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fgithub\%2Fcallback\&state=.*&scope=user\+user\%3Aemail$"
 
         got = response.json()
@@ -98,11 +98,11 @@ def test_github_cookie_authorize(client_v2):
 
 
 def test_github_cookie_auto_authorize(client_v2):
-    """github users can automatically be redirected to auth url at /v2/auth/github/auto-authorize using cookies"""
+    """github users can automatically be redirected to auth url at /auth/github/auto-authorize using cookies"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.get(
-            f"/v2/auth/github/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
+            f"/auth/github/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
             follow_redirects=False,
         )
         auth_url_pattern = r"^https\:\/\/github\.com\/login\/oauth\/authorize\?response_type\=code\&client_id\=test-tergite-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fgithub\%2Fcallback\&state=.*&scope=user\+user\%3Aemail$"
@@ -113,12 +113,10 @@ def test_github_cookie_auto_authorize(client_v2):
 
 
 def test_chalmers_cookie_authorize(client_v2):
-    """Chalmers' users can authorize at /v2/auth/chalmers/authorize using cookies"""
+    """Chalmers' users can authorize at /auth/chalmers/authorize using cookies"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.get(
-            f"/v2/auth/chalmers/authorize?next={TEST_NEXT_COOKIE_URL}"
-        )
+        response = client.get(f"/auth/chalmers/authorize?next={TEST_NEXT_COOKIE_URL}")
         auth_url_pattern = r"^https\:\/\/login\.microsoftonline\.com\/common\/oauth2\/v.*\/authorize\?response_type\=code\&client_id\=test-chalmers-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fchalmers\%2Fcallback\&state=.*\&scope\=User\.Read\&response_mode\=query$"
 
         got = response.json()
@@ -127,11 +125,11 @@ def test_chalmers_cookie_authorize(client_v2):
 
 
 def test_chalmers_cookie_auto_authorize(client_v2):
-    """Chalmers' users can be automatically redirected at /v2/auth/chalmers/auto-authorize using cookies"""
+    """Chalmers' users can be automatically redirected at /auth/chalmers/auto-authorize using cookies"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.get(
-            f"/v2/auth/chalmers/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
+            f"/auth/chalmers/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
             follow_redirects=False,
         )
         auth_url_pattern = r"^https\:\/\/login\.microsoftonline\.com\/common\/oauth2\/v.*\/authorize\?response_type\=code\&client_id\=test-chalmers-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fchalmers\%2Fcallback\&state=.*\&scope\=User\.Read\&response_mode\=query$"
@@ -142,11 +140,11 @@ def test_chalmers_cookie_auto_authorize(client_v2):
 
 
 def test_puhuri_cookie_authorize(client_v2):
-    """Puhuri users can authorize at /v2/auth/puhuri/authorize using cookies"""
+    """Puhuri users can authorize at /auth/puhuri/authorize using cookies"""
     """Any random partner users can authorize at /auth/{partner}/authorize"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.get(f"/v2/auth/puhuri/authorize?next={TEST_NEXT_COOKIE_URL}")
+        response = client.get(f"/auth/puhuri/authorize?next={TEST_NEXT_COOKIE_URL}")
         auth_url_pattern = r"^https:\/\/proxy.acc.puhuri.eduteams.org\/OIDC\/authorization\?response_type\=code\&client_id\=test-puhuri-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fpuhuri\%2Fcallback\&state=.*\&scope\=openid\+email$"
 
         got = response.json()
@@ -155,12 +153,12 @@ def test_puhuri_cookie_authorize(client_v2):
 
 
 def test_puhuri_cookie_auto_authorize(client_v2):
-    """Puhuri users can automatically be redirected at /v2/auth/puhuri/auto-authorize using cookies"""
+    """Puhuri users can automatically be redirected at /auth/puhuri/auto-authorize using cookies"""
     """Any random partner users can authorize at /auth/{partner}/authorize"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.get(
-            f"/v2/auth/puhuri/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
+            f"/auth/puhuri/auto-authorize?next={TEST_NEXT_COOKIE_URL}",
             follow_redirects=False,
         )
         auth_url_pattern = r"^https:\/\/proxy.acc.puhuri.eduteams.org\/OIDC\/authorization\?response_type\=code\&client_id\=test-puhuri-client-id\&redirect_uri\=http\%3A\%2F\%2Ftestserver\%2Fv2\%2Fauth\%2Fpuhuri\%2Fcallback\&state=.*\&scope\=openid\+email$"
@@ -171,11 +169,11 @@ def test_puhuri_cookie_auto_authorize(client_v2):
 
 
 def test_github_cookie_callback(client_v2, github_user, cookie_oauth_state):
-    """Github users can be redirected to /v2/auth/github/callback to get their JWT cookies"""
+    """Github users can be redirected to /auth/github/callback to get their JWT cookies"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.get(
-            f"/v2/auth/github/callback?code=test&state={cookie_oauth_state}",
+            f"/auth/github/callback?code=test&state={cookie_oauth_state}",
             follow_redirects=False,
         )
 
@@ -192,7 +190,7 @@ def test_github_cookie_callback_disallowed_email(
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.get(
-            f"/v2/auth/github/callback?code=test&state={cookie_oauth_state}",
+            f"/auth/github/callback?code=test&state={cookie_oauth_state}",
             follow_redirects=False,
         )
 
@@ -206,7 +204,7 @@ def test_chalmers_cookie_callback(client_v2, chalmers_user, cookie_oauth_state):
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.get(
-            f"/v2/auth/chalmers/callback?code=test&state={cookie_oauth_state}",
+            f"/auth/chalmers/callback?code=test&state={cookie_oauth_state}",
             follow_redirects=False,
         )
 
@@ -223,7 +221,7 @@ def test_chalmers_cookie_callback_disallowed_email(
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.get(
-            f"/v2/auth/chalmers/callback?code=test&state={cookie_oauth_state}",
+            f"/auth/chalmers/callback?code=test&state={cookie_oauth_state}",
             follow_redirects=False,
         )
 
@@ -233,12 +231,12 @@ def test_chalmers_cookie_callback_disallowed_email(
 
 
 def test_puhuri_cookie_callback(client_v2, puhuri_user, cookie_oauth_state):
-    """Puhuri users can be redirected to /v2/auth/puhuri/callback to get their cookies"""
+    """Puhuri users can be redirected to /auth/puhuri/callback to get their cookies"""
     """Any random partner users can authorize at /auth/{partner}/authorize"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.get(
-            f"/v2/auth/puhuri/callback?code=test&state={cookie_oauth_state}",
+            f"/auth/puhuri/callback?code=test&state={cookie_oauth_state}",
             follow_redirects=False,
         )
 
@@ -255,7 +253,7 @@ def test_puhuri_cookie_callback_disallowed_email(
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.get(
-            f"/v2/auth/puhuri/callback?code=test&state={cookie_oauth_state}",
+            f"/auth/puhuri/callback?code=test&state={cookie_oauth_state}",
             follow_redirects=False,
         )
 
@@ -265,10 +263,10 @@ def test_puhuri_cookie_callback_disallowed_email(
 
 
 def test_login(client_v2):
-    """POST to /v2/auth/login returns 404"""
+    """POST to /auth/login returns 404"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.post(f"/v2/auth/login", json={})
+        response = client.post(f"/auth/login", json={})
 
         got = response.json()
         assert response.status_code == 404
@@ -279,10 +277,10 @@ def test_login(client_v2):
 def test_logout(
     user_email, cookies, client_v2, inserted_projects_v2, inserted_app_tokens, freezer
 ):
-    """POST /v2/auth/logout/ logs out current user"""
+    """POST /auth/logout/ logs out current user"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.post("/v2/auth/logout", cookies=cookies)
+        response = client.post("/auth/logout", cookies=cookies)
         set_cookie_header = response.headers["set-cookie"]
         assert _STALE_AUTH_COOKIE_REGEX.match(set_cookie_header) is not None
         assert response.json() == {"message": "logged out"}
@@ -290,20 +288,20 @@ def test_logout(
 
 @pytest.mark.parametrize("email_domain, expected", _AUTH_PROVIDER_DOMAIN_PAIRS)
 def test_get_auth_providers(client_v2, email_domain, expected):
-    """GET /v2/auth/providers returns the auth providers for the given email domain"""
+    """GET /auth/providers returns the auth providers for the given email domain"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.get("/v2/auth/providers", params={"domain": email_domain})
+        response = client.get("/auth/providers", params={"domain": email_domain})
         got = response.json()
         assert got == expected
 
 
 @pytest.mark.parametrize("email_domain", ["s.com", "some.es", "blablah.foo"])
 def test_get_auth_providers_unsupported_domains(client_v2, email_domain):
-    """GET /v2/auth/providers returns 404 for unsupported email domain"""
+    """GET /auth/providers returns 404 for unsupported email domain"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.get("/v2/auth/providers", params={"domain": email_domain})
+        response = client.get("/auth/providers", params={"domain": email_domain})
         got = response.json()
         assert got == {"detail": "Not Found"}
         assert response.status_code == 404

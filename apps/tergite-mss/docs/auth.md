@@ -25,13 +25,13 @@ This is how MSS authenticates its users and controls their access to the quantum
 
 ```toml
 [[auth.clients]]
-# this name will appear in the URLs e.g. http://127.0.0.1:8002/v2/authcompany-b/...
+# this name will appear in the URLs e.g. http://127.0.0.1:8002/auth/company-b/...
 name = "company-b"
 client_id = "some-openid-client-id"
 client_secret = "some-openid-client-secret"
 # the URL to redirect to after user authenticates with the system.
-# It is of the format {MSS_BASE_URL}/v2/auth{provider_name}/callback
-redirect_url = "http://127.0.0.1:8002/v2/authcompany-b/callback"
+# It is of the format {MSS_BASE_URL}/auth/{provider_name}/callback
+redirect_url = "http://127.0.0.1:8002/auth/company-b/callback"
 client_type = "openid"
 email_regex = ".*"
 # Roles that are automatically given to users who authenticate through Company B
@@ -113,13 +113,13 @@ The admin must therefore find a way of keeping the `MSS_TOKEN` active.
 ./start_mss.sh
 ```
 
-- Visit the http://localhost:8002/v2/authgithub/authorize endpoint in your browser if you are running on local host.
+- Visit the http://localhost:8002/auth/github/authorize endpoint in your browser if you are running on local host.
 - Copy the “authorization_url” from the response and paste it in another tab in your browser. Follow any prompts the browser gives you.
-- After you are redirected back to http://localhost:8002/v2/authgithub/callback, you should see an “access_token”. Copy it to your clipboard.  
+- After you are redirected back to http://localhost:8002/auth/github/callback, you should see an “access_token”. Copy it to your clipboard.  
   If you run into any errors, ensure that the `client_id` and `client_secret` for the `client` table with `name = tergite` in your `mss-config.toml` file are appropriately set.
 - You can then try to create an app token or anything auth related using `curl` or [postman](https://www.postman.com/).  
   To authenticate those requests, you must always pass an "Authorization" header of format `Bearer <access_token>`.  
-  **Do note that this auth token can only be used on `/v2/auth...` endpoints. It will return 401/403 errors on all other endpoints**.
+  **Do note that this auth token can only be used on `/auth...` endpoints. It will return 401/403 errors on all other endpoints**.
 - Do note also that some endpoints are only accessible to users that have a given role e.g. 'admin' or 'system' etc.
 
 #### - Why do I keep being redirected back to the login page even after successful login?

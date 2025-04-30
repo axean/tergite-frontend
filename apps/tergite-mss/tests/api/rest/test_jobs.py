@@ -86,7 +86,7 @@ _PAGINATE_AND_SEARCH_PARAMS = [
 
 @pytest.mark.parametrize("job_id", _JOB_IDS)
 def test_read_job(db, client_v2, job_id: str, no_qpu_app_token_header, freezer):
-    """Get to /v2/jobs/{job_id} returns the job for the given job_id"""
+    """Get to /jobs/{job_id} returns the job for the given job_id"""
     all_jobs = with_current_timestamps(
         _JOBS_LIST, fields=("created_at", "updated_at", "calibration_date")
     )
@@ -94,7 +94,7 @@ def test_read_job(db, client_v2, job_id: str, no_qpu_app_token_header, freezer):
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.get(f"/v2/jobs/{job_id}", headers=no_qpu_app_token_header)
+        response = client.get(f"/jobs/{job_id}", headers=no_qpu_app_token_header)
         got = response.json()
         expected = list(filter(lambda x: x["job_id"] == job_id, all_jobs))[0]
 
@@ -113,7 +113,7 @@ def test_create_job(
     current_user_id,
     freezer,
 ):
-    """Post to /v2/jobs/ creates a job in the given backend"""
+    """Post to /jobs/ creates a job in the given backend"""
     device = payload["device"]
     expected_bcc_base_url = TEST_BACKENDS_MAP[device]["url"]
     jobs_before_creation = find_in_collection(
@@ -125,7 +125,7 @@ def test_create_job(
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.post(f"/v2/jobs/", json=payload, headers=app_token_header)
+        response = client.post(f"/jobs/", json=payload, headers=app_token_header)
         json_response = response.json()
         new_job_id = json_response["job_id"]
         expected_job = {
@@ -156,10 +156,10 @@ def test_create_job(
 
 @pytest.mark.parametrize("payload, bcc", _UNAVAILABLE_BCC_FIXTURE)
 def test_create_job_without_bcc(db, client_v2, payload, app_token_header, bcc):
-    """Post to /v2/jobs/ error out if BCC is not available"""
+    """Post to /jobs/ error out if BCC is not available"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.post(f"/v2/jobs/", json=payload, headers=app_token_header)
+        response = client.post(f"/jobs/", json=payload, headers=app_token_header)
         jobs_after_creation = find_in_collection(
             db,
             collection_name=_COLLECTION,
@@ -176,7 +176,7 @@ def test_create_job_without_bcc(db, client_v2, payload, app_token_header, bcc):
 def test_create_job_with_auth_disabled(
     mock_bcc, db, no_auth_client_v2, payload, freezer
 ):
-    """Post to /v2/jobs/ creates a job in the given device even when auth is disabled"""
+    """Post to /jobs/ creates a job in the given device even when auth is disabled"""
     device = payload["device"]
     expected_bcc_base_url = TEST_BACKENDS_MAP[device]["url"]
     jobs_before_creation = find_in_collection(
@@ -188,7 +188,7 @@ def test_create_job_with_auth_disabled(
 
     # using context manager to ensure on_startup runs
     with no_auth_client_v2 as client:
-        response = client.post(f"/v2/jobs/", json=payload)
+        response = client.post(f"/jobs/", json=payload)
         json_response = response.json()
         new_job_id = json_response["job_id"]
         expected_job = {
@@ -226,7 +226,7 @@ def test_find_jobs(
     no_qpu_app_token_header,
     freezer,
 ):
-    """Get to /v2/job/?project_id=...&device=... can search for the jobs that fulfill the given filters"""
+    """Get to /job/?project_id=...&device=... can search for the jobs that fulfill the given filters"""
     raw_jobs = with_incremental_timestamps(
         _JOBS_LIST,
         fields=(
@@ -261,9 +261,7 @@ def test_find_jobs(
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.get(
-            f"/v2/jobs/{query_string}", headers=no_qpu_app_token_header
-        )
+        response = client.get(f"/jobs/{query_string}", headers=no_qpu_app_token_header)
         got = response.json()
         filtered_data = filter_by_equality(raw_jobs, filters=search)
         sorted_data = order_by_many(filtered_data, fields=sort_fields)
@@ -279,7 +277,7 @@ def test_find_jobs(
 
 @pytest.mark.parametrize("raw_payload", _JOB_UPDATES)
 def test_update_job(db, client_v2, raw_payload: dict, app_token_header, freezer):
-    """PUT to /v2/jobs/{job_id} updates the job with the given object, it ignores job_id"""
+    """PUT to /jobs/{job_id} updates the job with the given object, it ignores job_id"""
     raw_jobs = with_incremental_timestamps(
         _JOBS_LIST, fields=["created_at", "calibration_date"]
     )
@@ -293,7 +291,7 @@ def test_update_job(db, client_v2, raw_payload: dict, app_token_header, freezer)
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.put(
-            f"/v2/jobs/{job_id}",
+            f"/jobs/{job_id}",
             json={**payload},
             headers=app_token_header,
         )
@@ -318,7 +316,7 @@ def test_update_job(db, client_v2, raw_payload: dict, app_token_header, freezer)
 def test_update_job_resource_usage(
     db, client_v2, project_id, raw_payload: dict, app_token_header, freezer
 ):
-    """PUT to /v2/jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps" property"""
+    """PUT to /jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps" property"""
     raw_jobs = with_incremental_timestamps(
         _JOBS_LIST, fields=["created_at", "calibration_date"]
     )
@@ -337,7 +335,7 @@ def test_update_job_resource_usage(
         # check for idempotence
         for _ in range(3):
             response = client.put(
-                f"/v2/jobs/{job_id}",
+                f"/jobs/{job_id}",
                 json=raw_payload,
                 headers=app_token_header,
             )
@@ -358,7 +356,7 @@ def test_update_job_resource_usage(
 def test_update_job_resource_usage_advanced(
     db, client_v2, project_id, payload: dict, app_token_header, freezer
 ):
-    """PUT to /v2/jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps.execution" field"""
+    """PUT to /jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps.execution" field"""
     raw_jobs = with_incremental_timestamps(
         _JOBS_LIST, fields=["created_at", "calibration_date"]
     )
@@ -376,7 +374,7 @@ def test_update_job_resource_usage_advanced(
         # check for idempotence
         for _ in range(3):
             response = client.put(
-                f"/v2/jobs/{job_id}",
+                f"/jobs/{job_id}",
                 json=payload,
                 headers=app_token_header,
             )

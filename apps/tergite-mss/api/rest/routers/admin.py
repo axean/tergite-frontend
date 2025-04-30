@@ -25,7 +25,7 @@ from services.auth import (
 )
 from utils.api import PaginatedListResponse
 
-from ...dependencies import CurrentSuperuserDep, CurrentUserDep, CurrentUserIdDep
+from ..dependencies import CurrentSuperuserDep, CurrentUserDep, CurrentUserIdDep
 
 router = APIRouter(prefix="/admin")
 

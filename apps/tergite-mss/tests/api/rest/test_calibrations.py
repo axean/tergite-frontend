@@ -69,7 +69,7 @@ def test_find_calibrations(
     search: dict,
     freezer,
 ):
-    """Get to /v2/calibrations/?version=...&name=... can search for the calibrations that fulfill the given filters"""
+    """Get to /calibrations/?version=...&name=... can search for the calibrations that fulfill the given filters"""
     raw_calibrations = with_incremental_timestamps(
         _LATEST_CALIBRATIONS, fields=("last_calibrated", "updated_at")
     )
@@ -104,7 +104,7 @@ def test_find_calibrations(
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.get(f"/v2/calibrations/{query_string}")
+        response = client.get(f"/calibrations/{query_string}")
         got = response.json()
 
         filtered_data = filter_by_equality(raw_calibrations, filters=search)
@@ -121,7 +121,7 @@ def test_find_calibrations(
 
 @pytest.mark.parametrize("name", _DEVICE_NAMES)
 def test_read_calibration(name: str, db, client_v2, freezer):
-    """Get `/v2/calibrations/{name}` reads the latest calibration of the given device"""
+    """Get `/calibrations/{name}` reads the latest calibration of the given device"""
     raw_calibrations = with_incremental_timestamps(
         _LATEST_CALIBRATIONS, fields=("last_calibrated", "updated_at")
     )
@@ -134,7 +134,7 @@ def test_read_calibration(name: str, db, client_v2, freezer):
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        response = client.get(f"/v2/calibrations/{name}")
+        response = client.get(f"/calibrations/{name}")
         got = response.json()
         expected = filter_by_equality(raw_calibrations, {"name": name})[0]
 
@@ -144,11 +144,11 @@ def test_read_calibration(name: str, db, client_v2, freezer):
 
 @pytest.mark.parametrize("payload", _CALIBRATIONS_LIST)
 def test_create(db, client_v2, system_app_token_header, payload, freezer):
-    """POST new calibration to `/v2/calibrations` creates it in calibrations and returns it"""
+    """POST new calibration to `/calibrations` creates it in calibrations and returns it"""
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.post(
-            "/v2/calibrations/",
+            "/calibrations/",
             json=payload,
             headers=system_app_token_header,
         )
@@ -163,7 +163,7 @@ def test_create(db, client_v2, system_app_token_header, payload, freezer):
 
 @pytest.mark.parametrize("raw_payload", _CALIBRATIONS_LIST)
 def test_upsert(db, client_v2, system_app_token_header, raw_payload, freezer):
-    """POST an existing calibration to `/v2/calibrations` updates it in the calibrations collection"""
+    """POST an existing calibration to `/calibrations` updates it in the calibrations collection"""
     raw_calibrations = with_current_timestamps(
         [raw_payload], fields=("updated_at", "last_calibrated")
     )
@@ -185,7 +185,7 @@ def test_upsert(db, client_v2, system_app_token_header, raw_payload, freezer):
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.post(
-            "/v2/calibrations/",
+            "/calibrations/",
             json=payload,
             headers=system_app_token_header,
         )
@@ -204,7 +204,7 @@ def test_upsert(db, client_v2, system_app_token_header, raw_payload, freezer):
 
 @pytest.mark.parametrize("raw_payload", _CALIBRATIONS_LIST)
 def test_create_log(db, client_v2, system_app_token_header, raw_payload, freezer):
-    """POST calibrations to `/v2/calibrations` adds the calibration to calibrations_logs if not exist"""
+    """POST calibrations to `/calibrations` adds the calibration to calibrations_logs if not exist"""
     raw_calibrations = with_current_timestamps(
         _LATEST_CALIBRATIONS, fields=("updated_at",)
     )
@@ -222,7 +222,7 @@ def test_create_log(db, client_v2, system_app_token_header, raw_payload, freezer
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.post(
-            "/v2/calibrations/",
+            "/calibrations/",
             json=payload,
             headers=system_app_token_header,
         )
@@ -237,7 +237,7 @@ def test_create_log(db, client_v2, system_app_token_header, raw_payload, freezer
 
 @pytest.mark.parametrize("payload", _CALIBRATIONS_LIST)
 def test_create_calibrations_non_system_user(db, client_v2, payload, user_jwt_cookie):
-    """Only system users can POST calibration-like dicts to `/v2/calibrations`"""
+    """Only system users can POST calibration-like dicts to `/calibrations`"""
     original_data_in_db = find_in_collection(
         db, collection_name=_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
     )
@@ -245,7 +245,7 @@ def test_create_calibrations_non_system_user(db, client_v2, payload, user_jwt_co
     # using context manager to ensure on_startup runs
     with client_v2 as client:
         response = client.post(
-            "/v2/calibrations/",
+            "/calibrations/",
             json=payload,
             cookies=user_jwt_cookie,
         )
