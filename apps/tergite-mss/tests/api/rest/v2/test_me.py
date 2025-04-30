@@ -13,6 +13,7 @@
 
 from datetime import datetime, timedelta, timezone
 from random import randint
+from typing import List, Optional
 
 import pytest
 from pytest_lazyfixture import lazy_fixture
@@ -38,7 +39,7 @@ from tests._utils.auth import (
 from tests._utils.date_time import get_current_timestamp_str, get_timestamp_str
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.mongodb import insert_in_collection
-from tests._utils.records import order_by, prune
+from tests._utils.records import filter_by_equality, order_by, order_by_many, prune
 from tests.conftest import (
     APP_TOKEN_LIST,
     PROJECT_V2_LIST,
@@ -48,10 +49,6 @@ from tests.conftest import (
 
 _JOBS_COLLECTION = "jobs"
 
-_USER_EMAIL_INDEX = {
-    TEST_SUPERUSER_EMAIL: TEST_SUPERUSER_ID,
-    TEST_USER_EMAIL: TEST_USER_ID,
-}
 _MY_PROJECT_REQUESTS = [
     (user_id, get_auth_cookie(user_id), project)
     for project in PROJECT_V2_LIST
@@ -98,8 +95,26 @@ _EXTRA_PROJECT_DEFAULTS = {
     "user_emails": None,
     "admin_email": None,
 }
+_SKIP_LIMIT_SORT_PARAMS = [
+    (0, 1, ["-job_id", "created_at"]),
+    (1, 4, None),
+    (2, None, ["created_at"]),
+]
+_SEARCH_PARAMS = [
+    {"device": "Loke"},
+    {"device": "Pingu", "status": "successful"},
+    {"status": "failed"},
+    {},
+    {"project_id": "653a8f19e736d76276597a6c"},
+    {"project_id": "653a8f19e736d76276597a6c", "status": "pending"},
+]
+_PAGINATE_AND_SEARCH_PARAMS = [
+    (skip, limit, sort, search, user_id, cookie)
+    for skip, limit, sort in _SKIP_LIMIT_SORT_PARAMS
+    for search in _SEARCH_PARAMS
+    for user_id, cookie in _USER_ID_COOKIES_FIXTURE
+]
 
-# FIXME: There are some tests that are being skipped. I don't know which ones they are and why.
 
 _JOBS_LIST_IN_DB = load_json_fixture("my_jobs_in_db.json")
 _JOBS_LIST_AS_RESPONSES = load_json_fixture("my_job_responses.json")
@@ -614,54 +629,60 @@ def test_app_token_of_unallocated_projects_fails(
         assert got == expected
 
 
-@pytest.mark.parametrize("user_id, cookies", _USER_ID_COOKIES_FIXTURE)
-def test_read_all_my_jobs(db, client_v2, user_id, cookies):
-    """Get to /v2/me/jobs returns the jobs for the current user"""
+@pytest.mark.parametrize(
+    "skip, limit, sort, search, user_id, cookies", _PAGINATE_AND_SEARCH_PARAMS
+)
+def test_find_my_jobs(
+    db,
+    client_v2,
+    skip: Optional[int],
+    limit: Optional[int],
+    sort: Optional[List[str]],
+    search: dict,
+    user_id,
+    cookies,
+):
+    """Get to /v2/me/job/?project_id=...&device=... can search for the jobs that fulfill the given filters"""
     insert_in_collection(
         database=db, collection_name=_JOBS_COLLECTION, data=_JOBS_LIST_IN_DB
     )
 
-    # using context manager to ensure on_startup runs
-    with client_v2 as client:
-        response = client.get(f"/v2/me/jobs", cookies=cookies)
-        got = order_by(response.json(), field="job_id")
-        expected = order_by(
-            [
-                job
-                for job in _JOBS_LIST_AS_RESPONSES
-                if "user_id" in job and job["user_id"] == user_id
-            ],
-            field="job_id",
-        )
+    query_string = "?"
+    slice_end = len(_JOBS_LIST_IN_DB)
+    slice_start = 0
+    sort_fields = [
+        "-created_at",
+    ]
+    if limit is not None:
+        query_string += f"limit={limit}&"
+        slice_end = limit
+    if skip is not None:
+        query_string += f"skip={skip}&"
+        slice_start = skip
+        slice_end += skip
+    if sort is not None:
+        sort_fields = sort
+        for sort_field in sort_fields:
+            query_string += f"sort={sort_field}&"
 
-        assert response.status_code == 200
-        assert got == expected
-
-
-@pytest.mark.parametrize("user_id, cookies, project", _MY_PROJECT_REQUESTS)
-def test_read_all_my_jobs_of_given_project(db, client_v2, user_id, cookies, project):
-    """Get to /v2/me/jobs returns the jobs for the current user for the given project"""
-    insert_in_collection(
-        database=db, collection_name=_JOBS_COLLECTION, data=_JOBS_LIST_IN_DB
-    )
+    # Adding search
+    for key, value in search.items():
+        query_string += f"{key}={value}&"
 
     # using context manager to ensure on_startup runs
     with client_v2 as client:
-        project_id = project["_id"]
-        response = client.get(
-            f"/v2/me/jobs", cookies=cookies, params={"project_id": project_id}
+        response = client.get(f"/v2/me/jobs/{query_string}", cookies=cookies)
+        got = response.json()
+        effective_filters = {**search, "user_id": user_id}
+        filtered_data = filter_by_equality(
+            _JOBS_LIST_AS_RESPONSES, filters=effective_filters
         )
-        got = order_by(response.json(), field="job_id")
-        expected = order_by(
-            [
-                job
-                for job in _JOBS_LIST_AS_RESPONSES
-                if "user_id" in job
-                and job["user_id"] == user_id
-                and job.get("project_id") == project_id
-            ],
-            field="job_id",
-        )
+        sorted_data = order_by_many(filtered_data, fields=sort_fields)
+        expected = {
+            "skip": slice_start,
+            "limit": limit,
+            "data": sorted_data[slice_start:slice_end],
+        }
 
         assert response.status_code == 200
         assert got == expected

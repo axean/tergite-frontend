@@ -247,7 +247,9 @@ def filter_by_equality(
     Returns:
         the records that match the given filters
     """
-    return [item for item in records if all([item[k] == v for k, v in filters.items()])]
+    return [
+        item for item in records if all([item.get(k) == v for k, v in filters.items()])
+    ]
 
 
 def with_incremental_timestamps(
