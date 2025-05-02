@@ -85,7 +85,7 @@ _PAGINATE_AND_SEARCH_PARAMS = [
 
 
 @pytest.mark.parametrize("job_id", _JOB_IDS)
-def test_read_job(db, client_v2, job_id: str, no_qpu_app_token_header, freezer):
+def test_read_job(db, client, job_id: str, no_qpu_app_token_header, freezer):
     """Get to /jobs/{job_id} returns the job for the given job_id"""
     all_jobs = with_current_timestamps(
         _JOBS_LIST, fields=("created_at", "updated_at", "calibration_date")
@@ -93,7 +93,7 @@ def test_read_job(db, client_v2, job_id: str, no_qpu_app_token_header, freezer):
     insert_in_collection(database=db, collection_name=_COLLECTION, data=all_jobs)
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.get(f"/jobs/{job_id}", headers=no_qpu_app_token_header)
         got = response.json()
         expected = list(filter(lambda x: x["job_id"] == job_id, all_jobs))[0]
@@ -106,7 +106,7 @@ def test_read_job(db, client_v2, job_id: str, no_qpu_app_token_header, freezer):
 def test_create_job(
     mock_bcc,
     db,
-    client_v2,
+    client,
     payload,
     project_id: PydanticObjectId,
     app_token_header,
@@ -124,7 +124,7 @@ def test_create_job(
     timestamp = get_current_timestamp_str()
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.post(f"/jobs/", json=payload, headers=app_token_header)
         json_response = response.json()
         new_job_id = json_response["job_id"]
@@ -155,10 +155,10 @@ def test_create_job(
 
 
 @pytest.mark.parametrize("payload, bcc", _UNAVAILABLE_BCC_FIXTURE)
-def test_create_job_without_bcc(db, client_v2, payload, app_token_header, bcc):
+def test_create_job_without_bcc(db, client, payload, app_token_header, bcc):
     """Post to /jobs/ error out if BCC is not available"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.post(f"/jobs/", json=payload, headers=app_token_header)
         jobs_after_creation = find_in_collection(
             db,
@@ -173,9 +173,7 @@ def test_create_job_without_bcc(db, client_v2, payload, app_token_header, bcc):
 
 
 @pytest.mark.parametrize("payload", _CREATE_JOB_PAYLOADS)
-def test_create_job_with_auth_disabled(
-    mock_bcc, db, no_auth_client_v2, payload, freezer
-):
+def test_create_job_with_auth_disabled(mock_bcc, db, no_auth_client, payload, freezer):
     """Post to /jobs/ creates a job in the given device even when auth is disabled"""
     device = payload["device"]
     expected_bcc_base_url = TEST_BACKENDS_MAP[device]["url"]
@@ -187,7 +185,7 @@ def test_create_job_with_auth_disabled(
     timestamp = get_current_timestamp_str()
 
     # using context manager to ensure on_startup runs
-    with no_auth_client_v2 as client:
+    with no_auth_client as client:
         response = client.post(f"/jobs/", json=payload)
         json_response = response.json()
         new_job_id = json_response["job_id"]
@@ -218,7 +216,7 @@ def test_create_job_with_auth_disabled(
 @pytest.mark.parametrize("skip, limit, sort, search", _PAGINATE_AND_SEARCH_PARAMS)
 def test_find_jobs(
     db,
-    client_v2,
+    client,
     skip: Optional[int],
     limit: Optional[int],
     sort: Optional[List[str]],
@@ -260,7 +258,7 @@ def test_find_jobs(
         query_string += f"{key}={value}&"
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.get(f"/jobs/{query_string}", headers=no_qpu_app_token_header)
         got = response.json()
         filtered_data = filter_by_equality(raw_jobs, filters=search)
@@ -276,7 +274,7 @@ def test_find_jobs(
 
 
 @pytest.mark.parametrize("raw_payload", _JOB_UPDATES)
-def test_update_job(db, client_v2, raw_payload: dict, app_token_header, freezer):
+def test_update_job(db, client, raw_payload: dict, app_token_header, freezer):
     """PUT to /jobs/{job_id} updates the job with the given object, it ignores job_id"""
     raw_jobs = with_incremental_timestamps(
         _JOBS_LIST, fields=["created_at", "calibration_date"]
@@ -289,7 +287,7 @@ def test_update_job(db, client_v2, raw_payload: dict, app_token_header, freezer)
     job_id = raw_payload["job_id"]
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.put(
             f"/jobs/{job_id}",
             json={**payload},
@@ -298,7 +296,9 @@ def test_update_job(db, client_v2, raw_payload: dict, app_token_header, freezer)
         got = response.json()
         expected_job = list(filter(lambda x: x["job_id"] == job_id, raw_jobs))[0]
         actual_update, _ = prune(raw_payload, ignored_fields)
-        expected_job.update(actual_update)
+        expected_job.update(
+            actual_update,
+        )
 
         job_after_update = find_in_collection(
             db,
@@ -314,7 +314,7 @@ def test_update_job(db, client_v2, raw_payload: dict, app_token_header, freezer)
 
 @pytest.mark.parametrize("raw_payload", _JOB_TIMESTAMPED_UPDATES)
 def test_update_job_resource_usage(
-    db, client_v2, project_id, raw_payload: dict, app_token_header, freezer
+    db, client, project_id, raw_payload: dict, app_token_header, freezer
 ):
     """PUT to /jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps" property"""
     raw_jobs = with_incremental_timestamps(
@@ -331,7 +331,7 @@ def test_update_job_resource_usage(
     )
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         # check for idempotence
         for _ in range(3):
             response = client.put(
@@ -354,7 +354,7 @@ def test_update_job_resource_usage(
 
 @pytest.mark.parametrize("payload", _JOB_TIMESTAMPED_UPDATES)
 def test_update_job_resource_usage_advanced(
-    db, client_v2, project_id, payload: dict, app_token_header, freezer
+    db, client, project_id, payload: dict, app_token_header, freezer
 ):
     """PUT to /jobs/{job_id} updates the job's resource usage if passed a payload with "timestamps.execution" field"""
     raw_jobs = with_incremental_timestamps(
@@ -370,7 +370,7 @@ def test_update_job_resource_usage_advanced(
     )
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         # check for idempotence
         for _ in range(3):
             response = client.put(

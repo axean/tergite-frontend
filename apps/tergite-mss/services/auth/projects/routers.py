@@ -27,7 +27,14 @@ from ..users.dtos import CurrentSuperUserDependency, CurrentUserIdDependency, Us
 from ..users.manager import UserManager, UserManagerDependency
 from ..utils import MAX_LIST_QUERY_LEN, TooManyListQueryParams
 from . import exc
-from .dtos import Project, ProjectAdminView, ProjectCreate, ProjectRead, ProjectUpdate
+from .dtos import (
+    Project,
+    ProjectAdminView,
+    ProjectCreate,
+    ProjectPartial,
+    ProjectRead,
+    ProjectUpdate,
+)
 from .manager import ProjectAppTokenManager, ProjectManagerDependency
 
 _password_helper = PasswordHelper()
@@ -127,7 +134,7 @@ def get_my_projects_router(
     return router
 
 
-def get_projects_router_v2(
+def get_projects_router(
     get_project_manager: ProjectManagerDependency,
     get_current_superuser: CurrentSuperUserDependency,
     project_update_schema: Type[ProjectUpdate],
@@ -153,17 +160,15 @@ def get_projects_router_v2(
         response_model_exclude_none=True,
         dependencies=[Depends(get_current_superuser)],
         status_code=status.HTTP_201_CREATED,
-        name="projects:create_project_v2",
+        name="projects:create_project",
     )
     async def create(
         project_create: project_create_schema,  # type: ignore
         project_manager: ProjectAppTokenManager = Depends(get_project_manager),
     ):
         try:
-            project_create = await _prepare_project_v2_payload(project_create)
-            created_project = await project_manager.create(
-                project_create,
-            )
+            project_create = await _prepare_new_project(project_create)
+            created_project = await project_manager.create(project_create)
         except exc.ProjectExists:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -175,7 +180,7 @@ def get_projects_router_v2(
     @router.get(
         "/{id}",
         dependencies=[Depends(get_current_superuser)],
-        name="projects:single_project_v2",
+        name="projects:single_project",
         responses={
             status.HTTP_401_UNAUTHORIZED: {
                 "description": "Missing token or inactive project.",
@@ -195,7 +200,7 @@ def get_projects_router_v2(
         "",
         response_model=PaginatedListResponse[ProjectAdminView],
         dependencies=[Depends(get_current_superuser)],
-        name="projects:many_projects_v2",
+        name="projects:many_projects",
     )
     async def get_many_projects(
         project_manager: ProjectAppTokenManager = Depends(get_project_manager),
@@ -266,12 +271,10 @@ def get_projects_router_v2(
         project=Depends(get_project_or_404),
         project_manager: ProjectAppTokenManager = Depends(get_project_manager),
     ):
-        project_update = await _prepare_update_v2(project, project_update)
-
+        partial_project = await _prepare_partial_project(project, project_update)
         updated_project = await project_manager.update(
-            project_update, project, safe=False, request=request
+            partial_project, project, request=request, safe=False
         )
-
         return await _get_full_admin_project(updated_project)
 
     @router.delete(
@@ -292,8 +295,10 @@ def get_projects_router_v2(
     return router
 
 
-async def _prepare_update_v2(project: Project, payload: ProjectUpdate) -> ProjectUpdate:
-    """Prepares the payload for update
+async def _prepare_partial_project(
+    project: Project, payload: ProjectUpdate
+) -> ProjectPartial:
+    """Prepares the partial project for updating the project
 
     It replaces user_emails and admin_email with user ids
 
@@ -302,62 +307,53 @@ async def _prepare_update_v2(project: Project, payload: ProjectUpdate) -> Projec
         payload: the payload to convert
 
     Returns:
-        the ProjectUpdate instance with proper user_ids and admin_id
+        the ProjectPartial instance with proper user_ids and admin_id
     """
-    payload = payload.model_copy()  # type: ProjectUpdate
     is_user_ids_updating = payload.user_emails is not None
     is_admin_id_updating = payload.admin_email is not None
 
     user_emails = (payload.user_emails or []) + [payload.admin_email]
     user_emails = [k for k in user_emails if k is not None]
     email_id_map = await _get_user_email_id_map(user_emails)
+    user_ids: Optional[List[str]] = None
 
     admin_id = str(project.admin_id)
     if is_admin_id_updating:
-        payload.admin_id = email_id_map[payload.admin_email]
-        admin_id = payload.admin_id
+        admin_id = email_id_map[payload.admin_email]
 
     if is_user_ids_updating:
-        payload.user_ids = [email_id_map[email] for email in payload.user_emails]
+        user_ids = [email_id_map[email] for email in payload.user_emails]
 
-    if is_user_ids_updating and admin_id not in payload.user_ids:
-        payload.user_ids.append(admin_id)
+    if is_user_ids_updating and admin_id not in user_ids:
+        user_ids.append(admin_id)
 
     if not is_user_ids_updating and admin_id not in project.user_ids:
-        payload.user_ids = [*project.user_ids, admin_id]
+        user_ids = [*project.user_ids, admin_id]
 
-    # clean up the user emails for privacy reasons
-    payload.admin_email = None
-    payload.user_emails = None
-
-    return payload
+    kwargs = payload.model_dump(exclude={"admin_email", "user_emails"})
+    return ProjectPartial(**kwargs, user_ids=user_ids, admin_id=admin_id)
 
 
-async def _prepare_project_v2_payload(payload: ProjectCreate) -> ProjectCreate:
-    """Prepares the raw payload to be of Project version 2
+async def _prepare_new_project(payload: ProjectCreate) -> Project:
+    """Prepares a new Project instance from a ProjectCreate instance
 
     Args:
         payload: the payload to convert
 
     Returns:
-        the ProjectCreate instance with proper version 2 values
+        the Project instance
     """
-    payload = payload.model_copy()  # type: ProjectCreate
     all_emails = [*payload.user_emails, payload.admin_email]
     email_id_map = await _get_user_email_id_map(all_emails)
 
-    payload.version = 2
-    payload.user_ids = [email_id_map[email] for email in payload.user_emails]
-    payload.admin_id = email_id_map[payload.admin_email]
+    user_ids = [email_id_map[email] for email in payload.user_emails]
+    admin_id = email_id_map[payload.admin_email]
 
-    if payload.admin_id not in payload.user_ids:
-        payload.user_ids.append(payload.admin_id)
+    if admin_id not in user_ids:
+        user_ids.append(admin_id)
 
-    # remove the emails manually for privacy
-    payload.admin_email = None
-    payload.user_emails = None
-
-    return payload
+    kwargs = payload.model_dump(exclude={"user_emails", "admin_email"})
+    return Project(**kwargs, user_ids=user_ids, admin_id=admin_id)
 
 
 async def _get_user_email_id_map(user_emails: List[str]) -> Dict[str, str]:
@@ -414,14 +410,11 @@ async def _get_full_admin_project(
     Raises:
         KeyError: user id does not exist in database
     """
-    if project.version is None or project.version < 2:
-        return project
-
     id_email_map = await _get_user_id_email_map([*project.user_ids, project.admin_id])
-    props = project.model_dump()
-    props["user_emails"] = [id_email_map[v] for v in project.user_ids]
-    props["admin_email"] = id_email_map[project.admin_id]
-    return ProjectAdminView(**props)
+    props = project.model_dump(exclude={"user_emails", "admin_email"})
+    user_emails = [id_email_map[v] for v in project.user_ids]
+    admin_email = id_email_map[project.admin_id]
+    return ProjectAdminView(**props, user_emails=user_emails, admin_email=admin_email)
 
 
 class _TrimmedUser(BaseModel):

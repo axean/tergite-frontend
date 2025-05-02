@@ -32,29 +32,28 @@ async def read_many(db: MongoDbDep):
     """Retrieves all devices"""
     records = await devices.get_all_devices(db)
     return [
-        devices.DeviceV2.model_validate(item).model_dump(mode="json")
-        for item in records
+        devices.Device.model_validate(item).model_dump(mode="json") for item in records
     ]
 
 
 @router.get("/{name}")
 async def read_one(db: MongoDbDep, name: str):
     record = await devices.get_one_device(db, name=name)
-    return devices.DeviceV2.model_validate(record).model_dump(mode="json")
+    return devices.Device.model_validate(record).model_dump(mode="json")
 
 
 @router.put("")
 async def upsert(
     db: MongoDbDep,
     user: CurrentSystemUserProjectDep,
-    payload: devices.DeviceV2Upsert,
+    payload: devices.DeviceUpsert,
 ):
     """Creates a new backend if it does not exist already or updates it.
 
     It also appends this resultant backend config into the backends log.
     """
     record = await devices.upsert_device(db, payload=payload)
-    return devices.DeviceV2.model_validate(record).model_dump(mode="json")
+    return devices.Device.model_validate(record).model_dump(mode="json")
 
 
 @router.put("/{name}")
@@ -63,4 +62,4 @@ async def update(
 ):
     """Updates the given backend with the new body supplied."""
     record = await devices.patch_device(db, name, payload=body)
-    return devices.DeviceV2.model_validate(record).model_dump(mode="json")
+    return devices.Device.model_validate(record).model_dump(mode="json")

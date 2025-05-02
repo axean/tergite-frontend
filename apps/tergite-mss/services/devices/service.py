@@ -21,7 +21,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from utils import mongodb as mongodb_utils
 from utils.date_time import get_current_timestamp
 
-from .dtos import DeviceV2Upsert
+from .dtos import DeviceUpsert
 
 
 async def get_all_devices(db: AsyncIOMotorDatabase, sort: List[str] = ("-created_at",)):
@@ -50,7 +50,7 @@ async def get_one_device(db: AsyncIOMotorDatabase, name: str):
     return await mongodb_utils.find_one(db.devices, {"name": name}, dropped_fields=())
 
 
-async def upsert_device(db: AsyncIOMotorDatabase, payload: DeviceV2Upsert):
+async def upsert_device(db: AsyncIOMotorDatabase, payload: DeviceUpsert):
     """Creates a new device or updates it if it exists
 
     Args:

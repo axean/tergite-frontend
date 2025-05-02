@@ -9,7 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""Integration tests for the 'me v2' router"""
+"""Integration tests for the 'me' router"""
 
 from datetime import datetime, timedelta, timezone
 from random import randint
@@ -23,8 +23,8 @@ from services.auth.projects.dtos import DeletedProject
 from tests._utils.auth import (
     TEST_APP_TOKEN_DICT,
     TEST_NO_QPU_APP_TOKEN_DICT,
-    TEST_NO_QPU_PROJECT_V2_DICT,
-    TEST_PROJECT_V2_DICT,
+    TEST_NO_QPU_PROJECT_DICT,
+    TEST_PROJECT_DICT,
     TEST_SUPERUSER_DICT,
     TEST_SUPERUSER_EMAIL,
     TEST_SUPERUSER_ID,
@@ -42,7 +42,7 @@ from tests._utils.mongodb import insert_in_collection
 from tests._utils.records import filter_by_equality, order_by, order_by_many, prune
 from tests.conftest import (
     APP_TOKEN_LIST,
-    PROJECT_V2_LIST,
+    PROJECT_LIST,
     get_auth_cookie,
     get_unauthorized_app_token_post_with_cookies,
 )
@@ -51,16 +51,16 @@ _JOBS_COLLECTION = "jobs"
 
 _MY_PROJECT_REQUESTS = [
     (user_id, get_auth_cookie(user_id), project)
-    for project in PROJECT_V2_LIST
+    for project in PROJECT_LIST
     for user_id in project["user_ids"]
 ]
 _MY_ADMINISTERED_PROJECT_REQUESTS = [
     (project["admin_id"], get_auth_cookie(project["admin_id"]), project)
-    for project in PROJECT_V2_LIST
+    for project in PROJECT_LIST
 ]
 _MY_NON_ADMINISTERED_PROJECT_REQUESTS = [
     (user_id, get_auth_cookie(user_id), project)
-    for project in PROJECT_V2_LIST
+    for project in PROJECT_LIST
     for user_id in project["user_ids"]
     if user_id != project["admin_id"]
 ]
@@ -70,7 +70,7 @@ _MY_USER_INFO_REQUESTS = [
 ]
 _OTHERS_PROJECT_REQUESTS = [
     (user_id, get_auth_cookie(user_id), project)
-    for project in PROJECT_V2_LIST
+    for project in PROJECT_LIST
     for user_id in [TEST_USER_ID, TEST_SUPERUSER_ID]
     if user_id not in project["user_ids"]
 ]
@@ -122,19 +122,18 @@ _JOBS_LIST_AS_RESPONSES = load_json_fixture("my_job_responses.json")
 
 @pytest.mark.parametrize("user_id, cookies", _USER_ID_COOKIES_FIXTURE)
 def test_view_own_projects_in_less_detail(
-    user_id, cookies, client_v2, inserted_project_ids_v2
+    user_id, cookies, client, inserted_project_ids
 ):
     """Any user can view only their own projects at /me/projects/
     without user_ids"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.get("/me/projects/", cookies=cookies)
 
         got = response.json()
         project_list = [
             {
                 "id": str(item["_id"]),
-                "version": item.get("version", None),
                 "name": item.get("name", None),
                 "ext_id": item["ext_id"],
                 "qpu_seconds": item["qpu_seconds"],
@@ -145,8 +144,7 @@ def test_view_own_projects_in_less_detail(
                 "created_at": item.get("created_at", None),
                 "updated_at": item.get("updated_at", None),
             }
-            for item in [TEST_PROJECT_V2_DICT, TEST_NO_QPU_PROJECT_V2_DICT]
-            + PROJECT_V2_LIST
+            for item in [TEST_PROJECT_DICT, TEST_NO_QPU_PROJECT_DICT] + PROJECT_LIST
             if user_id in item["user_ids"]
         ]
 
@@ -156,12 +154,12 @@ def test_view_own_projects_in_less_detail(
 
 @pytest.mark.parametrize("user_id, cookies, project", _MY_PROJECT_REQUESTS)
 def test_view_my_project_in_less_detail(
-    user_id, cookies, project, client_v2, inserted_projects_v2
+    user_id, cookies, project, client, inserted_projects
 ):
     """Any user can view only their own single project at /me/projects/{id}
     without user_emails"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         project_id = project["_id"]
         url = f"/me/projects/{project_id}"
         response = client.get(url, cookies=cookies)
@@ -169,7 +167,6 @@ def test_view_my_project_in_less_detail(
         got = response.json()
         expected = {
             "id": project_id,
-            "version": project["version"],
             "name": project["name"],
             "ext_id": project["ext_id"],
             "qpu_seconds": project["qpu_seconds"],
@@ -187,11 +184,11 @@ def test_view_my_project_in_less_detail(
 
 @pytest.mark.parametrize("user_id, cookies, project", _OTHERS_PROJECT_REQUESTS)
 def test_view_others_project_is_not_allowed(
-    user_id, cookies, project, client_v2, inserted_projects_v2
+    user_id, cookies, project, client, inserted_projects
 ):
     """No user can view other's projects at /me/projects/{id}"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         project_id = project["_id"]
         url = f"/me/projects/{project_id}"
         response = client.get(url, cookies=cookies)
@@ -205,11 +202,11 @@ def test_view_others_project_is_not_allowed(
 
 @pytest.mark.parametrize("user_id, cookies, project", _MY_ADMINISTERED_PROJECT_REQUESTS)
 def test_delete_own_project(
-    user_id, cookies, project, client_v2, inserted_projects_v2, db, freezer
+    user_id, cookies, project, client, inserted_projects, db, freezer
 ):
     """Any user can delete the project they administer at /me/projects/{id}"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         _id = project["_id"]
         url = f"/me/projects/{_id}"
 
@@ -237,11 +234,11 @@ def test_delete_own_project(
     "user_id, cookies, project", _MY_NON_ADMINISTERED_PROJECT_REQUESTS
 )
 def test_delete_others_project_is_not_allowed(
-    user_id, cookies, project, client_v2, inserted_projects_v2, db
+    user_id, cookies, project, client, inserted_projects, db
 ):
     """No user can delete projects they don't administer at /me/projects/{id}"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         project_id = project["_id"]
         url = f"/me/projects/{project_id}"
 
@@ -257,12 +254,12 @@ def test_delete_others_project_is_not_allowed(
 
 
 @pytest.mark.parametrize("payload", APP_TOKEN_LIST)
-def test_generate_app_token(payload, inserted_projects_v2, client_v2):
+def test_generate_app_token(payload, inserted_projects, client):
     """At /me/tokens/, user can generate app token for project they are attached to"""
     cookies = get_auth_cookie(payload["user_id"])
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.post("/me/tokens/", cookies=cookies, json=payload)
 
         got = response.json()
@@ -273,11 +270,11 @@ def test_generate_app_token(payload, inserted_projects_v2, client_v2):
 
 
 @pytest.mark.parametrize("payload", APP_TOKEN_LIST)
-def test_unauthenticated_app_token_generation(payload, inserted_projects_v2, client_v2):
+def test_unauthenticated_app_token_generation(payload, inserted_projects, client):
     """401 error raised at /me/tokens/ when no user jwt is sent"""
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.post("/me/tokens/", json=payload)
 
         got = response.json()
@@ -289,12 +286,10 @@ def test_unauthenticated_app_token_generation(payload, inserted_projects_v2, cli
 @pytest.mark.parametrize(
     "body, cookies", get_unauthorized_app_token_post_with_cookies()
 )
-def test_unauthorized_app_token_generation(
-    body, cookies, inserted_projects_v2, client_v2
-):
+def test_unauthorized_app_token_generation(body, cookies, inserted_projects, client):
     """403 error raised at /me/tokens/, for a project to which a user is not attached"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.post("/me/tokens/", cookies=cookies, json=body)
 
         got = response.json()
@@ -304,12 +299,10 @@ def test_unauthorized_app_token_generation(
 
 
 @pytest.mark.parametrize("payload", APP_TOKEN_LIST)
-def test_destroy_app_token(
-    payload, db, client_v2, inserted_projects_v2, inserted_app_tokens
-):
+def test_destroy_app_token(payload, db, client, inserted_projects, inserted_app_tokens):
     """At /me/tokens/{token}, user can destroy their own app token"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         _id = payload["_id"]
         user_id = payload["user_id"]
         assert get_db_record(db, AppToken, _id) is not None
@@ -324,11 +317,11 @@ def test_destroy_app_token(
 
 @pytest.mark.parametrize("payload", APP_TOKEN_LIST)
 def test_destroy_expired_app_token(
-    payload, db, client_v2, inserted_projects_v2, inserted_app_tokens
+    payload, db, client, inserted_projects, inserted_app_tokens
 ):
     """At /me/tokens/{token}, user can destroy their own expired app token"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         _id = payload["_id"]
         user_id = payload["user_id"]
         token = get_db_record(db, AppToken, _id)
@@ -351,11 +344,11 @@ def test_destroy_expired_app_token(
 
 @pytest.mark.parametrize("payload", APP_TOKEN_LIST)
 def test_unauthenticated_app_token_deletion(
-    payload, db, client_v2, inserted_projects_v2, inserted_app_tokens
+    payload, db, client, inserted_projects, inserted_app_tokens
 ):
     """401 error raised at /me/tokens/{token} if no JWT token is passed"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         _id = payload["_id"]
         assert get_db_record(db, AppToken, _id) is not None
 
@@ -373,11 +366,11 @@ def test_unauthenticated_app_token_deletion(
     "payload, cookies", get_unauthorized_app_token_post_with_cookies()
 )
 def test_unauthorized_app_token_deletion(
-    payload, cookies, db, client_v2, inserted_projects_v2, inserted_app_tokens
+    payload, cookies, db, client, inserted_projects, inserted_app_tokens
 ):
     """403 error raised at /me/tokens/{_id}, for a project to which a user is not attached"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         _id = payload["_id"]
         url = f"/me/tokens/{_id}"
         response = client.delete(url, cookies=cookies)
@@ -390,12 +383,12 @@ def test_unauthorized_app_token_deletion(
 
 @pytest.mark.parametrize("user_id, cookies", _USER_ID_COOKIES_FIXTURE)
 def test_view_own_app_tokens_in_less_detail(
-    user_id, cookies, client_v2, inserted_projects_v2, inserted_app_tokens, freezer
+    user_id, cookies, client, inserted_projects, inserted_app_tokens, freezer
 ):
     """At /me/tokens/, user can view their own app tokens
     without the token itself displayed"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.get("/me/tokens/", cookies=cookies)
 
         got = response.json()
@@ -421,15 +414,15 @@ def test_view_my_app_token_in_less_detail(
     user_id,
     cookies,
     token,
-    client_v2,
-    inserted_projects_v2,
+    client,
+    inserted_projects,
     inserted_app_tokens,
     freezer,
 ):
     """Any user can view only their own single app token at /me/tokens/{id}
     without token itself displayed"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         token_id = token["_id"]
         url = f"/me/tokens/{token_id}"
         response = client.get(url, cookies=cookies)
@@ -453,14 +446,14 @@ def test_view_others_tokens_is_not_allowed(
     user_id,
     cookies,
     token,
-    client_v2,
-    inserted_projects_v2,
+    client,
+    inserted_projects,
     inserted_app_tokens,
     freezer,
 ):
     """No user can view only other's app tokens at /me/tokens/{id}"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         token_id = token["_id"]
         url = f"/me/tokens/{token_id}"
         response = client.get(url, cookies=cookies)
@@ -476,8 +469,8 @@ def test_view_others_tokens_is_not_allowed(
 def test_extend_own_token_lifespan(
     db,
     token,
-    client_v2,
-    inserted_projects_v2,
+    client,
+    inserted_projects,
     inserted_app_tokens,
     freezer,
 ):
@@ -495,7 +488,7 @@ def test_extend_own_token_lifespan(
         "project_ext_id": "a-certain-proj",
     }
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         token_id = token["_id"]
         url = f"/me/tokens/{token_id}"
 
@@ -528,8 +521,8 @@ def test_extend_own_token_lifespan(
 def test_extend_own_expired_token_lifespan(
     db,
     token,
-    client_v2,
-    inserted_projects_v2,
+    client,
+    inserted_projects,
     app_tokens_with_timestamps,
 ):
     """Updating expired app tokens raises 404 HTTP error"""
@@ -548,7 +541,7 @@ def test_extend_own_expired_token_lifespan(
     }
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         token_id = token["_id"]
         url = f"/me/tokens/{token_id}"
         original_token = get_db_record(db, AppToken, token_id)
@@ -579,7 +572,7 @@ def test_extend_own_expired_token_lifespan(
 
 @pytest.mark.parametrize("app_token", APP_TOKEN_LIST)
 def test_expired_app_token_fails(
-    db, app_token, client_v2, inserted_projects_v2, app_tokens_with_timestamps
+    db, app_token, client, inserted_projects, app_tokens_with_timestamps
 ):
     """Expired app tokens raise 401 HTTP error"""
     token_id = app_token["_id"]
@@ -587,7 +580,7 @@ def test_expired_app_token_fails(
     cookies = {"some-token": app_token["token"]}
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         # shift back the created_at date to a time that would make this token expired
         new_created_at = datetime.now(timezone.utc) - timedelta(
             seconds=app_token_ttl + 1
@@ -610,14 +603,14 @@ def test_expired_app_token_fails(
 
 @pytest.mark.parametrize("app_token", APP_TOKEN_LIST)
 def test_app_token_of_unallocated_projects_fails(
-    app_token, client_v2, unallocated_projects, inserted_app_tokens
+    app_token, client, unallocated_projects, inserted_app_tokens
 ):
     """App tokens for projects with qpu_seconds <= 0 raise 403 HTTP error"""
     headers = {"Authorization": f"Bearer {app_token['token']}"}
     project = unallocated_projects[app_token["project_ext_id"]]
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.get("/", headers=headers)
 
         got = response.json()
@@ -634,7 +627,7 @@ def test_app_token_of_unallocated_projects_fails(
 )
 def test_find_my_jobs(
     db,
-    client_v2,
+    client,
     skip: Optional[int],
     limit: Optional[int],
     sort: Optional[List[str]],
@@ -670,7 +663,7 @@ def test_find_my_jobs(
         query_string += f"{key}={value}&"
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.get(f"/me/jobs/{query_string}", cookies=cookies)
         got = response.json()
         effective_filters = {**search, "user_id": user_id}
@@ -689,10 +682,10 @@ def test_find_my_jobs(
 
 
 @pytest.mark.parametrize("user, cookies", _MY_USER_INFO_REQUESTS)
-def test_view_my_user_info(user, cookies, client_v2):
+def test_view_my_user_info(user, cookies, client):
     """Any user can view only their own single user information at /me"""
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.get("/me", cookies=cookies)
 
         raw_data = response.json()

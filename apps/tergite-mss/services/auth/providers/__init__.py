@@ -8,7 +8,7 @@ _ALL_AUTH_PROVIDERS = [
     AuthProvider(
         name=client.name,
         email_domain=client.email_domain,
-        url=client.redirect_url_v2.replace("/callback", "/auto-authorize"),
+        url=client.redirect_url.replace("/callback", "/auto-authorize"),
     )
     for client in settings.CONFIG.auth.clients
 ]

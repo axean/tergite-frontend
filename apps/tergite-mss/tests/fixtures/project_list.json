@@ -1,7 +1,6 @@
 [
   {
     "_id": "7c445113e77284cef9397c5b",
-    "version": 2,
     "name": "Normal Test",
     "ext_id": "normal",
     "admin_id": "de7ddbd2500951be940356a2",
@@ -14,7 +13,6 @@
   },
   {
     "_id": "b1df91c3b796a1d6ddaaa875",
-    "version": 2,
     "name": "Negative QPU",
     "ext_id": "negative-qpu",
     "admin_id": "de7ddbd2500951be940356a2",
@@ -29,7 +27,6 @@
   },
   {
     "_id": "bc5120543373ac88f9fee961",
-    "version": 2,
     "name": "Zero QPU",
     "ext_id": "zero-qpu",
     "admin_id": "8154077d9cb952b92453d575",
@@ -42,7 +39,6 @@
   },
   {
     "_id": "377c83700975c99b370adfb8",
-    "version": 2,
     "name": "Some Project",
     "ext_id": "some-project",
     "admin_id": "6431c4a4508205d9d43015fe",

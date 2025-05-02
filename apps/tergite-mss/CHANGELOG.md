@@ -9,19 +9,21 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 
 ### Changed
 
-- Replaced `requirements.txt` with `pyproject.toml`
-- Upgraded lowest version of python supported to python 3.12
-- Upgraded Fastapi to 0.115.12
-- Upgraded pydantic to the latest v2
-- Removed the v1/auth, v1/backends and v1/jobs endpoints
-- Changed creation of jobs to require a body with required fields 'device' and 'calibration_date'
-- Disabled Mongo-style payloads when updating jobs to ensure more security by reducing capabilities exposed to HTTP
-- Changed job update payloads to only accept the fields that are in the Job schema
-- Changed the POST `/v2/calibrations` endpoint to receive only a single calibration result at a time
-- Changed the GET `/v2/calibrations/` endpoint to return a paginated response of calibrations
-- Made 'calibration_date' a required property on the job object
-- Changed the GET `/v2/me/jobs` endpoint to `/me/jobs/`
-- Changed the GET `/me/jobs` endpoint to return a paginated response of jobs
+- BREAKING: Replaced `requirements.txt` with `pyproject.toml`
+- BREAKING: Upgraded lowest version of python supported to python 3.12
+- BREAKING: Upgraded Fastapi to 0.115.12
+- BREAKING: Upgraded pydantic to the latest v2
+- BREAKING: Removed the v1/auth, v1/backends and v1/jobs endpoints
+- BREAKING: Changed creation of jobs to require a body with required fields 'device' and 'calibration_date'
+- BREAKING: Disabled Mongo-style payloads when updating jobs to ensure more security by reducing capabilities exposed to HTTP
+- BREAKING: Changed job update payloads to only accept the fields that are in the Job schema
+- BREAKING: Changed the POST `/v2/calibrations` endpoint to receive only a single calibration result at a time
+- BREAKING: Changed the GET `/v2/calibrations/` endpoint to return a paginated response of calibrations
+- BREAKING: Made 'calibration_date' a required property on the job object
+- BREAKING: Changed the GET `/v2/me/jobs` endpoint to `/me/jobs/`
+- BREAKING: Changed the GET `/me/jobs` endpoint to return a paginated response of jobs
+- BREAKING: Changed `/v2/` endpoints to `/` endpoints
+- BREAKING: Remove version property from project schema
 
 ### Added
 

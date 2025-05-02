@@ -55,7 +55,7 @@ from tests._utils.auth import (
     TEST_USER_ID,
     get_db_record,
     get_jwt_token,
-    init_test_auth_v2,
+    init_test_auth,
     insert_if_not_exist,
 )
 from tests._utils.fixtures import load_json_fixture
@@ -63,7 +63,7 @@ from tests._utils.modules import remove_modules
 from tests._utils.waldur import MockWaldurClient
 
 _PUHURI_OPENID_CONFIG = load_json_fixture("puhuri_openid_config.json")
-PROJECT_V2_LIST = load_json_fixture("project_v2_list.json")
+PROJECT_LIST = load_json_fixture("project_list.json")
 APP_TOKEN_LIST = load_json_fixture("app_token_list.json")
 TEST_NEXT_COOKIE_URL = "https://testserver/"
 
@@ -191,22 +191,22 @@ def project_id(db) -> PydanticObjectId:
 
 
 @pytest.fixture
-def client_v2(db) -> TestClient:
-    """A test client for fast api for v2"""
+def client(db) -> TestClient:
+    """A test client for fast api"""
     from api.rest import app
 
-    init_test_auth_v2(db)
+    init_test_auth(db)
     yield TestClient(app)
 
 
 @pytest.fixture
-def no_auth_client_v2(db) -> TestClient:
+def no_auth_client(db) -> TestClient:
     """A test client for fast api without auth"""
     environ["MSS_CONFIG_FILE"] = TEST_NO_AUTH_MSS_CONFIG_FILE
     importlib.reload(settings)
     from api.rest import app
 
-    init_test_auth_v2(db)
+    init_test_auth(db)
     yield TestClient(app)
 
     # reset
@@ -215,12 +215,12 @@ def no_auth_client_v2(db) -> TestClient:
 
 
 @pytest.fixture
-def inserted_projects_v2(db) -> Dict[str, Dict[str, Any]]:
-    """A dictionary of inserted projects v2"""
+def inserted_projects(db) -> Dict[str, Dict[str, Any]]:
+    """A dictionary of inserted projects"""
     from services.auth import Project
 
     projects = {}
-    for item in PROJECT_V2_LIST:
+    for item in PROJECT_LIST:
         projects[item["_id"]] = {**item}
         insert_if_not_exist(db, Project, {**item, "_id": PydanticObjectId(item["_id"])})
 
@@ -233,7 +233,7 @@ def existing_puhuri_projects(db) -> List[Dict[str, Any]]:
     from services.auth import Project
 
     projects = []
-    for item in PROJECT_V2_LIST:
+    for item in PROJECT_LIST:
         record = {
             **item,
             "source": ProjectSource.PUHURI.value,
@@ -246,9 +246,9 @@ def existing_puhuri_projects(db) -> List[Dict[str, Any]]:
 
 
 @pytest.fixture
-def inserted_project_ids_v2(inserted_projects_v2) -> List[str]:
+def inserted_project_ids(inserted_projects) -> List[str]:
     """A list of inserted project ids for version 2"""
-    yield list(inserted_projects_v2.keys())
+    yield list(inserted_projects.keys())
 
 
 @pytest.fixture
@@ -257,7 +257,7 @@ def unallocated_projects(db) -> Dict[str, Dict[str, Any]]:
     from services.auth import Project
 
     projects = {}
-    for item in PROJECT_V2_LIST:
+    for item in PROJECT_LIST:
         qpu_seconds = int(random.uniform(-54000, 0))
         projects[item["ext_id"]] = {**item, "qpu_seconds": qpu_seconds}
         insert_if_not_exist(
@@ -455,13 +455,13 @@ def get_unauthorized_app_token_post():
     """
     admin_only_projects = [
         project["ext_id"]
-        for project in PROJECT_V2_LIST
+        for project in PROJECT_LIST
         if project["user_emails"] == [TEST_SUPERUSER_ID]
     ]
 
     user_only_projects = [
         project["ext_id"]
-        for project in PROJECT_V2_LIST
+        for project in PROJECT_LIST
         if project["user_ids"] == [TEST_USER_ID]
     ]
 
@@ -488,13 +488,13 @@ def get_unauthorized_app_token_post_with_cookies():
     """
     admin_only_projects = [
         project["ext_id"]
-        for project in PROJECT_V2_LIST
+        for project in PROJECT_LIST
         if project["user_ids"] == [TEST_SUPERUSER_ID]
     ]
 
     user_only_projects = [
         project["ext_id"]
-        for project in PROJECT_V2_LIST
+        for project in PROJECT_LIST
         if project["user_ids"] == [TEST_USER_ID]
     ]
 

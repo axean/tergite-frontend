@@ -9,7 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""Integration tests for the devices v2 router"""
+"""Integration tests for the devices router"""
 from typing import Any, Dict
 
 import pytest
@@ -25,14 +25,14 @@ _EXCLUDED_FIELDS = ["_id"]
 _DEVICE_LIST = load_json_fixture("device_list.json")
 
 
-def test_read_devices(db, client_v2, user_jwt_cookie):
+def test_read_devices(db, client, user_jwt_cookie):
     """GET to /devices retrieves all devices"""
     insert_in_collection(
         database=db, collection_name=_DEVICES_COLLECTION, data=_DEVICE_LIST
     )
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.get(f"/devices", cookies=user_jwt_cookie)
         got = order_by(response.json(), field="name")
         pop_field(got, field="id")
@@ -43,14 +43,14 @@ def test_read_devices(db, client_v2, user_jwt_cookie):
 
 
 @pytest.mark.parametrize("name", [v["name"] for v in _DEVICE_LIST])
-def test_read_one_device(db, client_v2, name: str, user_jwt_cookie):
+def test_read_one_device(db, client, name: str, user_jwt_cookie):
     """GET to /devices/{name} returns the device of the given name"""
     insert_in_collection(
         database=db, collection_name=_DEVICES_COLLECTION, data=_DEVICE_LIST
     )
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.get(f"/devices/{name}", cookies=user_jwt_cookie)
         got: dict = response.json()
         got.pop("id")
@@ -61,14 +61,14 @@ def test_read_one_device(db, client_v2, name: str, user_jwt_cookie):
 
 
 @pytest.mark.parametrize("payload", _DEVICE_LIST)
-def test_create_device(db, client_v2, payload: Dict[str, Any], system_app_token_header):
+def test_create_device(db, client, payload: Dict[str, Any], system_app_token_header):
     """PUT to /devices/ creates a new device if it does not exist already"""
     original_data_in_db = find_in_collection(
         db, collection_name=_DEVICES_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
     )
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.put(
             "/devices/",
             json=payload,
@@ -94,7 +94,7 @@ def test_create_device(db, client_v2, payload: Dict[str, Any], system_app_token_
 
 @pytest.mark.parametrize("payload", _DEVICE_LIST)
 def test_create_device_non_system_user(
-    db, client_v2, payload: Dict[str, Any], user_jwt_cookie
+    db, client, payload: Dict[str, Any], user_jwt_cookie
 ):
     """Only system users can PUT to /devices/"""
     original_data_in_db = find_in_collection(
@@ -102,7 +102,7 @@ def test_create_device_non_system_user(
     )
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.put(
             "/devices/",
             json=payload,
@@ -121,7 +121,7 @@ def test_create_device_non_system_user(
 
 @pytest.mark.parametrize("payload", _DEVICE_LIST)
 def test_create_pre_existing_device(
-    db, client_v2, payload: Dict[str, Any], system_app_token_header
+    db, client, payload: Dict[str, Any], system_app_token_header
 ):
     """PUT to /devices a pre-existing device will do nothing except update updated_at"""
     insert_in_collection(db, collection_name=_DEVICES_COLLECTION, data=[payload])
@@ -130,7 +130,7 @@ def test_create_pre_existing_device(
     )
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.put(
             "/devices",
             json=payload,
@@ -154,7 +154,7 @@ def test_create_pre_existing_device(
 
 @pytest.mark.parametrize("backend_dict", _DEVICE_LIST)
 def test_update_device(
-    db, client_v2, backend_dict: Dict[str, Any], system_app_token_header
+    db, client, backend_dict: Dict[str, Any], system_app_token_header
 ):
     """PUT to /devices/{name} updates the given device"""
     insert_in_collection(db, collection_name=_DEVICES_COLLECTION, data=[backend_dict])
@@ -165,7 +165,7 @@ def test_update_device(
     payload = {"foo": "bar", "hey": "you"}
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.put(
             f"/devices/{backend_name}",
             json=payload,
@@ -193,7 +193,7 @@ def test_update_device(
 
 @pytest.mark.parametrize("backend_dict", _DEVICE_LIST)
 def test_update_device_non_system_user(
-    db, client_v2, backend_dict: Dict[str, Any], user_jwt_cookie
+    db, client, backend_dict: Dict[str, Any], user_jwt_cookie
 ):
     """Only system users can PUT to /devices/{name}"""
     insert_in_collection(db, collection_name=_DEVICES_COLLECTION, data=[backend_dict])
@@ -204,7 +204,7 @@ def test_update_device_non_system_user(
     payload = {"foo": "bar", "hey": "you"}
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         response = client.put(
             f"/devices/{backend_name}",
             json=payload,

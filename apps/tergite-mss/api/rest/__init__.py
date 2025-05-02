@@ -35,12 +35,12 @@ from .dependencies import (
     CurrentStrictProjectDep,
     get_default_mongodb,
 )
-from .routers.v2.admin import router as admin_router
-from .routers.v2.auth import include_auth_router
-from .routers.v2.calibrations import router as calibrations_router
-from .routers.v2.devices import router as devices_router
-from .routers.v2.jobs import router as jobs_router
-from .routers.v2.me import router as my_router
+from .routers.admin import router as admin_router
+from .routers.auth import include_auth_router
+from .routers.calibrations import router as calibrations_router
+from .routers.devices import router as devices_router
+from .routers.jobs import router as jobs_router
+from .routers.me import router as my_router
 
 # application
 app = FastAPI(**get_app_kwargs())

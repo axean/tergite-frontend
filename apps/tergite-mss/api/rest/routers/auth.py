@@ -17,7 +17,7 @@ from fastapi import APIRouter, FastAPI, HTTPException, status
 
 import settings
 from services.auth import JWT_AUTH, JWT_COOKIE_BACKEND, providers
-from services.auth.service import register_oauth2_client_v2
+from services.auth.service import register_oauth2_client
 from utils.config import Oauth2ClientConfig
 
 
@@ -35,7 +35,7 @@ def include_auth_router(root_router: Union[APIRouter, FastAPI], is_enabled: bool
 
     # Oauth clients for authentication
     for client in settings.CONFIG.auth.clients:
-        register_oauth2_client_v2(
+        register_oauth2_client(
             router,
             controller=JWT_AUTH,
             auth_cookie_backend=JWT_COOKIE_BACKEND,

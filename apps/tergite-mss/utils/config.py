@@ -135,14 +135,6 @@ class Oauth2ClientConfig(BaseModel, extra="allow"):
         "email_domain",
     }
 
-    @property
-    def redirect_url_v2(self):
-        """The redirect URL for version 2"""
-        # FIXME: the redirect url is still referring to the v1 version of the api; remove this in future
-        return self.redirect_url.replace(
-            f"/auth/app/{self.name}", f"/v2/auth/{self.name}"
-        )
-
 
 class AuthConfig(BaseModel):
     """Configration for auth"""
@@ -213,5 +205,7 @@ class AppConfig(BaseModel, extra="allow"):
         with Path(file_path).open(mode="rb") as file:
             conf = tomli.load(file)
 
-        conf.update(conf.pop("general", {}))
+        conf.update(
+            conf.pop("general", {}),
+        )
         return cls.model_validate(conf)

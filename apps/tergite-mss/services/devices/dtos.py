@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     MappingIntStrAny = Mapping[IntStr, Any]
 
 
-class DeviceV2Upsert(BaseModel):
+class DeviceUpsert(BaseModel):
     """The schema for upserting device"""
 
     model_config = ConfigDict(extra="allow")
@@ -84,7 +84,7 @@ class DeviceV2Upsert(BaseModel):
         )
 
 
-class DeviceV2(DeviceV2Upsert):
+class Device(DeviceUpsert):
     """The Schema for the devices"""
 
     model_config = ConfigDict(

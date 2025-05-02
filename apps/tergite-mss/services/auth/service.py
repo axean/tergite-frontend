@@ -82,7 +82,7 @@ async def on_startup(db: motor.motor_asyncio.AsyncIOMotorDatabase):
     )
 
 
-def register_oauth2_client_v2(
+def register_oauth2_client(
     router: APIRouter,
     controller: FastAPIUsers,
     auth_cookie_backend: AuthenticationBackend,
@@ -112,7 +112,7 @@ def register_oauth2_client_v2(
             backend=auth_cookie_backend,
             state_secret=jwt_secret,
             is_verified_by_default=True,
-            redirect_url=conf.redirect_url_v2,
+            redirect_url=conf.redirect_url,
         ),
         prefix=f"/{client.name}",
         tags=tags,

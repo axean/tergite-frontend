@@ -42,7 +42,7 @@ _EXCLUDED_FIELDS = ["_id", "id"]
 
 
 # @pytest.mark.sequential
-def test_save_resource_usages(db, client_v2, project_id, app_token_header):
+def test_save_resource_usages(db, client, project_id, app_token_header):
     """PUT to "/jobs/{job_id}" updates the resource usage in database for that project id"""
     project_id_str = f"{project_id}"
     job_list = [{**item, "project_id": project_id_str} for item in _JOBS_LIST]
@@ -59,7 +59,7 @@ def test_save_resource_usages(db, client_v2, project_id, app_token_header):
     expected_usages: List[dict] = []
 
     # using context manager to ensure on_startup runs
-    with client_v2 as client:
+    with client as client:
         # push job resource usages to MSS
         for payload in _JOB_TIMESTAMPED_UPDATES.copy():
             current_qpu_seconds = project["qpu_seconds"]

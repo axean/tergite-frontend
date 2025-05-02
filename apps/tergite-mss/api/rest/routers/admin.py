@@ -30,7 +30,7 @@ from ..dependencies import CurrentSuperuserDep, CurrentUserDep, CurrentUserIdDep
 router = APIRouter(prefix="/admin")
 
 router.include_router(
-    APP_TOKEN_AUTH.get_projects_router_v2(),
+    APP_TOKEN_AUTH.get_projects_router(),
     prefix="/projects",
     tags=["projects"],
 )
