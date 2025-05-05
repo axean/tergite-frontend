@@ -51,6 +51,21 @@ class DeviceUpsert(BaseModel):
     coupling_map: List[Tuple[int, int]]
     coordinates: List[Tuple[int, int]]
     is_simulator: bool
+    coupling_dict: Dict[str, Union[str, List[str]]]
+    characterized: bool
+    open_pulse: bool
+    meas_map: List[List[int]]
+    description: str = None
+    number_of_couplers: int = 0
+    number_of_resonators: int = 0
+    dt: Optional[float] = None
+    dtm: Optional[float] = None
+    qubit_ids: List[str] = []
+    meas_lo_freq: Optional[List[int]] = None
+    qubit_lo_freq: Optional[List[int]] = None
+    gates: Optional[Dict[str, Any]] = None
+    is_active: Optional[bool] = None
+    qubit_ids_coupler_map: List[Tuple[Tuple[int, int], int]] = []
 
     def model_dump(
         self,

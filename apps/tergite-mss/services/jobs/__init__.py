@@ -27,13 +27,13 @@ from utils import mongodb as mongodb_utils
 from utils.exc import NotFoundError
 
 from ..auth import Project
-from .dtos import CreatedJobResponse, JobCreate, JobTimestamps, JobV2, JobV2Update
+from .dtos import CreatedJobResponse, Job, JobCreate, JobTimestamps, JobUpdate
 
 if TYPE_CHECKING:
     from ..auth.projects.database import ProjectDatabase
 
 
-async def get_one(db: AsyncIOMotorDatabase, job_id: UUID) -> JobV2:
+async def get_one(db: AsyncIOMotorDatabase, job_id: UUID) -> Job:
     """Gets a job by job_id
 
     Args:
@@ -48,14 +48,14 @@ async def get_one(db: AsyncIOMotorDatabase, job_id: UUID) -> JobV2:
         the job as a dict
     """
     return await mongodb_utils.find_one(
-        db.jobs, {"job_id": str(job_id)}, schema=JobV2, dropped_fields=("_id",)
+        db.jobs, {"job_id": str(job_id)}, schema=Job, dropped_fields=("_id",)
     )
 
 
 async def create_job(
     db: AsyncIOMotorDatabase,
     bcc_client: BccClient,
-    job: JobV2,
+    job: Job,
     app_token: Optional[str] = None,
 ) -> CreatedJobResponse:
     """Creates a new job for the given backend
@@ -94,7 +94,7 @@ async def get_latest_many(
     skip: int = 0,
     exclude: Tuple[str] = (),
     sort: List[str] = (),
-) -> List[JobV2]:
+) -> List[Job]:
     """Retrieves the latest jobs up to the given limit
 
     Args:
@@ -112,14 +112,12 @@ async def get_latest_many(
         limit=limit,
         skip=skip,
         sort=sort,
-        schema=JobV2,
+        schema=Job,
         skip_validation=True,
     )
 
 
-async def update_job(
-    db: AsyncIOMotorDatabase, job_id: UUID, payload: JobV2Update
-) -> JobV2:
+async def update_job(db: AsyncIOMotorDatabase, job_id: UUID, payload: JobUpdate) -> Job:
     """Updates the job of the given job_id
 
     Args:
@@ -139,7 +137,7 @@ async def update_job(
         payload=payload.model_dump(),
         return_document=ReturnDocument.BEFORE,
     )
-    return JobV2.model_validate(document)
+    return Job.model_validate(document)
 
 
 async def update_qpu_usage(

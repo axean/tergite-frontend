@@ -98,7 +98,7 @@ class JobResult(BaseModel, extra="allow"):
     memory: List[List[str]] = []
 
 
-class JobV2(JobCreate):
+class Job(JobCreate):
     """Version 2 of the job schema"""
 
     model_config = ConfigDict(
@@ -173,13 +173,13 @@ class JobStatusResponse(BaseModel):
     status: JobStatus
 
     @classmethod
-    def from_job(cls, job: JobV2):
+    def from_job(cls, job: Job):
         """Extracts the job status response from the job"""
         return cls(status=job.status)
 
 
 # Derived models
-JobV2Query = create_partial_model("JobV2Query", original=JobV2, default=Query(None))
-JobV2Update = create_partial_model(
-    "JobV2Update", original=JobV2, exclude=("job_id", "duration_in_secs")
+JobQuery = create_partial_model("JobQuery", original=Job, default=Query(None))
+JobUpdate = create_partial_model(
+    "JobUpdate", original=Job, exclude=("job_id", "duration_in_secs")
 )

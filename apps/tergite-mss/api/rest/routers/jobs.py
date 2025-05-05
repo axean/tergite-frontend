@@ -33,11 +33,11 @@ from api.rest.dependencies import (
 from services import jobs as jobs_service
 from services.external import puhuri as puhuri_service
 from services.jobs.dtos import (
+    Job,
     JobCreate,
+    JobQuery,
     JobStatusResponse,
-    JobV2,
-    JobV2Query,
-    JobV2Update,
+    JobUpdate,
 )
 from utils.api import PaginatedListResponse, get_bearer_token
 from utils.exc import UnknownBccError
@@ -49,7 +49,7 @@ router = APIRouter(prefix="/jobs", tags=["jobs"])
 async def get_many(
     db: MongoDbDep,
     project: CurrentLaxProjectDep,
-    query: JobV2Query = Depends(),
+    query: JobQuery = Depends(),
     skip: int = 0,
     limit: Optional[int] = None,
     sort: List[str] = Query(("-created_at",)),
@@ -128,7 +128,7 @@ async def create_one(
         raise UnknownBccError(f"Unknown backend '{payload.device}'")
 
     project_id, user_id = project_user_id_pair
-    job = JobV2(**payload.model_dump(), project_id=project_id, user_id=user_id)
+    job = Job(**payload.model_dump(), project_id=project_id, user_id=user_id)
     return await jobs_service.create_job(
         db, bcc_client=bcc_client, job=job, app_token=app_token
     )
@@ -140,7 +140,7 @@ async def update_one(
     project_db: ProjectDbDep,
     project: CurrentStrictProjectDep,
     job_id: UUID,
-    payload: JobV2Update,
+    payload: JobUpdate,
 ):
     """Updates the job of the given job_id with the payload
 

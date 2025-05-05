@@ -18,7 +18,7 @@ from fastapi import APIRouter, Depends, Query
 from api.rest.dependencies import CurrentUserDep, CurrentUserIdDep, MongoDbDep
 from services.auth import APP_TOKEN_AUTH, APP_TOKEN_BACKEND, User, UserRead
 from services.jobs import get_latest_many
-from services.jobs.dtos import JobV2Query
+from services.jobs.dtos import JobQuery
 from utils.api import PaginatedListResponse
 
 router = APIRouter(prefix="/me")
@@ -40,7 +40,7 @@ router.include_router(
 async def get_my_jobs(
     db: MongoDbDep,
     user_id: str = CurrentUserIdDep,
-    query: JobV2Query = Depends(),
+    query: JobQuery = Depends(),
     skip: int = 0,
     limit: Optional[int] = None,
     sort: List[str] = Query(("-created_at",)),
