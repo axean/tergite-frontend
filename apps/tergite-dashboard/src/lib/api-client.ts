@@ -630,12 +630,15 @@ async function getCurrentUser(baseUrl: string = apiBaseUrl): Promise<User> {
  * @param baseUrl - the API base URL
  */
 async function getCalibrations(
-  baseUrl: string = apiBaseUrl
+  baseUrl: string = apiBaseUrl,
+  skip: number | null = null,
+  limit: number | null = null
 ): Promise<DeviceCalibration[]> {
-  const rawResult = await authenticatedFetch<DeviceCalibration[]>(
-    `${baseUrl}/calibrations`
-  );
-  return rawResult.map(normalizeCalibrationData);
+  const queryString = getQueryString({ skip, limit });
+  const rawResult = await authenticatedFetch<
+    PaginatedData<DeviceCalibration[]>
+  >(`${baseUrl}/calibrations/?${queryString}`);
+  return rawResult.data.map(normalizeCalibrationData);
 }
 
 /**
@@ -660,11 +663,19 @@ async function getCalibrationsForDevice(
  *           - baseUrl - the API base URL; default apiBaseUrl
  */
 async function getMyJobs(
-  options: { project_id?: string; baseUrl?: string } = {}
+  options: {
+    project_id?: string;
+    baseUrl?: string;
+    skip?: number;
+    limit?: number;
+  } = {}
 ): Promise<Job[]> {
-  const { project_id, baseUrl = apiBaseUrl } = options;
-  const query = project_id ? `?project_id=${project_id}` : "";
-  return await authenticatedFetch(`${baseUrl}/me/jobs${query}`);
+  const { project_id, skip, limit, baseUrl = apiBaseUrl } = options;
+  const query = getQueryString({ skip, limit, project_id });
+  const { data } = await authenticatedFetch<PaginatedData<Job[]>>(
+    `${baseUrl}/me/jobs/?${query}`
+  );
+  return data;
 }
 
 /**
@@ -796,6 +807,19 @@ async function extractError(response: Response): Promise<ErrorInfo> {
   const error = new Error(message) as ErrorInfo;
   error.status = response.status;
   return error;
+}
+
+/**
+ * Converts a map of query parameters into a query string starting with ?
+ *
+ * @param queryParams - the map of query parameters
+ */
+function getQueryString(queryParams: { [key: string]: unknown }): string {
+  const definedQueryParams = Object.entries(queryParams)
+    .filter(([_, value]) => value != null)
+    .map(([k, v]) => [k, `${v}`]);
+
+  return new URLSearchParams(definedQueryParams).toString();
 }
 
 /**
