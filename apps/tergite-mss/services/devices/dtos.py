@@ -27,8 +27,11 @@ from typing import (
 )
 
 from beanie import PydanticObjectId
+from fastapi import Query
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.main import IncEx
+
+from utils.models import create_partial_model
 
 if TYPE_CHECKING:
     DictStrAny = Dict[str, Any]
@@ -110,3 +113,23 @@ class Device(DeviceUpsert):
     id: PydanticObjectId = Field(alias="_id")
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
+
+
+# derived models
+DeviceQuery = create_partial_model(
+    "DeviceQuery",
+    original=Device,
+    default=Query(None),
+    exclude=(
+        "basis_gates",
+        "coupling_map",
+        "coordinates",
+        "coupling_dict",
+        "meas_map",
+        "qubit_ids",
+        "meas_lo_freq",
+        "qubit_lo_freq",
+        "gates",
+        "qubit_ids_coupler_map",
+    ),
+)

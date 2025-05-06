@@ -24,6 +24,7 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 - BREAKING: Changed the GET `/me/jobs` endpoint to return a paginated response of jobs
 - BREAKING: Changed `/v2/` endpoints to `/` endpoints
 - BREAKING: Remove version property from project schema
+- BREAKING: Return paginated response on the GET `/devices` endpoint
 
 ### Added
 

@@ -13,7 +13,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import pymongo
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -21,23 +21,37 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from utils import mongodb as mongodb_utils
 from utils.date_time import get_current_timestamp
 
-from .dtos import DeviceUpsert
+from .dtos import Device, DeviceUpsert
 
 
-async def get_all_devices(db: AsyncIOMotorDatabase, sort: List[str] = ("-created_at",)):
+async def get_all_devices(
+    db: AsyncIOMotorDatabase,
+    filters: Optional[Dict[str, Any]] = None,
+    limit: Optional[int] = None,
+    skip: int = 0,
+    sort: List[str] = (),
+) -> List[Device]:
     """Gets all devices in the devices collection
 
     Args:
         db: the mongo database from which to get the databases
-        sort: the list of fields to sort by; where fields starting with "-" follow the descending order
+        filters: the mongodb-like filters to use to extract the devices
+        limit: the number of results to return: default = None meaning all of them
+        skip: the number of records to skip; default = 0
+        sort: the fields to sort by, prefixing any with a '-' means descending; default = ()
 
     Returns:
         a list of all devices found in the devices collection
+
+    Raises:
+        ValidationError: final results are not valid Device objects
     """
-    return await mongodb_utils.find(db.devices, limit=-1, sort=sort)
+    return await mongodb_utils.find(
+        db.devices, filters=filters, limit=limit, skip=skip, sort=sort, schema=Device
+    )
 
 
-async def get_one_device(db: AsyncIOMotorDatabase, name: str):
+async def get_one_device(db: AsyncIOMotorDatabase, name: str) -> Device:
     """Gets the device of the given name
 
     Args:
@@ -46,11 +60,15 @@ async def get_one_device(db: AsyncIOMotorDatabase, name: str):
 
     Returns:
         the device as a dictionary
+
+    Raises:
+        ValidationError: if the final result could not be validated as a Device
+        NotFoundError: no matches for {name: '<name>'}
     """
-    return await mongodb_utils.find_one(db.devices, {"name": name}, dropped_fields=())
+    return await mongodb_utils.find_one(db.devices, {"name": name}, schema=Device)
 
 
-async def upsert_device(db: AsyncIOMotorDatabase, payload: DeviceUpsert):
+async def upsert_device(db: AsyncIOMotorDatabase, payload: DeviceUpsert) -> Device:
     """Creates a new device or updates it if it exists
 
     Args:
@@ -62,6 +80,7 @@ async def upsert_device(db: AsyncIOMotorDatabase, payload: DeviceUpsert):
 
     Raises:
         ValueError: could not insert '{payload['name']}' document
+        ValidationError: if the final object could not be validated
     """
     timestamp = get_current_timestamp()
     payload.updated_at = timestamp
@@ -78,10 +97,12 @@ async def upsert_device(db: AsyncIOMotorDatabase, payload: DeviceUpsert):
             f"could not insert '{payload.name}' document.",
         )
 
-    return device
+    return Device.model_validate(device)
 
 
-async def patch_device(db: AsyncIOMotorDatabase, name: str, payload: Dict[str, Any]):
+async def patch_device(
+    db: AsyncIOMotorDatabase, name: str, payload: Dict[str, Any]
+) -> Device:
     """Patches the devices data for the device of the given name
 
     Args:
@@ -96,6 +117,7 @@ async def patch_device(db: AsyncIOMotorDatabase, name: str, payload: Dict[str, A
         ValueError: server failed updating documents
         ValueError: device {name} not found
         NotFoundError: no matches for {"name": name}
+        ValidationError: if the final object is not validated
     """
     device = await db.devices.find_one_and_update(
         {"name": name},
@@ -106,4 +128,4 @@ async def patch_device(db: AsyncIOMotorDatabase, name: str, payload: Dict[str, A
     if device is None:
         raise ValueError(f"device '{name}' not found")
 
-    return device
+    return Device.model_validate(device)

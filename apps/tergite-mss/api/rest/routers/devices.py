@@ -15,31 +15,54 @@
 # Refactored by Martin Ahindura - 2023-11-08, 2024-08-01
 
 
-import logging
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, Query
 
 from api.rest.dependencies import CurrentSystemUserProjectDep, MongoDbDep
 from services import devices
-from utils import mongodb as mongodb_utils
+from services.devices.dtos import DeviceQuery
+from utils.api import PaginatedListResponse
 
 router = APIRouter(prefix="/devices", tags=["devices"])
 
 
 @router.get("/")
-async def read_many(db: MongoDbDep):
-    """Retrieves all devices"""
-    records = await devices.get_all_devices(db)
-    return [
-        devices.Device.model_validate(item).model_dump(mode="json") for item in records
-    ]
+async def read_many(
+    db: MongoDbDep,
+    query: DeviceQuery = Depends(),
+    skip: int = 0,
+    limit: Optional[int] = None,
+    sort: List[str] = Query(("-created_at",)),
+):
+    """Gets a paginated list of devices that fulfill a given set of filters
+
+    Args:
+        db: the mongo db database from which to get the device data
+        query: the query params for getting the device data
+        skip: the number of records to skip
+        limit: the maximum number of records to return
+        sort: the fields to sort by, prefixing any with a '-' means descending; default = ("-created_at",)
+            To add multiple fields to sort by, repeat the same query parameter in the url e.g. "query=tom&q=dick&q=harry"
+
+    Returns:
+        the paginated result of the matched device data
+    """
+    filters = query.model_dump()
+
+    data = await devices.get_all_devices(
+        db, filters=filters, skip=skip, limit=limit, sort=sort
+    )
+
+    return PaginatedListResponse(skip=skip, limit=limit, data=data).model_dump(
+        mode="json", exclude_data_none_fields=False
+    )
 
 
 @router.get("/{name}")
 async def read_one(db: MongoDbDep, name: str):
     record = await devices.get_one_device(db, name=name)
-    return devices.Device.model_validate(record).model_dump(mode="json")
+    return record.model_dump(mode="json")
 
 
 @router.put("/")
@@ -53,7 +76,7 @@ async def upsert(
     It also appends this resultant backend config into the backends log.
     """
     record = await devices.upsert_device(db, payload=payload)
-    return devices.Device.model_validate(record).model_dump(mode="json")
+    return record.model_dump(mode="json")
 
 
 @router.put("/{name}")
@@ -62,4 +85,4 @@ async def update(
 ):
     """Updates the given backend with the new body supplied."""
     record = await devices.patch_device(db, name, payload=body)
-    return devices.Device.model_validate(record).model_dump(mode="json")
+    return record.model_dump(mode="json")
