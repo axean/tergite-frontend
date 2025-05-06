@@ -52,11 +52,11 @@ users.forEach((user) => {
       refetchIntervalMs = parseFloat(Cypress.env("VITE_REFETCH_INTERVAL_MS"));
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
-      cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
+      cy.intercept("GET", `${apiBaseUrl}/devices/*`).as("devices-list");
       cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
         "my-project-list"
       );
-      cy.intercept("GET", `${apiBaseUrl}/me/jobs*`).as("my-jobs-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/jobs/*`).as("my-jobs-list");
 
       if (user.id) {
         cy.wrap(generateJwt(user, cookieExpiry, { secret, audience })).then(

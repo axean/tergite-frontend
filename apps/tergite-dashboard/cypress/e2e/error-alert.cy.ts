@@ -19,7 +19,7 @@ users.forEach((user) => {
       const audience = Cypress.env("AUTH_AUDIENCE");
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
-      cy.intercept("GET", `${apiBaseUrl}/devices`, (req) => {
+      cy.intercept("GET", `${apiBaseUrl}/devices/*`, (req) => {
         req.reply(500, { detail: "dummy server error" });
       }).as("devices-list");
 

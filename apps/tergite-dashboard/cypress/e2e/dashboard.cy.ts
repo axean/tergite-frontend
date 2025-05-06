@@ -39,11 +39,11 @@ users.forEach((user) => {
       const audience = Cypress.env("AUTH_AUDIENCE");
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
-      cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
+      cy.intercept("GET", `${apiBaseUrl}/devices/*`).as("devices-list");
       cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
         "my-project-list"
       );
-      cy.intercept("GET", `${apiBaseUrl}/me/jobs`).as("my-jobs-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/jobs/*`).as("my-jobs-list");
       cy.intercept("POST", `${apiBaseUrl}/auth/logout`).as("logout");
 
       if (user.id) {

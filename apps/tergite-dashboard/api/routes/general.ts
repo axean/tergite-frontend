@@ -65,7 +65,7 @@ router.get(
 );
 
 router.get(
-  "/me/projects",
+  "/me/projects/",
   use(async (req, res) => {
     const currentUserId = await getAuthenticatedUserId(req.cookies);
     if (!currentUserId) {
@@ -115,7 +115,7 @@ router.delete(
 );
 
 router.get(
-  "/me/jobs",
+  "/me/jobs/",
   use(async (req, res) => {
     const currentUserId = await getAuthenticatedUserId(req.cookies);
     if (!currentUserId) {
@@ -123,18 +123,18 @@ router.get(
     }
 
     const { project_id } = req.query as { [k: string]: string };
-    const myJobs = mockDb
+    const data = mockDb
       .getMany<Job>("jobs", (v) =>
         conformsToFilter(v, { user_id: currentUserId, project_id })
       )
       .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
 
-    res.json(myJobs);
+    res.json({ skip: 0, limit: null, data } as PaginatedData<Job[]>);
   })
 );
 
 router.post(
-  "/me/tokens",
+  "/me/tokens/",
   use(async (req, res) => {
     const user_id = await getAuthenticatedUserId(req.cookies);
     if (!user_id) {
@@ -165,7 +165,7 @@ router.post(
 );
 
 router.get(
-  "/me/tokens",
+  "/me/tokens/",
   use(async (req, res) => {
     const currentUserId = await getAuthenticatedUserId(req.cookies);
     if (!currentUserId) {
@@ -235,15 +235,16 @@ router.put(
 );
 
 router.get(
-  "/devices",
+  "/devices/",
   use(async (req, res) => {
     const currentUserId = await getAuthenticatedUserId(req.cookies);
     if (!currentUserId) {
       return respond401(res);
     }
 
-    const deviceList = mockDb.getMany<Device>("devices");
-    res.json(deviceList);
+    const data = mockDb.getMany<Device>("devices");
+
+    res.json({ skip: 0, limit: null, data } as PaginatedData<Device[]>);
   })
 );
 
@@ -268,15 +269,17 @@ router.get(
 );
 
 router.get(
-  "/calibrations",
+  "/calibrations/",
   use(async (req, res) => {
     const currentUserId = await getAuthenticatedUserId(req.cookies);
     if (!currentUserId) {
       return respond401(res);
     }
 
-    const calibrationList = mockDb.getMany<DeviceCalibration>("calibrations");
-    res.json(calibrationList);
+    const data = mockDb.getMany<DeviceCalibration>("calibrations");
+    res.json({ skip: 0, limit: null, data } as PaginatedData<
+      DeviceCalibration[]
+    >);
   })
 );
 
@@ -303,29 +306,28 @@ router.get(
 );
 
 router.get(
-  "/auth/providers",
+  "/auth/providers/",
   use(async (req, res) => {
-    const { domain } = req.query;
+    const { email_domain } = req.query;
     // FIXME: This should return multiple ways in case the same email domain can login in many ways
-    const data = mockDb.getMany<AuthProvider>(
+    const filteredData = mockDb.getMany<AuthProvider>(
       "auth_providers",
-      (v) => v.email_domain === domain
+      (v) => v.email_domain === email_domain
     );
 
-    if (data.length === 0) {
+    if (filteredData.length === 0) {
       res.status(404).json({ detail: `not found` });
       return;
     }
 
-    res.json(
-      data.map(
-        (item) =>
-          ({
-            url: `${apiBaseUrl}/auth/${item.name}/auto-authorize`,
-            name: item.name,
-          } as AuthProviderResponse)
-      )
-    );
+    const data = filteredData.map((item) => ({
+      url: `${apiBaseUrl}/auth/${item.name}/auto-authorize`,
+      name: item.name,
+    }));
+
+    res.json({ skip: 0, limit: null, data } as PaginatedData<
+      AuthProviderResponse[]
+    >);
   })
 );
 
@@ -354,7 +356,7 @@ router.post(
 );
 
 router.get(
-  "/admin/qpu-time-requests",
+  "/admin/qpu-time-requests/",
   use(async (req, res) => {
     const user_id = await getAuthenticatedUserId(req.cookies);
     if (!user_id) {
@@ -382,7 +384,7 @@ router.get(
 );
 
 router.post(
-  "/admin/qpu-time-requests",
+  "/admin/qpu-time-requests/",
   use(async (req, res) => {
     const requester_id = await getAuthenticatedUserId(req.cookies);
     if (!requester_id) {
@@ -426,7 +428,7 @@ router.post(
 );
 
 router.get(
-  "/admin/user-requests",
+  "/admin/user-requests/",
   use(async (req, res) => {
     const userId = await getAuthenticatedUserId(req.cookies);
     if (!userId) {
@@ -517,7 +519,7 @@ router.put(
 );
 
 router.get(
-  "/admin/projects",
+  "/admin/projects/",
   use(async (req, res) => {
     const userId = await getAuthenticatedUserId(req.cookies);
     if (!userId) {
@@ -562,7 +564,7 @@ router.get(
 );
 
 router.post(
-  "/admin/projects",
+  "/admin/projects/",
   use(async (req, res) => {
     const userId = await getAuthenticatedUserId(req.cookies);
     if (!userId) {
