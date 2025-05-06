@@ -129,7 +129,6 @@ replace_str mongo-init.js "rawUserRequests = \"\[\]\"" "rawUserRequests = $(read
 replace_str mongo-init.js "rawUsers = \"\[\]\"" "rawUsers = $(read_json $FIXTURES_PATH/users.json)"
 
 # Update the .env.test in tergite dashboard
-replace_str apps/tergite-dashboard/.env.test "VITE_API_BASE_URL=\"http://127.0.0.1:8002\"" "VITE_API_BASE_URL=\"http://127.0.0.1:8002/v2\"";
 replace_str apps/tergite-dashboard/.env.test "DB_RESET_URL=\"http://127.0.0.1:8002/refreshed-db\"" "DB_RESET_URL=\"http://127.0.0.1:3001/refreshed-db\"";
 replace_str apps/tergite-dashboard/.env.test "OPENID_AUTH_URL=\"OPENID_AUTH_URL\"" "OPENID_AUTH_URL=\"$OPENID_AUTH_URL\"";
 if [[ -n "$TEST_THRESHOLD" ]]; then 

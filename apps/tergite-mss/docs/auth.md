@@ -125,7 +125,7 @@ The admin must therefore find a way of keeping the `MSS_TOKEN` active.
 #### - Why do I keep being redirected back to the login page even after successful login?
 
 The likely cause is the `cookie_domain` variable in the `mss_config.toml`. It needs to be the same as the domain you visit the dashboard on in the web browser.  
-It also needs to be the same domain that your `MSS_V2_API_URL` environment variable is in the `.env` file.
+It also needs to be the same domain that your `MSS_URL` environment variable is in the `.env` file.
 
 **A big culprit is the localhost vs 127.0.0.1. Make sure you use 127.0.0.1 in all both your `.env` and `mss_config.toml`. Visit the browser also at 127.0.0.1:3000**
 
