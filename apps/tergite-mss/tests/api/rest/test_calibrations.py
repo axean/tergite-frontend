@@ -163,7 +163,7 @@ def test_create(db, client, system_app_token_header, payload, freezer):
 
 @pytest.mark.parametrize("raw_payload", _CALIBRATIONS_LIST)
 def test_upsert(db, client, system_app_token_header, raw_payload, freezer):
-    """POST an existing calibration to `/calibrations` updates it in the calibrations collection"""
+    """POST an existing calibration to `/calibrations/` updates it in the calibrations collection"""
     raw_calibrations = with_current_timestamps(
         [raw_payload], fields=("updated_at", "last_calibrated")
     )
@@ -204,7 +204,7 @@ def test_upsert(db, client, system_app_token_header, raw_payload, freezer):
 
 @pytest.mark.parametrize("raw_payload", _CALIBRATIONS_LIST)
 def test_create_log(db, client, system_app_token_header, raw_payload, freezer):
-    """POST calibrations to `/calibrations` adds the calibration to calibrations_logs if not exist"""
+    """POST calibrations to `/calibrations/` adds the calibration to calibrations_logs if not exist"""
     raw_calibrations = with_current_timestamps(
         _LATEST_CALIBRATIONS, fields=("updated_at",)
     )

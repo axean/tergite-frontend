@@ -37,7 +37,7 @@ router.include_router(
 
 
 @router.get(
-    "/qpu-time-requests", tags=["user-requests"], dependencies=[CurrentUserIdDep]
+    "/qpu-time-requests/", tags=["user-requests"], dependencies=[CurrentUserIdDep]
 )
 async def get_qpu_time_requests(
     project_ids: Optional[List[str]] = Query(None, alias="project_id"),
@@ -60,7 +60,7 @@ async def get_qpu_time_requests(
 
 
 @router.post(
-    "/qpu-time-requests",
+    "/qpu-time-requests/",
     tags=["user-requests"],
     status_code=http_status.HTTP_201_CREATED,
 )
@@ -87,7 +87,7 @@ async def create_qpu_time_request(
 
 
 @router.get(
-    "/user-requests", tags=["user-requests"], dependencies=[CurrentSuperuserDep]
+    "/user-requests/", tags=["user-requests"], dependencies=[CurrentSuperuserDep]
 )
 async def get_user_requests(
     status: Optional[user_requests.UserRequestStatus] = Query(None),

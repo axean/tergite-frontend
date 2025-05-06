@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 """Integration tests for the jobs router"""
 import uuid
-from dataclasses import fields
 from datetime import datetime
 from typing import Dict, List, Optional
 

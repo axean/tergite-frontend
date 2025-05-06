@@ -155,7 +155,7 @@ def get_projects_router(
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from e
 
     @router.post(
-        "",
+        "/",
         response_model=ProjectAdminView,
         response_model_exclude_none=True,
         dependencies=[Depends(get_current_superuser)],
@@ -197,7 +197,7 @@ def get_projects_router(
         return await _get_full_admin_project(project)
 
     @router.get(
-        "",
+        "/",
         response_model=PaginatedListResponse[ProjectAdminView],
         dependencies=[Depends(get_current_superuser)],
         name="projects:many_projects",

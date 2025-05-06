@@ -291,7 +291,7 @@ def test_get_auth_providers(client, email_domain, expected):
     """GET /auth/providers returns the auth providers for the given email domain"""
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.get("/auth/providers", params={"domain": email_domain})
+        response = client.get("/auth/providers/", params={"domain": email_domain})
         got = response.json()
         assert got == expected
 
@@ -301,7 +301,7 @@ def test_get_auth_providers_unsupported_domains(client, email_domain):
     """GET /auth/providers returns 404 for unsupported email domain"""
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.get("/auth/providers", params={"domain": email_domain})
+        response = client.get("/auth/providers/", params={"domain": email_domain})
         got = response.json()
         assert got == {"detail": "Not Found"}
         assert response.status_code == 404

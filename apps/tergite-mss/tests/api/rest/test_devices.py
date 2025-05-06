@@ -26,14 +26,14 @@ _DEVICE_LIST = load_json_fixture("device_list.json")
 
 
 def test_read_devices(db, client, user_jwt_cookie):
-    """GET to /devices retrieves all devices"""
+    """GET to /devices/ retrieves all devices"""
     insert_in_collection(
         database=db, collection_name=_DEVICES_COLLECTION, data=_DEVICE_LIST
     )
 
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.get(f"/devices", cookies=user_jwt_cookie)
+        response = client.get(f"/devices/", cookies=user_jwt_cookie)
         got = order_by(response.json(), field="name")
         pop_field(got, field="id")
         expected = order_by(_DEVICE_LIST, field="name")
@@ -123,7 +123,7 @@ def test_create_device_non_system_user(
 def test_create_pre_existing_device(
     db, client, payload: Dict[str, Any], system_app_token_header
 ):
-    """PUT to /devices a pre-existing device will do nothing except update updated_at"""
+    """PUT to /devices/ a pre-existing device will do nothing except update updated_at"""
     insert_in_collection(db, collection_name=_DEVICES_COLLECTION, data=[payload])
     original_data_in_db = find_in_collection(
         db, collection_name=_DEVICES_COLLECTION, fields_to_exclude=_EXCLUDED_FIELDS
@@ -132,7 +132,7 @@ def test_create_pre_existing_device(
     # using context manager to ensure on_startup runs
     with client as client:
         response = client.put(
-            "/devices",
+            "/devices/",
             json=payload,
             headers=system_app_token_header,
         )

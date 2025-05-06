@@ -53,7 +53,7 @@ def include_auth_router(root_router: Union[APIRouter, FastAPI], is_enabled: bool
         tags=["auth"],
     )
 
-    @router.get("/providers", response_model=List[providers.AuthProviderRead])
+    @router.get("/providers/", response_model=List[providers.AuthProviderRead])
     def get_auth_providers(domain: str):
         """Returns the auth provider given an existing email domain"""
         data = providers.get_many_by_domain(domain)

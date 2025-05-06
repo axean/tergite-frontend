@@ -27,7 +27,7 @@ from utils import mongodb as mongodb_utils
 router = APIRouter(prefix="/devices", tags=["devices"])
 
 
-@router.get("")
+@router.get("/")
 async def read_many(db: MongoDbDep):
     """Retrieves all devices"""
     records = await devices.get_all_devices(db)
@@ -42,7 +42,7 @@ async def read_one(db: MongoDbDep, name: str):
     return devices.Device.model_validate(record).model_dump(mode="json")
 
 
-@router.put("")
+@router.put("/")
 async def upsert(
     db: MongoDbDep,
     user: CurrentSystemUserProjectDep,
