@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """Integration tests for the auth router"""
 import re
-from typing import Optional
+from typing import List, Optional
 
 import httpx
 import pytest
@@ -22,6 +22,13 @@ from tests._utils.auth import (
     TEST_USER_EMAIL,
     is_valid_jwt,
 )
+from tests._utils.records import (
+    copy_records,
+    filter_by_equality,
+    order_by_many,
+    pop_field,
+    prune,
+)
 from tests.conftest import TEST_NEXT_COOKIE_URL
 
 _USER_EMAIL_COOKIES_FIXTURE = [
@@ -29,39 +36,83 @@ _USER_EMAIL_COOKIES_FIXTURE = [
     (TEST_SUPERUSER_EMAIL, lazy_fixture("admin_jwt_cookie")),
 ]
 
-_AUTH_PROVIDER_DOMAIN_PAIRS = [
-    (
-        "example.com",
-        [
-            dict(
-                name="github",
-                url="http://testserver/auth/github/auto-authorize",
-            ),
-            dict(
-                name="gitlab",
-                url="http://testserver/auth/gitlab/auto-authorize",
-            ),
-        ],
+_AUTH_PROVIDERS = [
+    dict(
+        name="chalmers",
+        url="http://testserver/auth/chalmers/auto-authorize",
+        email_domain="chalmers.com",
     ),
-    (
-        "example.se",
-        [
-            dict(
-                name="puhuri",
-                url="http://testserver/auth/puhuri/auto-authorize",
-            )
-        ],
+    dict(
+        name="github",
+        url="http://testserver/auth/github/auto-authorize",
+        email_domain="example.com",
     ),
-    (
-        "chalmers.com",
-        [
-            dict(
-                name="chalmers",
-                url="http://testserver/auth/chalmers/auto-authorize",
-            )
-        ],
+    dict(
+        name="puhuri",
+        url="http://testserver/auth/puhuri/auto-authorize",
+        email_domain="example.se",
+    ),
+    dict(
+        name="gitlab",
+        url="http://testserver/auth/gitlab/auto-authorize",
+        email_domain="example.com",
     ),
 ]
+
+# _AUTH_PROVIDER_DOMAIN_PAIRS = [
+#     (
+#         "example.com",
+#         [
+#             dict(
+#                 name="github",
+#                 url="http://testserver/auth/github/auto-authorize",
+#             ),
+#             dict(
+#                 name="gitlab",
+#                 url="http://testserver/auth/gitlab/auto-authorize",
+#             ),
+#         ],
+#     ),
+#     (
+#         "example.se",
+#         [
+#             dict(
+#                 name="puhuri",
+#                 url="http://testserver/auth/puhuri/auto-authorize",
+#             )
+#         ],
+#     ),
+#     (
+#         "chalmers.com",
+#         [
+#             dict(
+#                 name="chalmers",
+#                 url="http://testserver/auth/chalmers/auto-authorize",
+#             )
+#         ],
+#     ),
+# ]
+_SKIP_LIMIT_SORT_PARAMS = [
+    (0, 1, ["-name", "email_domain"]),
+    (1, 4, None),
+    (1, 3, ["name"]),
+    (None, 10, None),
+    (0, None, ["url"]),
+]
+_SEARCH_PARAMS = [
+    {"email_domain": "example.com"},
+    {"email_domain": "example.com", "name": "github"},
+    {"email_domain": "example.com", "name": "gitlab"},
+    {"email_domain": "example.se"},
+    {"email_domain": "chalmers.com"},
+    {},
+]
+_PAGINATE_AND_SEARCH_PARAMS = [
+    (skip, limit, sort, search)
+    for skip, limit, sort in _SKIP_LIMIT_SORT_PARAMS
+    for search in _SEARCH_PARAMS
+]
+
 
 _AUTH_COOKIE_REGEX = re.compile(
     r"some-cookie=(.*); Domain=testserver; HttpOnly; Max-Age=3600; Path=/; SameSite=lax; Secure"
@@ -286,14 +337,70 @@ def test_logout(
         assert response.json() == {"message": "logged out"}
 
 
-@pytest.mark.parametrize("email_domain, expected", _AUTH_PROVIDER_DOMAIN_PAIRS)
-def test_get_auth_providers(client, email_domain, expected):
-    """GET /auth/providers returns the auth providers for the given email domain"""
+@pytest.mark.parametrize("skip, limit, sort, search", _PAGINATE_AND_SEARCH_PARAMS)
+def test_find_auth_providers(
+    client,
+    skip: Optional[int],
+    limit: Optional[int],
+    sort: Optional[List[str]],
+    search: dict,
+):
+    """Get to /auth/providers/?email_domain=...&name=... can search for the providers that fulfill the given filters"""
+    query_string = "?"
+    slice_end = len(_AUTH_PROVIDERS)
+    slice_start = 0
+    sort_fields = [
+        "name",
+    ]
+    if limit is not None:
+        query_string += f"limit={limit}&"
+        slice_end = limit
+    if skip is not None:
+        query_string += f"skip={skip}&"
+        slice_start = skip
+        slice_end += skip
+    if sort is not None:
+        sort_fields = sort
+        for sort_field in sort_fields:
+            query_string += f"sort={sort_field}&"
+
+    # Adding search
+    for key, value in search.items():
+        query_string += f"{key}={value}&"
+
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.get("/auth/providers/", params={"domain": email_domain})
+        response = client.get(f"/auth/providers/{query_string}")
         got = response.json()
+
+        filtered_data = filter_by_equality(
+            copy_records(_AUTH_PROVIDERS), filters=search
+        )
+        sorted_data = order_by_many(filtered_data, fields=sort_fields)
+        pop_field(sorted_data, field="email_domain")
+        expected = {
+            "skip": slice_start,
+            "limit": limit,
+            "data": sorted_data[slice_start:slice_end],
+        }
+
+        assert response.status_code == 200
         assert got == expected
+
+
+# @pytest.mark.parametrize("email_domain, expected_data", _AUTH_PROVIDER_DOMAIN_PAIRS)
+# def test_get_auth_providers(client, email_domain, expected_data):
+#     """GET /auth/providers/ returns the auth providers for the given email domain"""
+#     # using context manager to ensure on_startup runs
+#     with client as client:
+#         response = client.get("/auth/providers/", params={"domain": email_domain})
+#         got = response.json()
+#         expected = {
+#             "skip": slice_start,
+#             "limit": limit,
+#             "data": sorted_data[slice_start:slice_end],
+#         }
+#         assert got == expected
 
 
 @pytest.mark.parametrize("email_domain", ["s.com", "some.es", "blablah.foo"])
@@ -301,7 +408,7 @@ def test_get_auth_providers_unsupported_domains(client, email_domain):
     """GET /auth/providers returns 404 for unsupported email domain"""
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.get("/auth/providers/", params={"domain": email_domain})
+        response = client.get("/auth/providers/", params={"email_domain": email_domain})
         got = response.json()
         assert got == {"detail": "Not Found"}
         assert response.status_code == 404

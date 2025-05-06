@@ -24,11 +24,16 @@ and this project follows versions of format `{year}.{month}.{patch_number}`.
 - BREAKING: Changed the GET `/me/jobs` endpoint to return a paginated response of jobs
 - BREAKING: Changed `/v2/` endpoints to `/` endpoints
 - BREAKING: Remove version property from project schema
-- BREAKING: Return paginated response on the GET `/devices` endpoint
+- BREAKING: Return paginated response on the GET `/devices/` endpoint
+- BREAKING: Return paginated response on the GET `/auth/providers/` endpoint
+- BREAKING: Change the query param 'domain' on the GET `/auth/providers/` endpoint to 'email_domain'
 
 ### Added
 
-- Add more extensive search capability on the GET jobs endpoints so that one can search by more fields in the job
+- Added more extensive search capability on the GET `/jobs/` endpoints so that one can search by more fields in the job
+- Added more extensive search capability on the GET `/devices/` endpoints so that one can search by more fields in the devices
+- Added more extensive search capability on the GET `/calibrations/` endpoints so that one can search by more fields in the calibrations
+- Added more extensive search capability on the GET `/auth/providers/` endpoints so that one can search by more fields in the auth providers
 
 ## [2025.03.1] - 2025-03-18
 

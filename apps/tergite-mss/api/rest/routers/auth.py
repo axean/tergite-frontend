@@ -11,13 +11,15 @@
 # that they have been altered from the originals.
 
 """Router for auth related operations"""
-from typing import List, Union
+from typing import List, Optional, Union
 
-from fastapi import APIRouter, FastAPI, HTTPException, status
+from fastapi import APIRouter, Depends, FastAPI, Query
 
 import settings
 from services.auth import JWT_AUTH, JWT_COOKIE_BACKEND, providers
+from services.auth.providers.dtos import AuthProviderQuery
 from services.auth.service import register_oauth2_client
+from utils.api import PaginatedListResponse
 from utils.config import Oauth2ClientConfig
 
 
@@ -53,12 +55,19 @@ def include_auth_router(root_router: Union[APIRouter, FastAPI], is_enabled: bool
         tags=["auth"],
     )
 
-    @router.get("/providers/", response_model=List[providers.AuthProviderRead])
-    def get_auth_providers(domain: str):
+    @router.get("/providers/")
+    def get_auth_providers(
+        query: AuthProviderQuery = Depends(),
+        skip: int = 0,
+        limit: Optional[int] = None,
+        sort: List[str] = Query(("name",)),
+    ):
         """Returns the auth provider given an existing email domain"""
-        data = providers.get_many_by_domain(domain)
-        if len(data) == 0:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-        return data
+        filters = query.model_dump()
+        data = providers.get_many(filters=filters, skip=skip, limit=limit, sort=sort)
+
+        return PaginatedListResponse(skip=skip, limit=limit, data=data).model_dump(
+            mode="json", exclude_data_none_fields=False
+        )
 
     root_router.include_router(router)
