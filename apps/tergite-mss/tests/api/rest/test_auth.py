@@ -388,29 +388,15 @@ def test_find_auth_providers(
         assert got == expected
 
 
-# @pytest.mark.parametrize("email_domain, expected_data", _AUTH_PROVIDER_DOMAIN_PAIRS)
-# def test_get_auth_providers(client, email_domain, expected_data):
-#     """GET /auth/providers/ returns the auth providers for the given email domain"""
-#     # using context manager to ensure on_startup runs
-#     with client as client:
-#         response = client.get("/auth/providers/", params={"domain": email_domain})
-#         got = response.json()
-#         expected = {
-#             "skip": slice_start,
-#             "limit": limit,
-#             "data": sorted_data[slice_start:slice_end],
-#         }
-#         assert got == expected
-
-
 @pytest.mark.parametrize("email_domain", ["s.com", "some.es", "blablah.foo"])
 def test_get_auth_providers_unsupported_domains(client, email_domain):
     """GET /auth/providers returns 404 for unsupported email domain"""
     # using context manager to ensure on_startup runs
     with client as client:
-        response = client.get("/auth/providers/", params={"email_domain": email_domain})
+        params = {"email_domain": email_domain}
+        response = client.get("/auth/providers/", params=params)
         got = response.json()
-        assert got == {"detail": "Not Found"}
+        assert got == {"detail": f"no matches for '{params}'"}
         assert response.status_code == 404
 
 
