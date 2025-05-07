@@ -7,7 +7,8 @@
     "user_id": "5ddc8d9fb69602723cd3c38f",
     "status": "successful",
     "duration_in_secs": 400,
-    "created_at": "2024-06-20T09:12:00.733Z"
+    "created_at": "2024-06-20T09:12:00.733Z",
+    "calibration_date": "2024-06-20T09:12:00.733Z"
   },
   {
     "id": "67c5a7c03acd4df3898af54e",
@@ -17,7 +18,8 @@
     "project_id": "653aabd880cd1f9fab6196d2",
     "user_id": "858877267fe722a38619fa2e",
     "duration_in_secs": 500,
-    "created_at": "2024-06-20T08:12:00.733Z"
+    "created_at": "2024-06-20T08:12:00.733Z",
+    "calibration_date": "2024-06-20T08:12:00.733Z"
   },
   {
     "id": "67c5a7c77672d39d2cd10baf",
@@ -25,7 +27,8 @@
     "device": "Pingu",
     "status": "pending",
     "duration_in_secs": null,
-    "created_at": "2024-06-11T10:12:00.733Z"
+    "created_at": "2024-06-11T10:12:00.733Z",
+    "calibration_date": "2024-06-11T10:12:00.733Z"
   },
   {
     "id": "67c5a7cee395133661d153b6",
@@ -35,7 +38,8 @@
     "user_id": "5ddc8d9fb69602723cd3c38f",
     "status": "successful",
     "duration_in_secs": 400,
-    "created_at": "2024-06-20T11:12:00.733Z"
+    "created_at": "2024-06-20T11:12:00.733Z",
+    "calibration_date": "2024-06-20T11:12:00.733Z"
   },
   {
     "id": "67c5a7d53ffed6dfe317205d",
@@ -45,7 +49,8 @@
     "user_id": "5ddc8d9fb69602723cd3c38f",
     "status": "successful",
     "duration_in_secs": 800,
-    "created_at": "2024-06-19T12:12:00.733Z"
+    "created_at": "2024-06-19T12:12:00.733Z",
+    "calibration_date": "2024-06-19T12:12:00.733Z"
   },
   {
     "id": "67c5a7de7da3ef9786597a91",
@@ -54,8 +59,9 @@
     "project_id": "653a8f19e736d76276597a6c",
     "user_id": "5ddc8d9fb69602723cd3c38f",
     "status": "failed",
-    "failureReason": "device offline",
+    "failure_reason": "device offline",
     "duration_in_secs": 400,
-    "created_at": "2024-06-20T23:12:00.733Z"
+    "created_at": "2024-06-20T23:12:00.733Z",
+    "calibration_date": "2024-06-20T23:12:00.733Z"
   }
 ]

@@ -22,7 +22,7 @@ const toTokenDoc = ({ id, user_id, created_at, ...props }) => ({
  * @param {Object} obj - the object to convert to document
  * @returns {Object} - a Job object
  */
-const toJob = ({ device: backend, status, duration_in_secs, id, ...props }) => {
+const toJob = ({ device, status, duration_in_secs, id, ...props }) => {
   let result = null;
   let download_url = null;
 
@@ -31,7 +31,7 @@ const toJob = ({ device: backend, status, duration_in_secs, id, ...props }) => {
     result = {
       memory: [],
     };
-    download_url = `http://${backend}/logfiles/${id}`;
+    download_url = `http://${device}/logfiles/${id}`;
   }
 
   let timestamps = null;
@@ -54,7 +54,7 @@ const toJob = ({ device: backend, status, duration_in_secs, id, ...props }) => {
 
   return {
     id,
-    backend,
+    device,
     status,
     timestamps,
     result,
