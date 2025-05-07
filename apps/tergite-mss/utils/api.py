@@ -101,7 +101,7 @@ def get_bearer_token(request: Request, raise_if_error: bool = True) -> Optional[
 
 
 def to_http_error(
-    status_code: int,
+    status_code: int, custom_message: Optional[str] = None
 ) -> Callable[[Request, Exception], Union[Response, Awaitable[Response]]]:
     """An error handler that converts the exception to an HTTPException
 
@@ -110,11 +110,19 @@ def to_http_error(
 
     Args:
         status_code: the HTTP status code
+        custom_message: a custom message to send to the client
+
+    Returns:
+        an HTTP exception handler function
     """
 
     async def handler(request: Request, exp: Exception) -> Response:
         logging.error(exp)
-        http_exp = HTTPException(status_code, f"{exp}")
+        message = custom_message
+        if message is None:
+            message = f"{exp}"
+
+        http_exp = HTTPException(status_code, message)
         return await http_exception_handler(request, http_exp)
 
     return handler

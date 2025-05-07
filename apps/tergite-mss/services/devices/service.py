@@ -20,6 +20,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from utils import mongodb as mongodb_utils
 from utils.date_time import get_current_timestamp
+from utils.exc import NotFoundError
 
 from .dtos import Device, DeviceUpsert
 
@@ -115,8 +116,7 @@ async def patch_device(
 
     Raises:
         ValueError: server failed updating documents
-        ValueError: device {name} not found
-        NotFoundError: no matches for {"name": name}
+        NotFoundError: device {name} not found
         ValidationError: if the final object is not validated
     """
     device = await db.devices.find_one_and_update(
@@ -126,6 +126,6 @@ async def patch_device(
     )
 
     if device is None:
-        raise ValueError(f"device '{name}' not found")
+        raise NotFoundError(f"device '{name}' not found")
 
     return Device.model_validate(device)

@@ -56,8 +56,12 @@ app.add_middleware(
 
 # exception handlers
 app.add_exception_handler(NotFoundError, to_http_error(404))
-app.add_exception_handler(ValueError, to_http_error(500))
-app.add_exception_handler(DbValidationError, to_http_error(500))
+app.add_exception_handler(ValueError, to_http_error(500, "Unexpected server error"))
+app.add_exception_handler(TypeError, to_http_error(500, "Unexpected server error"))
+app.add_exception_handler(RuntimeError, to_http_error(500, "Unexpected server error"))
+app.add_exception_handler(
+    DbValidationError, to_http_error(500, "Unexpected server error")
+)
 app.add_exception_handler(ServiceUnavailableError, to_http_error(503))
 app.add_exception_handler(UnknownBccError, to_http_error(400))
 app.add_exception_handler(TooManyListQueryParams, to_http_error(400))
