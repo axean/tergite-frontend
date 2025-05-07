@@ -393,10 +393,9 @@ def test_get_auth_providers_unsupported_domains(client, email_domain):
     """GET /auth/providers returns 404 for unsupported email domain"""
     # using context manager to ensure on_startup runs
     with client as client:
-        params = {"email_domain": email_domain}
-        response = client.get("/auth/providers/", params=params)
+        response = client.get("/auth/providers/", params={"email_domain": email_domain})
         got = response.json()
-        assert got == {"detail": f"no matches for '{params}'"}
+        assert got == {"detail": "Not Found"}
         assert response.status_code == 404
 
 
