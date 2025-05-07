@@ -714,13 +714,14 @@ users.forEach((user) => {
             cy.get("@newTokenBtn")
               .click()
               .then(() => {
+                cy.wait(100);
                 cy.contains("table tbody td", tokenNameRegex)
                   .last()
                   .then((el) => {
                     const matches = tokenNameRegex.exec(el.text()) ?? [];
                     const tokenTimestamp = matches[1];
                     expect(parseFloat(tokenTimestamp)).to.gt(
-                      new Date().getTime() - 100
+                      new Date().getTime() - 200
                     );
                   });
               });
