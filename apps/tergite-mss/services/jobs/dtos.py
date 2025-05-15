@@ -83,6 +83,7 @@ class JobStatus(str, enum.Enum):
     SUCCESSFUL = "successful"
     FAILED = "failed"
     EXECUTING = "executing"
+    CANCELLED = "cancelled"
 
 
 class JobCreate(BaseModel):
@@ -92,14 +93,18 @@ class JobCreate(BaseModel):
     calibration_date: str
 
 
-class JobResult(BaseModel, extra="allow"):
+class JobResult(BaseModel):
     """The results of the job"""
+
+    model_config = ConfigDict(
+        extra="allow",
+    )
 
     memory: List[List[str]] = []
 
 
 class Job(JobCreate):
-    """Version 2 of the job schema"""
+    """the job schema"""
 
     model_config = ConfigDict(
         extra="allow",
@@ -111,6 +116,7 @@ class Job(JobCreate):
     user_id: Optional[str] = None
     status: JobStatus = JobStatus.PENDING
     failure_reason: Optional[str] = None
+    cancellation_reason: Optional[str] = None
     timestamps: Optional[JobTimestamps] = None
     download_url: Optional[str] = None
     result: Optional[JobResult] = None

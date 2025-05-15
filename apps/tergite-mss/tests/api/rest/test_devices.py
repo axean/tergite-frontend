@@ -22,7 +22,7 @@ from tests._utils.records import (
     get_record,
     order_by_many,
     pop_field,
-    with_incremental_timestamps,
+    with_incremental_timestamps, order_by,
 )
 from tests.api.rest.test_calibrations import _attach_str_ids
 
@@ -108,23 +108,6 @@ def test_find_devices(
 
         assert response.status_code == 200
         assert got == expected
-
-
-# def test_read_devices(db, client, user_jwt_cookie):
-#     """GET to /devices/ retrieves all devices"""
-#     insert_in_collection(
-#         database=db, collection_name=_DEVICES_COLLECTION, data=_DEVICE_LIST
-#     )
-#
-#     # using context manager to ensure on_startup runs
-#     with client as client:
-#         response = client.get(f"/devices/", cookies=user_jwt_cookie)
-#         got = order_by(response.json(), field="name")
-#         pop_field(got, field="id")
-#         expected = order_by(_DEVICE_LIST, field="name")
-#
-#         assert response.status_code == 200
-#         assert got == expected
 
 
 @pytest.mark.parametrize("name", [v["name"] for v in _DEVICE_LIST])
