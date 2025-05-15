@@ -58,7 +58,7 @@ export interface DeviceCalibration extends Omit<DbRecord, "created_at"> {
 }
 
 export interface CalibrationValue {
-  date: string;
+  date?: string;
   unit: "ns" | "us" | "GHz" | "MHz" | "" | "s" | "Hz";
   value: number;
 }

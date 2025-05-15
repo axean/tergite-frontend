@@ -36,9 +36,9 @@ class CalibrationUnit(str, enum.Enum):
 class CalibrationValue(BaseModel):
     """A calibration value"""
 
-    date: str
     unit: CalibrationUnit
     value: Union[float, str, int]
+    date: Optional[str] = None
 
 
 class QubitCalibration(BaseModel, extra="allow"):
