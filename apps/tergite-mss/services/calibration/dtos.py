@@ -11,14 +11,14 @@
 # that they have been altered from the originals.
 """Data Transfer Objects for calibration"""
 import enum
-from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 from beanie import PydanticObjectId
-from bson import ObjectId
+from fastapi import Query
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
-from utils.date_time import datetime_to_zulu
+from utils.date_time import get_current_timestamp
+from utils.models import create_partial_model
 
 
 class CalibrationUnit(str, enum.Enum):
@@ -36,14 +36,9 @@ class CalibrationUnit(str, enum.Enum):
 class CalibrationValue(BaseModel):
     """A calibration value"""
 
-    date: datetime
     unit: CalibrationUnit
     value: Union[float, str, int]
-
-    @field_serializer("date", when_used="json")
-    def serialize_date(self, date: datetime):
-        """Convert date to string when working with JSON"""
-        return datetime_to_zulu(date)
+    date: Optional[str] = None
 
 
 class QubitCalibration(BaseModel, extra="allow"):
@@ -102,26 +97,38 @@ class CouplersCalibration(BaseModel, extra="allow"):
     id: Optional[int] = None
 
 
-class DeviceCalibrationV2(BaseModel):
-    """Schema for the calibration data of a given device"""
+class DeviceCalibrationCreate(BaseModel):
+    """The model used when creating device calibrations in the API"""
 
     model_config = ConfigDict(from_attributes=True)
 
-    id: PydanticObjectId = Field(alias="_id")
     name: str
     version: str
     qubits: List[QubitCalibration]
     resonators: Optional[List[ResonatorCalibration]] = None
     couplers: Optional[List[CouplersCalibration]] = None
     discriminators: Optional[Dict[str, Any]] = None
-    last_calibrated: datetime
+    last_calibrated: Optional[str] = Field(default_factory=get_current_timestamp)
 
-    @field_serializer("last_calibrated", when_used="json")
-    def serialize_last_calibrated(self, last_calibrated: datetime):
-        """Convert last_calibrated to string when working with JSON"""
-        return datetime_to_zulu(last_calibrated)
+
+class DeviceCalibration(DeviceCalibrationCreate):
+    """Schema for the calibration data of a given device"""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: PydanticObjectId = Field(alias="_id")
+    updated_at: Optional[str] = Field(default_factory=get_current_timestamp)
 
     @field_serializer("id", when_used="json")
     def serialize_id(self, _id: PydanticObjectId):
         """Convert id to string when working with JSON"""
         return str(_id)
+
+
+# derived models
+DeviceCalibrationQuery = create_partial_model(
+    "DeviceCalibrationQuery",
+    original=DeviceCalibration,
+    default=Query(None),
+    exclude=("qubits", "resonators", "couplers", "discriminators"),
+)

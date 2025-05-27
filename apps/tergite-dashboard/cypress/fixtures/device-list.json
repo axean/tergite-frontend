@@ -8,6 +8,8 @@
     "last_online": "2024-05-23T09:12:00.733Z",
     "basis_gates": ["u", "h", "x"],
     "is_simulator": false,
+    "characterized": true,
+    "open_pulse": true,
     "coupling_map": [
       [0, 1],
       [1, 2],
@@ -52,7 +54,7 @@
       "u8": ["q5", "q7"],
       "u9": ["q6", "q7"]
     },
-    "qubits_coupler_map": [
+    "qubit_ids_coupler_map": [
       [[0, 1], 0],
       [[1, 2], 1],
       [[0, 3], 2],
@@ -64,6 +66,9 @@
       [[5, 7], 8],
       [[6, 7], 9]
     ],
+    "meas_map": [[0, 1, 2, 3, 4, 5, 6, 7]],
+    "number_of_couplers": 10,
+    "number_of_resonators": 19,
     "qubit_ids": ["q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7"]
   },
   {
@@ -75,6 +80,8 @@
     "last_online": null,
     "basis_gates": ["u", "h", "x"],
     "is_simulator": true,
+    "characterized": true,
+    "open_pulse": true,
     "coupling_map": [
       [0, 1],
       [0, 2],
@@ -101,13 +108,16 @@
       "u3": ["q13", "q16"],
       "u4": ["q15", "q16"]
     },
-    "qubits_coupler_map": [
+    "qubit_ids_coupler_map": [
       [[12, 13], 0],
       [[12, 14], 1],
       [[14, 15], 2],
       [[13, 16], 3],
       [[15, 16], 4]
     ],
+    "meas_map": [[0, 1, 2, 3, 4]],
+    "number_of_couplers": 5,
+    "number_of_resonators": 5,
     "qubit_ids": ["q12", "q13", "q14", "q15", "q16"]
   },
   {
@@ -119,6 +129,8 @@
     "last_online": "2024-05-24T09:12:00.733Z",
     "basis_gates": ["u", "h", "x"],
     "is_simulator": false,
+    "characterized": true,
+    "open_pulse": true,
     "coupling_map": [
       [0, 1],
       [1, 2],
@@ -232,7 +244,7 @@
       "u27": ["q13", "q18"],
       "u28": ["q18", "q19"]
     },
-    "qubits_coupler_map": [
+    "qubit_ids_coupler_map": [
       [[0, 1], 0],
       [[1, 2], 1],
       [[2, 3], 2],
@@ -263,6 +275,11 @@
       [[13, 18], 27],
       [[18, 19], 28]
     ],
+    "meas_map": [
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    ],
+    "number_of_couplers": 29,
+    "number_of_resonators": 32,
     "qubit_ids": [
       "q0",
       "q1",
@@ -304,6 +321,8 @@
     "last_online": "2024-05-24T09:12:00.733Z",
     "basis_gates": ["u", "h", "x"],
     "is_simulator": false,
+    "characterized": true,
+    "open_pulse": true,
     "coupling_map": [
       [0, 1],
       [1, 2],
@@ -417,7 +436,7 @@
       "u27": ["q13", "q18"],
       "u28": ["q18", "q19"]
     },
-    "qubits_coupler_map": [
+    "qubit_ids_coupler_map": [
       [[0, 1], 0],
       [[1, 2], 1],
       [[2, 3], 2],
@@ -448,6 +467,11 @@
       [[13, 18], 27],
       [[18, 19], 28]
     ],
+    "meas_map": [
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    ],
+    "number_of_couplers": 29,
+    "number_of_resonators": 32,
     "qubit_ids": [
       "q0",
       "q1",
@@ -489,6 +513,8 @@
     "last_online": null,
     "basis_gates": ["u", "h", "x"],
     "is_simulator": false,
+    "characterized": true,
+    "open_pulse": true,
     "coupling_map": [
       [0, 1],
       [1, 2],
@@ -545,6 +571,9 @@
       [[5, 7], 8],
       [[6, 7], 9]
     ],
+    "meas_map": [[0, 1, 2, 3, 4, 5, 6, 7]],
+    "number_of_couplers": 10,
+    "number_of_resonators": 20,
     "qubit_ids": ["q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7"]
   },
   {
@@ -556,6 +585,8 @@
     "last_online": null,
     "basis_gates": ["u", "h", "x"],
     "is_simulator": false,
+    "characterized": true,
+    "open_pulse": true,
     "coupling_map": [
       [0, 1],
       [0, 2],
@@ -589,6 +620,9 @@
       [[1, 4], 3],
       [[3, 4], 4]
     ],
+    "meas_map": [[0, 1, 2, 3, 4]],
+    "number_of_couplers": 5,
+    "number_of_resonators": 5,
     "qubit_ids": ["q0", "q1", "q2", "q3", "q4"]
   }
 ]

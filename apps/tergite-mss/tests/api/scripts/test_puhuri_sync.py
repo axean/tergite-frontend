@@ -24,7 +24,7 @@ from tests._utils.env import TEST_PUHURI_POLL_INTERVAL
 from tests._utils.fixtures import load_json_fixture
 from tests._utils.json import to_json
 from tests._utils.mongodb import find_in_collection, insert_in_collection
-from tests._utils.records import order_by, pop_field
+from tests._utils.records import order_by, pop_field, with_current_timestamps
 from tests._utils.waldur import MockCall
 
 _PUHURI_PENDING_ORDERS = load_json_fixture("puhuri_pending_orders.json")
@@ -45,7 +45,10 @@ _EXCLUDED_FIELDS = ["_id", "id"]
 def test_save_resource_usages(db, client, project_id, app_token_header):
     """PUT to "/jobs/{job_id}" updates the resource usage in database for that project id"""
     project_id_str = f"{project_id}"
-    job_list = [{**item, "project_id": project_id} for item in _JOBS_LIST]
+    job_list = [{**item, "project_id": project_id_str} for item in _JOBS_LIST]
+    job_list = with_current_timestamps(
+        job_list, fields=("updated_at", "created_at", "calibration_date")
+    )
     insert_in_collection(database=db, collection_name=_JOBS_COLLECTION, data=job_list)
     initial_data = find_in_collection(
         db,
@@ -64,7 +67,7 @@ def test_save_resource_usages(db, client, project_id, app_token_header):
 
             response = client.put(
                 f"/jobs/{job_id}",
-                json={**payload, "timelog.RESULT": "foo"},
+                json=payload,
                 headers=app_token_header,
             )
             assert response.status_code == 200

@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """Common utility functions for the auth service"""
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
+from typing import Any, Dict, Optional, Type
 
 from fastapi import HTTPException, status
 from httpx_oauth.clients.github import GitHubOAuth2
@@ -20,7 +20,6 @@ from httpx_oauth.clients.microsoft import MicrosoftGraphOAuth2
 from httpx_oauth.clients.okta import OktaOAuth2
 from httpx_oauth.clients.openid import OpenID
 from httpx_oauth.oauth2 import BaseOAuth2
-from pydantic import BaseModel
 
 from utils.config import Oauth2ClientConfig, Oauth2ClientType
 
@@ -63,14 +62,3 @@ def get_oauth2_client(conf: Oauth2ClientConfig):
     client_constructor = _OAUTH2_CLIENT_CLASS_MAP[conf.client_type]
     kwargs = conf.model_dump(exclude_none=True, exclude=conf._non_client_fields)
     return client_constructor(**kwargs)
-
-
-ITEM = TypeVar("ITEM")
-
-
-class PaginatedListResponse(BaseModel, Generic[ITEM]):
-    """The response when sending paginated data"""
-
-    skip: int = 0
-    limit: Optional[int] = None
-    data: List[ITEM] = []

@@ -36,9 +36,9 @@ users.forEach((user) => {
       const audience = Cypress.env("AUTH_AUDIENCE");
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
-      cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
-      cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
-      cy.intercept("GET", `${apiBaseUrl}/me/jobs`).as("my-jobs-list");
+      cy.intercept("GET", `${apiBaseUrl}/devices/*`).as("devices-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/projects/*`).as("my-project-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/jobs/*`).as("my-jobs-list");
       if (isFullE2E) {
         const openidAuthUrl = Cypress.env("OPENID_AUTH_URL");
         // Just some work arounds to avoid having to set up a real OpenID Connect server
@@ -135,14 +135,14 @@ users.forEach((user) => {
     beforeEach(() => {
       apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
 
-      cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
+      cy.intercept("GET", `${apiBaseUrl}/devices/*`).as("devices-list");
       cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
         "my-project-list"
       );
-      cy.intercept("GET", `${apiBaseUrl}/me/jobs`).as("my-jobs-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/jobs/*`).as("my-jobs-list");
       cy.intercept(
         "GET",
-        `${apiBaseUrl}/auth/providers?domain=${emailDomain}`
+        `${apiBaseUrl}/auth/providers/?email_domain=${emailDomain}`
       ).as("auth-providers");
 
       cy.visit("/");
@@ -200,8 +200,8 @@ invalidFormatEmailAddresses.forEach((email) =>
     beforeEach(() => {
       const apiBaseUrl = Cypress.env("VITE_API_BASE_URL");
 
-      cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
-      cy.intercept("GET", `${apiBaseUrl}/me/projects`).as("my-project-list");
+      cy.intercept("GET", `${apiBaseUrl}/devices/*`).as("devices-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/projects/*`).as("my-project-list");
 
       cy.visit("/");
       cy.wait("@devices-list");

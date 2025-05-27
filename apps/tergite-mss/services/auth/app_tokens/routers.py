@@ -17,13 +17,11 @@ from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.requests import Request
 from fastapi_users import schemas
-from fastapi_users.router.common import ErrorModel
 
 from ..projects.manager import ProjectAppTokenManager, ProjectManagerDependency
 from ..users.dtos import CurrentUserIdDependency
 from ..users.manager import UserManager, UserManagerDependency
 from ..utils import MAX_LIST_QUERY_LEN, TooManyListQueryParams
-from . import exc
 from .auth_backend import AppTokenAuthenticationBackend
 from .dtos import AppTokenCreate, AppTokenListResponse, AppTokenRead, AppTokenUpdate
 from .strategy import AppTokenStrategy
@@ -43,14 +41,6 @@ def get_app_tokens_router(
         "/{id}",
         response_model=AppTokenRead,
         name="app_tokens:my_app_token",
-        responses={
-            status.HTTP_401_UNAUTHORIZED: {
-                "description": "Missing JWT token or inactive user.",
-            },
-            status.HTTP_404_NOT_FOUND: {
-                "description": "Not found.",
-            },
-        },
     )
     async def get_my_app_token(
         id: PydanticObjectId,
@@ -78,11 +68,6 @@ def get_app_tokens_router(
         "/",
         response_model=AppTokenListResponse,
         name="app_tokens:my_many_app_tokens",
-        responses={
-            status.HTTP_401_UNAUTHORIZED: {
-                "description": "Missing token or inactive user.",
-            },
-        },
     )
     async def get_my_app_tokens(
         user_id: str = Depends(get_current_user_id),
@@ -145,24 +130,6 @@ def get_app_tokens_router(
     @router.post(
         "/",
         name=f"app_tokens:{backend.name}.generate_token",
-        responses={
-            status.HTTP_400_BAD_REQUEST: {
-                "model": ErrorModel,
-                "content": {
-                    "application/json": {
-                        "examples": {
-                            exc.ExtendedErrorCode.BAD_CREDENTIALS: {
-                                "summary": "Bad credentials or you don't have access to project.",
-                                "value": {
-                                    "detail": exc.ExtendedErrorCode.BAD_CREDENTIALS
-                                },
-                            },
-                        }
-                    }
-                },
-            },
-            **backend.transport.get_openapi_login_responses_success(),
-        },
     )
     async def generate_app_token(
         request: Request,
@@ -210,17 +177,6 @@ def get_app_tokens_router(
     @router.delete(
         "/{_id}",
         name=f"app_tokens:{backend.name}.destroy_token",
-        responses={
-            **{
-                status.HTTP_401_UNAUTHORIZED: {
-                    "description": "user not authenticated."
-                },
-                status.HTTP_403_FORBIDDEN: {
-                    "description": "token is missing or is expired."
-                },
-            },
-            **backend.transport.get_openapi_logout_responses_success(),
-        },
     )
     async def destroy(
         _id: PydanticObjectId,

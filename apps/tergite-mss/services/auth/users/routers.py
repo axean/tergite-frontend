@@ -121,25 +121,6 @@ def get_oauth_router(
         "/callback",
         name=callback_route_name,
         description="The response varies based on the authentication backend used.",
-        responses={
-            status.HTTP_400_BAD_REQUEST: {
-                "model": ErrorModel,
-                "content": {
-                    "application/json": {
-                        "examples": {
-                            "INVALID_STATE_TOKEN": {
-                                "summary": "Invalid state token.",
-                                "value": None,
-                            },
-                            ErrorCode.LOGIN_BAD_CREDENTIALS: {
-                                "summary": "User is inactive.",
-                                "value": {"detail": ErrorCode.LOGIN_BAD_CREDENTIALS},
-                            },
-                        }
-                    }
-                },
-            },
-        },
     )
     async def callback(
         request: Request,
@@ -212,18 +193,7 @@ def get_auth_router(
         active=True, verified=requires_verification
     )
 
-    logout_responses: OpenAPIResponseType = {
-        **{
-            status.HTTP_401_UNAUTHORIZED: {
-                "description": "Missing token or inactive user."
-            }
-        },
-        **backend.transport.get_openapi_logout_responses_success(),
-    }
-
-    @router.post(
-        "/logout", name=f"auth:{backend.name}.logout", responses=logout_responses
-    )
+    @router.post("/logout", name=f"auth:{backend.name}.logout")
     async def logout(
         user_token: Tuple[models.UP, str] = Depends(get_current_user_token),
         strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),

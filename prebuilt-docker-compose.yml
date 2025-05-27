@@ -21,7 +21,7 @@ services:
       - mss
     image: "${REGISTRY:-tergite}/tergite-dashboard:${DASHBOARD_VERSION:-v0.5.0}"
     environment:
-      - API_BASE_URL=${MSS_V2_API_URL}
+      - API_BASE_URL=${MSS_URL}
       - MSS_CONFIG_FILE=/code/mss-config.toml
     volumes:
       - ./mss-config.toml:/code/mss-config.toml:ro

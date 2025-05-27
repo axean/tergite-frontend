@@ -3,6 +3,7 @@
 # (C) Copyright Simon Genne, Arvid Holmqvist, Bashar Oumari, Jakob Ristner,
 #               Björn Rosengren, and Jakob Wik 2022 (BSc project)
 # (C) Copyright Abdullah-Al Amin 2022
+# (C) Copyright Martin Ahindura 2024
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,97 +13,119 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 import pymongo
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from utils import mongodb as mongodb_utils
 from utils.date_time import get_current_timestamp
+from utils.exc import NotFoundError
+
+from .dtos import Device, DeviceUpsert
 
 
-async def get_all_backends(db: AsyncIOMotorDatabase):
-    """Gets all backends in the backend collection
+async def get_all_devices(
+    db: AsyncIOMotorDatabase,
+    filters: Optional[Dict[str, Any]] = None,
+    limit: Optional[int] = None,
+    skip: int = 0,
+    sort: List[str] = (),
+) -> List[Device]:
+    """Gets all devices in the devices collection
 
     Args:
         db: the mongo database from which to get the databases
+        filters: the mongodb-like filters to use to extract the devices
+        limit: the number of results to return: default = None meaning all of them
+        skip: the number of records to skip; default = 0
+        sort: the fields to sort by, prefixing any with a '-' means descending; default = ()
 
     Returns:
-        a list of all backends found in the backend collection
-    """
-    return await mongodb_utils.find(db.backends, limit=-1, exclude=("_id",))
-
-
-async def get_one_backend(db: AsyncIOMotorDatabase, name: str):
-    """Gets the backend of the given name
-
-    Args:
-        db: the mongo database where the backend information is stored
-        name: the name of the backend to return
-
-    Returns:
-        the backend as a dictionary
-    """
-    return await mongodb_utils.find_one(db.backends, {"name": name})
-
-
-# FIXME: Create a standard schema for the given payload
-async def upsert_backend(
-    db: AsyncIOMotorDatabase, payload: Dict[str, Any], collection_name: str
-):
-    """Creates a new backend in the given collection or updates it if it exists
-
-    It also appends the resultant backend config into the backends log
-
-    Args:
-        db: the mongo database where the backend information is stored
-        payload: the backend dict
-        collection_name: the name of the collection into which to upsert the backend
-
-    Returns:
-        the new backend
+        a list of all devices found in the devices collection
 
     Raises:
-        ValueError: could not insert '{payload['name']}' document into the '{collection_name}' collection.
+        ValidationError: final results are not valid Device objects
     """
-    collection = db[collection_name]
-    # this is to ensure that if any timelog is passed is removed
-    payload.pop("timelog", None)
-    timestamp = get_current_timestamp()
-    payload["timelog.LAST_UPDATED"] = timestamp
+    return await mongodb_utils.find(
+        db.devices, filters=filters, limit=limit, skip=skip, sort=sort, schema=Device
+    )
 
-    backend = await collection.find_one_and_update(
-        {"name": str(payload["name"])},
-        {"$set": payload, "$setOnInsert": {"timelog.REGISTERED": timestamp}},
+
+async def get_one_device(db: AsyncIOMotorDatabase, name: str) -> Device:
+    """Gets the device of the given name
+
+    Args:
+        db: the mongo database where the device information is stored
+        name: the name of the device to return
+
+    Returns:
+        the device as a dictionary
+
+    Raises:
+        ValidationError: if the final result could not be validated as a Device
+        NotFoundError: no matches for {name: '<name>'}
+    """
+    return await mongodb_utils.find_one(db.devices, {"name": name}, schema=Device)
+
+
+async def upsert_device(db: AsyncIOMotorDatabase, payload: DeviceUpsert) -> Device:
+    """Creates a new device or updates it if it exists
+
+    Args:
+        db: the mongo database where the device information is stored
+        payload: the device
+
+    Returns:
+        the new device
+
+    Raises:
+        ValueError: could not insert '{payload['name']}' document
+        ValidationError: if the final object could not be validated
+    """
+    timestamp = get_current_timestamp()
+    payload.updated_at = timestamp
+
+    device = await db.devices.find_one_and_update(
+        {"name": payload.name},
+        {"$set": payload.model_dump(), "$setOnInsert": {"created_at": timestamp}},
         upsert=True,
         return_document=pymongo.ReturnDocument.AFTER,
     )
 
-    if backend is None:
+    if device is None:
         raise ValueError(
-            f"could not insert '{payload['name']}' document into the '{collection_name}' collection.",
+            f"could not insert '{payload.name}' document.",
         )
 
-    return backend
+    return Device.model_validate(device)
 
 
-async def patch_backend(db: AsyncIOMotorDatabase, name: str, payload: Dict[str, Any]):
-    """Patches the backend data for the given backend
+async def patch_device(
+    db: AsyncIOMotorDatabase, name: str, payload: Dict[str, Any]
+) -> Device:
+    """Patches the devices data for the device of the given name
 
     Args:
         db: the mongo database from where to get the job
-        name: the name of the backend
-        payload: the new data to patch into the backend data
+        name: the name of the device
+        payload: the new data to patch into the device data
 
     Returns:
         the number of documents that were modified
 
     Raises:
         ValueError: server failed updating documents
-        DocumentNotFoundError: no documents matching {"name": name} were found
+        NotFoundError: device {name} not found
+        ValidationError: if the final object is not validated
     """
-    return await mongodb_utils.update_many(
-        db.backends,
-        _filter={"name": str(name)},
-        payload=payload,
+    device = await db.devices.find_one_and_update(
+        {"name": name},
+        {"$set": {**payload, "updated_at": get_current_timestamp()}},
+        return_document=pymongo.ReturnDocument.AFTER,
     )
+
+    if device is None:
+        raise NotFoundError(f"device '{name}' not found")
+
+    return Device.model_validate(device)

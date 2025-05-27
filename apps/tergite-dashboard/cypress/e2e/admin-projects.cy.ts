@@ -44,15 +44,19 @@ users.forEach((user) => {
       const audience = Cypress.env("AUTH_AUDIENCE");
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
-      cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
+      cy.intercept("GET", `${apiBaseUrl}/devices/*`).as("devices-list");
       cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
         "my-project-list"
       );
       cy.intercept("GET", `${apiBaseUrl}/me`).as("my-user-info");
-      cy.intercept("GET", `${apiBaseUrl}/admin/projects*`).as("projects-list");
-      cy.intercept("POST", `${apiBaseUrl}/admin/projects`).as("create-project");
-      cy.intercept("PUT", `${apiBaseUrl}/admin/projects*`).as("update-project");
-      cy.intercept("DELETE", `${apiBaseUrl}/admin/projects*`).as(
+      cy.intercept("GET", `${apiBaseUrl}/admin/projects/*`).as("projects-list");
+      cy.intercept("POST", `${apiBaseUrl}/admin/projects/`).as(
+        "create-project"
+      );
+      cy.intercept("PUT", `${apiBaseUrl}/admin/projects/*`).as(
+        "update-project"
+      );
+      cy.intercept("DELETE", `${apiBaseUrl}/admin/projects/*`).as(
         "delete-project"
       );
 

@@ -12,12 +12,15 @@
 """Data Transfer Objects for the quantum jobs service"""
 import enum
 from datetime import datetime
-from typing import List, Optional, TypedDict
+from typing import Any, Callable, List, Literal, Optional, Set, TypedDict
 
 from beanie import PydanticObjectId
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
+from fastapi import Query
+from pydantic import BaseModel, ConfigDict, Field, computed_field, field_serializer
+from pydantic.main import IncEx
 
 from utils.date_time import datetime_to_zulu, get_current_timestamp
+from utils.models import create_partial_model
 
 from .utils import get_uuid4_str
 
@@ -30,18 +33,24 @@ class CreatedJobResponse(TypedDict):
 
 
 class TimestampPair(BaseModel):
-    started: Optional[datetime]
-    finished: Optional[datetime]
+    started: Optional[datetime] = None
+    finished: Optional[datetime] = None
 
     @field_serializer("started", when_used="json")
-    def serialize_started(self, started: datetime):
-        """Convert started to string when working with JSON"""
-        return datetime_to_zulu(started)
+    def serialize_started(self, value: Optional[datetime]):
+        """Convert started to builtin types like str when working with JSON"""
+        try:
+            return datetime_to_zulu(value)
+        except AttributeError:
+            return value
 
     @field_serializer("finished", when_used="json")
-    def serialize_finished(self, finished: datetime):
-        """Convert finished to string when working with JSON"""
-        return datetime_to_zulu(finished)
+    def serialize_finished(self, value: Optional[datetime]):
+        """Convert finished to builtin types like str when working with JSON"""
+        try:
+            return datetime_to_zulu(value)
+        except AttributeError:
+            return value
 
 
 class JobTimestamps(BaseModel):
@@ -73,115 +82,110 @@ class JobStatus(str, enum.Enum):
     PENDING = "pending"
     SUCCESSFUL = "successful"
     FAILED = "failed"
-
-
-class JobExecutionStage(str, enum.Enum):
-    REGISTERING = "REGISTERING"
-    DONE = "DONE"
-    ERROR = "ERROR"
-
-    @classmethod
-    def to_status(cls, value: "JobExecutionStage") -> JobStatus:
-        """Converts execution stage to status"""
-        if value == cls.REGISTERING:
-            return JobStatus.PENDING
-        if value == cls.DONE:
-            return JobStatus.SUCCESSFUL
-        if value == cls.ERROR:
-            return JobStatus.FAILED
-        return JobStatus.PENDING
+    EXECUTING = "executing"
+    CANCELLED = "cancelled"
 
 
 class JobCreate(BaseModel):
     """The schema used when creating a job"""
 
+    device: str
+    calibration_date: str
+
+
+class JobResult(BaseModel):
+    """The results of the job"""
+
     model_config = ConfigDict(
         extra="allow",
     )
 
-    backend: str
-    calibration_date: Optional[str] = None
-    job_id: str = Field(default_factory=get_uuid4_str)
-    project_id: Optional[str] = None
-    user_id: Optional[str] = None
-    status: JobExecutionStage = JobExecutionStage.REGISTERING
-    created_at: Optional[str] = Field(default_factory=get_current_timestamp)
-    updated_at: Optional[str] = Field(default_factory=get_current_timestamp)
-
-
-class TimeLog(BaseModel):
-    """The timelog of the job"""
-
-    model_config = ConfigDict(extra="allow")
-
-    registered: Optional[str] = Field(default=None, alias="REGISTERED")
-    last_updated: Optional[str] = Field(default=None, alias="LAST_UPDATED")
-    result: Optional[str] = Field(default=None, alias="RESULT")
-
-
-class JobResult(BaseModel, extra="allow"):
-    """The results of the job"""
-
     memory: List[List[str]] = []
 
 
-class JobV1(JobCreate):
-    id: PydanticObjectId = Field(alias="_id")
-    timelog: Optional[TimeLog] = None
+class Job(JobCreate):
+    """the job schema"""
+
+    model_config = ConfigDict(
+        extra="allow",
+    )
+
+    id: Optional[PydanticObjectId] = Field(alias="_id", default=None)
+    job_id: str = Field(default_factory=get_uuid4_str)
+    project_id: Optional[str] = None
+    user_id: Optional[str] = None
+    status: JobStatus = JobStatus.PENDING
+    failure_reason: Optional[str] = None
+    cancellation_reason: Optional[str] = None
     timestamps: Optional[JobTimestamps] = None
     download_url: Optional[str] = None
     result: Optional[JobResult] = None
+    created_at: Optional[str] = Field(default_factory=get_current_timestamp)
+    updated_at: Optional[str] = Field(default_factory=get_current_timestamp)
+
+    @computed_field
+    @property
+    def duration_in_secs(self) -> Optional[float]:
+        """Duration of execution of the job"""
+        try:
+            return self.timestamps.resource_usage
+        except AttributeError:
+            return None
 
     @field_serializer("id", when_used="json")
     def serialize_id(self, _id: PydanticObjectId):
-        """Convert id to string when working with JSON"""
+        """Convert id to builtin types like str when working with JSON"""
         return str(_id)
 
+    def model_dump(
+        self,
+        *,
+        mode: Literal["json", "python"] | str = "python",
+        include: IncEx | None = None,
+        exclude: Set[str] | None = None,
+        context: Any | None = None,
+        by_alias: bool | None = None,
+        exclude_unset: bool = False,
+        exclude_defaults: bool = False,
+        exclude_none: bool = False,
+        round_trip: bool = False,
+        warnings: bool | Literal["none", "warn", "error"] = True,
+        fallback: Callable[[Any], Any] | None = None,
+        serialize_as_any: bool = False,
+    ) -> dict[str, Any]:
+        effective_excluded = {"_id", "id"}
+        if isinstance(exclude, set):
+            effective_excluded.update(exclude)
 
-class JobV2(BaseModel):
-    """Version 2 of the job schema"""
+        return super().model_dump(
+            mode=mode,
+            include=include,
+            exclude=effective_excluded,
+            context=context,
+            by_alias=by_alias,
+            exclude_unset=exclude_unset,
+            exclude_defaults=exclude_defaults,
+            exclude_none=True,
+            round_trip=round_trip,
+            warnings=warnings,
+            fallback=fallback,
+            serialize_as_any=serialize_as_any,
+        )
 
-    id: PydanticObjectId = Field(alias="_id")
-    job_id: str
-    device: str
-    project_id: Optional[str] = None
-    user_id: Optional[str] = None
+
+class JobStatusResponse(BaseModel):
+    """The response returned when getting the status of the job"""
+
     status: JobStatus
-    failure_reason: Optional[str] = None
-    duration_in_secs: Optional[float] = None
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
-
-    @field_serializer("id", when_used="json")
-    def serialize_id(self, _id: PydanticObjectId):
-        """Convert id to string when working with JSON"""
-        return str(_id)
 
     @classmethod
-    def from_v1(cls, value: JobV1) -> "JobV2":
-        """Converts a job of version 1 to a job of version 2
+    def from_job(cls, job: Job):
+        """Extracts the job status response from the job"""
+        return cls(status=job.status)
 
-        Args:
-            value: the JobV1 job
 
-        Returns:
-            the JobV2 equivalent
-        """
-        duration_in_secs = (
-            value.timestamps
-            if value.timestamps is None
-            else value.timestamps.resource_usage
-        )
-        return cls(
-            _id=value.id,
-            id=value.id,
-            job_id=value.job_id,
-            project_id=value.project_id,
-            user_id=value.user_id,
-            device=value.backend,
-            status=JobExecutionStage.to_status(value.status),
-            failure_reason=None,
-            duration_in_secs=duration_in_secs,
-            created_at=value.created_at,
-            updated_at=value.updated_at,
-        )
+# Derived models
+JobQuery = create_partial_model("JobQuery", original=Job, default=Query(None))
+JobUpdate = create_partial_model(
+    "JobUpdate", original=Job, exclude=("job_id", "duration_in_secs")
+)

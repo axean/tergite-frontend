@@ -25,7 +25,7 @@ from ..users.database import UserDatabase
 from ..users.dtos import User
 from . import exc
 from .database import ProjectDatabase
-from .dtos import DeletedProject, Project, ProjectCreate, ProjectUpdate
+from .dtos import DeletedProject, Project, ProjectCreate, ProjectPartial, ProjectUpdate
 
 
 class ProjectAppTokenManager(ObjectIDIDMixin):
@@ -147,7 +147,7 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
 
     async def create(
         self,
-        project_create: ProjectCreate,
+        project: Project,
         request: Optional[Request] = None,
         **kwargs,
     ) -> Project:
@@ -155,7 +155,7 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
         Create a project in database.
 
         Args:
-            project_create: The UserCreate model to create.
+            project: The Project model to create.
             request: Optional FastAPI request that triggered the operation, defaults to None.
 
         Raises:
@@ -165,16 +165,16 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
             a new project.
         """
 
-        existing_project = await self.project_db.get_by_ext_id(project_create.ext_id)
+        existing_project = await self.project_db.get_by_ext_id(project.ext_id)
         if existing_project is not None:
             raise exc.ProjectExists()
 
-        created_project = await self.project_db.create(project_create.model_dump())
+        created_project = await self.project_db.create(project.model_dump())
         return created_project
 
     async def update(
         self,
-        project_update: ProjectUpdate,
+        project_partial: ProjectPartial,
         project: Project,
         request: Optional[Request] = None,
         **kwargs,
@@ -185,7 +185,7 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
         Triggers the on_after_update handler on success
 
         Args:
-            project_update: The ProjectUpdate model containing
+            project_partial: The ProjectPartial model containing
                 the changes to apply to the user.
             project: The current user to update.
             request: Optional FastAPI request that
@@ -194,7 +194,7 @@ class ProjectAppTokenManager(ObjectIDIDMixin):
         Returns:
             the updated project.
         """
-        update_dict = project_update.model_dump(exclude_none=True)
+        update_dict = project_partial.model_dump(exclude_none=True)
         await self.on_before_update(project, update_dict)
         updated_project = await self.project_db.update(project, update_dict)
         return updated_project

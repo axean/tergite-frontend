@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 """Entry point for the puhuri external service"""
 
-from .service import initialize_db, save_job_resource_usage, synchronize
+from .service import initialize_db, save_qpu_usage, synchronize
 
 __all__ = [
-    save_job_resource_usage,
+    save_qpu_usage,
     synchronize,
     initialize_db,
 ]

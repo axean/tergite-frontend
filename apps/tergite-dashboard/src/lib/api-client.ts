@@ -412,7 +412,7 @@ export async function requestQpuTimeExtension(
   } = {}
 ): Promise<QpuTimeExtensionUserRequest> {
   const { baseUrl = apiBaseUrl } = options;
-  return await authenticatedFetch(`${baseUrl}/admin/qpu-time-requests`, {
+  return await authenticatedFetch(`${baseUrl}/admin/qpu-time-requests/`, {
     method: "POST",
     body: JSON.stringify(payload),
     headers: { "Content-Type": "application/json" },
@@ -434,8 +434,11 @@ export async function getAuthProviders(
 ): Promise<AuthProviderResponse[]> {
   const { baseUrl = apiBaseUrl } = options;
   const emailDomain = email.split("@")[1];
-  const url = `${baseUrl}/auth/providers?domain=${emailDomain}`;
-  return await authenticatedFetch<AuthProviderResponse[]>(url);
+  const url = `${baseUrl}/auth/providers/?email_domain=${emailDomain}`;
+  const { data } = await authenticatedFetch<
+    PaginatedData<AuthProviderResponse[]>
+  >(url);
+  return data;
 }
 
 /**
@@ -552,7 +555,7 @@ export async function createAdminProject(
   } = {}
 ): Promise<AdminProject> {
   const { baseUrl = apiBaseUrl } = options;
-  return await authenticatedFetch(`${baseUrl}/admin/projects`, {
+  return await authenticatedFetch(`${baseUrl}/admin/projects/`, {
     method: "POST",
     body: JSON.stringify(payload),
     headers: { "Content-Type": "application/json" },
@@ -600,9 +603,19 @@ export async function rejectUserRequest(
 /**
  * Retrieves the devices on the system
  * @param baseUrl - the API base URL
+ * @param skip - the number of records to skip in pagination
+ * @param limit - the maximum number of records to return in pagination
  */
-async function getDevices(baseUrl: string = apiBaseUrl): Promise<Device[]> {
-  return await authenticatedFetch(`${baseUrl}/devices`);
+async function getDevices(
+  baseUrl: string = apiBaseUrl,
+  skip: number | null = null,
+  limit: number | null = null
+): Promise<Device[]> {
+  const query = getQueryString({ skip, limit });
+  const { data } = await authenticatedFetch<PaginatedData<Device[]>>(
+    `${baseUrl}/devices/?${query}`
+  );
+  return data;
 }
 
 /**
@@ -628,14 +641,19 @@ async function getCurrentUser(baseUrl: string = apiBaseUrl): Promise<User> {
 /**
  * Retrieves the calibration data for the devices on the system
  * @param baseUrl - the API base URL
+ * @param skip - the number of records to skip in pagination
+ * @param limit - the maximum number of records to return in pagination
  */
 async function getCalibrations(
-  baseUrl: string = apiBaseUrl
+  baseUrl: string = apiBaseUrl,
+  skip: number | null = null,
+  limit: number | null = null
 ): Promise<DeviceCalibration[]> {
-  const rawResult = await authenticatedFetch<DeviceCalibration[]>(
-    `${baseUrl}/calibrations`
-  );
-  return rawResult.map(normalizeCalibrationData);
+  const queryString = getQueryString({ skip, limit });
+  const rawResult = await authenticatedFetch<
+    PaginatedData<DeviceCalibration[]>
+  >(`${baseUrl}/calibrations/?${queryString}`);
+  return rawResult.data.map(normalizeCalibrationData);
 }
 
 /**
@@ -660,11 +678,19 @@ async function getCalibrationsForDevice(
  *           - baseUrl - the API base URL; default apiBaseUrl
  */
 async function getMyJobs(
-  options: { project_id?: string; baseUrl?: string } = {}
+  options: {
+    project_id?: string;
+    baseUrl?: string;
+    skip?: number;
+    limit?: number;
+  } = {}
 ): Promise<Job[]> {
-  const { project_id, baseUrl = apiBaseUrl } = options;
-  const query = project_id ? `?project_id=${project_id}` : "";
-  return await authenticatedFetch(`${baseUrl}/me/jobs${query}`);
+  const { project_id, skip, limit, baseUrl = apiBaseUrl } = options;
+  const query = getQueryString({ skip, limit, project_id });
+  const { data } = await authenticatedFetch<PaginatedData<Job[]>>(
+    `${baseUrl}/me/jobs/?${query}`
+  );
+  return data;
 }
 
 /**
@@ -677,9 +703,9 @@ async function getMyTokens(
   options: { project_ext_id?: string; baseUrl?: string } = {}
 ): Promise<AppToken[]> {
   const { project_ext_id, baseUrl = apiBaseUrl } = options;
-  const query = project_ext_id ? `?project_ext_id=${project_ext_id}` : "";
+  const query = getQueryString({ project_ext_id });
   const { data } = await authenticatedFetch<PaginatedData<AppToken[]>>(
-    `${baseUrl}/me/tokens/${query}`
+    `${baseUrl}/me/tokens/?${query}`
   );
   return data;
 }
@@ -693,7 +719,7 @@ async function getMyProjects(
   baseUrl: string = apiBaseUrl,
   filters: { [k: string]: string } = {}
 ): Promise<Project[]> {
-  const queryString = new URLSearchParams(filters).toString();
+  const queryString = getQueryString(filters);
   const { data } = await authenticatedFetch<PaginatedData<Project[]>>(
     `${baseUrl}/me/projects/?${queryString}`
   );
@@ -710,15 +736,10 @@ async function getProjectQpuTimeRequests(
   projectIds: string[] = [],
   status?: UserRequestStatus
 ): Promise<QpuTimeExtensionUserRequest[]> {
-  const queryParams = projectIds.map((v) => `project_id=${v}`);
-  if (status) {
-    queryParams.push(`status=${status}`);
-  }
-
-  const queryString = queryParams.join("&");
+  const queryString = getQueryString({ status, projectIds });
   const { data } = await authenticatedFetch<
     PaginatedData<QpuTimeExtensionUserRequest[]>
-  >(`${baseUrl}/admin/qpu-time-requests?${queryString}`);
+  >(`${baseUrl}/admin/qpu-time-requests/?${queryString}`);
 
   return data;
 }
@@ -739,13 +760,9 @@ async function getUserRequests(
     limit?: number;
   }
 ): Promise<UserRequest[]> {
-  const queryString = Object.entries(options)
-    .filter(([_k, v]) => v != undefined)
-    .map(([k, v]) => `${k}=${v}`)
-    .join("&");
-
+  const queryString = getQueryString(options);
   const { data } = await authenticatedFetch<PaginatedData<UserRequest[]>>(
-    `${baseUrl}/admin/user-requests?${queryString}`
+    `${baseUrl}/admin/user-requests/?${queryString}`
   );
 
   return data;
@@ -767,13 +784,9 @@ async function getAdminProjects(
     limit?: number;
   }
 ): Promise<AdminProject[]> {
-  const queryString = Object.entries(options)
-    .filter(([_k, v]) => v != undefined)
-    .map(([k, v]) => `${k}=${v}`)
-    .join("&");
-
+  const queryString = getQueryString(options);
   const { data } = await authenticatedFetch<PaginatedData<AdminProject[]>>(
-    `${baseUrl}/admin/projects?${queryString}`
+    `${baseUrl}/admin/projects/?${queryString}`
   );
 
   return data;
@@ -796,6 +809,25 @@ async function extractError(response: Response): Promise<ErrorInfo> {
   const error = new Error(message) as ErrorInfo;
   error.status = response.status;
   return error;
+}
+
+/**
+ * Converts a map of query parameters into a query string starting with ?
+ *
+ * query params that are lists are converted to something like 'q=foo&q=bar&q=me'
+ *
+ * @param queryParams - the map of query parameters
+ */
+function getQueryString(queryParams: { [key: string]: unknown }): string {
+  const definedQueryParams = Object.entries(queryParams)
+    .filter(([_, value]) => value != null)
+    .map(([k, v]) =>
+      // expand values that are lists into individual key-value pairs
+      Array.isArray(v) ? v.map((item) => [k, `${item}`]) : [[k, `${v}`]]
+    )
+    .flat();
+
+  return new URLSearchParams(definedQueryParams).toString();
 }
 
 /**

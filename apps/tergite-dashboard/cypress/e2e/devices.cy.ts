@@ -41,7 +41,7 @@ users.forEach((user) => {
     });
 
     it("renders the summaries of all devices", () => {
-      cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
+      cy.intercept("GET", `${apiBaseUrl}/devices/*`).as("devices-list");
 
       cy.visit("/devices");
       cy.wait("@devices-list");
@@ -69,9 +69,9 @@ users.forEach((user) => {
     });
 
     it("renders no devices found if no devices are returned", () => {
-      cy.intercept("GET", `${apiBaseUrl}/devices`, { body: [] }).as(
-        "devices-list"
-      );
+      cy.intercept("GET", `${apiBaseUrl}/devices/*`, {
+        body: { data: [], limit: null, skip: 0 },
+      }).as("devices-list");
 
       cy.visit("/devices");
       cy.wait("@devices-list");

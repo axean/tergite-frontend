@@ -107,18 +107,8 @@ class ProjectBasedAuth:
         )
 
     def get_projects_router(self) -> APIRouter:
-        """Return a router with routes to manage projects."""
+        """Return a router with routes to manage projects"""
         return routers.get_projects_router(
-            get_project_manager=self.get_project_manager,
-            get_current_superuser=self.get_current_superuser,
-            project_schema=ProjectAdminView,
-            project_update_schema=ProjectUpdate,
-            project_create_schema=ProjectCreate,
-        )
-
-    def get_projects_router_v2(self) -> APIRouter:
-        """Return a router with routes to manage projects v2"""
-        return routers.get_projects_router_v2(
             get_project_manager=self.get_project_manager,
             get_current_superuser=self.get_current_superuser,
             project_update_schema=ProjectUpdate,

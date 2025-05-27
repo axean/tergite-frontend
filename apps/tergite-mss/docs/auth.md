@@ -25,13 +25,13 @@ This is how MSS authenticates its users and controls their access to the quantum
 
 ```toml
 [[auth.clients]]
-# this name will appear in the URLs e.g. http://127.0.0.1:8002/auth/app/company-b/...
+# this name will appear in the URLs e.g. http://127.0.0.1:8002/auth/company-b/...
 name = "company-b"
 client_id = "some-openid-client-id"
 client_secret = "some-openid-client-secret"
 # the URL to redirect to after user authenticates with the system.
-# It is of the format {MSS_BASE_URL}/auth/app/{provider_name}/callback
-redirect_url = "http://127.0.0.1:8002/auth/app/company-b/callback"
+# It is of the format {MSS_BASE_URL}/auth/{provider_name}/callback
+redirect_url = "http://127.0.0.1:8002/auth/company-b/callback"
 client_type = "openid"
 email_regex = ".*"
 # Roles that are automatically given to users who authenticate through Company B
@@ -119,13 +119,13 @@ The admin must therefore find a way of keeping the `MSS_TOKEN` active.
   If you run into any errors, ensure that the `client_id` and `client_secret` for the `client` table with `name = tergite` in your `mss-config.toml` file are appropriately set.
 - You can then try to create an app token or anything auth related using `curl` or [postman](https://www.postman.com/).  
   To authenticate those requests, you must always pass an "Authorization" header of format `Bearer <access_token>`.  
-  **Do note that this auth token can only be used on `/auth/...` endpoints. It will return 401/403 errors on all other endpoints**.
+  **Do note that this auth token can only be used on `/auth...` endpoints. It will return 401/403 errors on all other endpoints**.
 - Do note also that some endpoints are only accessible to users that have a given role e.g. 'admin' or 'system' etc.
 
 #### - Why do I keep being redirected back to the login page even after successful login?
 
 The likely cause is the `cookie_domain` variable in the `mss_config.toml`. It needs to be the same as the domain you visit the dashboard on in the web browser.  
-It also needs to be the same domain that your `MSS_V2_API_URL` environment variable is in the `.env` file.
+It also needs to be the same domain that your `MSS_URL` environment variable is in the `.env` file.
 
 **A big culprit is the localhost vs 127.0.0.1. Make sure you use 127.0.0.1 in all both your `.env` and `mss_config.toml`. Visit the browser also at 127.0.0.1:3000**
 

@@ -19,6 +19,14 @@ from fastapi import FastAPI
 
 import settings
 from api.rest.utils import TergiteCORSMiddleware
+from services.auth.utils import TooManyListQueryParams
+from utils.api import to_http_error
+from utils.exc import (
+    DbValidationError,
+    NotFoundError,
+    ServiceUnavailableError,
+    UnknownBccError,
+)
 
 from . import app_kwargs
 from .app_kwargs import get_app_kwargs
@@ -27,8 +35,12 @@ from .dependencies import (
     CurrentStrictProjectDep,
     get_default_mongodb,
 )
-from .routers import v1
-from .routers.v2 import v2_router
+from .routers.admin import router as admin_router
+from .routers.auth import include_auth_router
+from .routers.calibrations import router as calibrations_router
+from .routers.devices import router as devices_router
+from .routers.jobs import router as jobs_router
+from .routers.me import router as my_router
 
 # application
 app = FastAPI(**get_app_kwargs())
@@ -42,10 +54,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(v1.backends_router)
-app.include_router(v1.jobs_router)
-v1.include_auth_router(app, is_enabled=settings.CONFIG.auth.is_enabled)
-app.include_router(v2_router)
+# exception handlers
+app.add_exception_handler(NotFoundError, to_http_error(404))
+app.add_exception_handler(ValueError, to_http_error(500, "Unexpected server error"))
+app.add_exception_handler(TypeError, to_http_error(500, "Unexpected server error"))
+app.add_exception_handler(RuntimeError, to_http_error(500, "Unexpected server error"))
+app.add_exception_handler(
+    DbValidationError, to_http_error(500, "Unexpected server error")
+)
+app.add_exception_handler(ServiceUnavailableError, to_http_error(503))
+app.add_exception_handler(UnknownBccError, to_http_error(400))
+app.add_exception_handler(TooManyListQueryParams, to_http_error(400))
+
+# routes
+include_auth_router(app, is_enabled=settings.CONFIG.auth.is_enabled)
+app.include_router(calibrations_router)
+app.include_router(devices_router)
+app.include_router(my_router)
+app.include_router(admin_router)
+app.include_router(jobs_router)
 
 
 @app.get("/")

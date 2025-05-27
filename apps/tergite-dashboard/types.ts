@@ -8,6 +8,7 @@ export enum JobStatus {
   PENDING = "pending",
   SUCCESSFUL = "successful",
   FAILED = "failed",
+  EXECUTING = "executing",
 }
 
 export interface DbRecord {
@@ -30,6 +31,15 @@ export interface Qubit {
   frequency?: CalibrationValue;
   anharmonicity?: CalibrationValue;
   readout_assignment_error?: CalibrationValue;
+  pi_pulse_amplitude?: CalibrationValue;
+  pi_pulse_duration?: CalibrationValue;
+  pulse_type?: CalibrationValue;
+  pulse_sigma?: CalibrationValue;
+  index?: CalibrationValue;
+  x_position?: CalibrationValue;
+  y_position?: CalibrationValue;
+  xy_drive_line: CalibrationValue;
+  z_drive_line?: CalibrationValue;
   [k: string]: CalibrationValue | undefined | null;
 }
 
@@ -40,7 +50,7 @@ export interface Qubit {
  * This can allow us to debug jobs that used run through
  * the device a multiple calibrations in the past
  */
-export interface DeviceCalibration extends DbRecord {
+export interface DeviceCalibration extends Omit<DbRecord, "created_at"> {
   name: string;
   version: string;
   qubits: Qubit[];
@@ -48,7 +58,7 @@ export interface DeviceCalibration extends DbRecord {
 }
 
 export interface CalibrationValue {
-  date: string;
+  date?: string;
   unit: "ns" | "us" | "GHz" | "MHz" | "" | "s" | "Hz";
   value: number;
 }
@@ -91,6 +101,18 @@ export interface Device extends DbRecord {
   is_simulator: boolean;
   // List of qubit ids in order
   qubit_ids: string[];
+  characterized?: boolean;
+  open_pulse?: boolean;
+  meas_map?: number[][];
+  description?: string;
+  number_of_couplers?: number;
+  number_of_resonators?: number;
+  dt?: number;
+  dtm?: number;
+  meas_lo_freq?: number[];
+  qubit_lo_freq?: number[];
+  gates?: { [key: string]: unknown };
+  is_active?: boolean;
 }
 
 export enum UserRequestStatus {
@@ -146,7 +168,6 @@ export interface Project
     DbRecord {
   user_ids: string[];
   admin_id: string;
-  version?: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;

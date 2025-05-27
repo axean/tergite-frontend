@@ -19,26 +19,25 @@ from fastapi import status as http_status
 
 from services.auth import (
     APP_TOKEN_AUTH,
-    PaginatedListResponse,
     Project,
     User,
     user_requests,
 )
-from utils.mongodb import DocumentNotFoundError
+from utils.api import PaginatedListResponse
 
-from ...dependencies import CurrentSuperuserDep, CurrentUserDep, CurrentUserIdDep
+from ..dependencies import CurrentSuperuserDep, CurrentUserDep, CurrentUserIdDep
 
 router = APIRouter(prefix="/admin")
 
 router.include_router(
-    APP_TOKEN_AUTH.get_projects_router_v2(),
+    APP_TOKEN_AUTH.get_projects_router(),
     prefix="/projects",
     tags=["projects"],
 )
 
 
 @router.get(
-    "/qpu-time-requests", tags=["user-requests"], dependencies=[CurrentUserIdDep]
+    "/qpu-time-requests/", tags=["user-requests"], dependencies=[CurrentUserIdDep]
 )
 async def get_qpu_time_requests(
     project_ids: Optional[List[str]] = Query(None, alias="project_id"),
@@ -55,13 +54,13 @@ async def get_qpu_time_requests(
     data = await user_requests.get_many_qpu_time_requests(
         filters, skip=skip, limit=limit
     )
-    return PaginatedListResponse(
-        data=[item.model_dump(mode="json") for item in data], skip=skip, limit=limit
+    return PaginatedListResponse(data=data, skip=skip, limit=limit).model_dump(
+        mode="json", exclude_data_none_fields=False
     )
 
 
 @router.post(
-    "/qpu-time-requests",
+    "/qpu-time-requests/",
     tags=["user-requests"],
     status_code=http_status.HTTP_201_CREATED,
 )
@@ -88,7 +87,7 @@ async def create_qpu_time_request(
 
 
 @router.get(
-    "/user-requests", tags=["user-requests"], dependencies=[CurrentSuperuserDep]
+    "/user-requests/", tags=["user-requests"], dependencies=[CurrentSuperuserDep]
 )
 async def get_user_requests(
     status: Optional[user_requests.UserRequestStatus] = Query(None),
@@ -100,8 +99,9 @@ async def get_user_requests(
     if status is not None:
         filters["status"] = status
     data = await user_requests.get_many(filters, skip=skip, limit=limit)
-    return PaginatedListResponse(
-        data=[item.model_dump(mode="json") for item in data], skip=skip, limit=limit
+    return PaginatedListResponse(data=data, skip=skip, limit=limit).model_dump(
+        mode="json",
+        exclude_data_none_fields=False,
     )
 
 
@@ -115,8 +115,5 @@ async def update_user_request(
 
     This also does any necessary operations in case this update is an approval
     """
-    try:
-        result = await user_requests.update(_id, payload=body, admin_user=user)
-        return result.model_dump(mode="json")
-    except DocumentNotFoundError as exp:
-        raise HTTPException(status_code=http_status.HTTP_404_NOT_FOUND, detail=f"{exp}")
+    result = await user_requests.update(_id, payload=body, admin_user=user)
+    return result.model_dump(mode="json")

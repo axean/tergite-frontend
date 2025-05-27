@@ -55,15 +55,17 @@ users.forEach((user) => {
       const audience = Cypress.env("AUTH_AUDIENCE");
       const cookieExpiry = Math.round((new Date().getTime() + 800_000) / 1000);
 
-      cy.intercept("GET", `${apiBaseUrl}/devices`).as("devices-list");
+      cy.intercept("GET", `${apiBaseUrl}/devices/*`).as("devices-list");
       cy.intercept("GET", `${apiBaseUrl}/me/projects/?is_active=true`).as(
         "my-active-project-list"
       );
-      cy.intercept("GET", `${apiBaseUrl}/me/projects/?`).as("my-project-list");
-      cy.intercept("GET", `${apiBaseUrl}/me/tokens*`).as("my-token-list");
-      cy.intercept("PUT", `${apiBaseUrl}/me/tokens*`).as("my-tokens-update");
-      cy.intercept("POST", `${apiBaseUrl}/me/tokens*`).as("my-tokens-create");
-      cy.intercept("DELETE", `${apiBaseUrl}/me/tokens*`).as("my-tokens-delete");
+      cy.intercept("GET", `${apiBaseUrl}/me/projects/?*`).as("my-project-list");
+      cy.intercept("GET", `${apiBaseUrl}/me/tokens/*`).as("my-token-list");
+      cy.intercept("PUT", `${apiBaseUrl}/me/tokens/*`).as("my-tokens-update");
+      cy.intercept("POST", `${apiBaseUrl}/me/tokens/*`).as("my-tokens-create");
+      cy.intercept("DELETE", `${apiBaseUrl}/me/tokens/*`).as(
+        "my-tokens-delete"
+      );
 
       if (user.id) {
         cy.wrap(generateJwt(user, cookieExpiry, { secret, audience })).then(
@@ -712,13 +714,14 @@ users.forEach((user) => {
             cy.get("@newTokenBtn")
               .click()
               .then(() => {
+                cy.wait(100);
                 cy.contains("table tbody td", tokenNameRegex)
                   .last()
                   .then((el) => {
                     const matches = tokenNameRegex.exec(el.text()) ?? [];
                     const tokenTimestamp = matches[1];
                     expect(parseFloat(tokenTimestamp)).to.gt(
-                      new Date().getTime() - 100
+                      new Date().getTime() - 200
                     );
                   });
               });

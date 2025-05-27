@@ -13,7 +13,6 @@
 # that they have been altered from the originals.
 #
 # Refactored by Martin Ahindura 2023-11-08
-from datetime import datetime
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -28,8 +27,11 @@ from typing import (
 )
 
 from beanie import PydanticObjectId
+from fastapi import Query
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.main import IncEx
+
+from utils.models import create_partial_model
 
 if TYPE_CHECKING:
     DictStrAny = Dict[str, Any]
@@ -38,7 +40,7 @@ if TYPE_CHECKING:
     MappingIntStrAny = Mapping[IntStr, Any]
 
 
-class DeviceV2Upsert(BaseModel):
+class DeviceUpsert(BaseModel):
     """The schema for upserting device"""
 
     model_config = ConfigDict(extra="allow")
@@ -52,6 +54,21 @@ class DeviceV2Upsert(BaseModel):
     coupling_map: List[Tuple[int, int]]
     coordinates: List[Tuple[int, int]]
     is_simulator: bool
+    coupling_dict: Dict[str, Union[str, List[str]]]
+    characterized: bool
+    open_pulse: bool
+    meas_map: List[List[int]]
+    description: str = None
+    number_of_couplers: int = 0
+    number_of_resonators: int = 0
+    dt: Optional[float] = None
+    dtm: Optional[float] = None
+    qubit_ids: List[str] = []
+    meas_lo_freq: Optional[List[int]] = None
+    qubit_lo_freq: Optional[List[int]] = None
+    gates: Optional[Dict[str, Any]] = None
+    is_active: Optional[bool] = None
+    qubit_ids_coupler_map: List[Tuple[Tuple[int, int], int]] = []
 
     def model_dump(
         self,
@@ -85,7 +102,7 @@ class DeviceV2Upsert(BaseModel):
         )
 
 
-class DeviceV2(DeviceV2Upsert):
+class Device(DeviceUpsert):
     """The Schema for the devices"""
 
     model_config = ConfigDict(
@@ -96,3 +113,23 @@ class DeviceV2(DeviceV2Upsert):
     id: PydanticObjectId = Field(alias="_id")
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
+
+
+# derived models
+DeviceQuery = create_partial_model(
+    "DeviceQuery",
+    original=Device,
+    default=Query(None),
+    exclude=(
+        "basis_gates",
+        "coupling_map",
+        "coordinates",
+        "coupling_dict",
+        "meas_map",
+        "qubit_ids",
+        "meas_lo_freq",
+        "qubit_lo_freq",
+        "gates",
+        "qubit_ids_coupler_map",
+    ),
+)

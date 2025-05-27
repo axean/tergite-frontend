@@ -17,37 +17,21 @@ const toTokenDoc = ({ id, user_id, created_at, ...props }) => ({
   ...props,
 });
 
-const statusMap = {
-  pending: "REGISTERING",
-  successful: "DONE",
-  failed: "ERROR",
-};
-
 /**
- * Converts a JobV2 object into a JobV1 object
+ * Converts into a proper Job object
  * @param {Object} obj - the object to convert to document
- * @returns {Object} - a JobV1 object
+ * @returns {Object} - a Job object
  */
-const toJobV1 = ({
-  device: backend,
-  created_at,
-  status: v2Status,
-  duration_in_secs,
-  id,
-  ...props
-}) => {
-  const status = statusMap[v2Status];
-  const timelog = { REGISTERED: created_at };
+const toJob = ({ device, status, duration_in_secs, id, ...props }) => {
   let result = null;
   let download_url = null;
 
   // if the job completed successfully, add the results and the download url
-  if (v2Status === "successful") {
-    timelog["RESULT"] = created_at;
+  if (status === "successful") {
     result = {
       memory: [],
     };
-    download_url = `http://${backend}/logfiles/${id}`;
+    download_url = `http://${device}/logfiles/${id}`;
   }
 
   let timestamps = null;
@@ -70,8 +54,7 @@ const toJobV1 = ({
 
   return {
     id,
-    backend,
-    timelog,
+    device,
     status,
     timestamps,
     result,
@@ -104,7 +87,7 @@ const calibrations = JSON.parse(rawCalibrations).map(toDoc);
 console.log({ calibrations });
 const devices = JSON.parse(rawDevices).map(toDoc);
 console.log({ devices });
-const jobs = JSON.parse(rawJobs).map(toJobV1).map(toDoc);
+const jobs = JSON.parse(rawJobs).map(toJob).map(toDoc);
 console.log({ jobs });
 const projects = JSON.parse(rawProjects).map(toDoc);
 console.log({ projects });
@@ -121,7 +104,7 @@ db.auth_app_tokens.insertMany(tokens);
 console.log("Inserted tokens");
 db.auth_users.insertMany(users);
 console.log("Inserted users");
-db.calibrations_v2.insertMany(calibrations);
+db.calibrations.insertMany(calibrations);
 console.log("Inserted calibrations");
 db.devices.insertMany(devices);
 console.log("Inserted devices");

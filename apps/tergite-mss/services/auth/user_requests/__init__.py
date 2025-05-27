@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from beanie import PydanticObjectId, UpdateResponse
 
-from utils.mongodb import DocumentNotFoundError
+from utils.exc import NotFoundError
 
 from ..projects.dtos import Project
 from ..users.dtos import User
@@ -125,7 +125,7 @@ async def update(
         the updated UserRequest object
 
     Raises:
-        DocumentNotFoundError: {_id} not found
+        NotFoundError: {_id} not found
     """
     defaults = UserRequestUpdate()
 
@@ -139,7 +139,7 @@ async def update(
         response_type=UpdateResponse.NEW_DOCUMENT,
     )
     if result is None:
-        raise DocumentNotFoundError(f"{_id} not found")
+        raise NotFoundError(f"{_id} not found")
 
     # if approved, we have to react to the approval
     if payload.status == UserRequestStatus.APPROVED:
@@ -151,9 +151,7 @@ async def update(
                 response_type=UpdateResponse.NEW_DOCUMENT,
             )
             if new_project is None:
-                raise DocumentNotFoundError(
-                    f"project {result.request.project_id} not found"
-                )
+                raise NotFoundError(f"project {result.request.project_id} not found")
 
         # TODO: deal with other request types
 
