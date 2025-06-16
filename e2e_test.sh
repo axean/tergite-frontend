@@ -192,6 +192,7 @@ if [[ $(echo "${DEBUG}" | tr '[:lower:]' '[:upper:]') != "TRUE" ]]; then
   echo "Cleaning up..."
   docker compose -p tergite-frontend-e2e down --rmi all --volumes
   docker rm tergite-frontend-e2e-runner 2>/dev/null
+  cd "$ROOT_PATH"
   rm -rf "$TEMP_DIR_PATH"
 else
   echo "Not deleting the containers and repositories because DEBUG=$DEBUG"
