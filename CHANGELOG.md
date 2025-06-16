@@ -14,6 +14,12 @@ Please refer to the `CHANGELOG.md` file of the app in question.
 
 ## [unreleased]
 
+## [2025.06.1] - 2025-06-16
+
+### Fixed
+
+- Fix failing e2e tests on Github during cleanup
+
 ## [2025.06.0] - 2025-06-16
 
 ### Changed
