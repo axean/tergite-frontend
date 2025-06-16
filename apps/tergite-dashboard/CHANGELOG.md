@@ -7,6 +7,14 @@ and this project follows versions of format {year}.{month}.{patch_number}.
 
 ## [Unreleased]
 
+## [2025.06.0] - 2025-06-16
+
+### Changed
+
+- Updated API client code to work with new endpoint structure in MSS
+- Updated cypress tests to work with new endpoint structure in MSS
+- Updated schema for devices in the fixtures
+
 ## [2025.03.1] - 2025-03-18
 
 ### Changed

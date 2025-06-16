@@ -14,6 +14,15 @@ Please refer to the `CHANGELOG.md` file of the app in question.
 
 ## [unreleased]
 
+## [2025.06.0] - 2025-06-16
+
+### Changed
+
+- BREAKING: Removed v2 from MSS URL in env and docker configs
+
+More changes in [apss/tergite-dashboard/CHANGELOG.md](./apps/tergite-dashboard/CHANGELOG.md#2025060---2025-06-16)
+More changes in [apss/tergite-mss/CHANGELOG.md](./apps/tergite-mss/CHANGELOG.md#2025060---2025-06-16)
+
 ## [2025.03.1] - 2025-03-18
 
 ### Changed
