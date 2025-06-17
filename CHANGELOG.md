@@ -14,6 +14,12 @@ Please refer to the `CHANGELOG.md` file of the app in question.
 
 ## [unreleased]
 
+## [2025.06.2] - 2025-06-17
+
+### Fixed
+
+- Fix silent errors in e2e tests on Github during cleanup
+
 ## [2025.06.1] - 2025-06-16
 
 ### Fixed
